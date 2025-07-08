@@ -1,0 +1,19 @@
+
+public enum SCENE
+{
+    TITLE,
+    LOGIN,
+    LOADING,
+    LOBBY,
+    BATTLE,
+    END
+}
+
+public enum LOADSTRING
+{
+    STRING1,
+    STRING2,
+    STRING3,
+    STRING4,
+    STRING5,
+}
