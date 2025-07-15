@@ -17,6 +17,8 @@ public class ItemData : ScriptableObject
     public Sprite icon;
     public ItemType itemType;
     public int amount; // 예: 회복량, 공격력, 가격 등
+    public int BuyPrice;
+    public int SellPrice;
     public bool isConsumable;     // true면 사용 시 개수 감소
 
     [TextArea]

@@ -35,4 +35,30 @@ public class Inventory : MonoBehaviour
         Debug.Log($"{newItem.itemName} 인벤토리에 추가됨!");
         onInventoryChanged?.Invoke();
     }
+
+    public int GetItemCount(ItemData item)
+    {
+        foreach (var i in items)
+        {
+            if (i.itemData == item)
+                return i.count;
+        }
+        return 0;
+    }
+
+    public void RemoveItem(ItemData item, int amount)
+    {
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (items[i].itemData == item)
+            {
+                items[i].count -= amount;
+                if (items[i].count <= 0)
+                    items.RemoveAt(i);
+
+                onInventoryChanged?.Invoke();
+                return;
+            }
+        }
+    }
 }
