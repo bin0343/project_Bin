@@ -12,7 +12,7 @@ public class Monster : MonoSingleton<Monster>       //선언법
     // Start is called before the first frame update
     void Start()
     {
-        float hp = Def - Character.Instance.atk;        //사용법
+        float hp = Def - Characters.Instance.atk;        //사용법
         //Shared.SceneMgr.adsf                      //사용법
     }
 

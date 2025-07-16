@@ -17,3 +17,11 @@ public enum LOADSTRING
     STRING4,
     STRING5,
 }
+
+public enum AI
+{
+    AI_CREATE,
+    AI_SEARCH,
+    AI_MOVE,
+    AI_RESET
+}
