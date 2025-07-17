@@ -2,29 +2,45 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Monster : MonoSingleton<Monster>       //선언법
+public class Monster : MonoBehaviour       //선언법
 {
-    public GameObject GOCHARACTER;
+    [SerializeField]
+    protected Animator ANIMATIOR;
+    [SerializeField]
+    protected SpriteRenderer SR;
 
-    public float Def;
-    public float Atk;
-    
-    // Start is called before the first frame update
+    public AIMonster AI;
+
+    //string CurAni = "";
+
     void Start()
     {
-        float hp = Def - Characters.Instance.atk;        //사용법
+        //float hp = Def - Characters.Instance.atk;        //사용법
         //Shared.SceneMgr.adsf                      //사용법
+    }
+
+    private void FixedUpdate()
+    {
+        
+    }
+
+    public void State()
+    {
+        switch (AI)
+        {
+            default:
+                break;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            if(GOCHARACTER.activeSelf == false)
-            {
-                GOCHARACTER.SetActive(true);
-            }
-        }
+        
+    }
+
+    public void Move(Vector3 _Move)
+    {
+        transform.position = Vector3.MoveTowards(transform.position, _Move, 0.1f);
     }
 }

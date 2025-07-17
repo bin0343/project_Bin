@@ -131,7 +131,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 782317500}
-  - component: {fileID: 782317501}
+  - component: {fileID: 782317502}
   m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
@@ -147,16 +147,16 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 782317499}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.02763101, y: 4.117518, z: -8.97}
+  m_LocalRotation: {x: -0, y: 0.0042823185, z: -0, w: 0.9999908}
+  m_LocalPosition: {x: -0.07312362, y: 4.117518, z: -8.969572}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1968042601}
   - {fileID: 1997267365}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &782317501
+  m_LocalEulerAnglesHint: {x: 0, y: 0.491, z: 0}
+--- !u!114 &782317502
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -165,13 +165,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 782317499}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29d5e78244f226a4eaf5a90c1a097589, type: 3}
+  m_Script: {fileID: 11500000, guid: 155328389118ae340b655a871f2cee78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   CharacterSpeed: 5
   CharacterBody: {fileID: 1997267365}
   CameraArm: {fileID: 1968042601}
-  MouseSensitivity: 2
+  CharacterRoot: {fileID: 782317500}
+  RotateSpeed: 2
 --- !u!1 &916133724
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,6 +474,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1968042601}
+  - component: {fileID: 1968042602}
   m_Layer: 0
   m_Name: CameraArm
   m_TagString: Untagged
@@ -496,6 +498,20 @@ Transform:
   - {fileID: 1342060821}
   m_Father: {fileID: 782317500}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1968042602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968042600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecdb1bad65c32ca488f52584cca8f423, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cameraarm: {fileID: 1968042601}
+  MouseSensitivity: 2
 --- !u!4 &1997267365 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4179113600260402801, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}

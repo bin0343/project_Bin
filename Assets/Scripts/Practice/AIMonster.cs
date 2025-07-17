@@ -1,14 +1,15 @@
 
-public class AIBase
-{//상태패턴 fsm, 상속구조 활용하기
+using UnityEngine;
+
+public class AIMonster : MonoBehaviour
+{
+    public Transform[] TRPATH;
+
     protected AI AI = AI.AI_CREATE;
 
-    protected Characters Character;
+    public Monster Monster;
 
-    public void Init(Characters _Character)
-    {
-        Character = _Character;
-    }
+    int Index = 0;
 
     public void State()
     {
@@ -38,7 +39,16 @@ public class AIBase
 
     protected virtual void Search()
     {
-        //길찾기
+        float distance = Vector3.Distance(Monster.transform.position, TRPATH[Index].position); //길찾기 (distance안에 오면 다음길 찾고 다음길 찾겠다.)
+
+        if (distance < 1f)
+        {
+            if(TRPATH.Length > Index)
+                Index++;
+            else
+                Index = 0;
+        }
+
         //적찾기
         //방황하기
 
@@ -47,6 +57,7 @@ public class AIBase
 
     protected virtual void Move()
     {
+
         //목표지점 이동
         //도착하면? 공격
 

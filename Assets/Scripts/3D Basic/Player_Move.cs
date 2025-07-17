@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class MainPlayer : MonoBehaviour
+public class Player_Move : MonoBehaviour
 {
     private Animator Animator;
     private Rigidbody Rigidbody;
@@ -17,8 +17,9 @@ public class MainPlayer : MonoBehaviour
     [SerializeField]
     private Transform CameraArm; // 메인 캐릭터의 카메라
     [SerializeField]
-    //private float MouseSensitivity = 2.0f;
-
+    private Transform CharacterRoot;    //캐릭터 상위오브젝트
+    [SerializeField]
+    private float RotateSpeed = 2.0f;
 
     void Start()
     {
@@ -28,7 +29,7 @@ public class MainPlayer : MonoBehaviour
 
     void Update()
     {
-        LookAround();
+        //LookAround();
     }
 
     private void FixedUpdate()
@@ -53,14 +54,8 @@ public class MainPlayer : MonoBehaviour
         }
     }
 
-    private void LookAround()
+    void Rotate()
     {
-        Vector2 mouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-        Vector3 CameraAngle = CameraArm.rotation.eulerAngles;
-        float x = CameraAngle.x - mouseInput.y;
-        if (x < 180f) x = Mathf.Clamp(x, -1f, 70f);
-        else x = Mathf.Clamp(x, 335f, 361f);
 
-        CameraArm.rotation = Quaternion.Euler(x, CameraAngle.y + mouseInput.x, CameraAngle.z);
     }
 }
