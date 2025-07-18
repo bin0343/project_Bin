@@ -35,15 +35,16 @@ public class Player_Move : MonoBehaviour
     private void FixedUpdate()
     {
         Move();
+        Rotate();
     }
 
     void Move()
     {
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        bool Ismove = moveInput.magnitude != 0;
-        //Animator.SetBool("Iswalk", Iswalk);
+        bool IsMoving = moveInput.magnitude != 0;
+        Animator.SetBool("IsMoving", IsMoving);
 
-        if (Ismove)
+        if (IsMoving)
         {
             Vector3 lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
             Vector3 lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
@@ -56,6 +57,12 @@ public class Player_Move : MonoBehaviour
 
     void Rotate()
     {
+        Vector3 lookDir = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
 
+        if (lookDir.sqrMagnitude > 0f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(lookDir);
+            CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
+        }
     }
 }
