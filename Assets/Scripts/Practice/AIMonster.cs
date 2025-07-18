@@ -8,6 +8,9 @@ public class AIMonster : MonoBehaviour
     protected AI AI = AI.AI_CREATE;
 
     public Monster Monster;
+    public Character Character;
+
+    bool CharacterMove = false;
 
     int Index = 0;
 
@@ -41,9 +44,21 @@ public class AIMonster : MonoBehaviour
     {
         float distance = Vector3.Distance(Monster.transform.position, TRPATH[Index].position); //길찾기 (distance안에 오면 다음길 찾고 다음길 찾겠다.)
 
+        if (distance < 3f)
+        {
+            CharacterMove = true;
+        }
+        else
+            CharacterMove = false;
+
+        /*if (CharacterMove == false) //!CharacterMove !~~ 이게 not, 가장 빠름.
+        {
+            float distance = Vector3.Distance(Monster.transform.position, TRPATH[Index].position);
+        }*/
+
         if (distance < 1f)
         {
-            if(TRPATH.Length > Index)
+            if (TRPATH.Length > Index)
                 Index++;
             else
                 Index = 0;
@@ -57,11 +72,21 @@ public class AIMonster : MonoBehaviour
 
     protected virtual void Move()
     {
+        if (!CharacterMove)
+        {
+            transform.LookAt(TRPATH[Index].position);
 
-        //목표지점 이동
-        //도착하면? 공격
+            Monster.Move(TRPATH[Index].position);
+        }
+        else //도착하면? 공격
+        {
+            transform.LookAt(Character.transform.position);
 
-        AI = AI.AI_RESET;
+            Monster.Move(Character.transform.position);
+        }
+
+
+        AI = AI.AI_SEARCH;
     }
 
     protected virtual void Reset()

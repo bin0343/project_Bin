@@ -8,7 +8,7 @@ public class CameraArm : MonoBehaviour
     [SerializeField]
     private Transform Cameraarm; // 메인 캐릭터의 카메라
     [SerializeField]
-    private float MouseSensitivity = 2.0f;
+    //private float MouseSensitivity = 2.0f;
     
 
     //private float CameraPitch = 0f;  //카메라 상하 회전 값 저장
