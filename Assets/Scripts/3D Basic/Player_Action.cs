@@ -8,7 +8,7 @@ public class Player_Action : MonoBehaviour
     private GameObject Player;
     private Animator Animator;
     private float IdleTimer = 0f;
-    private float IdleDelay = 3f;
+    private float IdleDelay = 5f;
 
     // Start is called before the first frame update
     void Start()
@@ -59,7 +59,7 @@ public class Player_Action : MonoBehaviour
             IdleTimer += Time.deltaTime;
             if (IdleTimer >= IdleDelay)
             {
-                int rand = Random.Range(1, 4);
+                int rand = Random.Range(1, 4); // 1~3
                 Animator.SetInteger("RandomIdleIndex", rand);
                 IdleTimer = 0;
             }

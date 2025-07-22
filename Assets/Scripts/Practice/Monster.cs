@@ -11,7 +11,7 @@ public class Monster : MonoBehaviour       //선언법
 
     public AIMonster AI;
 
-    //string CurAni = "";
+    string CurAni = "";
 
     void Start()
     {
@@ -42,5 +42,34 @@ public class Monster : MonoBehaviour       //선언법
     public void Move(Vector3 _Move)
     {
         transform.position = Vector3.MoveTowards(transform.position, _Move, 0.1f);
+    }
+
+    public void OnAnimMationStart(string _Ani)
+    {
+        Debug.Log("OnAnimationStart : " + _Ani);
+    }
+
+    public void OnAnimMationIng(string _Ani)
+    {
+        if (_Ani == "Attack")
+        {
+            //공격거리면 hit
+
+            //Vector3.Lerp();       선형고간? 보간?
+            //Vector3.Slerp();      곡선고간? 보간?
+
+            //AI.Character.Hp -= Atk;
+        }
+    }
+
+    public void OnAnimMationEnd(string _Ani)
+    {
+        Debug.Log("OnAnimationEnd : " + _Ani);
+
+        if (CurAni == _Ani)
+        {
+            //if (CurAni == "Attack")
+
+        }
     }
 }

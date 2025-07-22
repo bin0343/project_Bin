@@ -76,17 +76,33 @@ public class AIMonster : MonoBehaviour
         {
             transform.LookAt(TRPATH[Index].position);
 
-            Monster.Move(TRPATH[Index].position);
+            Monster.Move(TRPATH[Index].position);   //목표지점 이동
         }
         else //도착하면? 공격
         {
             transform.LookAt(Character.transform.position);
+
+            float dis = Vector3.Distance(Monster.transform.position, Character.transform.position);
+
+            if (dis < 3f)
+                Monster.Move(Character.transform.position);
+            else
+                Attack();       //공격을한것일뿐. 맞은건 아님(상대가 피할 수 있기 때문)
 
             Monster.Move(Character.transform.position);
         }
 
 
         AI = AI.AI_SEARCH;
+    }
+
+    void Attack()
+    {
+        //공격처리
+        //1. 애니메이션 충돌 폴리건을 이용한 직접충돌 방법
+        //2. 범위는 거리로 체크, 캐릭터가 이미 타겟이므로 애니메이션
+        //3. 애니메이션시 hp감소(이벤트 추가, 캐릭터 가져와서 감소)
+        //Monster.SetAnimation("Attack");
     }
 
     protected virtual void Reset()
