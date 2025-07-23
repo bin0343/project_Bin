@@ -7,13 +7,19 @@ public class Player_Action : MonoBehaviour
     [SerializeField]
     private GameObject Player;
     private Animator Animator;
+    private Rigidbody Rigidbody;
+
     private float IdleTimer = 0f;
     private float IdleDelay = 5f;
+    private float JumpForce = 5f;
+
+    private bool IsGrounded = true;
 
     // Start is called before the first frame update
     void Start()
     {
         Animator = Player.GetComponent<Animator>();
+        Rigidbody = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -25,7 +31,8 @@ public class Player_Action : MonoBehaviour
         Sit();
         Jump();
     }
-    
+
+    #region Attack
     void Attack()
     {
         if (Animator == null) return;
@@ -39,7 +46,9 @@ public class Player_Action : MonoBehaviour
             Animator.SetTrigger("IsAttacking");
         }*/
     }
+    #endregion
 
+    #region Shield
     void Shield()
     {
         if (Animator == null) return;
@@ -53,7 +62,9 @@ public class Player_Action : MonoBehaviour
             Animator.SetBool("IsShield", false);
         }
     }
+    #endregion
 
+    #region Idle
     void Idle()
     {
         if (Animator.GetCurrentAnimatorStateInfo(0).IsTag("Idle")) // Idle_SubSM에 태그 "Idle"을 붙여두자
@@ -72,28 +83,41 @@ public class Player_Action : MonoBehaviour
             Animator.SetInteger("RandomIdleIndex", 0);
         }
     }
+    #endregion
 
+    #region Sit
     void Sit()
     {
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
-            Debug.Log("SitTrigger 발동");
             Animator.SetTrigger("SitTrigger");
             Animator.SetBool("IsSitting", true);
         }
 
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
-            Debug.Log("IsSitting 해제");
             Animator.SetBool("IsSitting", false);
         }
     }
+    #endregion
 
+    #region Jump
     void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
         {
             Animator.SetTrigger("IsJump");
+            Rigidbody.AddForce(Vector3.up * JumpForce, ForceMode.Impulse);
+            IsGrounded = false;
         }
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            IsGrounded = true;
+        }
+    }
+    #endregion
 }

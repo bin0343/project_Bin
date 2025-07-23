@@ -90,7 +90,8 @@ public class Player_Move : MonoBehaviour
             Vector3 moveDir = lookForward * moveInput.y + lookRight * moveInput.x;
 
             CharacterBody.forward = lookForward; // 이동할 때 이동방향 바라보게 세팅
-            transform.position += moveDir * Time.deltaTime * adjustedSpeed; // 이동
+            //transform.position += moveDir * Time.deltaTime * adjustedSpeed; // 이동
+            Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * adjustedSpeed);
         }
     }
 

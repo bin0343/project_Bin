@@ -10,6 +10,7 @@ public class Monster : MonoBehaviour       //선언법
     protected SpriteRenderer SR;
 
     public AIMonster AI;
+    public int Hp = 100;
 
     string CurAni = "";
 
@@ -42,6 +43,16 @@ public class Monster : MonoBehaviour       //선언법
     public void Move(Vector3 _Move)
     {
         transform.position = Vector3.MoveTowards(transform.position, _Move, 0.1f);
+    }
+
+    public void OnHit(int _Attack)
+    {
+        Hp += _Attack;
+
+        if (Hp <= 0)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     public void OnAnimMationStart(string _Ani)

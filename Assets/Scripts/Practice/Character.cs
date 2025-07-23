@@ -16,10 +16,11 @@ public class Character : MonoSingleton<Character>
 
     public float atk;
     public float Def;
+    public float Hp = 100;
 
     private void Awake()
     {
-        
+
     }
     // Start is called before the first frame update
     void Start()
@@ -35,13 +36,13 @@ public class Character : MonoSingleton<Character>
 
     private void FixedUpdate()              //켜져있을 때 주기적으로 들어옴, 0.02초마다. 서버랑 동기화하거나 고정적으로 호출하는 부분, 이동 동기화. ex)pc마다 사양 차이날 경우
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()               //정해져 있지 않음.    나 혼자만 작동하는 곳에서 사용( ex) 캐릭터 로그인 시, 채팅, 솔로 플레이)
     {
-        if(Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.H))
         {
             gameObject.SetActive(false);
 
@@ -50,7 +51,7 @@ public class Character : MonoSingleton<Character>
 
         float movespeed = 0.01f;
         float jumpspeed = 1f;
-        
+
         float movex = Input.GetAxisRaw("Horizontal");
         //float movey = Input.GetAxisRaw("Vertical");
 
