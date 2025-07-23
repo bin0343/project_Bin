@@ -22,6 +22,8 @@ public class Player_Action : MonoBehaviour
         Shield();
         Attack();
         Idle();
+        Sit();
+        Jump();
     }
     
     void Attack()
@@ -68,6 +70,30 @@ public class Player_Action : MonoBehaviour
         {
             IdleTimer = 0;
             Animator.SetInteger("RandomIdleIndex", 0);
+        }
+    }
+
+    void Sit()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            Debug.Log("SitTrigger 발동");
+            Animator.SetTrigger("SitTrigger");
+            Animator.SetBool("IsSitting", true);
+        }
+
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            Debug.Log("IsSitting 해제");
+            Animator.SetBool("IsSitting", false);
+        }
+    }
+
+    void Jump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Animator.SetTrigger("IsJump");
         }
     }
 }
