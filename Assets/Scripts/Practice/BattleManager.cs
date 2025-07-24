@@ -1,10 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
+    public Transform[] TRPATH;
+
+    [NonSerialized]
     public Monster Monster;
+    [NonSerialized]
     public Character Character;
 
     bool IsCharacterReset = false;
@@ -17,11 +22,27 @@ public class BattleManager : MonoBehaviour
     private void Start()
     {
         InvokeRepeating("CheckCharacterDie", 1f, 1f);
+
+        SpawnCharacter();
     }
 
     void Update()
     {
         
+    }
+
+    void SpawnCharacter()
+    {
+        
+        UnityEngine.Object obj = Resources.Load("Prefabs/Practice/Character");  //캐릭터 프리팹을 리소스 - 프리팹 폴더에서 가져오기
+
+        GameObject go = obj as GameObject;      //메모리(공간)로 할당은 됐지만 활성화는 안됐음
+
+        go = Instantiate(go, Vector3.zero, Quaternion.identity);        //메모리를 실제로 할당해줌.
+
+        go.transform.SetParent(transform);  //배틀매니저 오브젝트의 위치 ((0,0,0)으로 세팅해두는게 좋음(맵, 오브젝트 등))
+
+        Character = go.GetComponent<Character>();
     }
 
     void CheckCharacterDie()

@@ -3,12 +3,9 @@ using UnityEngine;
 
 public class AIMonster : MonoBehaviour
 {
-    public Transform[] TRPATH;
-
     protected AI AI = AI.AI_CREATE;
 
     public Monster Monster;
-    public Character Character;
 
     bool CharacterMove = false;
 
@@ -42,7 +39,7 @@ public class AIMonster : MonoBehaviour
 
     protected virtual void Search()
     {
-        float distance = Vector3.Distance(Monster.transform.position, TRPATH[Index].position); //길찾기 (distance안에 오면 다음길 찾고 다음길 찾겠다.)
+        float distance = Vector3.Distance(Monster.transform.position, Shared.BattleManager.TRPATH[Index].position); //길찾기 (distance안에 오면 다음길 찾고 다음길 찾겠다.)
 
         if (distance < 3f)
         {
@@ -58,7 +55,7 @@ public class AIMonster : MonoBehaviour
 
         if (distance < 1f)
         {
-            if (TRPATH.Length > Index)
+            if (Shared.BattleManager.TRPATH.Length > Index)
                 Index++;
             else
                 Index = 0;
@@ -74,22 +71,22 @@ public class AIMonster : MonoBehaviour
     {
         if (!CharacterMove)
         {
-            transform.LookAt(TRPATH[Index].position);
+            transform.LookAt(Shared.BattleManager.TRPATH[Index].position);
 
-            Monster.Move(TRPATH[Index].position);   //목표지점 이동
+            Monster.Move(Shared.BattleManager.TRPATH[Index].position);   //목표지점 이동
         }
         else //도착하면? 공격
         {
-            transform.LookAt(Character.transform.position);
+            transform.LookAt(Shared.BattleManager.Character.transform.position);
 
-            float dis = Vector3.Distance(Monster.transform.position, Character.transform.position);
+            float dis = Vector3.Distance(Monster.transform.position, Shared.BattleManager.Character.transform.position);
 
             if (dis < 3f)
-                Monster.Move(Character.transform.position);
+                Monster.Move(Shared.BattleManager.Character.transform.position);
             else
                 Attack();       //공격을한것일뿐. 맞은건 아님(상대가 피할 수 있기 때문)
 
-            Monster.Move(Character.transform.position);
+            Monster.Move(Shared.BattleManager.Character.transform.position);
         }
 
 

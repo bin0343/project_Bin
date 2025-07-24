@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -23,6 +24,9 @@ public class Player_Move : MonoBehaviour
     [SerializeField]
     private float RotateSpeed = 2.0f;
 
+    private bool _IsRunning = false;
+    public bool IsRunning => _IsRunning;
+
     void Start()
     {
         Rigidbody = GetComponent<Rigidbody>();
@@ -37,62 +41,69 @@ public class Player_Move : MonoBehaviour
     private void FixedUpdate()
     {
         Move();
+        Run();
         Rotate();
     }
 
     void Move()
     {
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        bool isMoving = moveInput.magnitude != 0;
+
+        Animator.SetBool("IsMoving", isMoving);
+        Animator.SetFloat("Horizontal", moveInput.x);
+        Animator.SetFloat("Vertical", moveInput.y);
+
+        if (!isMoving) return;
+
+        float adjustedSpeed = GetAdjustedSpeed(moveInput);
+
+        Vector3 lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
+        Vector3 lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
+        Vector3 moveDir = lookForward * moveInput.y + lookRight * moveInput.x;
+
+        CharacterBody.forward = lookForward;
+
+        Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * adjustedSpeed);
+    }
+
+    void Run()
+    {
+        Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         bool IsMoving = moveInput.magnitude != 0;
-        bool IsRunning = Input.GetKey(KeyCode.LeftAlt) && IsMoving;
-        Animator.SetBool("IsRunning", IsRunning);
-        Animator.SetBool("IsMoving", IsMoving);
+        _IsRunning = Input.GetKey(KeyCode.LeftShift) && IsMoving;
 
-        float currentSpeed = IsRunning ? CharacterRunSpeed : CharacterSpeed;
+        Animator.SetBool("IsRunning", _IsRunning);
+    }
 
+    float GetAdjustedSpeed(Vector2 moveInput)
+    {
         float forwardWeight = 1.0f;
         float backwardWeight = 0.6f;
         float sideWeight = 0.8f;
 
-        float directionSpeedWeight = 1.0f;
+        float directionWeight = 1.0f;
 
         if (Mathf.Abs(moveInput.x) > 0 && Mathf.Abs(moveInput.y) == 0)
         {
-            // 좌우 이동
-            directionSpeedWeight = sideWeight;
+            directionWeight = sideWeight;
         }
         else if (moveInput.y < 0)
         {
-            // 뒤로 이동
-            directionSpeedWeight = backwardWeight;
+            directionWeight = backwardWeight;
         }
         else if (moveInput.y > 0 && Mathf.Abs(moveInput.x) == 0)
         {
-            // 정면 이동
-            directionSpeedWeight = forwardWeight;
+            directionWeight = forwardWeight;
         }
         else if (moveInput.x != 0 && moveInput.y != 0)
         {
-            // 대각선이면 평균값 또는 보수적 가중치 사용
             float vertical = moveInput.y > 0 ? forwardWeight : backwardWeight;
-            directionSpeedWeight = (sideWeight + vertical) / 2f;
+            directionWeight = (sideWeight + vertical) / 2f;
         }
 
-        float adjustedSpeed = currentSpeed * directionSpeedWeight;
-
-        Animator.SetFloat("Horizontal", moveInput.x);
-        Animator.SetFloat("Vertical", moveInput.y);
-
-        if (IsMoving)
-        {
-            Vector3 lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
-            Vector3 lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
-            Vector3 moveDir = lookForward * moveInput.y + lookRight * moveInput.x;
-
-            CharacterBody.forward = lookForward; // 이동할 때 이동방향 바라보게 세팅
-            //transform.position += moveDir * Time.deltaTime * adjustedSpeed; // 이동
-            Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * adjustedSpeed);
-        }
+        float baseSpeed = _IsRunning ? CharacterRunSpeed : CharacterSpeed;
+        return baseSpeed * directionWeight;
     }
 
     void Rotate()

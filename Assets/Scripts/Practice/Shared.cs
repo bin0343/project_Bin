@@ -1,4 +1,4 @@
-
+using UnityEngine;
 
 public static class Shared
 {
@@ -6,4 +6,5 @@ public static class Shared
     public static SceneMANAGER SceneMANAGER;            //매니저들만 싱글톤으로 만들어서 싱글톤을 기록하는 걸 복잡하지 않게 가능
     public static PortalManager PotalManager;
     public static BattleManager BattleManager;
+    //public static UI_Battle UIBattle;
 }

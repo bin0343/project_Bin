@@ -8,10 +8,12 @@ public class Player_Action : MonoBehaviour
     private GameObject Player;
     private Animator Animator;
     private Rigidbody Rigidbody;
+    private Player_Move Move;
 
     private float IdleTimer = 0f;
     private float IdleDelay = 5f;
     private float JumpForce = 5f;
+    private float JumpAttackForce = 6.5f;
 
     private bool IsGrounded = true;
 
@@ -20,6 +22,7 @@ public class Player_Action : MonoBehaviour
     {
         Animator = Player.GetComponent<Animator>();
         Rigidbody = GetComponent<Rigidbody>();
+        Move = Player.GetComponentInParent<Player_Move>();
     }
 
     // Update is called once per frame
@@ -41,10 +44,18 @@ public class Player_Action : MonoBehaviour
         {
             Animator.SetTrigger("IsAttacking");
         }
-        /*else
+
+        if (Input.GetKeyDown(KeyCode.V) && IsGrounded)
         {
-            Animator.SetTrigger("IsAttacking");
-        }*/
+            Animator.SetTrigger("IsJumpAttack");
+            Rigidbody.AddForce(Vector3.up * JumpAttackForce, ForceMode.Impulse);
+            IsGrounded = false;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Z) && Move.IsRunning)
+        {
+            Animator.SetTrigger("RunningSlash");
+        }
     }
     #endregion
 
