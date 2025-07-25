@@ -14,9 +14,9 @@ public class Player_Move : MonoBehaviour
     [SerializeField]
     private float CharacterSpeed = 2.0f; // 캐릭터 속도
     [SerializeField]
-    private float CharacterRunSpeed = 9.0f; // 달리기 속도
+    public float CharacterRunSpeed = 9.0f; // 달리기 속도
     [SerializeField]
-    private Transform CharacterBody; // 메인 캐릭터
+    public Transform CharacterBody; // 메인 캐릭터
     [SerializeField]
     private Transform CameraArm; // 메인 캐릭터의 카메라
     [SerializeField]

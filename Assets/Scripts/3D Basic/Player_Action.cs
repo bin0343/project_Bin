@@ -13,7 +13,7 @@ public class Player_Action : MonoBehaviour
     private float IdleTimer = 0f;
     private float IdleDelay = 5f;
     private float JumpForce = 5f;
-    private float JumpAttackForce = 6.5f;
+    private float JumpAttackForce = 5.5f;
 
     private bool IsGrounded = true;
     public bool IsAttacking { get; private set; } = false;
@@ -39,6 +39,11 @@ public class Player_Action : MonoBehaviour
     #region Attack
     void Attack()
     {
+        Vector3 MoveDir = Move.CharacterBody.forward;
+        Vector3 upward = Vector3.up * JumpAttackForce * 1f;
+        Vector3 forward = MoveDir * JumpAttackForce * 0.5f;
+        Vector3 JumpDirection = (Vector3.up * JumpForce + MoveDir).normalized;
+
         if (Animator == null) return;
 
         AnimatorStateInfo stateInfo = Animator.GetCurrentAnimatorStateInfo(0);
@@ -47,7 +52,7 @@ public class Player_Action : MonoBehaviour
         bool isInRunningSlash = stateInfo.IsName("RunningSlash");
         IsAttacking = isInJumpAttack || isInRunningSlash;
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && IsGrounded && !Move.IsRunning)
         {
             
             Animator.SetTrigger("IsAttacking");
@@ -56,13 +61,14 @@ public class Player_Action : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.V) && IsGrounded)
         {
             Animator.SetTrigger("IsJumpAttack");
-            Rigidbody.AddForce(Vector3.up * JumpAttackForce, ForceMode.Impulse);
+            Rigidbody.AddForce(upward + forward, ForceMode.Impulse);
             IsGrounded = false;
         }
 
         if (Input.GetMouseButtonDown(0) && Move.IsRunning)
         {
             Animator.SetTrigger("RunningSlash");
+            Rigidbody.velocity = MoveDir * Move.CharacterRunSpeed;
         }
     }
     #endregion
