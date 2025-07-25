@@ -16,6 +16,7 @@ public class Player_Action : MonoBehaviour
     private float JumpAttackForce = 6.5f;
 
     private bool IsGrounded = true;
+    public bool IsAttacking { get; private set; } = false;
 
     // Start is called before the first frame update
     void Start()
@@ -40,8 +41,15 @@ public class Player_Action : MonoBehaviour
     {
         if (Animator == null) return;
 
+        AnimatorStateInfo stateInfo = Animator.GetCurrentAnimatorStateInfo(0);
+
+        bool isInJumpAttack = stateInfo.IsName("JumpAttack");
+        bool isInRunningSlash = stateInfo.IsName("RunningSlash");
+        IsAttacking = isInJumpAttack || isInRunningSlash;
+
         if (Input.GetMouseButtonDown(0))
         {
+            
             Animator.SetTrigger("IsAttacking");
         }
 
@@ -52,7 +60,7 @@ public class Player_Action : MonoBehaviour
             IsGrounded = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.Z) && Move.IsRunning)
+        if (Input.GetMouseButtonDown(0) && Move.IsRunning)
         {
             Animator.SetTrigger("RunningSlash");
         }

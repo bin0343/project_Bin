@@ -26,11 +26,13 @@ public class Player_Move : MonoBehaviour
 
     private bool _IsRunning = false;
     public bool IsRunning => _IsRunning;
+    private Player_Action Action;
 
     void Start()
     {
         Rigidbody = GetComponent<Rigidbody>();
         Animator = CharacterBody.GetComponentInChildren<Animator>();
+        Action = GetComponent<Player_Action>();
     }
 
     void Update()
@@ -47,6 +49,8 @@ public class Player_Move : MonoBehaviour
 
     void Move()
     {
+        if (Action != null && Action.IsAttacking)
+            return;
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         bool isMoving = moveInput.magnitude != 0;
 
