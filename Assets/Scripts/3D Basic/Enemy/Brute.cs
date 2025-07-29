@@ -9,8 +9,8 @@ public class Brute : EnemyBase
         base.Start();
     }
 
-    private new void Update()
+    private new void FixedUpdate()
     {
-        base.Update();
+        base.FixedUpdate();
     }
 }

@@ -33,3 +33,10 @@ public enum ENEMYSTATE
     SEARCH,
     ATTACK,
 }
+
+public enum BULLET
+{
+    NONE,
+    LINE,   //직선
+    TARGET  //유도
+}

@@ -1,14 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
 
 public class Bullet : MonoBehaviour
 {
+    public int Id;
+
     protected float Speed;
 
-    public void InitBullet(float _Speed)
+    protected float CurTime;
+
+    public void InitBullet(int _id, float _Speed)
     {
+        Id = _id;
         Speed = _Speed;
     }
 
@@ -16,6 +18,7 @@ public class Bullet : MonoBehaviour
     void Update()
     {
         Move();
+        Destroy();
     }
 
     protected virtual void Move()
@@ -23,8 +26,19 @@ public class Bullet : MonoBehaviour
 
     }
 
+    protected virtual void Destroy()
+    {
+        CurTime += Time.deltaTime;
+
+        if (CurTime > 5f)
+            Shared.BulletManager.Destroy(this);
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
-        
+        CurTime += Time.deltaTime;
+
+        if (CurTime > 5f)
+            Shared.BulletManager.Destroy(this);
     }
 }

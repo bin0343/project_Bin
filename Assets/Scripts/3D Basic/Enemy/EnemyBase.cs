@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -17,6 +18,9 @@ public class EnemyBase : MonoBehaviour
 
     public Transform Target;
     public float SearchRange = 10f;
+    public float AttackRange = 3f;
+    private float attackDelay = 1.0f;
+    private float lastAttackTime = 0f;
 
     private NavMeshAgent navAgent;
 
@@ -32,8 +36,10 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
-    protected void Update()
+    protected void FixedUpdate()
     {
+        Debug.Log("현재 상태: " + CurrentState);
+
         switch (CurrentState)
         {
             case ENEMYSTATE.IDLE:
@@ -46,8 +52,7 @@ public class EnemyBase : MonoBehaviour
                 Search();
                 break;
             case ENEMYSTATE.ATTACK:
-                break;
-            default:
+                Attack();
                 break;
         }
 
@@ -110,25 +115,44 @@ public class EnemyBase : MonoBehaviour
         Animator.SetBool("IsIdle", false);
         Animator.SetBool("IsMoving", true);
 
-        navAgent.stoppingDistance = 0f;
+        navAgent.stoppingDistance = AttackRange * 0.9f;
         navAgent.SetDestination(Target.position);
 
         float distance = Vector3.Distance(transform.position, Target.position);
 
-        // 쫓는 거리보다 너무 멀어지면 다시 IDLE 상태로 전환
         if (distance > SearchRange + 3f)
         {
             Target = null;
+            navAgent.ResetPath();
             CurrentState = ENEMYSTATE.IDLE;
             IdleTimer = 0f;
             return;
         }
 
-        /*// 공격 범위 안에 들어오면 상태 전환 (나중에 구현할 수 있음)
-        if (distance <= 1.5f) // 예: 공격 범위
+        if (distance <= AttackRange)
         {
-            CurrentState = ENEMYSTATE.ATTACK;
-        }*/
+            navAgent.ResetPath();
+            CurrentState= ENEMYSTATE.ATTACK;
+            return;
+        }
+    }
+
+    protected virtual void Attack()
+    {
+        float distance = Vector3.Distance(transform.position, Target.position);
+
+        if (distance >= AttackRange)
+        {
+            CurrentState = ENEMYSTATE.SEARCH; // 다시 추적
+            return;
+        }
+
+        // 쿨타임 체크
+        if (Time.time >= lastAttackTime + attackDelay)
+        {
+            Animator.SetTrigger("IsAttack"); // Animator의 Trigger 이름 확인할 것!
+            lastAttackTime = Time.time;
+        }
     }
 
 
@@ -145,14 +169,30 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void DetectPlayer()
     {
-        if (Target == null) return;
+        if (CurrentState == ENEMYSTATE.ATTACK) return; 
 
-        float distance = Vector3.Distance(transform.position, Target.position);
-
-        if (distance <= SearchRange && CurrentState != ENEMYSTATE.SEARCH)
+        if (Target == null)
         {
-            navAgent.SetDestination(Target.position);
-            CurrentState = ENEMYSTATE.SEARCH;
+            GameObject found = GameObject.FindGameObjectWithTag("Player");
+            if (found != null)
+            {
+                float dist = Vector3.Distance(transform.position, found.transform.position);
+                if (dist <= SearchRange)
+                {
+                    Target = found.transform;
+                    navAgent.SetDestination(Target.position);
+                    CurrentState = ENEMYSTATE.SEARCH;
+                }
+            }
+        }
+        else
+        {
+            float dist = Vector3.Distance(transform.position, Target.position);
+            if (dist <= SearchRange && CurrentState != ENEMYSTATE.SEARCH)
+            {
+                navAgent.SetDestination(Target.position);
+                CurrentState = ENEMYSTATE.SEARCH;
+            }
         }
     }
 }
