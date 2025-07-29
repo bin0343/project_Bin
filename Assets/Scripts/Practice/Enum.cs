@@ -25,3 +25,11 @@ public enum AI
     AI_MOVE,
     AI_RESET
 }
+
+public enum ENEMYSTATE
+{
+    IDLE,
+    MOVE,
+    SEARCH,
+    ATTACK,
+}
