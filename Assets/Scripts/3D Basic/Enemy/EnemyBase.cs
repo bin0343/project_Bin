@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.GraphicsBuffer;
 
 public class EnemyBase : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class EnemyBase : MonoBehaviour
     private Vector3 moveTarget;
     private float moveRadius = 10f;  // 랜덤 이동 범위
     private float moveSpeed = 2f;
+    private bool IsAttacking = false;
 
     public Transform Target;
     public float SearchRange = 10f;
@@ -80,6 +82,8 @@ public class EnemyBase : MonoBehaviour
     }
     protected virtual void Move()
     {
+        if (IsAttacking) return;
+
         Animator.SetBool("IsIdle", false);
         Animator.SetBool("IsMoving", true);
 
@@ -110,6 +114,8 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void Search()
     {
+        if (IsAttacking) return;
+
         if (Target == null) return;
 
         Animator.SetBool("IsIdle", false);
@@ -140,17 +146,38 @@ public class EnemyBase : MonoBehaviour
     protected virtual void Attack()
     {
         float distance = Vector3.Distance(transform.position, Target.position);
+        var relativePos = Target.position - transform.position;
+        var rotation = Quaternion.LookRotation(relativePos);
+        transform.rotation = rotation;
+
+        Animator.SetBool("IsMoving", false);
+
+        if (Animator.GetCurrentAnimatorStateInfo(0).IsName("Brute Attack") == true)
+        {
+            float AniTime = Animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+            if (AniTime > 0 && AniTime < 0.9f)
+            {
+                IsAttacking = true;
+                return;
+            }
+            IsAttacking = false;
+            Animator.SetBool("IsAttacking", false);
+        }
+
+        IsAttacking = false;
 
         if (distance >= AttackRange)
         {
-            CurrentState = ENEMYSTATE.SEARCH; // 다시 추적
+            CurrentState = ENEMYSTATE.SEARCH;
+            Animator.SetBool("IsAttacking", false);
+            IsAttacking = false;
             return;
         }
 
         // 쿨타임 체크
         if (Time.time >= lastAttackTime + attackDelay)
         {
-            Animator.SetTrigger("IsAttack"); // Animator의 Trigger 이름 확인할 것!
+            Animator.SetBool("IsAttacking", true);
             lastAttackTime = Time.time;
         }
     }
