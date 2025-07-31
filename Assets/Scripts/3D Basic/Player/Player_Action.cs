@@ -136,6 +136,7 @@ public class Player_Action : MonoBehaviour
             IsGrounded = false;
         }
     }
+    #endregion
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -144,5 +145,12 @@ public class Player_Action : MonoBehaviour
             IsGrounded = true;
         }
     }
-    #endregion
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Weapon_Enemy"))
+        {
+            Debug.Log("피격당함");
+        }
+    }
 }

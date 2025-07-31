@@ -114,8 +114,6 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void Search()
     {
-        if (IsAttacking) return;
-
         if (Target == null) return;
 
         Animator.SetBool("IsIdle", false);
@@ -147,37 +145,42 @@ public class EnemyBase : MonoBehaviour
     {
         float distance = Vector3.Distance(transform.position, Target.position);
         var relativePos = Target.position - transform.position;
-        var rotation = Quaternion.LookRotation(relativePos);
-        transform.rotation = rotation;
+        transform.rotation = Quaternion.LookRotation(relativePos);
+        AnimatorStateInfo stateInfo = Animator.GetCurrentAnimatorStateInfo(0);
+
+        bool IsAttack = stateInfo.IsName("Brute Attack");
+        float AniTime = stateInfo.normalizedTime;
 
         Animator.SetBool("IsMoving", false);
 
-        if (Animator.GetCurrentAnimatorStateInfo(0).IsName("Brute Attack") == true)
+        if (IsAttack && AniTime < 1f)
         {
-            float AniTime = Animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-            if (AniTime > 0 && AniTime < 0.9f)
-            {
-                IsAttacking = true;
-                return;
-            }
-            IsAttacking = false;
-            Animator.SetBool("IsAttacking", false);
-        }
-
-        IsAttacking = false;
-
-        if (distance >= AttackRange)
-        {
-            CurrentState = ENEMYSTATE.SEARCH;
-            Animator.SetBool("IsAttacking", false);
-            IsAttacking = false;
+            IsAttacking = true;
             return;
         }
 
-        // 쿨타임 체크
-        if (Time.time >= lastAttackTime + attackDelay)
+        if (IsAttack && AniTime >= 1f)
         {
-            Animator.SetBool("IsAttacking", true);
+            IsAttacking = false;
+
+            if (distance >= AttackRange)
+            {
+                CurrentState = ENEMYSTATE.SEARCH;
+                return;
+            }
+
+            // 쿨타임이 끝났으면 다음 공격
+            if (Time.time >= lastAttackTime + attackDelay)
+            {
+                Animator.SetTrigger("IsAttack");
+                lastAttackTime = Time.time;
+                return;
+            }
+        }
+
+        if (!IsAttack && Time.time >= lastAttackTime + attackDelay)
+        {
+            Animator.SetTrigger("IsAttack");
             lastAttackTime = Time.time;
         }
     }
