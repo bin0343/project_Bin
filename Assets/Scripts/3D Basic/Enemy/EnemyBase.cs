@@ -40,7 +40,7 @@ public class EnemyBase : MonoBehaviour
 
     protected void FixedUpdate()
     {
-        Debug.Log("현재 상태: " + CurrentState);
+        //Debug.Log("현재 상태: " + CurrentState);
 
         switch (CurrentState)
         {
@@ -223,6 +223,14 @@ public class EnemyBase : MonoBehaviour
                 navAgent.SetDestination(Target.position);
                 CurrentState = ENEMYSTATE.SEARCH;
             }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Weapon_Player"))
+        {
+            Debug.Log("공격당함");
         }
     }
 }
