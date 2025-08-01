@@ -7,7 +7,7 @@ public class Enemy_Stat : MonoBehaviour
     public int MaxHP = 80;
     public int CurrentHP = 80;
 
-    public int AttackPower = 15;
+    public int AttackPower = 8;
     public int DefensePower = 3;
 
     public void TakeDamage(int damage)

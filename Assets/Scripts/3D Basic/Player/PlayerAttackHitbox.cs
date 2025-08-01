@@ -8,9 +8,11 @@ public class PlayerAttackHitbox : MonoBehaviour
     private Collider Hitbox;
 
     private bool HasHit = false;
+    Weapon_Player Weapon_Player;
 
     private void Awake()
     {
+        Weapon_Player = GetComponentInChildren<Weapon_Player>();
         Hitbox = GetComponentInChildren<Collider>();
         Hitbox.enabled = false;
     }
@@ -24,6 +26,11 @@ public class PlayerAttackHitbox : MonoBehaviour
     public void DisableHitbox()
     {
         Hitbox.enabled = false;
+    }
+
+    public void ResetHasHit()
+    {
+        Weapon_Player.HasHit = false;
     }
 
     private void OnTriggerEnter(Collider other)

@@ -8,8 +8,6 @@ public class Player_Move : MonoBehaviour
 {
     private Animator Animator;
     private Rigidbody Rigidbody;
-    //private Vector2 MouseInput;
-    //private float CameraPitch = 0f;
 
     [SerializeField]
     private float CharacterSpeed = 2.0f; // 캐릭터 속도
@@ -49,8 +47,11 @@ public class Player_Move : MonoBehaviour
 
     void Move()
     {
+        if (Action.IsKick)
+            return;
         if (Action != null && Action.IsAttacking)
             return;
+
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         bool isMoving = moveInput.magnitude != 0;
 

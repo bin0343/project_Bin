@@ -9,9 +9,11 @@ public class EnemyAttackHItbox : MonoBehaviour
     private Collider Hitbox;
 
     private bool HasHit = false;
+    Weapon_Brute Weapon_Brute;
 
     private void Awake()
     {
+        Weapon_Brute = GetComponentInChildren<Weapon_Brute>();
         Hitbox = GetComponentInChildren<Collider>();
         Hitbox.enabled = false;
     }
@@ -25,6 +27,11 @@ public class EnemyAttackHItbox : MonoBehaviour
     public void DisableHitbox()
     {
         Hitbox.enabled = false;
+    }
+
+    public void ResetHasHit()
+    {
+        Weapon_Brute.HasHit = false;
     }
 
     private void OnTriggerEnter(Collider other)

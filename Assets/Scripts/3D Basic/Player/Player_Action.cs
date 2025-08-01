@@ -16,6 +16,9 @@ public class Player_Action : MonoBehaviour
     private float JumpAttackForce = 5.5f;
 
     private bool IsGrounded = true;
+    public bool IsKick = false;
+    public bool IsIdleAttack = false;
+    private Quaternion attackDirection;
     public bool IsAttacking { get; private set; } = false;
 
     // Start is called before the first frame update
@@ -34,6 +37,7 @@ public class Player_Action : MonoBehaviour
         Idle();
         Sit();
         Jump();
+        Kick();
     }
 
     #region Attack
@@ -52,10 +56,19 @@ public class Player_Action : MonoBehaviour
         bool isInRunningSlash = stateInfo.IsName("RunningSlash");
         IsAttacking = isInJumpAttack || isInRunningSlash;
 
+        if (IsAttacking)
+        {
+            transform.rotation = attackDirection;
+        }
+
         if (Input.GetMouseButtonDown(0) && IsGrounded && !Move.IsRunning)
         {
-            
             Animator.SetTrigger("IsAttacking");
+            Vector2 moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            bool isIdle = moveInput.magnitude == 0f;
+
+            IsIdleAttack = isIdle; // 이동 입력이 없을 때만 true
+            IsAttacking = true;
         }
 
         if (Input.GetKeyDown(KeyCode.V) && IsGrounded)
@@ -65,7 +78,7 @@ public class Player_Action : MonoBehaviour
             IsGrounded = false;
         }
 
-        if (Input.GetMouseButtonDown(0) && Move.IsRunning)
+        if (Input.GetMouseButtonDown(0) && IsGrounded && Move.IsRunning)
         {
             Animator.SetTrigger("RunningSlash");
             Rigidbody.velocity = MoveDir * Move.CharacterRunSpeed;
@@ -138,6 +151,18 @@ public class Player_Action : MonoBehaviour
     }
     #endregion
 
+    #region kick
+    void Kick()
+    {
+        if (Input.GetKeyDown (KeyCode.F))
+        {
+            Animator.SetTrigger("IsKick");
+            IsKick = true;
+        }
+    }
+
+    #endregion
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
@@ -153,4 +178,6 @@ public class Player_Action : MonoBehaviour
             Debug.Log("피격당함");
         }
     }
+
+    
 }

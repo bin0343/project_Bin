@@ -7,5 +7,5 @@ public static class Shared
     public static PortalManager PotalManager;
     public static BattleManager BattleManager;
     public static BulletManager BulletManager;
-    //public static UI_Battle UIBattle;
+    public static UI_Battle UIBattle;
 }

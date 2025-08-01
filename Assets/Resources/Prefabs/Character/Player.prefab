@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 983875366848806070}
+  - component: {fileID: 1672139781601859253}
   - component: {fileID: 5159289529888746881}
   - component: {fileID: 1783123539877503212}
   m_Layer: 0
@@ -33,6 +34,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4693311900673174140}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1672139781601859253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 155015685035950718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85b206725dc12004fbed1a6206c14765, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WeaponAttackPower: 3
+  HasHit: 0
 --- !u!137 &5159289529888746881
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
@@ -289,6 +304,9 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
       insertIndex: 1
+      addedObject: {fileID: 5847068735268063405}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
+      insertIndex: 2
       addedObject: {fileID: 8691890929793575960}
   m_SourcePrefab: {fileID: 100100000, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
 --- !u!1 &3653792596028175563 stripped
@@ -296,6 +314,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
   m_PrefabInstance: {fileID: 4500653829783226778}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5847068735268063405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3653792596028175563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f1c0f7b533c92749b0682951c0133a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &8691890929793575960
 MonoBehaviour:
   m_ObjectHideFlags: 0

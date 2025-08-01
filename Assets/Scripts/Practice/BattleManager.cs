@@ -17,6 +17,8 @@ public class BattleManager : MonoBehaviour
 
     bool IsCharacterReset = false;
 
+    Action<int> ActionSkill;
+
     private void Awake()
     {
         Shared.BattleManager = this;
@@ -24,6 +26,10 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
+        ActionSkill = Shared.UIBattle.OnActionSkill;
+
+        ActionSkill?.Invoke(100);   //ActionSkill? == 대리자에 연결되어있는 펑션이 있는지 확인하고 없으면 실행 X
+
         InvokeRepeating("CheckCharacterDie", 1f, 1f);
 
         SpawnCharacter();

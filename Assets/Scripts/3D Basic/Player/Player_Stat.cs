@@ -7,7 +7,7 @@ public class Player_Stat : MonoBehaviour
     public int MaxHP = 100;
     public int CurrentHP = 100;
 
-    public int AttackPower = 20;
+    public int AttackPower = 10;
     public int DefensePower = 5;
 
     public void TakeDamage(int damage)
