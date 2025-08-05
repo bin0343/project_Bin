@@ -9,6 +9,8 @@ public class Player_Action : MonoBehaviour
     private Animator Animator;
     private Rigidbody Rigidbody;
     private Player_Move Move;
+    private Player_Stat Stat;
+    public Skill_Base[] Skill;
 
     private float IdleTimer = 0f;
     private float IdleDelay = 5f;
@@ -16,10 +18,10 @@ public class Player_Action : MonoBehaviour
     private float JumpAttackForce = 5.5f;
 
     private bool IsGrounded = true;
+    public bool IsDead = false;
     public bool IsKick = false;
-    public bool IsIdleAttack = false;
     private Quaternion attackDirection;
-    public bool IsAttacking { get; private set; } = false;
+    public bool IsAttacking = false;
 
     // Start is called before the first frame update
     void Start()
@@ -27,17 +29,21 @@ public class Player_Action : MonoBehaviour
         Animator = Player.GetComponent<Animator>();
         Rigidbody = GetComponent<Rigidbody>();
         Move = Player.GetComponentInParent<Player_Move>();
+        Stat = Player.GetComponentInParent<Player_Stat>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (IsDead) return;
         Shield();
         Attack();
         Idle();
         Sit();
         Jump();
         Kick();
+        Die();
+        UseSkill();
     }
 
     #region Attack
@@ -64,10 +70,6 @@ public class Player_Action : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && IsGrounded && !Move.IsRunning)
         {
             Animator.SetTrigger("IsAttacking");
-            Vector2 moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            bool isIdle = moveInput.magnitude == 0f;
-
-            IsIdleAttack = isIdle; // 이동 입력이 없을 때만 true
             IsAttacking = true;
         }
 
@@ -163,6 +165,30 @@ public class Player_Action : MonoBehaviour
 
     #endregion
 
+    #region Die
+    void Die()
+    {
+        //if (IsDead) return;
+
+        if (Stat.CurrentHP <= 0)
+        {
+            Animator.SetTrigger("IsDie");
+            IsDead = true;
+        }
+    }
+    #endregion
+
+    #region UseSkill
+    void UseSkill()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            Animator.SetTrigger("AttackBuff");
+            Skill[0].Use(gameObject); // 첫 번째 스킬 사용
+        }
+    }
+    #endregion
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
@@ -178,6 +204,4 @@ public class Player_Action : MonoBehaviour
             Debug.Log("피격당함");
         }
     }
-
-    
 }

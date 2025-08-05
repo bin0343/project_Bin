@@ -17,6 +17,7 @@ public class EnemyBase : MonoBehaviour
     private float moveRadius = 10f;  // 랜덤 이동 범위
     private float moveSpeed = 2f;
     private bool IsAttacking = false;
+    public bool IsDead = false;
 
     public Transform Target;
     public float SearchRange = 10f;
@@ -25,11 +26,13 @@ public class EnemyBase : MonoBehaviour
     private float lastAttackTime = 0f;
 
     private NavMeshAgent navAgent;
+    private Enemy_Stat Stat;
 
     protected void Start()
     {
         Animator = GetComponentInChildren<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
+        Stat = GetComponentInParent<Enemy_Stat>();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
@@ -41,6 +44,12 @@ public class EnemyBase : MonoBehaviour
     protected void FixedUpdate()
     {
         //Debug.Log("현재 상태: " + CurrentState);
+
+        if (Stat.CurrentHP <= 0)
+        {
+            Dead(); // 체력 확인 후 사망 처리
+            return; // 사망 시 다른 상태 실행 막기
+        }
 
         switch (CurrentState)
         {
@@ -56,11 +65,15 @@ public class EnemyBase : MonoBehaviour
             case ENEMYSTATE.ATTACK:
                 Attack();
                 break;
+            case ENEMYSTATE.Dead:
+                Dead();
+                break;
         }
 
         DetectPlayer();
     }
 
+    #region Idle
     protected virtual void Idle()
     {
         Animator.SetBool("IsIdle", true);
@@ -80,6 +93,9 @@ public class EnemyBase : MonoBehaviour
             CurrentState = ENEMYSTATE.MOVE;
         }
     }
+    #endregion
+
+    #region Move
     protected virtual void Move()
     {
         if (IsAttacking) return;
@@ -111,10 +127,16 @@ public class EnemyBase : MonoBehaviour
             }
         }
     }
+    #endregion
 
+    #region Search
     protected virtual void Search()
     {
-        if (Target == null) return;
+        if (Target == null)
+        {
+            CurrentState = ENEMYSTATE.IDLE;
+            return;
+        }
 
         Animator.SetBool("IsIdle", false);
         Animator.SetBool("IsMoving", true);
@@ -140,13 +162,31 @@ public class EnemyBase : MonoBehaviour
             return;
         }
     }
+    #endregion
 
+    #region Attack
     protected virtual void Attack()
     {
+        if (Target == null)
+        {
+            CurrentState = ENEMYSTATE.IDLE;
+            return;
+        }
+
         float distance = Vector3.Distance(transform.position, Target.position);
         var relativePos = Target.position - transform.position;
         transform.rotation = Quaternion.LookRotation(relativePos);
         AnimatorStateInfo stateInfo = Animator.GetCurrentAnimatorStateInfo(0);
+
+        Player_Stat playerStat = Target.GetComponent<Player_Stat>();
+        if (playerStat != null && playerStat.CurrentHP <= 0)
+        {
+            IsAttacking = false;
+            Target = null;
+            CurrentState = ENEMYSTATE.IDLE;
+            navAgent.ResetPath();
+            return;
+        }
 
         bool IsAttack = stateInfo.IsName("Brute Attack");
         float AniTime = stateInfo.normalizedTime;
@@ -184,7 +224,22 @@ public class EnemyBase : MonoBehaviour
             lastAttackTime = Time.time;
         }
     }
+    #endregion
 
+    #region Dead
+    void Dead()
+    {
+        if (IsDead) return;
+
+        if (Stat.CurrentHP <= 0)
+        {
+            Animator.SetTrigger("IsDie");
+            IsDead = true;
+            CurrentState = ENEMYSTATE.Dead; // 상태 전이
+            navAgent.ResetPath(); // 이동 멈추기
+        }
+    }
+    #endregion
 
     protected virtual void SetRandomMoveTarget()
     {
@@ -206,17 +261,31 @@ public class EnemyBase : MonoBehaviour
             GameObject found = GameObject.FindGameObjectWithTag("Player");
             if (found != null)
             {
-                float dist = Vector3.Distance(transform.position, found.transform.position);
-                if (dist <= SearchRange)
+                Player_Stat playerStat = found.GetComponent<Player_Stat>();
+                if (playerStat != null && playerStat.CurrentHP > 0)
                 {
-                    Target = found.transform;
-                    navAgent.SetDestination(Target.position);
-                    CurrentState = ENEMYSTATE.SEARCH;
+                    float dist = Vector3.Distance(transform.position, found.transform.position);
+                    if (dist <= SearchRange)
+                    {
+                        Target = found.transform;
+                        navAgent.SetDestination(Target.position);
+                        CurrentState = ENEMYSTATE.SEARCH;
+                    }
                 }
             }
         }
         else
         {
+            Player_Stat playerStat = Target.GetComponent<Player_Stat>();
+            if (playerStat != null && playerStat.CurrentHP <= 0)
+            {
+                Target = null;
+                navAgent.ResetPath();
+                CurrentState = ENEMYSTATE.IDLE;
+                return;
+            }
+
+
             float dist = Vector3.Distance(transform.position, Target.position);
             if (dist <= SearchRange && CurrentState != ENEMYSTATE.SEARCH)
             {

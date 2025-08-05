@@ -15,9 +15,4 @@ public class Player_AnimationEvents : MonoBehaviour
     {
         Action.IsKick = false;
     }
-
-    public void IdleAttackEnd()
-    {
-        Action.IsIdleAttack = false; // 가만히 공격 종료
-    }
 }

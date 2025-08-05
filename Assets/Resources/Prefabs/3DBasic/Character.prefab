@@ -144,6 +144,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxHP: 50
   CurrentHP: 50
+  MaxMp: 100
+  CurrentMp: 100
   AttackPower: 10
   DefensePower: 5
 --- !u!114 &6854339425477246251
@@ -159,6 +161,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Player: {fileID: 5089527828088059539}
+  Skill:
+  - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
+  IsDead: 0
+  IsKick: 0
+  IsAttacking: 0
 --- !u!114 &6675883505787172727
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,6 +184,7 @@ MonoBehaviour:
   CameraArm: {fileID: 6941324783796181333}
   CharacterRoot: {fileID: 7824089770105362860}
   RotateSpeed: 2
+  IsMoving: 0
 --- !u!136 &3050126407679256677
 CapsuleCollider:
   m_ObjectHideFlags: 0

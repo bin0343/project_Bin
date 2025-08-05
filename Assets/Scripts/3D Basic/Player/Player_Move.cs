@@ -23,6 +23,7 @@ public class Player_Move : MonoBehaviour
     private float RotateSpeed = 2.0f;
 
     private bool _IsRunning = false;
+    public bool IsMoving = false;
     public bool IsRunning => _IsRunning;
     private Player_Action Action;
 
@@ -40,6 +41,7 @@ public class Player_Move : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (Action.IsDead) return;
         Move();
         Run();
         Rotate();

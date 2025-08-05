@@ -7,6 +7,9 @@ public class Player_Stat : MonoBehaviour
     public int MaxHP = 100;
     public int CurrentHP = 100;
 
+    public int MaxMp = 100;
+    public int CurrentMp = 100;
+
     public int AttackPower = 10;
     public int DefensePower = 5;
 

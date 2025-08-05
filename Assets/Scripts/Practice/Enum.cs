@@ -32,6 +32,7 @@ public enum ENEMYSTATE
     MOVE,
     SEARCH,
     ATTACK,
+    Dead
 }
 
 public enum BULLET
@@ -39,4 +40,11 @@ public enum BULLET
     NONE,
     LINE,   //직선
     TARGET  //유도
+}
+
+public enum SKILLTYPE
+{
+    Buff,
+    Attack,
+    Heal
 }
