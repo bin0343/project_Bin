@@ -13,7 +13,8 @@ public class Skill_Buff : Skill_Base
         Player_Stat stat = user.GetComponent<Player_Stat>();
         stat.AttackPower += attackIncreaseAmount;
 
-        GameObject aura = Instantiate(auraPrefab, user.transform.position, Quaternion.identity, user.transform);
+        Vector3 offset = new Vector3(0f, 0.5f, -0.7f);
+        GameObject aura = Instantiate(auraPrefab, user.transform.position + offset, Quaternion.identity, user.transform);
         Destroy(aura, duration);
 
         stat.StartCoroutine(RemoveBuffAfterDuration(stat));

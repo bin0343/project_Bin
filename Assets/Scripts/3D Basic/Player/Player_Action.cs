@@ -22,6 +22,7 @@ public class Player_Action : MonoBehaviour
     public bool IsKick = false;
     private Quaternion attackDirection;
     public bool IsAttacking = false;
+    public bool IsBuff = false;
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +31,11 @@ public class Player_Action : MonoBehaviour
         Rigidbody = GetComponent<Rigidbody>();
         Move = Player.GetComponentInParent<Player_Move>();
         Stat = Player.GetComponentInParent<Player_Stat>();
+
+        foreach (var skill in Skill)
+        {
+            skill.ResetSkill();
+        }
     }
 
     // Update is called once per frame
@@ -184,7 +190,8 @@ public class Player_Action : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Animator.SetTrigger("AttackBuff");
-            Skill[0].Use(gameObject); // 첫 번째 스킬 사용
+            Skill[0].Use(gameObject);
+            IsBuff = true;
         }
     }
     #endregion

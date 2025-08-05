@@ -279,6 +279,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Paladin_J_Nordstrom_Body
       objectReference: {fileID: 0}
+    - target: {fileID: -751476226918971245, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
+      propertyPath: m_TagString
+      value: Player_Foot
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
       propertyPath: m_Name
       value: Player
@@ -308,6 +312,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
       insertIndex: 2
       addedObject: {fileID: 8691890929793575960}
+    - targetCorrespondingSourceObject: {fileID: -751476226918971245, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4583035666979406019}
+    - targetCorrespondingSourceObject: {fileID: -751476226918971245, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5175022039461184901}
   m_SourcePrefab: {fileID: 100100000, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
 --- !u!1 &3653792596028175563 stripped
 GameObject:
@@ -338,9 +348,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6576bdc0ba8852946836c6b2280fa0f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Hitbox: {fileID: 1783123539877503212}
+  AttackHitbox: {fileID: 1783123539877503212}
+  KickHitbox: {fileID: 5175022039461184901}
 --- !u!4 &4693311900673174140 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9175088765034030054, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
   m_PrefabInstance: {fileID: 4500653829783226778}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5469534380968050953 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -751476226918971245, guid: 718ee43d744487c459071f0f4379aa8d, type: 3}
+  m_PrefabInstance: {fileID: 4500653829783226778}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4583035666979406019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5469534380968050953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af44e49ce6eb99244933efafd9d633b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  KickAttackPower: 1
+  HasHit: 0
+--- !u!65 &5175022039461184901
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5469534380968050953}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.18830004, y: 0.28048328, z: 0.29365742}
+  m_Center: {x: -0.017635468, y: 0.11219991, z: 0.005220662}

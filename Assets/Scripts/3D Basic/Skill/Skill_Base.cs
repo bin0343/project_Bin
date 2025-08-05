@@ -13,30 +13,39 @@ public abstract class Skill_Base : ScriptableObject
 
     protected float lastUseTime;
 
-    private bool isInitialized = false;
+    protected virtual void OnEnable()
+    {
+        lastUseTime = float.NegativeInfinity;
+    }
 
     public virtual bool CanUse(float currentMP)
     {
-        if (!isInitialized)
-        {
-            lastUseTime = -cooldownTime;
-            isInitialized = true;
-        }
-
         return Time.time >= lastUseTime + cooldownTime && currentMP >= mpCost;
     }
 
     public void Use(GameObject user)
     {
-        if (!CanUse(user.GetComponent<Player_Stat>().CurrentMp)) return;
+        Debug.Log($"Skill Use Called at {Time.time}, Last Use: {lastUseTime}");
+
+        if (!CanUse(user.GetComponent<Player_Stat>().CurrentMp))
+        {
+            Debug.Log("Cannot Use Skill Yet");
+            return;
+        }
 
         lastUseTime = Time.time;
+        Debug.Log("Skill Used");
 
         // MP 감소
         user.GetComponent<Player_Stat>().CurrentMp -= (int)mpCost;
 
         // 스킬 효과 적용
         ApplyEffect(user);
+    }
+
+    public void ResetSkill()
+    {
+        lastUseTime = float.NegativeInfinity;
     }
 
     protected abstract void ApplyEffect(GameObject user);

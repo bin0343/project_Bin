@@ -1,21 +1,14 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Weapon_Player : MonoBehaviour
+public class KickHitbox : MonoBehaviour
 {
-    public int WeaponAttackPower = 3;
+    public int KickAttackPower = 1;
     public bool HasHit = false;
-
-    void Awake()
-    {
-        GetComponent<Collider>().enabled = false;
-    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!GetComponent<Collider>().enabled) return;
         if (HasHit) return;
 
         if (other.CompareTag("Enemy"))
@@ -27,7 +20,7 @@ public class Weapon_Player : MonoBehaviour
 
             if (EnemyStat != null && PlayerStat != null)
             {
-                int damage = Mathf.Max(PlayerStat.AttackPower + WeaponAttackPower - EnemyStat.DefensePower, 1);
+                int damage = Mathf.Max(KickAttackPower - EnemyStat.DefensePower, 1);
                 EnemyStat.TakeDamage(damage);
                 Debug.Log($"몬스터가 {damage} 만큼 피해를 입음");
             }

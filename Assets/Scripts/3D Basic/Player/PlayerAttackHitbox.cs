@@ -5,7 +5,9 @@ using UnityEngine;
 public class PlayerAttackHitbox : MonoBehaviour
 {
     [SerializeField]
-    private Collider Hitbox;
+    private Collider AttackHitbox;
+    [SerializeField]
+    private Collider KickHitbox;
 
     private bool HasHit = false;
     Weapon_Player Weapon_Player;
@@ -13,19 +15,20 @@ public class PlayerAttackHitbox : MonoBehaviour
     private void Awake()
     {
         Weapon_Player = GetComponentInChildren<Weapon_Player>();
-        Hitbox = GetComponentInChildren<Collider>();
-        Hitbox.enabled = false;
+        AttackHitbox = GetComponentInChildren<Collider>();
+        KickHitbox = GetComponentInChildren<Collider>();
+        AttackHitbox.enabled = false;
     }
 
-    public void EnableHitbox()
+    public void EnableAttackHitbox()
     {
-        Hitbox.enabled = true;
+        AttackHitbox.enabled = true;
         HasHit = false;
     }
 
-    public void DisableHitbox()
+    public void DisableAttackHitbox()
     {
-        Hitbox.enabled = false;
+        AttackHitbox.enabled = false;
     }
 
     public void ResetHasHit()
@@ -42,5 +45,17 @@ public class PlayerAttackHitbox : MonoBehaviour
             Debug.Log("공격!");
             HasHit = true;
         }
+    }
+
+    public void EnableKickHitbox()
+    {
+        KickHitbox.enabled = true;
+
+        KickHitbox.GetComponentInChildren<KickHitbox>().HasHit = false; // 중복 타격 방지 초기화
+    }
+
+    public void DisableKickHitbox()
+    {
+        KickHitbox.enabled = false;
     }
 }

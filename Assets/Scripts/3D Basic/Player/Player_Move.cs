@@ -49,7 +49,7 @@ public class Player_Move : MonoBehaviour
 
     void Move()
     {
-        if (Action.IsKick)
+        if (Action.IsKick || Action.IsBuff)
             return;
         if (Action != null && Action.IsAttacking)
             return;

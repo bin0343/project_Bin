@@ -297,8 +297,11 @@ public class EnemyBase : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Weapon_Player"))
+        if (IsDead) return;
+
+        if (other.gameObject.CompareTag("Player_Foot"))
         {
+            Animator.SetTrigger("IsStun");
             Debug.Log("공격당함");
         }
     }
