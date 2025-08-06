@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class Shared
@@ -8,4 +9,6 @@ public static class Shared
     public static BattleManager BattleManager;
     public static BulletManager BulletManager;
     public static UI_Battle UIBattle;
+
+    public static Stack<UI_Base> UIStack = new Stack<UI_Base>();
 }

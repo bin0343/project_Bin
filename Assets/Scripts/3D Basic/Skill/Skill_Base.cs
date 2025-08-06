@@ -27,7 +27,7 @@ public abstract class Skill_Base : ScriptableObject
     {
         Debug.Log($"Skill Use Called at {Time.time}, Last Use: {lastUseTime}");
 
-        if (!CanUse(user.GetComponent<Player_Stat>().CurrentMp))
+        if (!CanUse(user.GetComponent<Player_Stat>().CurrentMP))
         {
             Debug.Log("Cannot Use Skill Yet");
             return;
@@ -37,7 +37,7 @@ public abstract class Skill_Base : ScriptableObject
         Debug.Log("Skill Used");
 
         // MP 감소
-        user.GetComponent<Player_Stat>().CurrentMp -= (int)mpCost;
+        user.GetComponent<Player_Stat>().CurrentMP -= (int)mpCost;
 
         // 스킬 효과 적용
         ApplyEffect(user);

@@ -15,9 +15,11 @@ public class PlayerAttackHitbox : MonoBehaviour
     private void Awake()
     {
         Weapon_Player = GetComponentInChildren<Weapon_Player>();
-        AttackHitbox = GetComponentInChildren<Collider>();
-        KickHitbox = GetComponentInChildren<Collider>();
-        AttackHitbox.enabled = false;
+        if (AttackHitbox != null)
+            AttackHitbox.enabled = false;
+
+        if (KickHitbox != null)
+            KickHitbox.enabled = false;
     }
 
     public void EnableAttackHitbox()

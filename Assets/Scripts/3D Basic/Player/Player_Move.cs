@@ -76,6 +76,7 @@ public class Player_Move : MonoBehaviour
 
     void Run()
     {
+        if (!Action.IsGrounded) return;
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         bool IsMoving = moveInput.magnitude != 0;
         _IsRunning = Input.GetKey(KeyCode.LeftShift) && IsMoving;

@@ -17,7 +17,7 @@ public class Player_Action : MonoBehaviour
     private float JumpForce = 5f;
     private float JumpAttackForce = 5.5f;
 
-    private bool IsGrounded = true;
+    public bool IsGrounded = true;
     public bool IsDead = false;
     public bool IsKick = false;
     private Quaternion attackDirection;
@@ -187,6 +187,7 @@ public class Player_Action : MonoBehaviour
     #region UseSkill
     void UseSkill()
     {
+        if (!IsGrounded) return;
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Animator.SetTrigger("AttackBuff");

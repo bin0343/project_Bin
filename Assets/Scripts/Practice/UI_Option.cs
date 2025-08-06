@@ -2,8 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UI_Option : MonoBehaviour
+public class UI_Option : UI_Base
 {
+    private void Awake()
+    {
+    }
+
+    private void OnEnable()
+    {
+        Shared.UIStack.Push(this);
+    }
+    private void ObDisable()
+    {
+        Shared.UIStack.Pop();
+    }
     // Start is called before the first frame update
     void Start()
     {

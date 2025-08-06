@@ -7,8 +7,14 @@ public class KickHitbox : MonoBehaviour
     public int KickAttackPower = 1;
     public bool HasHit = false;
 
+    void Awake()
+    {
+        GetComponent<Collider>().enabled = false;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
+        if (!GetComponent<Collider>().enabled) return;
         if (HasHit) return;
 
         if (other.CompareTag("Enemy"))

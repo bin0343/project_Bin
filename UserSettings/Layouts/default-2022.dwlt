@@ -121,7 +121,7 @@ MonoBehaviour:
   m_MinSize: {x: 400, y: 100}
   m_MaxSize: {x: 32384, y: 16192}
   vertical: 0
-  controlID: 157
+  controlID: 180
   draggingID: 0
 --- !u!114 &6
 MonoBehaviour:
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 76
+  controlID: 29
   draggingID: 0
 --- !u!114 &7
 MonoBehaviour:
@@ -176,7 +176,7 @@ MonoBehaviour:
   - {fileID: 17}
   - {fileID: 18}
   m_Selected: 0
-  m_LastSelected: 1
+  m_LastSelected: 2
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -228,7 +228,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 107
+  controlID: 53
   draggingID: 0
 --- !u!114 &10
 MonoBehaviour:
@@ -832,14 +832,14 @@ MonoBehaviour:
   m_OverrideSceneCullingMask: 6917529027641081856
   m_SceneIsLit: 1
   m_SceneLighting: 1
-  m_2DMode: 0
+  m_2DMode: 1
   m_isRotationLocked: 0
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -4.7934155, y: 0.92787856, z: -4.4503827}
+    m_Target: {x: 776.72894, y: 554.99365, z: 62.77335}
     speed: 2
-    m_Value: {x: -4.7934155, y: 0.92787856, z: -4.4503827}
+    m_Value: {x: 776.72894, y: 554.99365, z: 62.77335}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -867,17 +867,17 @@ MonoBehaviour:
       m_Size: {x: 1, y: 1}
     yGrid:
       m_Fade:
-        m_Target: 1
+        m_Target: 0
         speed: 2
-        m_Value: 1
+        m_Value: 0
       m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 0.4}
       m_Pivot: {x: 0, y: 0, z: 0}
       m_Size: {x: 1, y: 1}
     zGrid:
       m_Fade:
-        m_Target: 0
+        m_Target: 1
         speed: 2
-        m_Value: 0
+        m_Value: 1
       m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 0.4}
       m_Pivot: {x: 0, y: 0, z: 0}
       m_Size: {x: 1, y: 1}
@@ -885,17 +885,17 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.28727064, y: 0.43222386, z: -0.14745525, w: -0.8419305}
+    m_Target: {x: 0, y: 0, z: 0, w: 1}
     speed: 2
-    m_Value: {x: -0.2872804, y: 0.43223858, z: -0.14746027, w: -0.8419592}
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 0.78182054
+    m_Target: 305.12225
     speed: 2
-    m_Value: 0.78182054
+    m_Value: 305.12225
   m_Ortho:
-    m_Target: 0
+    m_Target: 1
     speed: 2
-    m_Value: 0
+    m_Value: 1
   m_CameraSettings:
     m_Speed: 0.8259
     m_SpeedNormalized: 0.41
@@ -909,7 +909,7 @@ MonoBehaviour:
     m_FarClip: 10000
     m_DynamicClip: 1
     m_OcclusionCulling: 0
-  m_LastSceneViewRotation: {x: -0.08717229, y: 0.89959055, z: -0.21045254, w: -0.3726226}
+  m_LastSceneViewRotation: {x: -0.12135595, y: -0.048831016, z: 0.0059883744, w: -0.9913556}
   m_LastSceneViewOrtho: 0
   m_ReplacementShader: {fileID: 0}
   m_ReplacementString: 
@@ -998,14 +998,14 @@ MonoBehaviour:
       e31: 0
       e32: 0
       e33: 1
-    - e00: 0.40202704
+    - e00: 0.53168076
       e01: 0
       e02: 0
-      e03: 95.405396
+      e03: 122.648636
       e10: 0
-      e11: 0.40202704
+      e11: 0.53168076
       e12: 0
-      e13: 151.76689
+      e13: 116.389206
       e20: 0
       e21: 0
       e22: 1
@@ -1260,7 +1260,7 @@ MonoBehaviour:
     m_OverlaysVisible: 1
   m_LockTracker:
     m_IsLocked: 0
-  m_LastSelectedObjectID: -6622
+  m_LastSelectedObjectID: -34298
 --- !u!114 &20
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -1298,23 +1298,23 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 22e6ffff
-      m_LastClickedID: -6622
-      m_ExpandedIDs: e2e4ffffece5fffffce5ffff00e6ffff18e6ffff22e6ffff3ee6ffff40e6ffff
+      m_SelectedIDs: 167affff
+      m_LastClickedID: -34282
+      m_ExpandedIDs: 4473ffff067affff167affff22f8ffff76f8ffff7af8ffff7ef8ffff82f8ffff0af9ffff0ef9ffff12f9ffff3ef9ffff88f9ffff9af9ffffc0f9ffff14faffff18faffff1cfaffff20faffff9cfaffffa0faffffa4faffffb8faffffbcfaffffd4fafffffafafffffcfaffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
-        m_Name: Player
-        m_OriginalName: Player
+        m_Name: 
+        m_OriginalName: 
         m_EditFieldRect:
           serializedVersion: 2
           x: 0
           y: 0
           width: 0
           height: 0
-        m_UserData: 72806
+        m_UserData: 0
         m_IsWaitingForDelay: 0
         m_IsRenaming: 0
-        m_OriginalEventType: 0
+        m_OriginalEventType: 11
         m_IsRenamingFilename: 0
         m_ClientGUIView: {fileID: 10}
       m_SearchString: 
@@ -1403,7 +1403,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Resources/3D Assets/Animation/Monster_Copy/Brute
+    - Assets/Scripts/3D Basic/Player
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -1411,16 +1411,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Resources/3D Assets/Animation/Monster_Copy/Brute
+  - Assets/Scripts/3D Basic/Player
   m_LastFoldersGridSize: 16
   m_LastProjectPath: D:\Unity\Project_Bin
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: a62a0100
-    m_LastClickedID: 76454
-    m_ExpandedIDs: 00000000582100006421000084210000a4770000a6770000a8770000aa770000ac770000ae770000f27d0000f87d0000fa7d0000a6e40000aae40000ace40000b22a010000ca9a3b
+    scrollPos: {x: 0, y: 170}
+    m_SelectedIDs: 56760000
+    m_LastClickedID: 30294
+    m_ExpandedIDs: 00000000ae6f0000b06f0000b26f0000b46f0000b66f0000b86f0000ba6f0000bc6f0000be6f00003c76000046760000647600006676000038d3000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1448,7 +1448,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000a4770000a6770000a8770000aa770000ac770000ae770000
+    m_ExpandedIDs: 00000000ae6f0000b06f0000b26f0000b46f0000b66f0000b86f0000ba6f0000bc6f0000be6f0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1476,7 +1476,7 @@ MonoBehaviour:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
     m_HadKeyboardFocusLastEvent: 1
-    m_ExpandedInstanceIDs: ce620000a05b0000387000003a7000008e7400003c7000004070000042700000467000006e23000076230000505d0000b85c0000245d0000445c0000105c00006c6c0000cc780000546d0000ec200000c2b80300c8b803004cb903008ab90300b040010012700000847100000000000036770000f49c0000705c0000fa6d0000fe700000066e0000b86c0000be6c0000ec690000f2690000986a0000846a0000f2890000f8890000e6890000ec890000706a0000c0690000ee690000da690000886a0000b46a0000d6690000206f0000be6900008e6a00008e70000026b400000cb40000284901005a6e0000227100007e6d00000a6e00009a6e000034710000a26d0000e6700000d46f0000ac6d0000786e0000f6700000a49b01002c710000246e00000e6e0000dc6d00004e6e0000d66d0000666d0000886e0000ea70000026710000946e0000b86d0000be6d00009c6d000066730000a26e00006c6e0000ca6d0000e2700000ac6e0000f66d0000f06d0000546e0000b66e00005e6e000052730000f0700000986d00003873000008710000ce6f00002c6e00005a73000002710000e66d0000a66d0000bc6e00006c6d000046730000b26e0000d26d00001c7100004a7300000e710000de7000002aad0100d45e0000f821000056b10000f4ae000008af0000ba250100
+    m_ExpandedInstanceIDs: ce620000a05b0000387000003a7000008e7400003c7000004070000042700000467000006e23000076230000505d0000b85c0000245d0000445c0000105c00006c6c0000cc780000546d0000ec200000c2b80300c8b803004cb903008ab90300b040010012700000847100000000000036770000f49c0000705c0000fa6d0000fe700000066e0000b86c0000be6c0000ec690000f2690000986a0000846a0000f2890000f8890000e6890000ec890000706a0000c0690000ee690000da690000886a0000b46a0000d6690000206f0000be6900008e6a00008e70000026b400000cb40000284901005a6e0000227100007e6d00000a6e00009a6e000034710000a26d0000e6700000d46f0000ac6d0000786e0000f6700000a49b01002c710000246e00000e6e0000dc6d00004e6e0000d66d0000666d0000886e0000ea70000026710000946e0000b86d0000be6d00009c6d000066730000a26e00006c6e0000ca6d0000e2700000ac6e0000f66d0000f06d0000546e0000b66e00005e6e000052730000f0700000986d00003873000008710000ce6f00002c6e00005a73000002710000e66d0000a66d0000bc6e00006c6d000046730000b26e0000d26d00001c7100004a7300000e710000de7000002aad0100d45e0000f821000056b10000f4ae000008af0000ba250100cc9e0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
