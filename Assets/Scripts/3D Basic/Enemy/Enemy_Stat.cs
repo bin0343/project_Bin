@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Enemy_Stat : MonoBehaviour
 {
+    public string EnemyName;
     public int MaxHP = 80;
     public int CurrentHP = 80;
 

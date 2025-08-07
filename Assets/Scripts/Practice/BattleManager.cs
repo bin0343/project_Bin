@@ -15,6 +15,9 @@ public class BattleManager : MonoBehaviour
     [NonSerialized]
     public Character Character;
 
+    Queue<string> Queue = new Queue<string>();  //서버 데이터를 처리할때(먼저 들어온 데이터 먼저 처리) - 동기 처리, 웹 - 비동기 처리(어싱크, 어웨이크)
+    //렉걸려도 queue를 쓰면 렉걸린 순간의 입력값이 아직 안나갔기 때문에 스킬 연속기 중 렉걸려도 끊기지 않음/ 예 - 메시지1, 메시지2, 메시지3 입력후 코루틴으로 순차적으로 빼내서 표시
+
     bool IsCharacterReset = false;
 
     Action<int> ActionSkill;

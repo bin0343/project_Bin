@@ -24,7 +24,6 @@ public class Player_Action : MonoBehaviour
     public bool IsAttacking = false;
     public bool IsBuff = false;
 
-    // Start is called before the first frame update
     void Start()
     {
         Animator = Player.GetComponent<Animator>();
@@ -38,7 +37,6 @@ public class Player_Action : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (IsDead) return;

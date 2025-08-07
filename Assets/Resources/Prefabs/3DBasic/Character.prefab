@@ -144,8 +144,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxHP: 50
   CurrentHP: 50
-  MaxMp: 100
-  CurrentMp: 100
+  MaxMP: 100
+  CurrentMP: 100
   AttackPower: 10
   DefensePower: 5
 --- !u!114 &6854339425477246251
@@ -161,6 +161,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Player: {fileID: 5089527828088059539}
+  upperBodyBone: {fileID: 419636511778225966}
   Skill:
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
   IsGrounded: 1
@@ -352,6 +353,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
+--- !u!4 &419636511778225966 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8198691756645186934, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
+  m_PrefabInstance: {fileID: 8364666211389227608}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &5089527828088059539 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3653792596028175563, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
