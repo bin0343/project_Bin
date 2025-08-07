@@ -10,8 +10,10 @@ public class UI_Manager : MonoBehaviour
     public GameObject StatusPanel;
     public UI_Status UI_Status;
     public Player_Stat PlayerStat;
+    public GameObject InventoryPanel;
+    public UI_Inventory UI_Inventory;
 
-    private bool IsOpen = false;
+    private Stack<GameObject> UIStack = new Stack<GameObject>();
 
     private void Start()
     {
@@ -31,24 +33,82 @@ public class UI_Manager : MonoBehaviour
         Instance = this;
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            if (StatusPanel.activeSelf)
+            {
+                CloseSpecificUI(StatusPanel);
+            }
+            else
+            {
+                UpdatePlayerStatus();
+                OpenUI(StatusPanel);
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            if (InventoryPanel.activeSelf)
+            {
+                CloseSpecificUI(InventoryPanel);
+            }
+            else
+            {
+                OpenUI(InventoryPanel);
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CloseTopUI();
+        }
+    }
+
     public void UpdatePlayerStatus()
     {
         UI_Status.UpdateStatus(PlayerStat);
     }
 
-    private void Update()
+    public void OpenUI(GameObject panel)
     {
-        ToggleStatusUI();
+        if (!panel.activeSelf)
+        {
+            panel.SetActive(true);
+            panel.transform.SetAsLastSibling();
+            UIStack.Push(panel);
+        }
     }
 
-    public void ToggleStatusUI()
+    public void CloseTopUI()
     {
-        if (Input.GetKeyDown(KeyCode.U))
+        if (UIStack.Count > 0)
         {
-            IsOpen = !IsOpen;
-            StatusPanel.SetActive(IsOpen);
-            UpdatePlayerStatus();
+            GameObject topUI = UIStack.Pop();
+            topUI.SetActive(false);
         }
+    }
 
+    public void CloseSpecificUI(GameObject panel)
+    {
+        if (panel.activeSelf)
+        {
+            panel.SetActive(false);
+            Stack<GameObject> tempStack = new Stack<GameObject>();
+            while (UIStack.Count > 0)
+            {
+                GameObject top = UIStack.Pop();
+                if (top != panel)
+                    tempStack.Push(top);
+                else
+                    break;
+            }
+
+            while (tempStack.Count > 0)
+            {
+                UIStack.Push(tempStack.Pop());
+            }
+        }
     }
 }
