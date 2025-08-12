@@ -5,6 +5,8 @@ using UnityEngine;
 public class Player_AnimationEvents : MonoBehaviour
 {
     Player_Action Action;
+    Player_Move Move;
+    public Animator animator;
 
     void Start()
     {
@@ -19,5 +21,25 @@ public class Player_AnimationEvents : MonoBehaviour
     public void BuffEnd()
     {
         Action.IsBuff = false;
+    }
+
+    public void OnJumpAttackEnd()
+    {
+        Action.IsGrounded = true;
+    }
+
+    public void AttackEnd()
+    {
+        Action.IsAttacking = false;
+    }
+
+    public void AttackReset()
+    {
+        animator.ResetTrigger("IsAttacking");
+    }
+
+    public void OnAttackCombo()
+    {
+        Action.canReceiveInput = true;
     }
 }

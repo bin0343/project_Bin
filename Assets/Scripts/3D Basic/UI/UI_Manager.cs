@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UI_Manager : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class UI_Manager : MonoBehaviour
     public Enemy_Stat EnemyStat;
     public GameObject InventoryPanel;
     public UI_Inventory UI_Inventory;
+    public GameObject MessagePanel;
+    public Text MessageText;
 
     private Stack<GameObject> UIStack = new Stack<GameObject>();
 
@@ -118,6 +121,23 @@ public class UI_Manager : MonoBehaviour
             {
                 UIStack.Push(tempStack.Pop());
             }
+        }
+    }
+
+    public void ShowMessage(string msg)
+    {
+        if (MessagePanel != null)
+        {
+            MessagePanel.SetActive(true);
+            MessageText.text = msg;
+        }
+    }
+
+    public void HideMessage()
+    {
+        if (MessagePanel != null)
+        {
+            MessagePanel.SetActive(false);
         }
     }
 }

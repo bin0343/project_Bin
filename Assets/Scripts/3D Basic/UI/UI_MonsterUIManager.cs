@@ -5,45 +5,40 @@ using UnityEngine.UI;
 
 public class UI_MonsterUIManager : MonoBehaviour
 {
-    //public GameObject monsterHPPrefab; // UI 프리팹
     private Transform player;
-    public Transform monsterHPPanel;   // Canvas 내 패널 참조
+    public Transform monsterHPPanel;
     public float displayDistance = 10f;
 
     private GameObject currentTarget;
     private Slider hpSlider;
     private Text nameText;
+    private Enemy_Stat currentStat;
+
+    private Coroutine hpChangeRoutine; // 코루틴 핸들
 
     private void Start()
     {
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
-        {
             player = playerObj.transform;
-        }
 
-        monsterHPPanel.gameObject.SetActive(false); 
+        monsterHPPanel.gameObject.SetActive(false);
         hpSlider = monsterHPPanel.GetComponentInChildren<Slider>();
         nameText = monsterHPPanel.GetComponentInChildren<Text>();
     }
 
     private void Update()
     {
-        GameObject nearest = FindNearestMonster();
-
-        if (nearest != null)
+        if (currentTarget != null)
         {
-            float distance = Vector3.Distance(player.position, nearest.transform.position);
-            if (distance <= displayDistance)
+            float distance = Vector3.Distance(player.position, currentTarget.transform.position);
+
+            if (distance <= displayDistance && currentStat.CurrentHP > 0)
             {
                 if (!monsterHPPanel.gameObject.activeSelf)
                     monsterHPPanel.gameObject.SetActive(true);
 
-                Enemy_Stat stat = nearest.GetComponent<Enemy_Stat>();
-                hpSlider.value = (float)stat.CurrentHP / stat.MaxHP;
-                nameText.text = stat.EnemyName;
-
-                currentTarget = nearest;
+                nameText.text = currentStat.EnemyName;
             }
             else
             {
@@ -54,26 +49,50 @@ public class UI_MonsterUIManager : MonoBehaviour
         else
         {
             monsterHPPanel.gameObject.SetActive(false);
-            currentTarget = null;
         }
     }
 
-    GameObject FindNearestMonster()
+    public void SetTarget(GameObject monster)
     {
-        GameObject[] monsters = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject nearest = null;
-        float minDistance = float.MaxValue;
+        currentTarget = monster;
+        currentStat = monster.GetComponent<Enemy_Stat>();
 
-        foreach (var monster in monsters)
+        hpSlider.value = (float)currentStat.CurrentHP / currentStat.MaxHP;
+    }
+
+    public void UpdateHPBar(int prevHP, int currentHP, int maxHP)
+    {
+        float startValue = (float)prevHP / maxHP;
+        float targetValue = (float)currentHP / maxHP;
+
+        if (hpChangeRoutine != null)
+            StopCoroutine(hpChangeRoutine);
+
+        hpChangeRoutine = StartCoroutine(AnimateHPBar(startValue, targetValue));
+    }
+
+    private IEnumerator AnimateHPBar(float startValue, float targetValue)
+    {
+        float elapsed = 0f;
+        float duration = 0.3f;
+
+        while (elapsed < duration)
         {
-            float dist = Vector3.Distance(transform.position, monster.transform.position);
-            if (dist < minDistance)
-            {
-                nearest = monster;
-                minDistance = dist;
-            }
+            elapsed += Time.deltaTime;
+            hpSlider.value = Mathf.Lerp(startValue, targetValue, elapsed / duration);
+            yield return null;
         }
 
-        return nearest;
+        hpSlider.value = targetValue;
+    }
+
+    public void ClearTarget()
+    {
+        currentTarget = null;
+        currentStat = null;
+        monsterHPPanel.gameObject.SetActive(false);
+
+        if (hpChangeRoutine != null)
+            StopCoroutine(hpChangeRoutine);
     }
 }

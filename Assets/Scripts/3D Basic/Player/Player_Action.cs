@@ -15,14 +15,14 @@ public class Player_Action : MonoBehaviour
     private float IdleTimer = 0f;
     private float IdleDelay = 5f;
     private float JumpForce = 5f;
-    private float JumpAttackForce = 5.5f;
-
+    
     public bool IsGrounded = true;
     public bool IsDead = false;
     public bool IsKick = false;
-    private Quaternion attackDirection;
     public bool IsAttacking = false;
     public bool IsBuff = false;
+
+    public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
 
     void Start()
     {
@@ -54,33 +54,32 @@ public class Player_Action : MonoBehaviour
     void Attack()
     {
         Vector3 MoveDir = Move.CharacterBody.forward;
-        Vector3 upward = Vector3.up * JumpAttackForce * 1f;
-        Vector3 forward = MoveDir * JumpAttackForce * 0.5f;
-        Vector3 JumpDirection = (Vector3.up * JumpForce + MoveDir).normalized;
 
         if (Animator == null) return;
 
         AnimatorStateInfo stateInfo = Animator.GetCurrentAnimatorStateInfo(0);
 
-        bool isInJumpAttack = stateInfo.IsName("JumpAttack");
-        bool isInRunningSlash = stateInfo.IsName("RunningSlash");
-        IsAttacking = isInJumpAttack || isInRunningSlash;
+        bool isInAttackState = stateInfo.IsTag("Attack");
+        bool isInAttack3 = stateInfo.IsName("Attack3");  // Attack3 상태 체크
 
-        if (IsAttacking)
-        {
-            transform.rotation = attackDirection;
-        }
+        if (isInAttackState)
+            IsAttacking = true;
+        else
+            IsAttacking = false;
 
-        if (Input.GetMouseButtonDown(0) && IsGrounded && !Move.IsRunning)
+        if (isInAttack3 && !canReceiveInput)
+            return;
+
+        if (Input.GetMouseButtonDown(0) && IsGrounded && !Move.IsRunning && canReceiveInput)
         {
             Animator.SetTrigger("IsAttacking");
-            IsAttacking = true;
+            canReceiveInput = false;
         }
 
         if (Input.GetKeyDown(KeyCode.V) && IsGrounded)
         {
             Animator.SetTrigger("IsJumpAttack");
-            Rigidbody.AddForce(upward + forward, ForceMode.Impulse);
+            //Rigidbody.AddForce(upward + forward, ForceMode.Impulse);
             IsGrounded = false;
         }
 

@@ -28,6 +28,11 @@ public class EnemyBase : MonoBehaviour
     private NavMeshAgent navAgent;
     private Enemy_Stat Stat;
 
+    [Header("드랍 아이템 설정")]
+    public List<DropItem> dropTable = new List<DropItem>();
+
+    private bool isPlayerNearby = false; // 시체 근처 감지
+
     protected void Start()
     {
         Animator = GetComponentInChildren<Animator>();
@@ -41,14 +46,21 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (isPlayerNearby && IsDead && Input.GetKeyDown(KeyCode.G))
+        {
+            List<ItemData> drops = GetDroppedItems();
+            UI_Loot.Instance.Open(drops);
+        }
+    }
+
     protected void FixedUpdate()
     {
-        //Debug.Log("현재 상태: " + CurrentState);
-
         if (Stat.CurrentHP <= 0)
         {
-            Dead(); // 체력 확인 후 사망 처리
-            return; // 사망 시 다른 상태 실행 막기
+            Dead();
+            return;
         }
 
         switch (CurrentState)
@@ -237,6 +249,10 @@ public class EnemyBase : MonoBehaviour
             IsDead = true;
             CurrentState = ENEMYSTATE.Dead; // 상태 전이
             navAgent.ResetPath(); // 이동 멈추기
+            gameObject.tag = "Corpse";
+
+            Collider col = GetComponent<Collider>();
+            if (col != null) col.isTrigger = true;
         }
     }
     #endregion
@@ -297,12 +313,46 @@ public class EnemyBase : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (IsDead) return;
+        //if (IsDead) return;
 
-        if (other.gameObject.CompareTag("Player_Foot"))
+        if (!IsDead && other.gameObject.CompareTag("Player_Foot"))
         {
             Animator.SetTrigger("IsStun");
             Debug.Log("공격당함");
+            return;
         }
+
+        if (IsDead && other.CompareTag("Player"))
+        {
+            isPlayerNearby = true;
+            UI_Manager.Instance.ShowMessage("F : 시체확인");
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        //if (!IsDead) return;
+        if (IsDead && other.CompareTag("Player"))
+        {
+            isPlayerNearby = false;
+            UI_Manager.Instance.HideMessage();
+        }
+    }
+
+    private List<ItemData> GetDroppedItems()
+    {
+        List<ItemData> drops = new List<ItemData>();
+        foreach (var drop in dropTable)
+        {
+            if (Random.value <= drop.dropChance)
+            {
+                int amount = Random.Range(drop.minAmount, drop.maxAmount + 1);
+                for (int i = 0; i < amount; i++)
+                {
+                    drops.Add(drop.itemData);
+                }
+            }
+        }
+        return drops;
     }
 }

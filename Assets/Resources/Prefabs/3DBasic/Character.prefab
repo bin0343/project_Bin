@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9156247221655731799}
+  - component: {fileID: 779562801260132554}
   - component: {fileID: 4096399674747122403}
   - component: {fileID: 2018732387357339512}
   m_Layer: 0
@@ -33,6 +34,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6941324783796181333}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &779562801260132554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4071887919968925129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51ef8262b2930f643ab366ef17c12017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 4096399674747122403}
+  maxDistance: 20
+  MonsterUIManager: {fileID: 0}
 --- !u!20 &4096399674747122403
 Camera:
   m_ObjectHideFlags: 0
@@ -161,7 +177,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Player: {fileID: 5089527828088059539}
-  upperBodyBone: {fileID: 419636511778225966}
   Skill:
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
   IsGrounded: 1
@@ -247,7 +262,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6941324783796181333}
-  - component: {fileID: 7294157583097674122}
+  - component: {fileID: 864614928277336921}
   m_Layer: 0
   m_Name: CameraArm
   m_TagString: Untagged
@@ -271,7 +286,7 @@ Transform:
   - {fileID: 9156247221655731799}
   m_Father: {fileID: 7824089770105362860}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7294157583097674122
+--- !u!114 &864614928277336921
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -280,7 +295,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7855989817533471064}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ecdb1bad65c32ca488f52584cca8f423, type: 3}
+  m_Script: {fileID: 11500000, guid: 1a426e4eb04f07240a1c66443bb1ab06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Cameraarm: {fileID: 6941324783796181333}
@@ -344,6 +359,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5847068735268063405, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1948474105030964819}
     - target: {fileID: 8007151072159970315, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
@@ -353,9 +372,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
---- !u!4 &419636511778225966 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8198691756645186934, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
+--- !u!95 &1948474105030964819 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 8007151072159970315, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
   m_PrefabInstance: {fileID: 8364666211389227608}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &5089527828088059539 stripped
