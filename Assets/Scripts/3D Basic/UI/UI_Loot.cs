@@ -12,9 +12,15 @@ public class UI_Loot : MonoBehaviour
         Instance = this;
     }
 
-    public void Open(List<ItemData> drops)
+    public void Toggle(List<ItemData> drops)
     {
-        lootPanel.SetActive(true);
-        // drops 리스트를 UI에 표시하는 로직 작성
+        if (lootPanel.activeSelf)
+        {
+            UI_Manager.Instance.CloseSpecificUI(lootPanel);
+        }
+        else
+        {
+            UI_Manager.Instance.OpenUI(lootPanel);
+        }
     }
 }

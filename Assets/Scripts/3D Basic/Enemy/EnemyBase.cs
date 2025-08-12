@@ -51,7 +51,7 @@ public class EnemyBase : MonoBehaviour
         if (isPlayerNearby && IsDead && Input.GetKeyDown(KeyCode.G))
         {
             List<ItemData> drops = GetDroppedItems();
-            UI_Loot.Instance.Open(drops);
+            UI_Loot.Instance.Toggle(drops);
         }
     }
 
@@ -325,7 +325,7 @@ public class EnemyBase : MonoBehaviour
         if (IsDead && other.CompareTag("Player"))
         {
             isPlayerNearby = true;
-            UI_Manager.Instance.ShowMessage("F : 시체확인");
+            UI_Manager.Instance.ShowMessage("G : 시체확인");
         }
     }
 

@@ -18,6 +18,8 @@ public class UI_Manager : MonoBehaviour
     public UI_Inventory UI_Inventory;
     public GameObject MessagePanel;
     public Text MessageText;
+    public GameObject LootPanel;
+    public UI_Loot UI_Loot;
 
     private Stack<GameObject> UIStack = new Stack<GameObject>();
 
@@ -30,6 +32,10 @@ public class UI_Manager : MonoBehaviour
         if (EnemyStat == null)
         {
             EnemyStat = FindObjectOfType<Enemy_Stat>();
+        }
+        if (UI_Loot == null && LootPanel != null)
+        {
+            UI_Loot = LootPanel.GetComponent<UI_Loot>();
         }
     }
 

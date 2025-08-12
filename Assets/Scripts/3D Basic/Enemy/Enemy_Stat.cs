@@ -20,7 +20,7 @@ public class Enemy_Stat : MonoBehaviour
         UI_MonsterUIManager uiManager = FindObjectOfType<UI_MonsterUIManager>();
         if (uiManager != null)
         {
-            // 체력만 업데이트, 타겟 변경하지 않음
+            uiManager.SetTarget(gameObject);
             uiManager.UpdateHPBar(prevHP, CurrentHP, MaxHP);
         }
 
