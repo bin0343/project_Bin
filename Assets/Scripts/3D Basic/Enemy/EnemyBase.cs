@@ -253,6 +253,15 @@ public class EnemyBase : MonoBehaviour
 
             Collider col = GetComponent<Collider>();
             if (col != null) col.isTrigger = true;
+
+            if (Target != null)
+            {
+                Player_Stat playerStat = Target.GetComponent<Player_Stat>();
+                if (playerStat != null)
+                {
+                    playerStat.GainExp(Stat.ExpReward);
+                }
+            }
         }
     }
     #endregion

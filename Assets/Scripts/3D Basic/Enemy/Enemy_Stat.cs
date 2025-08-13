@@ -11,6 +11,8 @@ public class Enemy_Stat : MonoBehaviour
     public int AttackPower = 8;
     public int DefensePower = 3;
 
+    public int ExpReward = 50;
+
     public void TakeDamage(int damage)
     {
         int prevHP = CurrentHP;
