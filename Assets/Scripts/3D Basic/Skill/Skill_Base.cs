@@ -11,7 +11,7 @@ public abstract class Skill_Base : ScriptableObject
     public float mpCost;
     public float duration;
 
-    protected float lastUseTime;
+    public float lastUseTime;
 
     protected virtual void OnEnable()
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CsvReader : MonoBehaviour
+public class CsvReader
 {
     private System.String[,] Arr_Grid;      //엑셀 테이블의 행과 열 나타냄.[,] 이부분.
 

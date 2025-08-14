@@ -10,7 +10,10 @@ public class Player_Action : MonoBehaviour
     private Rigidbody Rigidbody;
     private Player_Move Move;
     private Player_Stat Stat;
+
     public Skill_Base[] Skill;
+    //public Sprite[] SkillIcons;
+    public UI_SkillManager SkillUIManagers;
 
     private float IdleTimer = 0f;
     private float IdleDelay = 5f;
@@ -35,6 +38,8 @@ public class Player_Action : MonoBehaviour
         {
             skill.ResetSkill();
         }
+
+        SkillUIManagers = FindObjectOfType<UI_SkillManager>();
     }
 
     void Update()
@@ -189,6 +194,7 @@ public class Player_Action : MonoBehaviour
         {
             Animator.SetTrigger("AttackBuff");
             Skill[0].Use(gameObject);
+            SkillUIManagers.Instance.StartCooldown(0);
             IsBuff = true;
         }
     }

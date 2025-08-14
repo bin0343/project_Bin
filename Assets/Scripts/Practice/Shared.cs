@@ -11,4 +11,6 @@ public static class Shared
     public static UI_Battle UIBattle;
 
     public static Stack<UI_Base> UIStack = new Stack<UI_Base>();
+
+    public static TableManager TableManager;
 }
