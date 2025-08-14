@@ -9,6 +9,11 @@ public class TableStage : TableBase
     public class Info       //csv파일 정보들
     {
         public int Id;
+        public byte Type;
+        public int Stat;
+        public string Icon;
+        public string Name;
+        public string Dec;
         public int[] Monster = new int[5];
         public int RewardId;
         public string Prefab;
