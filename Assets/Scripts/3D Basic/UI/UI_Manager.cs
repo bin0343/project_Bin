@@ -13,7 +13,6 @@ public class UI_Manager : MonoBehaviour
     public UI_StatusBar UI_StatusBar;
     public Enemy_HpBar Enemy_HpBar;
     public Player_Stat PlayerStat;
-    public Enemy_Stat EnemyStat;
     public GameObject InventoryPanel;
     public UI_Inventory UI_Inventory;
     public GameObject MessagePanel;
@@ -28,10 +27,6 @@ public class UI_Manager : MonoBehaviour
         if (PlayerStat == null)
         {
             PlayerStat = FindObjectOfType<Player_Stat>();
-        }
-        if (EnemyStat == null)
-        {
-            EnemyStat = FindObjectOfType<Enemy_Stat>();
         }
         if (UI_Loot == null && LootPanel != null)
         {
@@ -81,7 +76,7 @@ public class UI_Manager : MonoBehaviour
             CloseTopUI();
         }
         UI_StatusBar.UpdateStatus(PlayerStat);
-        Enemy_HpBar.UpdateStatus(EnemyStat);
+        //Enemy_HpBar.UpdateStatus(EnemyStat);
     }
 
     public void UpdatePlayerStatus()

@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9156247221655731799}
-  - component: {fileID: 779562801260132554}
   - component: {fileID: 4096399674747122403}
   - component: {fileID: 2018732387357339512}
   m_Layer: 0
@@ -34,21 +33,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6941324783796181333}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &779562801260132554
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4071887919968925129}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51ef8262b2930f643ab366ef17c12017, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerCamera: {fileID: 4096399674747122403}
-  maxDistance: 20
-  MonsterUIManager: {fileID: 0}
 --- !u!20 &4096399674747122403
 Camera:
   m_ObjectHideFlags: 0
@@ -158,6 +142,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb5f328cca299644680fd1d67a023edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Level: 1
+  Exp: 0
+  LevelUpExp: 100
   MaxHP: 50
   CurrentHP: 50
   MaxMP: 100
@@ -179,11 +166,13 @@ MonoBehaviour:
   Player: {fileID: 5089527828088059539}
   Skill:
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
+  SkillUIManagers: {fileID: 0}
   IsGrounded: 1
   IsDead: 0
   IsKick: 0
   IsAttacking: 0
   IsBuff: 0
+  canReceiveInput: 1
 --- !u!114 &6675883505787172727
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,7 +268,7 @@ Transform:
   m_GameObject: {fileID: 7855989817533471064}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.08, y: 2.12, z: -0.17}
+  m_LocalPosition: {x: 0, y: 0, z: -0.17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -298,7 +287,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a426e4eb04f07240a1c66443bb1ab06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Cameraarm: {fileID: 6941324783796181333}
+  cameraArm: {fileID: 6941324783796181333}
+  mainCamera: {fileID: 9156247221655731799}
+  zoomSpeed: 2
+  minZoom: -1
+  maxZoom: 5
 --- !u!1001 &8364666211389227608
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -359,6 +352,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5784278233989824879, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5847068735268063405, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
       propertyPath: animator
       value: 
@@ -366,6 +363,10 @@ PrefabInstance:
     - target: {fileID: 8007151072159970315, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8263053075310568494, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

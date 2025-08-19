@@ -31,6 +31,11 @@ public class EnemyBase : MonoBehaviour
     [Header("드랍 아이템 설정")]
     public List<DropItem> dropTable = new List<DropItem>();
 
+    [Header("UI 설정")]
+    public GameObject hpBarObject; // 몬스터 체력바 캔버스 오브젝트
+    public float hpBarVisibleRange = 12f; // 체력바가 보이는 거리 (SearchRange보다 길게 설정)
+
+
     private bool isPlayerNearby = false; // 시체 근처 감지
 
     protected void Start()
@@ -43,6 +48,11 @@ public class EnemyBase : MonoBehaviour
         if (player != null)
         {
             Target = player.transform;
+        }
+
+        if (hpBarObject != null)
+        {
+            hpBarObject.SetActive(false);
         }
     }
 
@@ -57,6 +67,7 @@ public class EnemyBase : MonoBehaviour
 
     protected void FixedUpdate()
     {
+        ManageHpBarVisibility();
         if (Stat.CurrentHP <= 0)
         {
             Dead();
@@ -251,6 +262,11 @@ public class EnemyBase : MonoBehaviour
             navAgent.ResetPath(); // 이동 멈추기
             gameObject.tag = "Corpse";
 
+            if (hpBarObject != null)
+            {
+                hpBarObject.SetActive(false);
+            }
+
             Collider col = GetComponent<Collider>();
             if (col != null) col.isTrigger = true;
 
@@ -363,5 +379,23 @@ public class EnemyBase : MonoBehaviour
             }
         }
         return drops;
+    }
+
+    void ManageHpBarVisibility()
+    {
+        if (IsDead || Target == null || hpBarObject == null) return;
+
+        float distance = Vector3.Distance(transform.position, Target.position);
+
+        // 플레이어가 가시 범위 안에 있고 체력바가 꺼져있으면 켠다
+        if (distance <= hpBarVisibleRange && !hpBarObject.activeSelf)
+        {
+            hpBarObject.SetActive(true);
+        }
+        // 플레이어가 가시 범위를 벗어났고 체력바가 켜져있으면 끈다
+        else if (distance > hpBarVisibleRange && hpBarObject.activeSelf)
+        {
+            hpBarObject.SetActive(false);
+        }
     }
 }

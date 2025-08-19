@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class BillboardUI : MonoBehaviour    //카메라 바라보기
 {
-    private Camera mainCam;
+    private Camera cam;
 
     void Start()
     {
-        mainCam = Camera.main;
+        cam = Camera.main;
     }
 
     void LateUpdate()
     {
-        if (mainCam != null)
-            transform.LookAt(transform.position + mainCam.transform.rotation * Vector3.forward, mainCam.transform.rotation * Vector3.up);
+        if (cam != null)
+        {
+            // 카메라 바라보게 + 위쪽은 고정
+            transform.LookAt(transform.position + cam.transform.rotation * Vector3.forward, cam.transform.rotation * Vector3.up);
+        }
     }
 }

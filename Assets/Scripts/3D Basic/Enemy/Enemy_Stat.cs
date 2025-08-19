@@ -12,6 +12,15 @@ public class Enemy_Stat : MonoBehaviour
     public int DefensePower = 3;
 
     public int ExpReward = 50;
+    public MonsterHpBar hpBar;
+
+    void Start()
+    {
+        // 자식 오브젝트에서 MonsterHpBar 자동으로 찾아옴
+        hpBar = GetComponentInChildren<MonsterHpBar>();
+        if (hpBar != null)
+            hpBar.Setup(this); // 체력바에 Enemy_Stat 정보 전달
+    }
 
     public void TakeDamage(int damage)
     {
@@ -19,13 +28,7 @@ public class Enemy_Stat : MonoBehaviour
         CurrentHP -= damage;
         CurrentHP = Mathf.Max(CurrentHP, 0);
 
-        UI_MonsterUIManager uiManager = FindObjectOfType<UI_MonsterUIManager>();
-        if (uiManager != null)
-        {
-            uiManager.SetTarget(gameObject);
-            uiManager.UpdateHPBar(prevHP, CurrentHP, MaxHP);
-        }
-
-        Debug.Log("몬스터가 피해를 입음. 남은 체력: " + CurrentHP);
+        if (hpBar != null)
+            hpBar.UpdateHpBar();
     }
 }
