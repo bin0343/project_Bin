@@ -1,5 +1,97 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3043182303956453491
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1390115494373609078}
+  - component: {fileID: 4060966459180377042}
+  - component: {fileID: 5350570196340177022}
+  m_Layer: 0
+  m_Name: FisrtPersonCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1390115494373609078
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3043182303956453491}
+  serializedVersion: 2
+  m_LocalRotation: {x: 5.070968e-14, y: -0, z: 1.8701485e-11, w: 1}
+  m_LocalPosition: {x: 0.001, y: 0.18799996, z: 0.238}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6941324783796181333}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &4060966459180377042
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3043182303956453491}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.01
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!81 &5350570196340177022
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3043182303956453491}
+  m_Enabled: 0
 --- !u!1 &4071887919968925129
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,11 +360,12 @@ Transform:
   m_GameObject: {fileID: 7855989817533471064}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.17}
+  m_LocalPosition: {x: 0, y: 1.37, z: -0.17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9156247221655731799}
+  - {fileID: 1390115494373609078}
   m_Father: {fileID: 7824089770105362860}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &864614928277336921
@@ -288,10 +381,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraArm: {fileID: 6941324783796181333}
-  mainCamera: {fileID: 9156247221655731799}
+  headBone: {fileID: 1983519816477195946}
+  ThirdPersonCamera: {fileID: 4096399674747122403}
+  FirstPersonCamera: {fileID: 4060966459180377042}
   zoomSpeed: 2
-  minZoom: -1
+  minZoom: -0.5
   maxZoom: 5
+  headOffset: {x: 0, y: 0.1, z: 0.2}
+  followSpeed: 10
+  playerBody: {fileID: 5614425455300389929}
 --- !u!1001 &8364666211389227608
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -376,6 +474,11 @@ PrefabInstance:
 --- !u!95 &1948474105030964819 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 8007151072159970315, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
+  m_PrefabInstance: {fileID: 8364666211389227608}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1983519816477195946 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8039949368348081394, guid: 681a67bbdccde1b47bea637cf2981edb, type: 3}
   m_PrefabInstance: {fileID: 8364666211389227608}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &5089527828088059539 stripped

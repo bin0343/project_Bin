@@ -10,7 +10,7 @@ public class TableManager      //모노비헤이비어는 유니티에서 연결. 하지만 패치할
     public void Init()
     {
 #if UNITY_EDITOR
-        Stage.Init_Csv("Book(Character)", 2, 0);
+        Stage.Init_Csv("Stage", 2, 0);
 #else
         Stage.Init_Binary("Stage");
 #endif

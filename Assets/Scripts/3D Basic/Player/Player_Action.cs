@@ -190,7 +190,7 @@ public class Player_Action : MonoBehaviour
     void UseSkill()
     {
         if (!IsGrounded) return;
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.F1))
         {
             Animator.SetTrigger("AttackBuff");
             Skill[0].Use(gameObject);

@@ -116,6 +116,16 @@ public class Player_Move : MonoBehaviour
 
     void Rotate()
     {
+        // CameraArm에서 1인칭/3인칭 상태 확인
+        CameraArm cameraArmScript = CameraArm.GetComponent<CameraArm>();
+
+        if (cameraArmScript.FirstPersonCamera.enabled)
+        {
+            // 1인칭 모드에서는 Rotate() 하지 않음
+            return;
+        }
+
+        // 3인칭 모드일 때만 기존 회전 처리
         Vector3 lookDir = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
 
         if (lookDir.sqrMagnitude > 0f)

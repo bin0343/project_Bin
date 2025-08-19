@@ -9,12 +9,7 @@ public class TableStage : TableBase
     public class Info       //csv파일 정보들
     {
         public int Id;
-        public byte Type;
-        public int Stat;
-        public string Icon;
-        public string Name;
-        public string Dec;
-        public int[] Monster = new int[5];
+        public int[] Monster = new int[3];
         public int RewardId;
         public string Prefab;
     }
@@ -61,7 +56,7 @@ public class TableStage : TableBase
 
         _Reader.Get(_Row, ref _Info.Id);
 
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < 3; ++i)
             _Reader.Get(_Row, ref _Info.Monster[i]);
 
         _Reader.Get(_Row, ref _Info.RewardId);
