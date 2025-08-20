@@ -83,12 +83,14 @@ public class UI_SkillSlot : MonoBehaviour
             if (remaining > 0)
             {
                 CooldownMask.fillAmount = remaining / assignedSkill.cooldownTime;
+                CooldownText.enabled = true;
                 CooldownText.text = remaining.ToString("F1");
             }
             else
             {
                 CooldownMask.fillAmount = 0f;
                 CooldownText.text = "";
+                CooldownText.enabled = false;
                 isCooldown = false;
             }
         }
