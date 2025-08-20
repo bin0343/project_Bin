@@ -4,23 +4,31 @@ using UnityEngine;
 
 public class UI_SkillManager : MonoBehaviour
 {
-    public UI_SkillManager Instance;
+    public static UI_SkillManager Instance { get; private set; }
 
-    public UI_SkillSlot[] skillSlots;   // 하위 슬롯들
-    public Sprite[] skillIcons;         // 스킬 아이콘
-    public Skill_Base[] skills;         // 실제 스킬 데이터 (ScriptableObject)
+    public UI_SkillSlot[] skillSlots;
 
-    void Awake()
+    private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject); // 혹시 중복 방지
     }
 
-    void Start()
+    public void AssignSkillToSlot(int index, Skill_Base skillData)
     {
-        // 슬롯 초기 세팅
-        for (int i = 0; i < skills.Length; i++)
+        if (index >= 0 && index < skillSlots.Length)
         {
-            skillSlots[i].Setup(skills[i], skillIcons[i]);
+            skillSlots[index].Setup(skillData);
+        }
+    }
+
+    public void ClearSkillFromSlot(int index)
+    {
+        if (index >= 0 && index < skillSlots.Length)
+        {
+            skillSlots[index].Clear();
         }
     }
 

@@ -228,6 +228,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1295693434 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 812769478491930775, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+  m_PrefabInstance: {fileID: 5077478872558524947}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4c20d4d9b6cb74d86541f05862f129, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1810752030
 GameObject:
   m_ObjectHideFlags: 0
@@ -469,6 +480,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2019506765 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7222346900820677506, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+  m_PrefabInstance: {fileID: 5077478872558524947}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4c20d4d9b6cb74d86541f05862f129, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2084231346 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 551772598293260835, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+  m_PrefabInstance: {fileID: 5077478872558524947}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4c20d4d9b6cb74d86541f05862f129, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5077478872558524947
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -497,6 +530,22 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 33
       objectReference: {fileID: 0}
+    - target: {fileID: 1164224710529635692, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: skillSlots.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1164224710529635692, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: skillSlots.Array.data[1]
+      value: 
+      objectReference: {fileID: 2084231346}
+    - target: {fileID: 1164224710529635692, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: skillSlots.Array.data[2]
+      value: 
+      objectReference: {fileID: 1295693434}
+    - target: {fileID: 1164224710529635692, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: skillSlots.Array.data[3]
+      value: 
+      objectReference: {fileID: 2019506765}
     - target: {fileID: 1496310643228803155, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -657,6 +706,22 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3214970695648769453, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3214970695648769453, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3500612165348554451, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3500612165348554451, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4148851096075231856, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -669,6 +734,14 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4358200202261699687, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4358200202261699687, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4508107045288739423, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -676,6 +749,14 @@ PrefabInstance:
     - target: {fileID: 4608164948126794828, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: PlayerStat
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891113039449466552, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891113039449466552, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5440341755683353671, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -693,11 +774,27 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -485.21997
       objectReference: {fileID: 0}
+    - target: {fileID: 5696906936280173580, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5696906936280173580, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5895157687293450949, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5895157687293450949, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5982478273460686706, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5982478273460686706, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
@@ -761,6 +858,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 28
       objectReference: {fileID: 0}
+    - target: {fileID: 7166867500482767183, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: assignedSkill
+      value: 
+      objectReference: {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
     - target: {fileID: 7908883370881099727, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -947,6 +1048,14 @@ PrefabInstance:
       propertyPath: SkillUIManagers
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 6854339425477246251, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: Skill.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6854339425477246251, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: Skill.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
     - target: {fileID: 6854339425477246251, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: SkillIcons.Array.size
       value: 0

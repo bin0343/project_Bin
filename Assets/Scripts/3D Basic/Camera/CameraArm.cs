@@ -5,23 +5,26 @@ using UnityEngine;
 
 public class CameraArm : MonoBehaviour
 {
-    [SerializeField] private Transform cameraArm;    // 카메라 회전축 (pivot)
-    [SerializeField] private Transform headBone;
-    [SerializeField] private Camera ThirdPersonCamera;   // 실제 카메라
-    [SerializeField] public Camera FirstPersonCamera;   // 실제 카메라
-    [SerializeField] private float zoomSpeed = 2.0f; // 줌 속도
-    [SerializeField] private float minZoom = 0.0f;   // 1인칭 시점
-    [SerializeField] private float maxZoom = 5.0f;   // 최대 줌아웃 거리
-    [SerializeField] private Vector3 headOffset = new Vector3(0, 0.1f, 0); // 머리 기준 보정값
-    //[SerializeField] private float followSpeed = 10f;
-    [SerializeField] private Transform playerBody; // 캐릭터 루트(몸통)
-    private float xRotation = 0f; // 카메라 Pitch 저장
+    [SerializeField] private Transform cameraArm;        // 인스펙터: CameraArm 자기 자신 연결
+    [SerializeField] private Transform headBone;         // 인스펙터: Player 모델의 머리 뼈 연결
+    [SerializeField] public Camera ThirdPersonCamera;
+    [SerializeField] public Camera FirstPersonCamera;
+    [SerializeField] private float zoomSpeed = 2.0f;
+    [SerializeField] private float minZoom = 0.0f;
+    [SerializeField] private float maxZoom = 5.0f;
+    [SerializeField] private Vector3 headOffset = new Vector3(0, 0.1f, 0);
+    [SerializeField] private Transform playerBody;       // 인스펙터: Player 모델 오브젝트 연결
+
+    private float xRotation = 0f;
     private float CurrentZoom = -3.0f;
 
-    private void Start()
+    void Start()
     {
         ThirdPersonCamera.enabled = true;
         FirstPersonCamera.enabled = false;
+        // 마우스 커서 고정 및 숨기기
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void Update()
@@ -37,21 +40,14 @@ public class CameraArm : MonoBehaviour
 
         if (FirstPersonCamera.enabled)
         {
-            // 마우스 입력
+            // 1인칭: Y축(상하) 회전값만 계산해서 카메라의 Local Rotation에 적용
             xRotation -= mouseY;
             xRotation = Mathf.Clamp(xRotation, -70f, 80f);
-
-            // 좌우(Yaw)는 캐릭터 몸통이 회전
-            playerBody.Rotate(Vector3.up * mouseX);
-
-            // 카메라는 Pitch만 담당하지만,
-            // 플레이어 몸통 회전(Yaw)을 기준으로 회전해야 함
-            FirstPersonCamera.transform.rotation =
-                Quaternion.Euler(xRotation, playerBody.rotation.eulerAngles.y, 0f);
+            FirstPersonCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         }
         else
         {
-            // 3인칭 모드 기존 방식 유지
+            // 3인칭: 카메라 피봇(CameraArm)을 마우스 움직임에 따라 회전
             Vector3 cameraAngle = cameraArm.rotation.eulerAngles;
             float x = cameraAngle.x - mouseY;
 
@@ -66,37 +62,33 @@ public class CameraArm : MonoBehaviour
     {
         if (FirstPersonCamera.enabled)
         {
-            // 카메라 위치를 headBone에 고정 (로컬 위치 기준)
-            FirstPersonCamera.transform.position = headBone.position + headOffset;
-
-            // Pitch만 적용 (x축 회전)
-            Vector3 euler = FirstPersonCamera.transform.localEulerAngles;
-            euler.x = xRotation;
-            FirstPersonCamera.transform.localEulerAngles = euler;
+            // 1인칭일 때, 카메라의 월드 위치를 머리 뼈 위치로 고정
+            FirstPersonCamera.transform.position = headBone.position + headBone.TransformDirection(headOffset);
         }
     }
 
     private void ZoomCamera()
     {
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll != 0f)
-        {
-            CurrentZoom += scroll * zoomSpeed;
-            CurrentZoom = Mathf.Clamp(CurrentZoom, -maxZoom, -minZoom);
+        CurrentZoom += Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
+        CurrentZoom = Mathf.Clamp(CurrentZoom, -maxZoom, -minZoom);
+        ThirdPersonCamera.transform.localPosition = new Vector3(0, 0, CurrentZoom);
 
-            ThirdPersonCamera.transform.localPosition = new Vector3(0, 0, CurrentZoom);
-        }
-
-        // 전환 조건 수정
+        // 줌 거리에 따라 1인칭/3인칭 카메라 전환
         if (CurrentZoom >= -minZoom - 0.1f)
         {
-            ThirdPersonCamera.enabled = false;
-            FirstPersonCamera.enabled = true;
+            if (!FirstPersonCamera.enabled)
+            {
+                ThirdPersonCamera.enabled = false;
+                FirstPersonCamera.enabled = true;
+            }
         }
         else
         {
-            ThirdPersonCamera.enabled = true;
-            FirstPersonCamera.enabled = false;
+            if (!ThirdPersonCamera.enabled)
+            {
+                ThirdPersonCamera.enabled = true;
+                FirstPersonCamera.enabled = false;
+            }
         }
     }
 }

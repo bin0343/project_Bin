@@ -8,51 +8,53 @@ public class Player_Move : MonoBehaviour
 {
     private Animator Animator;
     private Rigidbody Rigidbody;
+    private Player_Action Action;
+    private CameraArm cameraArmScript;
 
-    [SerializeField]
-    private float CharacterSpeed = 2.0f; // 캐릭터 속도
-    [SerializeField]
-    public float CharacterRunSpeed = 9.0f; // 달리기 속도
-    [SerializeField]
-    public Transform CharacterBody; // 메인 캐릭터
-    [SerializeField]
-    private Transform CameraArm; // 메인 캐릭터의 카메라
-    [SerializeField]
-    private Transform CharacterRoot;    //캐릭터 상위오브젝트
-    [SerializeField]
-    private float RotateSpeed = 2.0f;
+    [SerializeField] private float CharacterSpeed = 2.0f;
+    [SerializeField] public float CharacterRunSpeed = 9.0f;
+    [SerializeField] public Transform CharacterBody; // 인스펙터: Player 모델 오브젝트 연결
+    [SerializeField] private Transform CameraArm;     // 인스펙터: CameraArm 피봇 오브젝트 연결
+    [SerializeField] private float RotateSpeed = 2.0f;
 
     private bool _IsRunning = false;
-    public bool IsMoving = false;
     public bool IsRunning => _IsRunning;
-    private Player_Action Action;
 
     void Start()
     {
         Rigidbody = GetComponent<Rigidbody>();
         Animator = CharacterBody.GetComponentInChildren<Animator>();
         Action = GetComponent<Player_Action>();
+        cameraArmScript = CameraArm.GetComponent<CameraArm>();
     }
 
     void Update()
     {
-        //LookAround();
+        // 1인칭일 때 Character 루트 오브젝트 전체를 회전시킵니다.
+        Look();
     }
 
     private void FixedUpdate()
     {
-        if (Action.IsDead) return;
+        if (Action != null && Action.IsDead) return;
         Move();
         Run();
-        Rotate();
+        Rotate(); // 3인칭 전용 회전 처리
+    }
+
+    void Look()
+    {
+        if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
+        {
+            float mouseX = Input.GetAxis("Mouse X");
+            // 이 스크립트가 붙어있는 'Character' 루트 오브젝트를 회전
+            transform.Rotate(Vector3.up * mouseX);
+        }
     }
 
     void Move()
     {
-        if (Action.IsKick || Action.IsBuff)
-            return;
-        if (Action != null && Action.IsAttacking)
-            return;
+        if (Action != null && (Action.IsKick || Action.IsBuff || Action.IsAttacking)) return;
 
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         bool isMoving = moveInput.magnitude != 0;
@@ -63,24 +65,34 @@ public class Player_Move : MonoBehaviour
 
         if (!isMoving) return;
 
+        Vector3 lookForward;
+        Vector3 lookRight;
+
+        if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
+        {
+            // 1인칭: 회전하는 'Character' 루트의 방향을 기준으로 이동
+            lookForward = transform.forward;
+            lookRight = transform.right;
+        }
+        else
+        {
+            // 3인칭: 카메라가 보는 방향을 기준으로 이동
+            lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
+            lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
+            CharacterBody.forward = lookForward;
+        }
+
         float adjustedSpeed = GetAdjustedSpeed(moveInput);
-
-        Vector3 lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
-        Vector3 lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
-        Vector3 moveDir = lookForward * moveInput.y + lookRight * moveInput.x;
-
-        CharacterBody.forward = lookForward;
+        Vector3 moveDir = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
 
         Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * adjustedSpeed);
     }
 
     void Run()
     {
-        if (!Action.IsGrounded) return;
+        if (Action != null && !Action.IsGrounded) return;
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        bool IsMoving = moveInput.magnitude != 0;
-        _IsRunning = Input.GetKey(KeyCode.LeftShift) && IsMoving;
-
+        _IsRunning = Input.GetKey(KeyCode.LeftShift) && moveInput.magnitude != 0;
         Animator.SetBool("IsRunning", _IsRunning);
     }
 
@@ -89,21 +101,11 @@ public class Player_Move : MonoBehaviour
         float forwardWeight = 1.0f;
         float backwardWeight = 0.6f;
         float sideWeight = 0.8f;
-
         float directionWeight = 1.0f;
 
-        if (Mathf.Abs(moveInput.x) > 0 && Mathf.Abs(moveInput.y) == 0)
-        {
-            directionWeight = sideWeight;
-        }
-        else if (moveInput.y < 0)
-        {
-            directionWeight = backwardWeight;
-        }
-        else if (moveInput.y > 0 && Mathf.Abs(moveInput.x) == 0)
-        {
-            directionWeight = forwardWeight;
-        }
+        if (Mathf.Abs(moveInput.x) > 0 && Mathf.Abs(moveInput.y) == 0) directionWeight = sideWeight;
+        else if (moveInput.y < 0) directionWeight = backwardWeight;
+        else if (moveInput.y > 0 && Mathf.Abs(moveInput.x) == 0) directionWeight = forwardWeight;
         else if (moveInput.x != 0 && moveInput.y != 0)
         {
             float vertical = moveInput.y > 0 ? forwardWeight : backwardWeight;
@@ -116,18 +118,13 @@ public class Player_Move : MonoBehaviour
 
     void Rotate()
     {
-        // CameraArm에서 1인칭/3인칭 상태 확인
-        CameraArm cameraArmScript = CameraArm.GetComponent<CameraArm>();
-
-        if (cameraArmScript.FirstPersonCamera.enabled)
+        if (cameraArmScript == null || cameraArmScript.FirstPersonCamera.enabled)
         {
-            // 1인칭 모드에서는 Rotate() 하지 않음
-            return;
+            return; // 1인칭일 때는 이 함수를 실행하지 않음
         }
 
-        // 3인칭 모드일 때만 기존 회전 처리
+        // 3인칭일 때만 카메라 방향으로 캐릭터를 부드럽게 회전
         Vector3 lookDir = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
-
         if (lookDir.sqrMagnitude > 0f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(lookDir);
