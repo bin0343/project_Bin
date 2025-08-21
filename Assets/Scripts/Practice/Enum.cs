@@ -48,3 +48,11 @@ public enum SKILLTYPE
     Attack,
     Heal
 }
+
+public enum ITEMTYPE
+{
+    Equipment,
+    Consumable,
+    Material,
+    Quest
+}

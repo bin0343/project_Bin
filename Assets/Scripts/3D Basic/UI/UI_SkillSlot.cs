@@ -10,7 +10,6 @@ public class UI_SkillSlot : MonoBehaviour
     public Text CooldownText;
     public Text MpCostText;
 
-    // CHANGED: Skill_Base 대신 SkillHolder를 참조
     private SkillHolder assignedSkillHolder;
 
     public bool IsEmpty => assignedSkillHolder == null;
