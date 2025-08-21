@@ -5,94 +5,66 @@ using UnityEngine.UI;
 
 public class UI_SkillSlot : MonoBehaviour
 {
-    [Header("Skill Data (Drag & Drop in Inspector)")]
-    public Skill_Base assignedSkill;
+    public Image SkillIcon;
+    public Image CooldownMask;
+    public Text CooldownText;
+    public Text MpCostText;
 
-    public Image SkillIcon;               // 스킬 아이콘
-    public Image CooldownMask;            // 쿨타임 마스크
-    public Text CooldownText;  // 쿨타임 남은 시간
-    public Text MpCostText;    // MP 소모량
+    // CHANGED: Skill_Base 대신 SkillHolder를 참조
+    private SkillHolder assignedSkillHolder;
 
-    private Skill_Base skill;
-    private bool isCooldown = false;
-
-    public bool IsEmpty => skill == null;  // 빈 슬롯 여부 체크
+    public bool IsEmpty => assignedSkillHolder == null;
 
     void Awake()
     {
-        SkillIcon.enabled = false;
-        CooldownMask.fillAmount = 0f;
-
-        CooldownText.text = "";
-        CooldownText.enabled = false;
-
-        MpCostText.text = "";
-        MpCostText.enabled = false;
-
-        if (assignedSkill != null)
-            Setup(assignedSkill);
+        Clear();
     }
 
-    public void Setup(Skill_Base skillData)
+    public void Setup(SkillHolder skillHolder)
     {
-        assignedSkill = skillData;
-        SkillIcon.sprite = skillData.skillIcon;
+        assignedSkillHolder = skillHolder;
+        SkillIcon.sprite = skillHolder.SkillData.skillIcon;
         SkillIcon.enabled = true;
-        MpCostText.text = $"{skillData.mpCost}";
+        MpCostText.text = $"{skillHolder.SkillData.mpCost}";
         MpCostText.enabled = true;
-        CooldownMask.fillAmount = 0f;
-        CooldownText.text = "";
+        // 초기 쿨타임 UI 업데이트
+        UpdateCooldownUI();
     }
 
     public void Clear()
     {
-        skill = null;
+        assignedSkillHolder = null;
         SkillIcon.sprite = null;
         SkillIcon.enabled = false;
         MpCostText.text = "";
         MpCostText.enabled = false;
-        CooldownMask.fillAmount = 0f;
-        CooldownText.text = "";
+        CooldownMask.fillAmount = 0;
         CooldownText.enabled = false;
     }
 
-    public void StartCooldown()
-    {
-        if (assignedSkill == null) return;
-        isCooldown = true;
-        assignedSkill.lastUseTime = Time.time;
-    }
-
-    public Skill_Base GetSkill()
-    {
-        return assignedSkill;
-    }
-
-
-    public bool IsOnCooldown()     // 쿨타임 여부 체크
-    {
-        if (skill == null) return false;
-        return (Time.time < skill.lastUseTime + skill.cooldownTime);
-    }
+    // REMOVED: StartCooldown(), GetSkill(), IsOnCooldown() 등 불필요한 메서드 제거
 
     void Update()
     {
-        if (isCooldown && assignedSkill != null)
+        if (IsEmpty) return;
+        UpdateCooldownUI();
+    }
+
+    private void UpdateCooldownUI()
+    {
+        float remaining = assignedSkillHolder.GetRemainingCooldown();
+        float totalCooldown = assignedSkillHolder.SkillData.cooldownTime;
+
+        if (remaining > 0)
         {
-            float remaining = (assignedSkill.lastUseTime + assignedSkill.cooldownTime) - Time.time;
-            if (remaining > 0)
-            {
-                CooldownMask.fillAmount = remaining / assignedSkill.cooldownTime;
-                CooldownText.enabled = true;
-                CooldownText.text = remaining.ToString("F1");
-            }
-            else
-            {
-                CooldownMask.fillAmount = 0f;
-                CooldownText.text = "";
-                CooldownText.enabled = false;
-                isCooldown = false;
-            }
+            CooldownMask.fillAmount = remaining / totalCooldown;
+            CooldownText.enabled = true;
+            CooldownText.text = remaining.ToString("F1");
+        }
+        else
+        {
+            CooldownMask.fillAmount = 0f;
+            CooldownText.enabled = false;
         }
     }
 }

@@ -9,6 +9,12 @@ public class Player_Action : MonoBehaviour
     private Animator Animator;
     private Rigidbody Rigidbody;
     private Player_Move Move;
+
+    [Header("Skills")]
+    // CHANGED: 인스펙터에서 스킬 '설계도'들을 여기에 할당합니다.
+    public Skill_Base[] assignedSkills = new Skill_Base[4];
+    // ADDED: 플레이어가 실제로 소유하고 상태를 관리할 스킬 목록
+    private SkillHolder[] playerSkills;
     private Player_Stat Stat;
 
     //public Skill_Base[] Skill;
@@ -35,14 +41,25 @@ public class Player_Action : MonoBehaviour
         Stat = Player.GetComponentInParent<Player_Stat>();
         SkillUIManagers = FindObjectOfType<UI_SkillManager>();
 
-        for (int i = 0; i < SkillUIManagers.skillSlots.Length; i++)
+        playerSkills = new SkillHolder[assignedSkills.Length];
+
+        for (int i = 0; i < assignedSkills.Length; i++)
         {
-            var slot = SkillUIManagers.skillSlots[i];
-            if (slot != null && slot.assignedSkill != null)
+            // 할당된 스킬 에셋이 있는 칸만 SkillHolder를 생성
+            if (assignedSkills[i] != null)
             {
-                slot.assignedSkill.ResetSkill(); // 쿨타임 초기화
-                slot.Setup(slot.assignedSkill);
+                playerSkills[i] = new SkillHolder(assignedSkills[i]);
             }
+            // 할당되지 않은 칸은 null로 유지
+            else
+            {
+                playerSkills[i] = null;
+            }
+        }
+
+        if (UI_SkillManager.Instance != null)
+        {
+            UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
         }
     }
 
@@ -204,43 +221,26 @@ public class Player_Action : MonoBehaviour
 
     void TryUseSkill(int slotIndex)
     {
-        if (SkillUIManagers == null)
+        if (slotIndex < 0 || slotIndex >= playerSkills.Length) return;
+
+        // CHANGED: playerSkills[slotIndex]가 비어있는지(null) 확인
+        SkillHolder skillToUse = playerSkills[slotIndex];
+
+        if (skillToUse == null)
         {
-            Debug.LogError("SkillUIManager가 할당되지 않았습니다.");
+            Debug.Log($"[{slotIndex}]번 슬롯이 비어있습니다.");
             return;
         }
 
-        if (slotIndex < 0 || slotIndex >= SkillUIManagers.skillSlots.Length)
+        if (skillToUse.CanUse(Stat.CurrentMP))
         {
-            Debug.Log($"[{slotIndex}]번 슬롯 인덱스 범위 초과");
-            return;
+            skillToUse.Use(gameObject);
+            Debug.Log($"[{skillToUse.SkillData.SkillName}] 스킬 사용!");
         }
-
-        var slot = SkillUIManagers.skillSlots[slotIndex];
-
-        if (slot == null)
+        else
         {
-            Debug.Log($"[{slotIndex}]번 슬롯 UI가 비어있습니다.");
-            return;
+            Debug.Log($"[{skillToUse.SkillData.SkillName}] 스킬 사용 불가 (쿨타임 or MP 부족).");
         }
-
-        var skill = slot.GetSkill();
-
-        if (skill == null)
-        {
-            Debug.Log($"[{slotIndex}]번 슬롯에 스킬이 없습니다."); // 스킬 없을 때 로그
-            return;
-        }
-
-        var stat = GetComponent<Player_Stat>();
-        if (!skill.CanUse(stat.CurrentMP))
-        {
-            Debug.Log($"[{skill.SkillName}] 스킬이 아직 사용 불가 (쿨타임 or MP 부족).");
-            return;
-        }
-
-        skill.Use(gameObject);
-        slot.StartCooldown();
     }
     #endregion
 

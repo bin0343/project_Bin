@@ -256,7 +256,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Player: {fileID: 5089527828088059539}
-  Skill:
+  assignedSkills:
+  - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
   SkillUIManagers: {fileID: 0}
   IsGrounded: 1
@@ -281,9 +284,7 @@ MonoBehaviour:
   CharacterRunSpeed: 9
   CharacterBody: {fileID: 5614425455300389929}
   CameraArm: {fileID: 6941324783796181333}
-  CharacterRoot: {fileID: 7824089770105362860}
   RotateSpeed: 2
-  IsMoving: 0
 --- !u!136 &3050126407679256677
 CapsuleCollider:
   m_ObjectHideFlags: 0
