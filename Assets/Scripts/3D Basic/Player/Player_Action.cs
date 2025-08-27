@@ -11,10 +11,13 @@ public class Player_Action : MonoBehaviour
     private Player_Move Move;
 
     [Header("Skills")]
-    // CHANGED: 인스펙터에서 스킬 '설계도'들을 여기에 할당합니다.
     public Skill_Base[] assignedSkills = new Skill_Base[4];
-    // ADDED: 플레이어가 실제로 소유하고 상태를 관리할 스킬 목록
     private SkillHolder[] playerSkills;
+
+    /*[Header("Item Quick Slots")]
+    public Item_Base[] quickSlotItems = new Item_Base[4];
+    private ItemHolder[] itemSlots;*/
+
     private Player_Stat Stat;
 
     //public Skill_Base[] Skill;
@@ -61,6 +64,22 @@ public class Player_Action : MonoBehaviour
         {
             UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
         }
+
+        /*itemSlots = new ItemHolder[quickSlotItems.Length];
+        for (int i = 0; i < quickSlotItems.Length; i++)
+        {
+            if (quickSlotItems[i] != null)
+            {
+                // 인스펙터에 할당된 아이템으로 ItemHolder를 생성
+                // (임시로 소모품은 5개씩 가진다고 가정)
+                itemSlots[i] = new ItemHolder(quickSlotItems[i], 5);
+            }
+        }
+
+        if (UI_ItemManager.Instance != null)
+        {
+            UI_ItemManager.Instance.SetupItemSlots(itemSlots);
+        }*/
     }
 
     void Update()
@@ -74,6 +93,7 @@ public class Player_Action : MonoBehaviour
         Kick();
         Die();
         UseSkill();
+        UseItem();
     }
 
     #region Attack
@@ -243,6 +263,78 @@ public class Player_Action : MonoBehaviour
         }
     }
     #endregion
+
+    #region UseItem
+    // --- 아이템 사용 로직 추가 ---
+    void UseItem()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) TryUseItem(0); // 숫자키 1
+        if (Input.GetKeyDown(KeyCode.Alpha2)) TryUseItem(1); // 숫자키 2
+        if (Input.GetKeyDown(KeyCode.Alpha3)) TryUseItem(2); // 숫자키 3
+        if (Input.GetKeyDown(KeyCode.Alpha4)) TryUseItem(3); // 숫자키 4
+    }
+
+    void TryUseItem(int slotIndex)
+    {
+        // CHANGED: Player_Inventory의 퀵슬롯 데이터를 직접 참조
+        if (slotIndex < 0 || slotIndex >= Player_Inventory.Instance.quickSlots.Length) return;
+
+        ItemHolder itemToUse = Player_Inventory.Instance.quickSlots[slotIndex];
+
+        if (itemToUse == null)
+        {
+            Debug.Log($"[{slotIndex + 1}]번 퀵슬롯에 아이템이 없습니다.");
+            return;
+        }
+
+        itemToUse.Use(gameObject);
+
+        if (itemToUse.Quantity <= 0)
+        {
+            Debug.Log($"[{itemToUse.ItemData.itemName}]을(를) 모두 사용했습니다.");
+            // CHANGED: Player_Inventory의 데이터를 직접 수정
+            Player_Inventory.Instance.quickSlots[slotIndex] = null;
+        }
+        else
+        {
+            Debug.Log($"[{itemToUse.ItemData.itemName}] 사용! 남은 개수: {itemToUse.Quantity}");
+        }
+
+        // UI 갱신 요청
+        if (UI_ItemManager.Instance != null)
+        {
+            UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.Instance.quickSlots[slotIndex]);
+        }
+    }
+    #endregion
+
+    /*#region Slot Swapping
+    // --- 데이터 교환 로직 추가 ---
+    public void SwapSkill(int indexA, int indexB)
+    {
+        // 인덱스가 유효한지 확인
+        if (indexA < 0 || indexA >= playerSkills.Length || indexB < 0 || indexB >= playerSkills.Length) return;
+
+        // 데이터 교환
+        SkillHolder temp = playerSkills[indexA];
+        playerSkills[indexA] = playerSkills[indexB];
+        playerSkills[indexB] = temp;
+
+        // 데이터가 변경되었으니 UI를 새로고침
+        UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
+    }
+
+    public void SwapItem(int indexA, int indexB)
+    {
+        if (indexA < 0 || indexA >= itemSlots.Length || indexB < 0 || indexB >= itemSlots.Length) return;
+
+        ItemHolder temp = itemSlots[indexA];
+        itemSlots[indexA] = itemSlots[indexB];
+        itemSlots[indexB] = temp;
+
+        UI_ItemManager.Instance.SetupItemSlots(itemSlots);
+    }
+    #endregion*/
 
     private void OnCollisionEnter(Collision collision)
     {

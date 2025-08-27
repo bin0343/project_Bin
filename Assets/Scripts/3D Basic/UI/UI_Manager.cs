@@ -67,6 +67,7 @@ public class UI_Manager : MonoBehaviour
             }
             else
             {
+                UI_Inventory.RefreshUI();
                 OpenUI(InventoryPanel);
             }
         }

@@ -4,15 +4,40 @@ using UnityEngine;
 
 public class UI_Inventory : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public GameObject slotPrefab;   // 인벤토리 슬롯 프리팹
+    public Transform slotGrid;      // 슬롯들이 생성될 Grid Layout Group
+    public UI_InventorySlot[] slots;
+
     void Start()
     {
-        
+        // Player_Inventory의 슬롯 개수에 맞춰 UI 슬롯 동적 생성
+        int inventorySize = Player_Inventory.Instance.inventorySlots.Length;
+        slots = new UI_InventorySlot[inventorySize];
+
+        for (int i = 0; i < inventorySize; i++)
+        {
+            GameObject slotGO = Instantiate(slotPrefab, slotGrid);
+            slots[i] = slotGO.GetComponent<UI_InventorySlot>();
+            slots[i].Initialize(SlotType.INVENTORY, i); // 슬롯 초기화
+        }
+
+        gameObject.SetActive(false); // 처음엔 비활성화
     }
 
-    // Update is called once per frame
-    void Update()
+    // 인벤토리 창이 열릴 때 호출되어 UI를 최신 데이터로 갱신
+    public void RefreshUI()
     {
-        
+        ItemHolder[] inventory = Player_Inventory.Instance.inventorySlots;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (i < inventory.Length && inventory[i] != null)
+            {
+                slots[i].Setup(inventory[i]);
+            }
+            else
+            {
+                slots[i].Clear();
+            }
+        }
     }
 }

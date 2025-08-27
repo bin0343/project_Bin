@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class ItemHolder
 {
-    public Item_Base ItemData { get; private set; } // 아이템 원본 데이터
+    public Item_Base ItemData;// 아이템 원본 데이터
     public int Quantity;                            // 아이템 개수
-    public int LastUseTime;
+    private float LastUseTime;
 
     public ItemHolder(Item_Base itemData, int quantity)
     {
@@ -28,6 +29,11 @@ public class ItemHolder
     public void Use(GameObject user)
     {
         ItemData.Use(user);
+
+        if (ItemData.itemType == ITEMTYPE.Consumable)
+        {
+            Quantity--;
+        }
     }
 
     public float GetRemainingCooldown()
