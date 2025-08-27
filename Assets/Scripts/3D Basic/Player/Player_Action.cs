@@ -308,34 +308,6 @@ public class Player_Action : MonoBehaviour
     }
     #endregion
 
-    /*#region Slot Swapping
-    // --- 데이터 교환 로직 추가 ---
-    public void SwapSkill(int indexA, int indexB)
-    {
-        // 인덱스가 유효한지 확인
-        if (indexA < 0 || indexA >= playerSkills.Length || indexB < 0 || indexB >= playerSkills.Length) return;
-
-        // 데이터 교환
-        SkillHolder temp = playerSkills[indexA];
-        playerSkills[indexA] = playerSkills[indexB];
-        playerSkills[indexB] = temp;
-
-        // 데이터가 변경되었으니 UI를 새로고침
-        UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
-    }
-
-    public void SwapItem(int indexA, int indexB)
-    {
-        if (indexA < 0 || indexA >= itemSlots.Length || indexB < 0 || indexB >= itemSlots.Length) return;
-
-        ItemHolder temp = itemSlots[indexA];
-        itemSlots[indexA] = itemSlots[indexB];
-        itemSlots[indexB] = temp;
-
-        UI_ItemManager.Instance.SetupItemSlots(itemSlots);
-    }
-    #endregion*/
-
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))

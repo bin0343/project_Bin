@@ -5,7 +5,7 @@ using UnityEngine;
 public class UI_Inventory : MonoBehaviour
 {
     public GameObject slotPrefab;   // 인벤토리 슬롯 프리팹
-    public Transform slotGrid;      // 슬롯들이 생성될 Grid Layout Group
+    public Transform slotGridParent;      // 슬롯들이 생성될 Grid Layout Group
     public UI_InventorySlot[] slots;
 
     void Start()
@@ -16,12 +16,13 @@ public class UI_Inventory : MonoBehaviour
 
         for (int i = 0; i < inventorySize; i++)
         {
-            GameObject slotGO = Instantiate(slotPrefab, slotGrid);
+            GameObject slotGO = Instantiate(slotPrefab, slotGridParent);
             slots[i] = slotGO.GetComponent<UI_InventorySlot>();
             slots[i].Initialize(SlotType.INVENTORY, i); // 슬롯 초기화
         }
 
-        gameObject.SetActive(false); // 처음엔 비활성화
+        if(gameObject.activeSelf)
+            gameObject.SetActive(false); // 처음엔 비활성화
     }
 
     // 인벤토리 창이 열릴 때 호출되어 UI를 최신 데이터로 갱신

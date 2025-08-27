@@ -4,9 +4,11 @@ using UnityEngine.EventSystems;
 
 public class UI_InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
+    [Header("UI Components")]
     public Image ItemIcon;
     public Text QuantityText;
 
+    [Header("Slot Info")]
     private ItemHolder assignedItemHolder;
     private SlotType slotType;
     private int slotIndex;
@@ -31,7 +33,6 @@ public class UI_InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         ItemIcon.sprite = itemHolder.ItemData.itemIcon;
         ItemIcon.enabled = true;
 
-        // CHANGED: ItemData가 아닌 itemHolder에서 직접 quantity를 가져옵니다.
         QuantityText.text = $"{itemHolder.Quantity}";
         QuantityText.enabled = true;
         // UpdateCooldownUI(); // 쿨타임 기능 없으므로 주석 처리
@@ -40,17 +41,19 @@ public class UI_InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     public void Clear()
     {
         assignedItemHolder = null;
-        ItemIcon.sprite = null;
+        /*ItemIcon.sprite = null;
         ItemIcon.enabled = false;
         QuantityText.text = "";
-        QuantityText.enabled = false;
+        QuantityText.enabled = false;*/
+        ItemIcon.gameObject.SetActive(false);
+        QuantityText.gameObject.SetActive(false);
         // CooldownMask.fillAmount = 0; // 쿨타임 기능 없으므로 주석 처리
         // CooldownText.enabled = false;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (assignedItemHolder == null) return;
+        if (IsEmpty) return;
         DragSlot.StartDrag(ItemIcon, assignedItemHolder, slotIndex, this.slotType);
         // 드래그 시작 시 자신의 슬롯 타입을 DragSlot에 저장 (중요!)
         // DragSlot 클래스에 public static SlotType originalSlotType; 추가 필요
@@ -68,7 +71,7 @@ public class UI_InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     {
         // 드래그가 끝났음을 알리고 원래 아이콘을 다시 보이게 함
         DragSlot.EndDrag();
-        ItemIcon.color = new Color(1, 1, 1, 1);
+        if (!IsEmpty) ItemIcon.color = new Color(1, 1, 1, 1);
     }
 
     public void OnDrop(PointerEventData eventData)
