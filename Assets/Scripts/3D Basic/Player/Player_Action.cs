@@ -94,6 +94,7 @@ public class Player_Action : MonoBehaviour
         Die();
         UseSkill();
         UseItem();
+        UseCursor();
     }
 
     #region Attack
@@ -287,23 +288,46 @@ public class Player_Action : MonoBehaviour
             return;
         }
 
-        itemToUse.Use(gameObject);
+        bool success = itemToUse.Use(gameObject);
 
-        if (itemToUse.Quantity <= 0)
+        if (success)
         {
-            Debug.Log($"[{itemToUse.ItemData.itemName}]을(를) 모두 사용했습니다.");
-            // CHANGED: Player_Inventory의 데이터를 직접 수정
-            Player_Inventory.Instance.quickSlots[slotIndex] = null;
+            if (itemToUse.ItemData.itemType == ITEMTYPE.Consumable)
+            {
+                itemToUse.Quantity--;
+            }
+
+            if (itemToUse.Quantity <= 0)
+            {
+                Debug.Log($"[{itemToUse.ItemData.itemName}]을(를) 모두 사용했습니다.");
+                Player_Inventory.Instance.quickSlots[slotIndex] = null;
+            }
+            else
+            {
+                Debug.Log($"[{itemToUse.ItemData.itemName}] 사용! 남은 개수: {itemToUse.Quantity}");
+            }
+
+            // UI 갱신 요청
+            if (UI_ItemManager.Instance != null)
+            {
+                UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.Instance.quickSlots[slotIndex]);
+            }
+        }
+    }
+    #endregion
+
+    #region Use Cursor
+    void UseCursor()
+    {
+        if (Input.GetKey(KeyCode.LeftAlt))
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None; // 자유롭게 이동 가능
         }
         else
         {
-            Debug.Log($"[{itemToUse.ItemData.itemName}] 사용! 남은 개수: {itemToUse.Quantity}");
-        }
-
-        // UI 갱신 요청
-        if (UI_ItemManager.Instance != null)
-        {
-            UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.Instance.quickSlots[slotIndex]);
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked; // 중앙 고정
         }
     }
     #endregion

@@ -19,5 +19,5 @@ public abstract class Item_Base : ScriptableObject
     public bool isStackable = true; // 겹치는게 가능한가?
     public int maxStackSize = 99;   // 최대겹치기 갯수
 
-    public abstract void Use(GameObject user);  //아이템 사용 시 효과 추상함수
+    public abstract bool Use(GameObject user);  //아이템 사용 시 효과 추상함수
 }

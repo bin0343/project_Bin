@@ -5,7 +5,7 @@ using UnityEngine;
 public class UI_ItemManager : MonoBehaviour
 {
     public static UI_ItemManager Instance { get; private set; }
-    public UI_ItemQuickSlot[] itemSlots;
+    public UI_ItemSlot[] itemSlots;
 
     private void Awake()
     {
@@ -13,6 +13,11 @@ public class UI_ItemManager : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
+
+        for (int i = 0; i < itemSlots.Length; i++)
+        {
+            itemSlots[i].Initialize(SlotType.QUICKSLOT, i);
+        }
     }
 
     // ADDED: Player_Action에서 호출하여 스킬 슬롯 전체를 초기화하는 메서드

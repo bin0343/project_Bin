@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98ecf8670c8841b4a98a756ef4de51b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slotPrefab: {fileID: 3006856450602314479}
+  slotPrefab: {fileID: 5069078872497685169, guid: 81b685c0706c8634e8b190fea0b84f7e, type: 3}
   slotGridParent: {fileID: 5067871912951355315}
   slots:
   - {fileID: 0}
@@ -419,10 +419,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5435250322330784863}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 21.107416}
-  m_SizeDelta: {x: 0, y: 300}
+  m_AnchoredPosition: {x: 0.00036034337, y: 0}
+  m_SizeDelta: {x: -0.0042, y: -207.7659}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &2147768884102854560
 MonoBehaviour:
@@ -441,13 +441,13 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 10, y: 10}
-  m_Spacing: {x: 10, y: 10}
+  m_CellSize: {x: 100, y: 100}
+  m_Spacing: {x: 100, y: 100}
   m_Constraint: 0
-  m_ConstraintCount: 2
+  m_ConstraintCount: 3
 --- !u!1 &5381956607725293553
 GameObject:
   m_ObjectHideFlags: 0
@@ -936,7 +936,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 8755259000089913054}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.662694
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1049,10 +1049,5 @@ PrefabInstance:
 --- !u!224 &2515264249498003899 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5551390092658393573, guid: 81b685c0706c8634e8b190fea0b84f7e, type: 3}
-  m_PrefabInstance: {fileID: 8062143044789971038}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &3006856450602314479 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5069078872497685169, guid: 81b685c0706c8634e8b190fea0b84f7e, type: 3}
   m_PrefabInstance: {fileID: 8062143044789971038}
   m_PrefabAsset: {fileID: 0}
