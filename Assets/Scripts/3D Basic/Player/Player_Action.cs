@@ -84,6 +84,8 @@ public class Player_Action : MonoBehaviour
 
     void Update()
     {
+        if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
+            return;
         if (IsDead) return;
         Shield();
         Attack();
@@ -319,15 +321,18 @@ public class Player_Action : MonoBehaviour
     #region Use Cursor
     void UseCursor()
     {
-        if (Input.GetKey(KeyCode.LeftAlt))
+        if (UI_Manager.Instance != null && !UI_Manager.Instance.IsUIOpen)
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None; // 자유롭게 이동 가능
-        }
-        else
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked; // 중앙 고정
+            if (Input.GetKey(KeyCode.LeftAlt))
+            {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None; // 자유 이동
+            }
+            else
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked; // 중앙 고정
+            }
         }
     }
     #endregion

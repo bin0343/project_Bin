@@ -8,8 +8,8 @@ public class Player_Inventory : MonoBehaviour
 {
     public static Player_Inventory Instance;
 
-    public ItemHolder[] inventorySlots = new ItemHolder[20]; // 20칸짜리 인벤토리
-    public ItemHolder[] quickSlots = new ItemHolder[4];   // 4칸짜리 퀵슬롯
+    public List<ItemHolder> inventorySlots = new List<ItemHolder>(); // 리스트로 변경
+    public ItemHolder[] quickSlots = new ItemHolder[4];
 
     private void Awake()
     {
@@ -19,59 +19,79 @@ public class Player_Inventory : MonoBehaviour
 
     private void Start()
     {
-        // 게임이 시작되면 UI_ItemManager에게 퀵슬롯 UI를 갱신하라고 즉시 요청합니다.
         if (UI_ItemManager.Instance != null)
         {
             UI_ItemManager.Instance.SetupItemSlots(quickSlots);
         }
     }
 
-    // 아이템을 얻는 함수 (나중에 아이템 줍기 등에 사용)
-    public bool AddItem(Item_Base item, int quantity = 1)
+    // ... AddItem 메서드는 그대로 ...
+
+    #region New Helper Methods
+    // --- 슬롯 타입과 인덱스로 ItemHolder를 안전하게 가져오는 헬퍼 함수 ---
+    private ItemHolder GetItemHolderAt(SlotType type, int index)
     {
-        // 1. 겹칠 수 있는 아이템이고, 인벤토리에 이미 같은 아이템이 있는지 확인
-        if (item.isStackable)
+        if (type == SlotType.INVENTORY)
         {
-            for (int i = 0; i < inventorySlots.Length; i++)
-            {
-                if (inventorySlots[i] != null && inventorySlots[i].ItemData == item && inventorySlots[i].Quantity < item.maxStackSize)
-                {
-                    inventorySlots[i].AddQuantity(quantity);
-                    return true;
-                }
-            }
+            if (index < 0 || index >= inventorySlots.Count) return null;
+            return inventorySlots[index];
         }
-
-        // 2. 비어있는 슬롯을 찾아 새로 추가
-        for (int i = 0; i < inventorySlots.Length; i++)
+        else // QUICKSLOT
         {
-            if (inventorySlots[i] == null)
-            {
-                inventorySlots[i] = new ItemHolder(item, quantity);
-                return true;
-            }
+            if (index < 0 || index >= quickSlots.Length) return null;
+            return quickSlots[index];
         }
-
-        // 3. 인벤토리가 가득 참
-        Debug.Log("인벤토리가 가득 찼습니다.");
-        return false;
     }
 
-    // 슬롯 간 아이템 교환
-    public void SwapSlots(SlotType typeA, int indexA, SlotType typeB, int indexB)
+    // --- 슬롯 타입과 인덱스로 ItemHolder를 안전하게 설정하는 헬퍼 함수 ---
+    private void SetItemHolderAt(SlotType type, int index, ItemHolder itemHolder)
     {
-        ItemHolder[] arrayA = (typeA == SlotType.INVENTORY) ? inventorySlots : quickSlots;
-        ItemHolder[] arrayB = (typeB == SlotType.INVENTORY) ? inventorySlots : quickSlots;
+        if (type == SlotType.INVENTORY)
+        {
+            if (index < 0 || index >= inventorySlots.Count) return;
+            inventorySlots[index] = itemHolder;
+        }
+        else // QUICKSLOT
+        {
+            if (index < 0 || index >= quickSlots.Length) return;
+            quickSlots[index] = itemHolder;
+        }
+    }
+    #endregion
 
-        if (indexA < 0 || indexA >= arrayA.Length || indexB < 0 || indexB >= arrayB.Length) return;
+    // CHANGED: 헬퍼 함수를 사용하여 더 안전하고 명확하게 재작성
+    public void HandleSlotDrop(SlotType sourceType, int sourceIndex, SlotType destType, int destIndex)
+    {
+        ItemHolder sourceItem = GetItemHolderAt(sourceType, sourceIndex);
+        ItemHolder destItem = GetItemHolderAt(destType, destIndex);
 
-        ItemHolder temp = arrayA[indexA];
-        arrayA[indexA] = arrayB[indexB];
-        arrayB[indexB] = temp;
+        // 겹치기 로직
+        if (sourceItem != null && destItem != null && sourceItem.ItemData == destItem.ItemData && destItem.ItemData.isStackable && destItem.Quantity < destItem.ItemData.maxStackSize)
+        {
+            int spaceAvailable = destItem.ItemData.maxStackSize - destItem.Quantity;
+            int amountToMove = Mathf.Min(spaceAvailable, sourceItem.Quantity);
 
-        // 데이터 변경 후 UI 새로고침 요청
+            destItem.AddQuantity(amountToMove);
+            sourceItem.Quantity -= amountToMove;
+
+            if (sourceItem.Quantity <= 0)
+            {
+                SetItemHolderAt(sourceType, sourceIndex, null);
+            }
+        }
+        // 교환 로직
+        else
+        {
+            SetItemHolderAt(destType, destIndex, sourceItem);
+            SetItemHolderAt(sourceType, sourceIndex, destItem);
+        }
+
+        RefreshAllUI();
+    }
+
+    public void RefreshAllUI()
+    {
         UI_Manager.Instance.UI_Inventory.RefreshUI();
-        // 퀵슬롯 UI도 새로고침 (UI_ItemManager가 있다면)
         if (UI_ItemManager.Instance != null)
         {
             UI_ItemManager.Instance.SetupItemSlots(quickSlots);

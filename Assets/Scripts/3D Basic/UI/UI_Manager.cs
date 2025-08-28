@@ -22,6 +22,8 @@ public class UI_Manager : MonoBehaviour
 
     private Stack<GameObject> UIStack = new Stack<GameObject>();
 
+    public bool IsUIOpen => UIStack.Count > 0;
+
     private void Start()
     {
         if (PlayerStat == null)
@@ -92,6 +94,7 @@ public class UI_Manager : MonoBehaviour
             panel.SetActive(true);
             panel.transform.SetAsLastSibling();
             UIStack.Push(panel);
+            UpdateCursorState();
         }
     }
 
@@ -101,6 +104,7 @@ public class UI_Manager : MonoBehaviour
         {
             GameObject topUI = UIStack.Pop();
             topUI.SetActive(false);
+            UpdateCursorState();
         }
     }
 
@@ -123,6 +127,8 @@ public class UI_Manager : MonoBehaviour
             {
                 UIStack.Push(tempStack.Pop());
             }
+
+            UpdateCursorState();
         }
     }
 
@@ -140,6 +146,20 @@ public class UI_Manager : MonoBehaviour
         if (MessagePanel != null)
         {
             MessagePanel.SetActive(false);
+        }
+    }
+
+    private void UpdateCursorState()
+    {
+        if (UIStack.Count > 0)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 }

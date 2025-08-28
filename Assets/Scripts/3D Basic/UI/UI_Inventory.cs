@@ -11,7 +11,7 @@ public class UI_Inventory : MonoBehaviour
     void Start()
     {
         // Player_Inventory의 슬롯 개수에 맞춰 UI 슬롯 동적 생성
-        int inventorySize = Player_Inventory.Instance.inventorySlots.Length;
+        int inventorySize = Player_Inventory.Instance.inventorySlots.Count;
         slots = new UI_ItemSlot[inventorySize];
 
         for (int i = 0; i < inventorySize; i++)
@@ -28,12 +28,12 @@ public class UI_Inventory : MonoBehaviour
     // 인벤토리 창이 열릴 때 호출되어 UI를 최신 데이터로 갱신
     public void RefreshUI()
     {
-        ItemHolder[] inventory = Player_Inventory.Instance.inventorySlots;
+        List<ItemHolder> inventoryData = Player_Inventory.Instance.inventorySlots;
         for (int i = 0; i < slots.Length; i++)
         {
-            if (i < inventory.Length && inventory[i] != null)
+            if (i < inventoryData.Count && inventoryData[i] != null)
             {
-                slots[i].Setup(inventory[i]);
+                slots[i].Setup(inventoryData[i]);
             }
             else
             {

@@ -29,6 +29,8 @@ public class CameraArm : MonoBehaviour
 
     private void Update()
     {
+        if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
+            return;
         LookAround();
         ZoomCamera();
     }

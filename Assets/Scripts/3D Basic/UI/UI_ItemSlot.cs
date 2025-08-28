@@ -47,6 +47,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void Clear()
     {
         assignedItemHolder = null;
+        ItemIcon.sprite = null;
         ItemIcon.gameObject.SetActive(false);
         QuantityText.gameObject.SetActive(false);
     }
@@ -63,7 +64,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnDrag(PointerEventData eventData)
     {
         if (IsEmpty) return;
-        // 마우스 위치로 고스트 아이콘 이동
+        DragSlot.StartDrag(ItemIcon, this.slotType, this.slotIndex, this.slotType);
         DragSlot.dragIcon.transform.position = eventData.position;
     }
 
@@ -71,12 +72,17 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         // 드래그가 끝났음을 알리고 원래 아이콘을 다시 보이게 함
         DragSlot.EndDrag();
-        if (!IsEmpty) ItemIcon.color = new Color(1, 1, 1, 1);
+        ItemIcon.color = new Color(1, 1, 1, 1);
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        Player_Inventory.Instance.SwapSlots(
+        if (DragSlot.originalSlotType == this.slotType && DragSlot.originalIndex == this.slotIndex)
+        {
+            return; // 불필요한 로직 실행 방지
+        }
+
+        Player_Inventory.Instance.HandleSlotDrop(
             DragSlot.originalSlotType, // 드래그 시작 슬롯의 타입
             DragSlot.originalIndex,    // 드래그 시작 슬롯의 인덱스
             this.slotType,             // 드롭된 위치(현재 슬롯)의 타입

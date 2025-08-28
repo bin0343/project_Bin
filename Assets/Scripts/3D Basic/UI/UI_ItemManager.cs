@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UI_ItemManager : MonoBehaviour
 {
     public static UI_ItemManager Instance { get; private set; }
     public UI_ItemSlot[] itemSlots;
+
+    public string[] hotkeys = { "1", "2", "3", "4" };
 
     private void Awake()
     {
@@ -17,6 +20,25 @@ public class UI_ItemManager : MonoBehaviour
         for (int i = 0; i < itemSlots.Length; i++)
         {
             itemSlots[i].Initialize(SlotType.QUICKSLOT, i);
+        }
+
+        SetHotkeys();
+    }
+
+    private void SetHotkeys()
+    {
+        for (int i = 0; i < itemSlots.Length; i++)
+        {
+            // 자식 오브젝트 중에서 "HotkeyText"를 찾아 Text 컴포넌트를 가져옵니다.
+            Transform hotkeyTransform = itemSlots[i].transform.Find("HotkeyText");
+            if (hotkeyTransform != null)
+            {
+                Text hotkeyText = hotkeyTransform.GetComponent<Text>();
+                if (hotkeyText != null && i < hotkeys.Length)
+                {
+                    hotkeyText.text = hotkeys[i];
+                }
+            }
         }
     }
 

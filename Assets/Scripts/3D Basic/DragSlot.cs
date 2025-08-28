@@ -17,6 +17,7 @@ public static class DragSlot
 
         dragIcon.sprite = icon.sprite;
         dragIcon.gameObject.SetActive(true);
+        dragIcon.transform.SetAsLastSibling();
     }
 
     // 드래그 종료 시 호출

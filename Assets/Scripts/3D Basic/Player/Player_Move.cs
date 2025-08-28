@@ -31,12 +31,16 @@ public class Player_Move : MonoBehaviour
     void Update()
     {
         // 1인칭일 때 Character 루트 오브젝트 전체를 회전시킵니다.
+        if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
+            return;
         Look();
     }
 
     private void FixedUpdate()
     {
         if (Action != null && Action.IsDead) return;
+        if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
+            return;
         Move();
         Run();
         Rotate(); // 3인칭 전용 회전 처리
