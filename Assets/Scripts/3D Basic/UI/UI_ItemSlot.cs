@@ -11,14 +11,14 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     [Header("Slot Info")]
     private ItemHolder assignedItemHolder;
     private SlotType slotType;
-    private int slotIndex;
+    private int originalInventoryIndex;
 
     public bool IsEmpty => assignedItemHolder == null;
 
     public void Initialize(SlotType type, int index)
     {
         this.slotType = type;
-        this.slotIndex = index;
+        this.originalInventoryIndex = index;
     }
 
     public void Setup(ItemHolder itemHolder)
@@ -55,7 +55,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (IsEmpty) return;
-        DragSlot.StartDrag(ItemIcon, assignedItemHolder, slotIndex, this.slotType);
+        DragSlot.StartDrag(ItemIcon, assignedItemHolder, originalInventoryIndex, this.slotType);
         // 드래그 시작 시 자신의 슬롯 타입을 DragSlot에 저장 (중요!)
         // DragSlot 클래스에 public static SlotType originalSlotType; 추가 필요
         ItemIcon.color = new Color(1, 1, 1, 0.5f);
@@ -64,7 +64,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnDrag(PointerEventData eventData)
     {
         if (IsEmpty) return;
-        DragSlot.StartDrag(ItemIcon, this.slotType, this.slotIndex, this.slotType);
+        DragSlot.StartDrag(ItemIcon, this.slotType, this.originalInventoryIndex, this.slotType);
         DragSlot.dragIcon.transform.position = eventData.position;
     }
 
@@ -77,7 +77,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnDrop(PointerEventData eventData)
     {
-        if (DragSlot.originalSlotType == this.slotType && DragSlot.originalIndex == this.slotIndex)
+        if (DragSlot.originalSlotType == this.slotType && DragSlot.originalIndex == this.originalInventoryIndex)
         {
             return; // 불필요한 로직 실행 방지
         }
@@ -86,7 +86,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             DragSlot.originalSlotType, // 드래그 시작 슬롯의 타입
             DragSlot.originalIndex,    // 드래그 시작 슬롯의 인덱스
             this.slotType,             // 드롭된 위치(현재 슬롯)의 타입
-            this.slotIndex             // 드롭된 위치(현재 슬롯)의 인덱스
+            this.originalInventoryIndex             // 드롭된 위치(현재 슬롯)의 인덱스
         );
     }
 }
