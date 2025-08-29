@@ -1,8 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public enum SlotType { INVENTORY, QUICKSLOT }
+public enum ItemSortMethod
+{
+    NAME,
+    TYPE,
+    QUANTITY
+}
 
 public class Player_Inventory : MonoBehaviour
 {
@@ -25,10 +31,8 @@ public class Player_Inventory : MonoBehaviour
         }
     }
 
-    // ... AddItem 메서드는 그대로 ...
 
     #region New Helper Methods
-    // --- 슬롯 타입과 인덱스로 ItemHolder를 안전하게 가져오는 헬퍼 함수 ---
     private ItemHolder GetItemHolderAt(SlotType type, int index)
     {
         if (type == SlotType.INVENTORY)
@@ -43,7 +47,6 @@ public class Player_Inventory : MonoBehaviour
         }
     }
 
-    // --- 슬롯 타입과 인덱스로 ItemHolder를 안전하게 설정하는 헬퍼 함수 ---
     private void SetItemHolderAt(SlotType type, int index, ItemHolder itemHolder)
     {
         if (type == SlotType.INVENTORY)
@@ -59,9 +62,13 @@ public class Player_Inventory : MonoBehaviour
     }
     #endregion
 
-    // CHANGED: 헬퍼 함수를 사용하여 더 안전하고 명확하게 재작성
-    public void HandleSlotDrop(SlotType sourceType, int sourceIndex, SlotType destType, int destIndex)
+    public void HandleSlotDrop(SlotType sourceType, int sourceIndex, SlotType destType, int destIndex, UI_Inventory.InventoryTabType currentTab)
     {
+        if (currentTab != UI_Inventory.InventoryTabType.ALL && destType == SlotType.INVENTORY)
+        {
+            return;
+        }
+
         ItemHolder sourceItem = GetItemHolderAt(sourceType, sourceIndex);
         ItemHolder destItem = GetItemHolderAt(destType, destIndex);
 
@@ -97,4 +104,32 @@ public class Player_Inventory : MonoBehaviour
             UI_ItemManager.Instance.SetupItemSlots(quickSlots);
         }
     }
+
+    #region Sorting
+    public void SortItems(ItemSortMethod method)
+    {
+        List<ItemHolder> itemsToSort = inventorySlots.Where(slot => slot != null && slot.ItemData != null).ToList();
+
+        switch (method)
+        {
+            case ItemSortMethod.NAME:
+                itemsToSort = itemsToSort.OrderBy(holder => holder.ItemData.itemName).ToList();
+                break;
+        }
+
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            if (i < itemsToSort.Count)
+            {
+                inventorySlots[i] = itemsToSort[i];
+            }
+            else
+            {
+                inventorySlots[i] = null;
+            }
+        }
+
+        RefreshAllUI();
+    }
+    #endregion
 }

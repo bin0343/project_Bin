@@ -76,11 +76,11 @@ public class UI_InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
     public void OnDrop(PointerEventData eventData)
     {
-        Player_Inventory.Instance.HandleSlotDrop(
+        /*Player_Inventory.Instance.HandleSlotDrop(
             DragSlot.originalSlotType, // 드래그 시작 슬롯의 타입
             DragSlot.originalIndex,    // 드래그 시작 슬롯의 인덱스
             this.slotType,             // 드롭된 위치(현재 슬롯)의 타입
             this.slotIndex             // 드롭된 위치(현재 슬롯)의 인덱스
-        );
+        );*/
     }
 }
