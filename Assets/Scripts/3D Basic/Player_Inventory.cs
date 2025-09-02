@@ -14,7 +14,7 @@ public class Player_Inventory : MonoBehaviour
 {
     public static Player_Inventory Instance;
 
-    public List<ItemHolder> inventorySlots = new List<ItemHolder>(); // 리스트로 변경
+    public List<ItemHolder> inventorySlots = new List<ItemHolder>();
     public ItemHolder[] quickSlots = new ItemHolder[4];
 
     private void Awake()
@@ -30,6 +30,38 @@ public class Player_Inventory : MonoBehaviour
             UI_ItemManager.Instance.SetupItemSlots(quickSlots);
         }
     }
+
+    #region Add Item
+    public bool AddItem(Item_Base item, int quantity = 1)
+    {
+        if (item.isStackable)
+        {
+            ItemHolder existingStack = inventorySlots.FirstOrDefault(slot =>
+                slot != null &&
+                slot.ItemData == item &&
+                slot.Quantity < item.maxStackSize);
+
+            if (existingStack != null)
+            {
+                existingStack.AddQuantity(quantity);
+                RefreshAllUI(); // UI 갱신
+                return true;
+            }
+        }
+
+        int emptySlotIndex = inventorySlots.FindIndex(slot => slot == null);
+
+        if (emptySlotIndex != -1)
+        {
+            inventorySlots[emptySlotIndex] = new ItemHolder(item, quantity);
+            RefreshAllUI(); // UI 갱신
+            return true;
+        }
+
+        Debug.Log("인벤토리가 가득 찼습니다.");
+        return false;
+    }
+    #endregion
 
 
     #region New Helper Methods

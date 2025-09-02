@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2629540847430102083}
+  - component: {fileID: 5636906186675917279}
   - component: {fileID: 1462598004550336977}
   - component: {fileID: 4200508389218209283}
   - component: {fileID: 9125036294441300227}
@@ -38,6 +39,19 @@ Transform:
   - {fileID: 4771388414845060857}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5636906186675917279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817376556446839000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f6fb9899e609114db5927e3ae388ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dropTable: []
 --- !u!114 &1462598004550336977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,7 +87,6 @@ MonoBehaviour:
   Target: {fileID: 0}
   SearchRange: 10
   AttackRange: 3
-  dropTable: []
   hpBarObject: {fileID: 8125778970120973617}
   hpBarVisibleRange: 12
 --- !u!195 &9125036294441300227

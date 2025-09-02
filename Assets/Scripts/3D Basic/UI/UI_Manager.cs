@@ -48,6 +48,9 @@ public class UI_Manager : MonoBehaviour
 
     private void Update()
     {
+        UpdateCursorState();
+        
+
         if (Input.GetKeyDown(KeyCode.U))
         {
             if (StatusPanel.activeSelf)
@@ -158,8 +161,18 @@ public class UI_Manager : MonoBehaviour
         }
         else
         {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            // Alt 키를 누르고 있을 때만 커서를 보여줌
+            if (Input.GetKey(KeyCode.LeftAlt))
+            {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+            }
+            // 그 외에는 커서를 숨기고 잠금
+            else
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
         }
     }
 }

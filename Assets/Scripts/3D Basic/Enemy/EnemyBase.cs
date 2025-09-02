@@ -28,8 +28,7 @@ public class EnemyBase : MonoBehaviour
     private NavMeshAgent navAgent;
     private Enemy_Stat Stat;
 
-    [Header("드랍 아이템 설정")]
-    public List<DropItem> dropTable = new List<DropItem>();
+    private ItemDrop itemDropper;
 
     [Header("UI 설정")]
     public GameObject hpBarObject; // 몬스터 체력바 캔버스 오브젝트
@@ -43,6 +42,7 @@ public class EnemyBase : MonoBehaviour
         Animator = GetComponentInChildren<Animator>();
         navAgent = GetComponent<NavMeshAgent>();
         Stat = GetComponentInParent<Enemy_Stat>();
+        itemDropper = GetComponent<ItemDrop>();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
@@ -60,8 +60,17 @@ public class EnemyBase : MonoBehaviour
     {
         if (isPlayerNearby && IsDead && Input.GetKeyDown(KeyCode.G))
         {
-            List<ItemData> drops = GetDroppedItems();
-            UI_Loot.Instance.Toggle(drops);
+            if (UI_Loot.Instance.lootPanel.activeSelf)
+            {
+                UI_Loot.Instance.CloseLootPanel();
+            }
+            else
+            {
+                if (itemDropper != null)
+                {
+                    UI_Loot.Instance.OpenLootPanel(itemDropper);
+                }
+            }
         }
     }
 
@@ -259,7 +268,14 @@ public class EnemyBase : MonoBehaviour
             Animator.SetTrigger("IsDie");
             IsDead = true;
             CurrentState = ENEMYSTATE.Dead; // 상태 전이
+            navAgent.isStopped = true;
             navAgent.ResetPath(); // 이동 멈추기
+
+            if (itemDropper != null)
+            {
+                itemDropper.GenerateLoot();
+            }
+
             gameObject.tag = "Corpse";
 
             if (hpBarObject != null)
@@ -364,21 +380,16 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
-    private List<ItemData> GetDroppedItems()
+    private void OnTriggerStay(Collider other)
     {
-        List<ItemData> drops = new List<ItemData>();
-        foreach (var drop in dropTable)
+        if (IsDead && other.CompareTag("Player"))
         {
-            if (Random.value <= drop.dropChance)
+            if (!isPlayerNearby)
             {
-                int amount = Random.Range(drop.minAmount, drop.maxAmount + 1);
-                for (int i = 0; i < amount; i++)
-                {
-                    drops.Add(drop.itemData);
-                }
+                isPlayerNearby = true;
+                UI_Manager.Instance.ShowMessage("G : 시체확인");
             }
         }
-        return drops;
     }
 
     void ManageHpBarVisibility()

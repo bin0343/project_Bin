@@ -18,6 +18,11 @@ public class Player_AnimationEvents : MonoBehaviour
         Action.IsKick = false;
     }
 
+    public void BuffStart()
+    {
+        Action.IsBuff = true;
+    }
+
     public void BuffEnd()
     {
         Action.IsBuff = false;

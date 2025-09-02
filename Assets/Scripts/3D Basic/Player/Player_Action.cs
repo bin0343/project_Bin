@@ -96,7 +96,6 @@ public class Player_Action : MonoBehaviour
         Die();
         UseSkill();
         UseItem();
-        UseCursor();
     }
 
     #region Attack
@@ -313,25 +312,6 @@ public class Player_Action : MonoBehaviour
             if (UI_ItemManager.Instance != null)
             {
                 UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.Instance.quickSlots[slotIndex]);
-            }
-        }
-    }
-    #endregion
-
-    #region Use Cursor
-    void UseCursor()
-    {
-        if (UI_Manager.Instance != null && !UI_Manager.Instance.IsUIOpen)
-        {
-            if (Input.GetKey(KeyCode.LeftAlt))
-            {
-                Cursor.visible = true;
-                Cursor.lockState = CursorLockMode.None; // 자유 이동
-            }
-            else
-            {
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked; // 중앙 고정
             }
         }
     }
