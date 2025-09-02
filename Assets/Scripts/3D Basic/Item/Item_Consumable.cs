@@ -15,7 +15,6 @@ public class Item_Consumable : Item_Base
 
         bool itemUsed = false; // 아이템이 실제로 효과를 발휘했는지 추적
 
-        // 체력 회복 로직
         if (HealAmount > 0 && stat.CurrentHP < stat.MaxHP)
         {
             stat.CurrentHP = Mathf.Min(stat.CurrentHP + HealAmount, stat.MaxHP);
@@ -23,7 +22,6 @@ public class Item_Consumable : Item_Base
             itemUsed = true;
         }
 
-        // 마나 회복 로직
         if (RecoverMpAmount > 0 && stat.CurrentMP < stat.MaxMP)
         {
             stat.CurrentMP = Mathf.Min(stat.CurrentMP + RecoverMpAmount, stat.MaxMP);
@@ -31,7 +29,6 @@ public class Item_Consumable : Item_Base
             itemUsed = true;
         }
 
-        // 만약 체력과 마나가 모두 가득 차 있어서 아무 효과가 없었다면
         if (!itemUsed)
         {
             Debug.Log($"{itemName}을(를) 사용했지만 아무 효과가 없었습니다.");

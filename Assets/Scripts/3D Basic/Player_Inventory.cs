@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public enum SlotType { INVENTORY, QUICKSLOT }
+public enum SlotType { INVENTORY, QUICKSLOT, EQUIPMENT }
 public enum ItemSortMethod
 {
     NAME,
@@ -123,6 +123,20 @@ public class Player_Inventory : MonoBehaviour
         {
             SetItemHolderAt(destType, destIndex, sourceItem);
             SetItemHolderAt(sourceType, sourceIndex, destItem);
+        }
+
+        if (destType == SlotType.EQUIPMENT)
+        {
+            if (sourceType == SlotType.EQUIPMENT) return;
+
+            Player_Equipment.Instance.Equip(sourceItem, sourceIndex);
+            RefreshAllUI();
+            return;
+        }
+        // 소스가 장비창일 경우 (장착 해제)
+        if (sourceType == SlotType.EQUIPMENT)
+        {
+            // ... (추후 구현: 장비창 아이템을 인벤토리 빈칸으로 옮겨 장착 해제)
         }
 
         RefreshAllUI();

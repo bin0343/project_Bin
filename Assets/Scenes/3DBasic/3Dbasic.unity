@@ -451,6 +451,26 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Weapon_Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 7c486dd6fdad8b842811c64e0b6dde9b, type: 2}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.data[0].maxAmount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.data[0].minAmount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.data[0].dropChance
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 7743399781389134038, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_IsTrigger
       value: 0
@@ -596,7 +616,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 272734161324665639, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -357
+      value: -159
       objectReference: {fileID: 0}
     - target: {fileID: 551772598293260835, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: assignedSkill
@@ -880,7 +900,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2246517755408229439, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2375447186642656209, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_IsActive
@@ -972,7 +992,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3058355091106787238, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3157837977715019616, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1152,7 +1172,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5825853196900645061, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000061035156
+      value: -0.00048828125
       objectReference: {fileID: 0}
     - target: {fileID: 5895157687293450949, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1516,7 +1536,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9033152533598192736, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9103129376667350696, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1704,6 +1724,26 @@ PrefabInstance:
     - target: {fileID: 3457585643464637469, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: inventorySlots.Array.data[19].ItemData
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599926761963137994, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: equipmentSlots.Array.data[0].ItemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 7c486dd6fdad8b842811c64e0b6dde9b, type: 2}
+    - target: {fileID: 3599926761963137994, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: equipmentSlots.Array.data[0].Quantity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599926761963137994, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: equipmentSlots.Array.data[1].ItemData
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599926761963137994, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: equipmentSlots.Array.data[2].ItemData
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599926761963137994, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: equipmentSlots.Array.data[2].Quantity
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3738197636087204550, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: m_RenderMode
@@ -1955,6 +1995,26 @@ PrefabInstance:
     - target: {fileID: 7289841548584461776, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_TagString
       value: Weapon_Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 7c486dd6fdad8b842811c64e0b6dde9b, type: 2}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.data[0].maxAmount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.data[0].minAmount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropTable.Array.data[0].dropChance
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 7743399781389134038, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_IsTrigger
