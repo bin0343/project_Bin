@@ -13,20 +13,31 @@ public class Enemy_Stat : MonoBehaviour
 
     public int ExpReward = 50;
     public MonsterHpBar hpBar;
+    private Canvas myCanvas;
+
+    public Vector3 damageTextOffset = new Vector3(0, 2.5f, 0);
 
     void Start()
     {
-        // 자식 오브젝트에서 MonsterHpBar 자동으로 찾아옴
         hpBar = GetComponentInChildren<MonsterHpBar>();
         if (hpBar != null)
-            hpBar.Setup(this); // 체력바에 Enemy_Stat 정보 전달
+            hpBar.Setup(this);
+
+        myCanvas = GetComponentInChildren<Canvas>(true);
     }
 
     public void TakeDamage(int damage)
     {
-        int prevHP = CurrentHP;
         CurrentHP -= damage;
         CurrentHP = Mathf.Max(CurrentHP, 0);
+
+        if (DamageTextSpawner.instance != null)
+        {
+            Quaternion textRotation = Camera.main.transform.rotation;
+            Vector3 spawnPosition = transform.position + damageTextOffset;
+
+            DamageTextSpawner.instance.SpawnDamageText(damage, spawnPosition, textRotation, myCanvas);
+        }
 
         if (hpBar != null)
             hpBar.UpdateHpBar();

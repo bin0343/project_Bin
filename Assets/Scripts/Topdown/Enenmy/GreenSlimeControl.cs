@@ -85,7 +85,7 @@ public class GreenSlimeControl : MonoBehaviour
 
         int damage = stat.TakeDamage(attackerAttack);
 
-        FindObjectOfType<DamageTextSpawner>().SpawnEnemyDamageText(transform.position + Vector3.up, damage);
+        FindObjectOfType<DamageTextSpawner_2D>().SpawnEnemyDamageText(transform.position + Vector3.up, damage);
 
         if (HpBar != null && HpSlider != null)
         {

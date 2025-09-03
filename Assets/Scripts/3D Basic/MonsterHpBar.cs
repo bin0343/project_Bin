@@ -9,6 +9,7 @@ public class MonsterHpBar : MonoBehaviour
     public Vector3 offset = new Vector3(0, 2f, 0); // 머리 위로 띄우는 오프셋
     private Camera cam;
     public Image HpBarFront; // 체력바 fill 이미지 (UI에서 할당)
+    public Text DamageText;
     private Enemy_Stat Stat; // 연동할 몬스터 스탯
 
     private Coroutine hpChangeCoroutine;

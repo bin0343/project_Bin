@@ -169,7 +169,7 @@ public class PlayerControl : MonoBehaviour
         if (IsDead || Isinvincible) return;
 
         int Damage = Stat.TakeDamage(damage);
-        FindObjectOfType<DamageTextSpawner>().SpawnPlayerDamageText(transform.position + Vector3.up, Damage);
+        FindObjectOfType<DamageTextSpawner_2D>().SpawnPlayerDamageText(transform.position + Vector3.up, Damage);
 
         if (HpBar != null && HpSlider != null)
         {
