@@ -10,6 +10,8 @@ public class UI_Status : MonoBehaviour
     [SerializeField] private Text hpText;
     [SerializeField] private Text mpText;
 
+    public UI_EquipmentPanel uiEquipmentPanel;
+
     public void UpdateStatus(Player_Stat stat)
     {
         hpSlider.value = (float)stat.CurrentHP / stat.MaxHP;

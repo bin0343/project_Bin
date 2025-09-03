@@ -34,32 +34,72 @@ public class Player_Inventory : MonoBehaviour
     #region Add Item
     public bool AddItem(Item_Base item, int quantity = 1)
     {
-        if (item.isStackable)
+        // --- 비겹침 아이템 처리 로직 추가 ---
+        if (!item.isStackable)
         {
-            ItemHolder existingStack = inventorySlots.FirstOrDefault(slot =>
-                slot != null &&
-                slot.ItemData == item &&
-                slot.Quantity < item.maxStackSize);
-
-            if (existingStack != null)
+            for (int i = 0; i < quantity; i++)
             {
-                existingStack.AddQuantity(quantity);
-                RefreshAllUI(); // UI 갱신
+                // 빈 슬롯을 찾아서 아이템을 1개씩 추가
+                int emptySlotIndex = inventorySlots.FindIndex(slot => slot == null || slot.ItemData == null);
+                if (emptySlotIndex != -1)
+                {
+                    inventorySlots[emptySlotIndex] = new ItemHolder(item, 1);
+                }
+                else
+                {
+                    Debug.Log("인벤토리가 가득 찼습니다.");
+                    RefreshAllUI();
+                    return false; // 하나라도 추가 못하면 실패
+                }
+            }
+            RefreshAllUI();
+            return true;
+        }
+        // ------------------------------------
+
+        // --- 겹침 아이템 처리 로직 (더욱 정교하게 수정) ---
+        int remainingQuantity = quantity;
+
+        // 1. 기존 스택에 최대한 채우기
+        List<ItemHolder> existingStacks = inventorySlots.Where(slot =>
+            slot != null && slot.ItemData == item && slot.Quantity < item.maxStackSize).ToList();
+
+        foreach (var stack in existingStacks)
+        {
+            int spaceAvailable = item.maxStackSize - stack.Quantity;
+            int amountToAdd = Mathf.Min(spaceAvailable, remainingQuantity);
+
+            stack.AddQuantity(amountToAdd);
+            remainingQuantity -= amountToAdd;
+
+            if (remainingQuantity <= 0)
+            {
+                RefreshAllUI();
                 return true;
             }
         }
 
-        int emptySlotIndex = inventorySlots.FindIndex(slot => slot == null);
-
-        if (emptySlotIndex != -1)
+        // 2. 남은 아이템을 새 슬롯에 채우기
+        while (remainingQuantity > 0)
         {
-            inventorySlots[emptySlotIndex] = new ItemHolder(item, quantity);
-            RefreshAllUI(); // UI 갱신
-            return true;
+            int emptySlotIndex = inventorySlots.FindIndex(slot => slot == null || slot.ItemData == null);
+
+            if (emptySlotIndex != -1)
+            {
+                int amountForNewStack = Mathf.Min(item.maxStackSize, remainingQuantity);
+                inventorySlots[emptySlotIndex] = new ItemHolder(item, amountForNewStack);
+                remainingQuantity -= amountForNewStack;
+            }
+            else
+            {
+                Debug.Log("인벤토리가 가득 찼습니다.");
+                RefreshAllUI();
+                return false; // 남은 아이템을 추가하지 못하고 실패
+            }
         }
 
-        Debug.Log("인벤토리가 가득 찼습니다.");
-        return false;
+        RefreshAllUI();
+        return true;
     }
     #endregion
 
@@ -96,24 +136,52 @@ public class Player_Inventory : MonoBehaviour
 
     public void HandleSlotDrop(SlotType sourceType, int sourceIndex, SlotType destType, int destIndex, UI_Inventory.InventoryTabType currentTab)
     {
+        // --- 이 부분을 맨 위로 옮기고 수정합니다 ---
+        // Case 1: 아이템 장착 시도 (인벤토리/퀵슬롯 -> 장비 슬롯)
+        if (destType == SlotType.EQUIPMENT)
+        {
+            // 장비창에서 장비창으로 이동하는 것은 막음
+            if (sourceType == SlotType.EQUIPMENT) return;
+
+            ItemHolder sourceItem = GetItemHolderAt(sourceType, sourceIndex);
+            if (sourceItem != null)
+            {
+                // 장착 시도
+                Player_Equipment.Instance.Equip(sourceItem, sourceType, sourceIndex);
+                // Equip 함수가 모든 데이터 처리와 UI갱신을 하므로 여기서 종료
+                return;
+            }
+        }
+
+        // Case 2: 아이템 장착 해제 시도 (장비 슬롯 -> 인벤토리/퀵슬롯)
+        if (sourceType == SlotType.EQUIPMENT)
+        {
+            // ... (추후 구현) ...
+            return;
+        }
+        // ------------------------------------
+
+
+        // Case 3: 필터링된 탭에서 인벤토리 내부로 드롭하는 것 방지
         if (currentTab != UI_Inventory.InventoryTabType.ALL && destType == SlotType.INVENTORY)
         {
             return;
         }
 
-        ItemHolder sourceItem = GetItemHolderAt(sourceType, sourceIndex);
-        ItemHolder destItem = GetItemHolderAt(destType, destIndex);
+        // Case 4: 인벤토리/퀵슬롯 간의 일반적인 이동 (겹치기 또는 교환)
+        ItemHolder sourceItemGeneral = GetItemHolderAt(sourceType, sourceIndex);
+        ItemHolder destItemGeneral = GetItemHolderAt(destType, destIndex);
 
         // 겹치기 로직
-        if (sourceItem != null && destItem != null && sourceItem.ItemData == destItem.ItemData && destItem.ItemData.isStackable && destItem.Quantity < destItem.ItemData.maxStackSize)
+        if (sourceItemGeneral != null && destItemGeneral != null && sourceItemGeneral.ItemData == destItemGeneral.ItemData && destItemGeneral.ItemData.isStackable && destItemGeneral.Quantity < destItemGeneral.ItemData.maxStackSize)
         {
-            int spaceAvailable = destItem.ItemData.maxStackSize - destItem.Quantity;
-            int amountToMove = Mathf.Min(spaceAvailable, sourceItem.Quantity);
+            int spaceAvailable = destItemGeneral.ItemData.maxStackSize - destItemGeneral.Quantity;
+            int amountToMove = Mathf.Min(spaceAvailable, sourceItemGeneral.Quantity);
 
-            destItem.AddQuantity(amountToMove);
-            sourceItem.Quantity -= amountToMove;
+            destItemGeneral.AddQuantity(amountToMove);
+            sourceItemGeneral.Quantity -= amountToMove;
 
-            if (sourceItem.Quantity <= 0)
+            if (sourceItemGeneral.Quantity <= 0)
             {
                 SetItemHolderAt(sourceType, sourceIndex, null);
             }
@@ -121,22 +189,8 @@ public class Player_Inventory : MonoBehaviour
         // 교환 로직
         else
         {
-            SetItemHolderAt(destType, destIndex, sourceItem);
-            SetItemHolderAt(sourceType, sourceIndex, destItem);
-        }
-
-        if (destType == SlotType.EQUIPMENT)
-        {
-            if (sourceType == SlotType.EQUIPMENT) return;
-
-            Player_Equipment.Instance.Equip(sourceItem, sourceIndex);
-            RefreshAllUI();
-            return;
-        }
-        // 소스가 장비창일 경우 (장착 해제)
-        if (sourceType == SlotType.EQUIPMENT)
-        {
-            // ... (추후 구현: 장비창 아이템을 인벤토리 빈칸으로 옮겨 장착 해제)
+            SetItemHolderAt(destType, destIndex, sourceItemGeneral);
+            SetItemHolderAt(sourceType, sourceIndex, destItemGeneral);
         }
 
         RefreshAllUI();

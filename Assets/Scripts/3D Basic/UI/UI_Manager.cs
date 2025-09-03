@@ -19,7 +19,7 @@ public class UI_Manager : MonoBehaviour
     public Text MessageText;
     public GameObject LootPanel;
     public UI_Loot UI_Loot;
-    public UI_EquipmentPanel uiEquipmentPanel;
+    
 
     private Stack<GameObject> UIStack = new Stack<GameObject>();
 
