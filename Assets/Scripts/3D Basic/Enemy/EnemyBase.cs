@@ -27,6 +27,7 @@ public class EnemyBase : MonoBehaviour
 
     private NavMeshAgent navAgent;
     private Enemy_Stat Stat;
+    [SerializeField] private TrailRenderer slashTrail;
 
     private ItemDrop itemDropper;
 
@@ -43,6 +44,7 @@ public class EnemyBase : MonoBehaviour
         navAgent = GetComponent<NavMeshAgent>();
         Stat = GetComponentInParent<Enemy_Stat>();
         itemDropper = GetComponent<ItemDrop>();
+        slashTrail = GetComponentInChildren<TrailRenderer>();
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
@@ -270,6 +272,7 @@ public class EnemyBase : MonoBehaviour
             CurrentState = ENEMYSTATE.Dead; // 상태 전이
             navAgent.isStopped = true;
             navAgent.ResetPath(); // 이동 멈추기
+            slashTrail.emitting = false;
 
             if (itemDropper != null)
             {
