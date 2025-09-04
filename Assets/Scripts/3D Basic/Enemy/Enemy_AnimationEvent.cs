@@ -6,9 +6,21 @@ public class Enemy_AnimationEvent : MonoBehaviour
 {
     public Animator animator;
 
-    public void OnDeathAnimationEnd()
+    [Header("Attack Effect")]
+    [SerializeField] private TrailRenderer slashTrail;
+
+    void Start()
     {
-        // 시체 확인 가능 상태로 전환
-        //gameObject.AddComponent<CorpseInteractable>().Setup(dropTable);
+        slashTrail.emitting = false;
+    }
+
+    public void StartAttackTrail()
+    {
+        slashTrail.emitting = true;
+    }
+
+    public void EndAttackTrail()
+    {
+        slashTrail.emitting = false;
     }
 }

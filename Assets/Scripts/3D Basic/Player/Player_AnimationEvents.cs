@@ -9,8 +9,6 @@ public class Player_AnimationEvents : MonoBehaviour
     public Animator animator;
 
     [Header("Attack Effect")]
-    [SerializeField] private GameObject slashEffectPrefab; // ¿Ã∆Â∆Æ «¡∏Æ∆’
-    [SerializeField] private Transform effectPoint;
     [SerializeField] private TrailRenderer slashTrail;
 
     void Start()
@@ -52,14 +50,6 @@ public class Player_AnimationEvents : MonoBehaviour
     public void OnAttackCombo()
     {
         Action.canReceiveInput = true;
-    }
-
-    public void PlaySlashEffect()
-    {
-        /*if (slashEffectPrefab == null || effectPoint == null) return;
-
-        GameObject effect = Instantiate(slashEffectPrefab, effectPoint.position, effectPoint.rotation);
-        Destroy(effect, 3f);*/
     }
 
     public void StartAttackTrail()
