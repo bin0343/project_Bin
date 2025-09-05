@@ -18,7 +18,7 @@ public class Skill_Attack : Skill_Base
         user.GetComponent<MonoBehaviour>().StartCoroutine(AttackCoroutine(user));
     }
 
-    private IEnumerator AttackCoroutine(GameObject user)
+    private IEnumerator AttackCoroutine(GameObject user)        //코루틴을 적용하면 안쓰는 애들이 있으니까 상속구조에 위배(나중에 코루틴을 또 쓰는 스킬이 나온다면 수정) 지금은 없는게 나음.
     {
         /*//1. 스킬 범위 표시
         if (rangePrefab != null)

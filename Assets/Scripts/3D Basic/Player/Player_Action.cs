@@ -14,14 +14,12 @@ public class Player_Action : MonoBehaviour
     public Skill_Base[] assignedSkills = new Skill_Base[4];
     private SkillHolder[] playerSkills;
 
-    /*[Header("Item Quick Slots")]
-    public Item_Base[] quickSlotItems = new Item_Base[4];
-    private ItemHolder[] itemSlots;*/
+    private SkillTargetingController targetingController;
+    private bool isTargetingSkill = false;
+    private SkillHolder skillBeingAimed;
 
     private Player_Stat Stat;
-
-    //public Skill_Base[] Skill;
-    //public Sprite[] SkillIcons;
+    
     public UI_SkillManager SkillUIManagers;
 
     private float IdleTimer = 0f;
@@ -44,16 +42,21 @@ public class Player_Action : MonoBehaviour
         Stat = Player.GetComponentInParent<Player_Stat>();
         SkillUIManagers = FindObjectOfType<UI_SkillManager>();
 
+        targetingController = GetComponent<SkillTargetingController>();
+        if (targetingController != null)
+        {
+            targetingController.OnTargetSelected += FinalizeSkillTargeting;
+            targetingController.OnTargetingCancelled += CancelSkillTargeting;
+        }
+
         playerSkills = new SkillHolder[assignedSkills.Length];
 
         for (int i = 0; i < assignedSkills.Length; i++)
         {
-            // 할당된 스킬 에셋이 있는 칸만 SkillHolder를 생성
             if (assignedSkills[i] != null)
             {
                 playerSkills[i] = new SkillHolder(assignedSkills[i]);
             }
-            // 할당되지 않은 칸은 null로 유지
             else
             {
                 playerSkills[i] = null;
@@ -64,22 +67,6 @@ public class Player_Action : MonoBehaviour
         {
             UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
         }
-
-        /*itemSlots = new ItemHolder[quickSlotItems.Length];
-        for (int i = 0; i < quickSlotItems.Length; i++)
-        {
-            if (quickSlotItems[i] != null)
-            {
-                // 인스펙터에 할당된 아이템으로 ItemHolder를 생성
-                // (임시로 소모품은 5개씩 가진다고 가정)
-                itemSlots[i] = new ItemHolder(quickSlotItems[i], 5);
-            }
-        }
-
-        if (UI_ItemManager.Instance != null)
-        {
-            UI_ItemManager.Instance.SetupItemSlots(itemSlots);
-        }*/
     }
 
     void Update()
@@ -87,6 +74,8 @@ public class Player_Action : MonoBehaviour
         if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
             return;
         if (IsDead) return;
+        if (isTargetingSkill || (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen))
+            return;
         Shield();
         Attack();
         Idle();
@@ -243,25 +232,75 @@ public class Player_Action : MonoBehaviour
 
     void TryUseSkill(int slotIndex)
     {
+        if (isTargetingSkill) return;
         if (slotIndex < 0 || slotIndex >= playerSkills.Length) return;
 
         // CHANGED: playerSkills[slotIndex]가 비어있는지(null) 확인
         SkillHolder skillToUse = playerSkills[slotIndex];
 
-        if (skillToUse == null)
+        if (skillToUse == null || !skillToUse.CanUse(Stat.CurrentMP))
         {
-            Debug.Log($"[{slotIndex}]번 슬롯이 비어있습니다.");
+            // 스킬 사용 불가 메시지 (필요시)
             return;
         }
 
-        if (skillToUse.CanUse(Stat.CurrentMP))
+        // 사용하려는 스킬이 '범위 지정 공격' 타입인지 확인
+        if (skillToUse.SkillData is Skill_AreaAttack areaSkill)
+        {
+            isTargetingSkill = true;
+            skillBeingAimed = skillToUse; // 어떤 스킬을 조준하는지 기억
+            targetingController.EnterTargetingMode(areaSkill, transform); // 조준 모드 시작!
+        }
+        else // 버프 등 다른 종류의 즉발 스킬일 경우
         {
             skillToUse.Use(gameObject);
-            Debug.Log($"[{skillToUse.SkillData.SkillName}] 스킬 사용!");
+            Debug.Log($"[{skillToUse.SkillData.SkillName}] 스킬 즉시 사용!");
         }
-        else
+    }
+    #endregion
+
+    #region Targeting Callback
+    // 조준이 완료(마우스 좌클릭)되었을 때 호출될 함수
+    private void FinalizeSkillTargeting(Vector3 targetPosition)
+    {
+        if (skillBeingAimed == null) return;
+
+        // 1. 스킬 사용 처리 (MP소모, 쿨타임 시작, 시전 애니메이션)
+        skillBeingAimed.Use(gameObject);
+
+        // 2. 실제 스킬 효과(파티클 생성, 피해)는 코루틴으로 처리
+        StartCoroutine(SpawnEffectAndDealDamage(targetPosition, skillBeingAimed.SkillData as Skill_AreaAttack));
+
+        // 3. 상태 초기화
+        isTargetingSkill = false;
+        skillBeingAimed = null;
+    }
+
+    // 조준이 취소(마우스 우클릭)되었을 때 호출될 함수
+    private void CancelSkillTargeting()
+    {
+        isTargetingSkill = false;
+        skillBeingAimed = null;
+        Debug.Log("스킬 조준을 취소했습니다.");
+    }
+
+    // 지정된 위치에 스킬 효과를 생성하고 피해를 주는 코루틴
+    private IEnumerator SpawnEffectAndDealDamage(Vector3 position, Skill_AreaAttack skillData)
+    {
+        if (skillData == null || skillData.effectPrefab == null) yield break;
+
+        // 약간의 딜레이 후 효과 생성 및 피해 적용
+        yield return new WaitForSeconds(0.5f);
+
+        Instantiate(skillData.effectPrefab, position, Quaternion.identity);
+
+        Collider[] hitEnemies = Physics.OverlapSphere(position, skillData.attackRadius);
+        foreach (var enemy in hitEnemies)
         {
-            Debug.Log($"[{skillToUse.SkillData.SkillName}] 스킬 사용 불가 (쿨타임 or MP 부족).");
+            if (enemy.CompareTag("Enemy"))
+            {
+                enemy.GetComponent<Enemy_Stat>()?.TakeDamage(skillData.damageAmount);
+            }
         }
     }
     #endregion

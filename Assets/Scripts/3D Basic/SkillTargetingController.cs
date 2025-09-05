@@ -3,17 +3,16 @@ using System;
 
 public class SkillTargetingController : MonoBehaviour
 {
-    public LayerMask groundLayer; // 바닥을 감지하기 위한 레이어 마스크
+    public LayerMask groundLayer;
 
     private bool isTargeting = false;
     private Camera mainCamera;
-    private GameObject rangeIndicatorInstance;
-    private GameObject targetIndicatorInstance;
+    private GameObject rangeIndicatorInstance; // 최대 사거리 원
+    private GameObject targetAreaIndicatorInstance; // 마우스 따라다니는 공격 범위 원
 
     private float currentSkillRange;
     private Transform playerTransform;
 
-    // 콜백: 조준이 완료되거나 취소되었음을 다른 스크립트에 알림
     public Action<Vector3> OnTargetSelected;
     public Action OnTargetingCancelled;
 
@@ -22,39 +21,47 @@ public class SkillTargetingController : MonoBehaviour
         mainCamera = Camera.main;
     }
 
-    // Player_Action에서 호출하여 조준 모드를 시작
-    /*public void EnterTargetingMode(Skill_Active_Leap skillData, Transform pTransform)
+    public void EnterTargetingMode(Skill_AreaAttack skillData, Transform pTransform)
     {
         isTargeting = true;
-        this.currentSkillRange = skillData.skillRange;
+        this.currentSkillRange = skillData.castRange;
         this.playerTransform = pTransform;
 
-        // 범위 및 조준점 UI 생성
-        if (skillData.rangeIndicatorPrefab != null)
+        if (skillData.castRangeIndicatorPrefab != null)
         {
-            rangeIndicatorInstance = Instantiate(skillData.rangeIndicatorPrefab, playerTransform.position, Quaternion.identity);
-            rangeIndicatorInstance.transform.localScale = Vector3.one * currentSkillRange * 2;
-        }
-        if (skillData.targetIndicatorPrefab != null)
-        {
-            targetIndicatorInstance = Instantiate(skillData.targetIndicatorPrefab);
+            rangeIndicatorInstance = Instantiate(skillData.castRangeIndicatorPrefab, playerTransform.position, Quaternion.identity);
+            float castDiameter = skillData.castRange * 2f;
+            rangeIndicatorInstance.transform.localScale = new Vector3(castDiameter, 0.01f, castDiameter);
         }
 
-        // 커서 보이기
-        UI_Manager.Instance.OpenUI(null); // 임시로 OpenUI를 호출해 커서를 보이게 함
-    }*/
+        if (skillData.targetIndicatorPrefab != null)
+        {
+            targetAreaIndicatorInstance = Instantiate(skillData.targetIndicatorPrefab);
+            float attackDiameter = skillData.attackRadius * 2f;
+            targetAreaIndicatorInstance.transform.localScale = new Vector3(attackDiameter, 0.01f, attackDiameter);
+        }
+
+        UI_Manager.Instance.IsInTargetingMode = true;
+        // 커서 상태 업데이트를 강제로 한 번 호출하여 즉시 반영
+        UI_Manager.Instance.UpdateCursorState();
+    }
 
     void Update()
     {
         if (!isTargeting) return;
 
-        // 마우스 위치에 따라 조준점 이동
+        // --- ADDED: 최대 사거리 원이 플레이어를 따라다니도록 위치 갱신 ---
+        if (rangeIndicatorInstance != null)
+        {
+            rangeIndicatorInstance.transform.position = playerTransform.position;
+        }
+        // ----------------------------------------------------
+
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
         {
             Vector3 targetPosition = hit.point;
 
-            // 플레이어로부터 최대 사거리를 벗어나지 않도록 위치 보정
             float distance = Vector3.Distance(playerTransform.position, targetPosition);
             if (distance > currentSkillRange)
             {
@@ -62,16 +69,18 @@ public class SkillTargetingController : MonoBehaviour
                 targetPosition = playerTransform.position + direction * currentSkillRange;
             }
 
-            if (targetIndicatorInstance != null) targetIndicatorInstance.transform.position = targetPosition;
+            // CHANGED: targetAreaIndicatorInstance를 사용하도록 수정
+            if (targetAreaIndicatorInstance != null)
+            {
+                targetAreaIndicatorInstance.transform.position = targetPosition + new Vector3(0, 0.05f, 0);
+            }
 
-            // 좌클릭: 위치 확정 및 스킬 실행
             if (Input.GetMouseButtonDown(0))
             {
                 isTargeting = false;
                 OnTargetSelected?.Invoke(targetPosition);
                 CleanupIndicators();
             }
-            // 우클릭: 조준 취소
             else if (Input.GetMouseButtonDown(1))
             {
                 isTargeting = false;
@@ -84,8 +93,13 @@ public class SkillTargetingController : MonoBehaviour
     private void CleanupIndicators()
     {
         if (rangeIndicatorInstance != null) Destroy(rangeIndicatorInstance);
-        if (targetIndicatorInstance != null) Destroy(targetIndicatorInstance);
 
-        UI_Manager.Instance.CloseTopUI(); // 커서를 다시 숨김
+        // CHANGED: targetAreaIndicatorInstance를 사용하도록 수정
+        if (targetAreaIndicatorInstance != null) Destroy(targetAreaIndicatorInstance);
+
+        // CHANGED: 커서 전용 함수 호출
+        UI_Manager.Instance.IsInTargetingMode = false;
+        // 커서 상태 업데이트를 강제로 한 번 호출하여 즉시 반영
+        UI_Manager.Instance.UpdateCursorState();
     }
 }

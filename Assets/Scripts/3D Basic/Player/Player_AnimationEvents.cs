@@ -37,6 +37,11 @@ public class Player_AnimationEvents : MonoBehaviour
         Action.IsGrounded = true;
     }
 
+    public void AttackStart()
+    {
+        Action.IsAttacking = true;
+    }
+
     public void AttackEnd()
     {
         Action.IsAttacking = false;

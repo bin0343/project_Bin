@@ -25,6 +25,8 @@ public class UI_Manager : MonoBehaviour
 
     public bool IsUIOpen => UIStack.Count > 0;
 
+    public bool IsInTargetingMode { get; set; } = false;
+
     private void Start()
     {
         if (PlayerStat == null)
@@ -49,8 +51,11 @@ public class UI_Manager : MonoBehaviour
 
     private void Update()
     {
-        UpdateCursorState();
-        
+        if (!IsUIOpen && (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyUp(KeyCode.LeftAlt)))
+        {
+            UpdateCursorState();
+        }
+
 
         if (Input.GetKeyDown(KeyCode.U))
         {
@@ -153,14 +158,15 @@ public class UI_Manager : MonoBehaviour
         }
     }
 
-    private void UpdateCursorState()
+    public void UpdateCursorState()
     {
-        if (UIStack.Count > 0)
+        // UI 창이 열려있거나, '스킬 조준 모드'일 경우
+        if (IsUIOpen || IsInTargetingMode)
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
-        else
+        else // UI도 닫혀있고 조준 모드도 아닐 경우
         {
             // Alt 키를 누르고 있을 때만 커서를 보여줌
             if (Input.GetKey(KeyCode.LeftAlt))
@@ -176,4 +182,17 @@ public class UI_Manager : MonoBehaviour
             }
         }
     }
+
+    #region Cursor Management
+    public void ShowCursor()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    public void HideCursor()
+    {
+        UpdateCursorState();
+    }
+    #endregion
 }
