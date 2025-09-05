@@ -20,13 +20,14 @@ public class Skill_Attack : Skill_Base
 
     private IEnumerator AttackCoroutine(GameObject user)
     {
-        //1. 스킬 범위 표시
+        /*//1. 스킬 범위 표시
         if (rangePrefab != null)
         {
             GameObject indicator = Instantiate(rangePrefab, user.transform.position, user.transform.rotation);
-            indicator.transform.localScale = Vector3.one * attackRadius * 2;
+            float diameter = attackRadius * 2f;
+            indicator.transform.localScale = new Vector3(diameter, 0.01f, diameter);
             Destroy(indicator, damageDelay + 0.1f);
-        }
+        }*/
 
         //2. 실제 피해까지 대기
         yield return new WaitForSeconds(damageDelay);
@@ -34,6 +35,7 @@ public class Skill_Attack : Skill_Base
         //3. 공격 효과 생성
         if (effectPrefab != null)
         {
+            yield return new WaitForSeconds(1f);
             GameObject effect = Instantiate(effectPrefab, user.transform.position, user.transform.rotation);
             Destroy(effect, 2f);
         }
