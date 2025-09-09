@@ -6,13 +6,13 @@ public class Player_Action : MonoBehaviour
 {
     [SerializeField]
     private GameObject Player;
-    private Animator Animator;
+    public Animator Animator;
     private Rigidbody Rigidbody;
     private Player_Move Move;
 
     [Header("Skills")]
     public Skill_Base[] assignedSkills = new Skill_Base[4];
-    private SkillHolder[] playerSkills;
+    public SkillHolder[] playerSkills;
 
     private SkillTargetingController targetingController;
     private bool isTargetingSkill = false;
@@ -33,6 +33,8 @@ public class Player_Action : MonoBehaviour
     public bool IsBuff = false;
 
     public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
+
+    private IPlayerState currentState;
 
     void Start()
     {
@@ -85,6 +87,13 @@ public class Player_Action : MonoBehaviour
         Die();
         UseSkill();
         UseItem();
+    }
+
+    public void ChangeState(IPlayerState newstate)
+    {
+        currentState?.Exit(this);
+        currentState = newstate;
+        currentState.Enter(this);
     }
 
     #region Attack
