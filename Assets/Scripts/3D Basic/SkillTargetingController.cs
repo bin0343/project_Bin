@@ -7,7 +7,7 @@ public class SkillTargetingController : MonoBehaviour
 
     private bool isTargeting = false;
     private Camera mainCamera;
-    private GameObject rangeIndicatorInstance; // 최대 사거리 원
+    private GameObject rangeIndicatorInstance;   // 최대 사거리 원
     private GameObject targetAreaIndicatorInstance; // 마우스 따라다니는 공격 범위 원
 
     private float currentSkillRange;
@@ -42,7 +42,6 @@ public class SkillTargetingController : MonoBehaviour
         }
 
         UI_Manager.Instance.IsInTargetingMode = true;
-        // 커서 상태 업데이트를 강제로 한 번 호출하여 즉시 반영
         UI_Manager.Instance.UpdateCursorState();
     }
 
@@ -50,56 +49,78 @@ public class SkillTargetingController : MonoBehaviour
     {
         if (!isTargeting) return;
 
-        // --- ADDED: 최대 사거리 원이 플레이어를 따라다니도록 위치 갱신 ---
         if (rangeIndicatorInstance != null)
         {
             rangeIndicatorInstance.transform.position = playerTransform.position;
         }
-        // ----------------------------------------------------
 
+        // 마우스 → 땅으로 레이캐스트
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
+        RaycastHit hit;
+
+        Vector3 targetPosition = Vector3.zero;
+
+        // 먼저 groundLayer에 직접 맞는지 체크
+        bool raycastHitGround = Physics.Raycast(ray, out hit, 100f, groundLayer);
+
+        if (raycastHitGround)
         {
-            Vector3 targetPosition = hit.point;
+            targetPosition = hit.point;
+        }
+        else
+        {
+            // 땅을 못 맞췄을 때 (허공/벽/몬스터 등) → 마우스 월드 좌표 기준으로 보정
+            Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(
+                new Vector3(Input.mousePosition.x, Input.mousePosition.y, mainCamera.transform.position.y)
+            );
 
-            float distance = Vector3.Distance(playerTransform.position, targetPosition);
-            if (distance > currentSkillRange)
-            {
-                Vector3 direction = (targetPosition - playerTransform.position).normalized;
-                targetPosition = playerTransform.position + direction * currentSkillRange;
-            }
+            // 플레이어 기준 방향으로 캐스팅 범위 제한
+            Vector3 directionToMouse = (mouseWorldPos - playerTransform.position).normalized;
+            targetPosition = playerTransform.position + directionToMouse * currentSkillRange;
+        }
 
-            // CHANGED: targetAreaIndicatorInstance를 사용하도록 수정
-            if (targetAreaIndicatorInstance != null)
-            {
-                targetAreaIndicatorInstance.transform.position = targetPosition + new Vector3(0, 0.05f, 0);
-            }
+        // 사거리 보정
+        float distance = Vector3.Distance(playerTransform.position, targetPosition);
+        if (distance > currentSkillRange)
+        {
+            Vector3 direction = (targetPosition - playerTransform.position).normalized;
+            targetPosition = playerTransform.position + direction * currentSkillRange;
+        }
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                isTargeting = false;
-                OnTargetSelected?.Invoke(targetPosition);
-                CleanupIndicators();
-            }
-            else if (Input.GetMouseButtonDown(1))
-            {
-                isTargeting = false;
-                OnTargetingCancelled?.Invoke();
-                CleanupIndicators();
-            }
+        // 최종적으로는 항상 땅 위로 보정 (언덕, 계단, 경사 고려)
+        RaycastHit groundHit;
+        if (Physics.Raycast(targetPosition + Vector3.up * 50f, Vector3.down, out groundHit, 100f, groundLayer))
+        {
+            targetPosition = groundHit.point + Vector3.up * 0.01f;
+        }
+
+        // indicator 위치 갱신
+        if (targetAreaIndicatorInstance != null)
+        {
+            targetAreaIndicatorInstance.transform.position = targetPosition;
+        }
+
+        // 확정 or 취소
+        if (Input.GetMouseButtonDown(0))
+        {
+            isTargeting = false;
+            OnTargetSelected?.Invoke(targetPosition);
+            CleanupIndicators();
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            isTargeting = false;
+            OnTargetingCancelled?.Invoke();
+            CleanupIndicators();
         }
     }
 
     private void CleanupIndicators()
     {
         if (rangeIndicatorInstance != null) Destroy(rangeIndicatorInstance);
-
-        // CHANGED: targetAreaIndicatorInstance를 사용하도록 수정
         if (targetAreaIndicatorInstance != null) Destroy(targetAreaIndicatorInstance);
 
-        // CHANGED: 커서 전용 함수 호출
         UI_Manager.Instance.IsInTargetingMode = false;
-        // 커서 상태 업데이트를 강제로 한 번 호출하여 즉시 반영
         UI_Manager.Instance.UpdateCursorState();
     }
 }
