@@ -2,12 +2,9 @@ using UnityEngine;
 
 public class PlayerAttackState : IPlayerState
 {
-    private int comboStep;
-
     public void Enter(Player_Action player)
     {
         Debug.Log("상태진입 : Attack");
-        comboStep = 1;
         player.Animator.SetTrigger("IsAttacking");
         player.IsAttacking = true;
         player.canReceiveInput = false; // 첫 입력 잠금
@@ -17,16 +14,14 @@ public class PlayerAttackState : IPlayerState
     {
         AnimatorStateInfo stateInfo = player.Animator.GetCurrentAnimatorStateInfo(0);
 
-        // canReceiveInput은 애니메이션 이벤트에서 true로 바뀜
         if (player.canReceiveInput && Input.GetMouseButtonDown(0))
         {
-            comboStep++;
             player.Animator.SetTrigger("IsAttacking");
             player.canReceiveInput = false; // 다시 입력 잠금
         }
 
         // 애니메이션이 끝나면 Idle로 전환
-        if (stateInfo.normalizedTime >= 1.0f && stateInfo.IsTag("Attack"))
+        if (!player.IsAttacking && stateInfo.IsTag("Attack"))
         {
             player.ChangeState(new PlayerIdleState());
         }

@@ -31,7 +31,7 @@ public class PlayerIdleState : IPlayerState
         }
 
         //앉기 상태 전환
-        if (Input.GetKey(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             player.ChangeState(new PlayerSitState());
             return;

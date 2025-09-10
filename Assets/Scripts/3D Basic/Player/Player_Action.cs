@@ -7,7 +7,7 @@ public class Player_Action : MonoBehaviour
     [SerializeField]
     private GameObject Player;
     public Animator Animator;
-    private Rigidbody Rigidbody;
+    public Rigidbody Rigidbody;
     private Player_Move Move;
 
     [Header("Skills")]
@@ -79,13 +79,13 @@ public class Player_Action : MonoBehaviour
         if (IsDead) return;
         if (isTargetingSkill || (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen))
             return;
-        Shield();
+        //Shield();
         //Attack();
         //Idle();
-        Sit();
-        Jump();
-        Kick();
-        Die();
+        //Sit();
+        //Jump();
+        //Kick();
+        //Die();
         UseSkill();
         UseItem();
         currentState?.Execute(this);
