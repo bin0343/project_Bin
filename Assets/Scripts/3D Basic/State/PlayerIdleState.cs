@@ -4,7 +4,6 @@ public class PlayerIdleState : IPlayerState
 {
     private float IdleTimer;
     private const float IdleDelay = 5f;
-    private Player_Stat stat;
 
     public void Enter(Player_Action player)
     {
@@ -52,7 +51,7 @@ public class PlayerIdleState : IPlayerState
             return;
         }
 
-        if (stat.CurrentHP <= 0)
+        if (player.Stat.CurrentHP <= 0)
         {
             player.ChangeState(new PlayerDeadState());
             return;
@@ -66,6 +65,8 @@ public class PlayerIdleState : IPlayerState
                 return;
             }
         }
+
+        HandleRandomIdle(player);
     }
 
     public void Exit(Player_Action player)

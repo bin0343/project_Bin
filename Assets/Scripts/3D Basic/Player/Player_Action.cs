@@ -18,7 +18,7 @@ public class Player_Action : MonoBehaviour
     private bool isTargetingSkill = false;
     private SkillHolder skillBeingAimed;
 
-    private Player_Stat Stat;
+    public Player_Stat Stat;
     
     public UI_SkillManager SkillUIManagers;
 
@@ -69,6 +69,7 @@ public class Player_Action : MonoBehaviour
         {
             UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
         }
+        ChangeState(new PlayerIdleState());
     }
 
     void Update()
@@ -79,14 +80,15 @@ public class Player_Action : MonoBehaviour
         if (isTargetingSkill || (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen))
             return;
         Shield();
-        Attack();
-        Idle();
+        //Attack();
+        //Idle();
         Sit();
         Jump();
         Kick();
         Die();
         UseSkill();
         UseItem();
+        currentState?.Execute(this);
     }
 
     public void ChangeState(IPlayerState newstate)

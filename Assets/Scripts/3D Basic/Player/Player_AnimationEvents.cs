@@ -66,4 +66,9 @@ public class Player_AnimationEvents : MonoBehaviour
     {
         slashTrail.emitting = false;
     }
+
+    public void ResetRandomIdle()
+    {
+        Action.Animator.SetInteger("RandomIdleIndex", 0);
+    }
 }

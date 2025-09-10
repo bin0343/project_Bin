@@ -7,6 +7,7 @@ public class PlayerJumpState : IPlayerState
 
     public void Enter(Player_Action player)
     {
+        rigidbody = player.GetComponent<Rigidbody>();
         Debug.Log("상태 진입 : Jump");
         player.Animator.SetTrigger("IsJump");
     }
