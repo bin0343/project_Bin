@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class PlayerIdleState : IPlayerState
+public class PlayerIdleState : PlayerBaseState
 {
     private float IdleTimer;
     private const float IdleDelay = 5f;
 
-    public void Enter(Player_Action player)
+    public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입 : Idle");
 
@@ -14,7 +14,7 @@ public class PlayerIdleState : IPlayerState
         IdleTimer = 0f;
     }
 
-    public void Execute(Player_Action player)
+    public override void Execute(Player_Action player)
     {
         //공격 상태 전환
         if (Input.GetMouseButtonDown(0) && player.IsGrounded)
@@ -57,29 +57,13 @@ public class PlayerIdleState : IPlayerState
             return;
         }
 
-        for (int i = 0; i < player.playerSkills.Length; i++)
-        {
-            if (Input.GetKeyDown(KeyCode.F1 + i) && player.IsGrounded)
-            {
-                player.HandleSkillInput(i);
-                return;
-            }
-        }
-
-        for (int i = 0; i < 4; i++) // 퀵슬롯은 4개로 가정
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
-            {
-                // Player_Action의 아이템 처리 함수 호출
-                player.HandleItemInput(i);
-                return;
-            }
-        }
+        base.HandleCommonItemInput(player);
+        base.HandleCommonSkillInput(player);
 
         HandleRandomIdle(player);
     }
 
-    public void Exit(Player_Action player)
+    public override void Exit(Player_Action player)
     {
         player.Animator.SetInteger("RandomIdleIndex", 0);
         Debug.Log("상태 이탈 : Idle");

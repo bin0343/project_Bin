@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class Player_Move : MonoBehaviour
 {
-    private Animator Animator;
-    private Rigidbody Rigidbody;
-    private Player_Action Action;
+    public Animator Animator { get; private set; }
+    public Rigidbody Rigidbody { get; private set; }
+    public Player_Action Action { get; private set; }
     private CameraArm cameraArmScript;
 
     [SerializeField] private float CharacterSpeed = 2.0f;
@@ -17,8 +17,8 @@ public class Player_Move : MonoBehaviour
     [SerializeField] private Transform CameraArm;     // 인스펙터: CameraArm 피봇 오브젝트 연결
     [SerializeField] private float RotateSpeed = 2.0f;
 
-    private bool _IsRunning = false;
-    public bool IsRunning => _IsRunning;
+
+    private IPlayerState_Move currentMoveState;
 
     void Start()
     {
@@ -26,6 +26,8 @@ public class Player_Move : MonoBehaviour
         Animator = CharacterBody.GetComponentInChildren<Animator>();
         Action = GetComponent<Player_Action>();
         cameraArmScript = CameraArm.GetComponent<CameraArm>();
+
+        ChangeMoveState(new PlayerStandingState());
     }
 
     void Update()
@@ -38,12 +40,19 @@ public class Player_Move : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (Action != null && Action.IsDead) return;
+        IPlayerState_Action actionState = Action.currentState; // 가독성을 위해 현재 Action 상태를 가져옴
+
+        // Action의 현재 상태가 공격 관련 상태이거나 죽었다면 이동 로직을 실행하지 않음
+        if (actionState is PlayerAttackState || actionState is PlayerRunningAttackState || actionState is PlayerDeadState)
+        {
+            return;
+        }
         if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
             return;
-        Move();
-        Run();
-        Rotate(); // 3인칭 전용 회전 처리
+        //Move();
+        //Run();
+        //Rotate(); // 3인칭 전용 회전 처리
+        currentMoveState?.Execute(this);
     }
 
     void Look()
@@ -56,7 +65,7 @@ public class Player_Move : MonoBehaviour
         }
     }
 
-    void Move()
+    public void HandleMovement()
     {
         if (Action != null && (Action.IsKick || Action.IsBuff || Action.IsAttacking)) return;
 
@@ -92,14 +101,6 @@ public class Player_Move : MonoBehaviour
         Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * adjustedSpeed);
     }
 
-    void Run()
-    {
-        if (Action != null && !Action.IsGrounded) return;
-        Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        _IsRunning = Input.GetKey(KeyCode.LeftShift) && moveInput.magnitude != 0;
-        Animator.SetBool("IsRunning", _IsRunning);
-    }
-
     float GetAdjustedSpeed(Vector2 moveInput)
     {
         float forwardWeight = 1.0f;
@@ -116,11 +117,11 @@ public class Player_Move : MonoBehaviour
             directionWeight = (sideWeight + vertical) / 2f;
         }
 
-        float baseSpeed = _IsRunning ? CharacterRunSpeed : CharacterSpeed;
+        float baseSpeed = Input.GetKey(KeyCode.LeftShift) ? CharacterRunSpeed : CharacterSpeed;
         return baseSpeed * directionWeight;
     }
 
-    void Rotate()
+    public void HandleRotation()
     {
         if (cameraArmScript == null || cameraArmScript.FirstPersonCamera.enabled)
         {
@@ -134,5 +135,12 @@ public class Player_Move : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(lookDir);
             CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
         }
+    }
+
+    public void ChangeMoveState(IPlayerState_Move newState)
+    {
+        currentMoveState?.Exit(this);
+        currentMoveState = newState;
+        currentMoveState.Enter(this);
     }
 }

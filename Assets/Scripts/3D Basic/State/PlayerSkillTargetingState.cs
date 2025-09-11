@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerSkillTargetingState : IPlayerState
+public class PlayerSkillTargetingState : PlayerBaseState
 {
-    public void Enter(Player_Action player)
+    public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입: Skill Targeting");
 
@@ -26,11 +26,11 @@ public class PlayerSkillTargetingState : IPlayerState
         player.targetingController.EnterTargetingMode(areaSkill, player.transform);
     }
 
-    public void Execute(Player_Action player)
+    public override void Execute(Player_Action player)
     {
     }
 
-    public void Exit(Player_Action player)
+    public override void Exit(Player_Action player)
     {
         Debug.Log("상태 이탈: Skill Targeting");
     }

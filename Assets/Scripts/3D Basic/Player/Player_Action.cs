@@ -6,9 +6,9 @@ public class Player_Action : MonoBehaviour
 {
     [SerializeField]
     private GameObject Player;
-    public Animator Animator;
-    public Rigidbody Rigidbody;
-    private Player_Move Move;
+    public Animator Animator {  get; private set; }
+    public Rigidbody Rigidbody { get; private set; }
+    public Player_Move Move;
 
     [Header("Skills")]
     public Skill_Base[] assignedSkills = new Skill_Base[4];
@@ -34,7 +34,7 @@ public class Player_Action : MonoBehaviour
 
     public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
 
-    private IPlayerState currentState;
+    public IPlayerState_Action currentState;
 
     void Start()
     {
@@ -91,14 +91,14 @@ public class Player_Action : MonoBehaviour
         currentState?.Execute(this);
     }
 
-    public void ChangeState(IPlayerState newstate)
+    public void ChangeState(IPlayerState_Action newstate)
     {
         currentState?.Exit(this);
         currentState = newstate;
         currentState.Enter(this);
     }
 
-    #region Attack
+    /*#region Attack
     void Attack()
     {
         Vector3 MoveDir = Move.CharacterBody.forward;
@@ -137,7 +137,7 @@ public class Player_Action : MonoBehaviour
             Rigidbody.velocity = MoveDir * Move.CharacterRunSpeed;
         }
     }
-    #endregion
+    #endregion*/
 
     #region Shield
     void Shield()

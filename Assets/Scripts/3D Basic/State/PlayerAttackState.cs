@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class PlayerAttackState : IPlayerState
+public class PlayerAttackState : PlayerBaseState
 {
-    public void Enter(Player_Action player)
+    public override void Enter(Player_Action player)
     {
         Debug.Log("상태진입 : Attack");
         player.Animator.SetTrigger("IsAttacking");
@@ -10,7 +10,7 @@ public class PlayerAttackState : IPlayerState
         player.canReceiveInput = false; // 첫 입력 잠금
     }
 
-    public void Execute(Player_Action player)
+    public override void Execute(Player_Action player)
     {
         AnimatorStateInfo stateInfo = player.Animator.GetCurrentAnimatorStateInfo(0);
 
@@ -20,14 +20,15 @@ public class PlayerAttackState : IPlayerState
             player.canReceiveInput = false; // 다시 입력 잠금
         }
 
-        // 애니메이션이 끝나면 Idle로 전환
         if (!player.IsAttacking && stateInfo.IsTag("Attack"))
         {
             player.ChangeState(new PlayerIdleState());
         }
+
+        base.HandleCommonItemInput(player);
     }
 
-    public void Exit(Player_Action player)
+    public override void Exit(Player_Action player)
     {
         Debug.Log("상태 이탈 : Attack");
         player.IsAttacking = false;

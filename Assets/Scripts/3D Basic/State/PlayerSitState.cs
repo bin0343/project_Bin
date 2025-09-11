@@ -1,15 +1,15 @@
 using UnityEngine;
 
-public class PlayerSitState : IPlayerState
+public class PlayerSitState : PlayerBaseState
 {
-    public void Enter(Player_Action player)
+    public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입 : Sit");
         player.Animator.SetTrigger("SitTrigger");
         
     }
 
-    public void Execute(Player_Action player)
+    public override void Execute(Player_Action player)
     {
         player.Animator.SetBool("IsSitting", true);
 
@@ -19,7 +19,7 @@ public class PlayerSitState : IPlayerState
         }
     }
 
-    public void Exit(Player_Action player)
+    public override void Exit(Player_Action player)
     {
         player.Animator.SetBool("IsSitting", false);
         player.Animator.ResetTrigger("SitTrigger");
