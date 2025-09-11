@@ -14,9 +14,9 @@ public class Player_Action : MonoBehaviour
     public Skill_Base[] assignedSkills = new Skill_Base[4];
     public SkillHolder[] playerSkills;
 
-    private SkillTargetingController targetingController;
+    public SkillTargetingController targetingController;
     private bool isTargetingSkill = false;
-    private SkillHolder skillBeingAimed;
+    public SkillHolder skillBeingAimed;
 
     public Player_Stat Stat;
     
@@ -86,8 +86,8 @@ public class Player_Action : MonoBehaviour
         //Jump();
         //Kick();
         //Die();
-        UseSkill();
-        UseItem();
+        //UseSkill();
+        //UseItem();
         currentState?.Execute(this);
     }
 
@@ -270,6 +270,59 @@ public class Player_Action : MonoBehaviour
     }
     #endregion
 
+    #region Input Handlers
+    // 모든 상태 클래스가 호출할 스킬 처리 전용 함수
+    public void HandleSkillInput(int slotIndex)
+    {
+        // 기존 TryUseSkill의 로직을 그대로 가져옵니다.
+        if (isTargetingSkill) return;
+        if (slotIndex < 0 || slotIndex >= playerSkills.Length) return;
+
+        SkillHolder skillToUse = playerSkills[slotIndex];
+
+        if (skillToUse == null || !skillToUse.CanUse(Stat.CurrentMP)) return;
+
+        if (skillToUse.SkillData is Skill_AreaAttack areaSkill)
+        {
+            skillBeingAimed = skillToUse;
+            ChangeState(new PlayerSkillTargetingState());
+        }
+        else
+        {
+            skillToUse.Use(gameObject);
+        }
+    }
+
+    // --- ADDED: 모든 상태 클래스가 호출할 아이템 처리 전용 함수 ---
+    public void HandleItemInput(int slotIndex)
+    {
+        // 기존 TryUseItem의 로직을 그대로 가져옵니다.
+        if (slotIndex < 0 || slotIndex >= Player_Inventory.Instance.quickSlots.Length) return;
+
+        ItemHolder itemToUse = Player_Inventory.Instance.quickSlots[slotIndex];
+        if (itemToUse == null) return;
+
+        bool success = itemToUse.Use(gameObject);
+        if (success)
+        {
+            if (itemToUse.ItemData.itemType == ITEMTYPE.Consumable)
+            {
+                itemToUse.Quantity--;
+            }
+
+            if (itemToUse.Quantity <= 0)
+            {
+                Player_Inventory.Instance.quickSlots[slotIndex] = null;
+            }
+
+            if (UI_ItemManager.Instance != null)
+            {
+                UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.Instance.quickSlots[slotIndex]);
+            }
+        }
+    }
+    #endregion
+
     #region Targeting Callback
     // 조준이 완료(마우스 좌클릭)되었을 때 호출될 함수
     private void FinalizeSkillTargeting(Vector3 targetPosition)
@@ -285,6 +338,8 @@ public class Player_Action : MonoBehaviour
         // 3. 상태 초기화
         isTargetingSkill = false;
         skillBeingAimed = null;
+
+        ChangeState(new PlayerIdleState());
     }
 
     // 조준이 취소(마우스 우클릭)되었을 때 호출될 함수
@@ -293,6 +348,8 @@ public class Player_Action : MonoBehaviour
         isTargetingSkill = false;
         skillBeingAimed = null;
         Debug.Log("스킬 조준을 취소했습니다.");
+
+        ChangeState(new PlayerIdleState());
     }
 
     // 지정된 위치에 스킬 효과를 생성하고 피해를 주는 코루틴

@@ -61,7 +61,17 @@ public class PlayerIdleState : IPlayerState
         {
             if (Input.GetKeyDown(KeyCode.F1 + i) && player.IsGrounded)
             {
-                //player.HandleSkillInput(i);
+                player.HandleSkillInput(i);
+                return;
+            }
+        }
+
+        for (int i = 0; i < 4; i++) // 퀵슬롯은 4개로 가정
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+            {
+                // Player_Action의 아이템 처리 함수 호출
+                player.HandleItemInput(i);
                 return;
             }
         }
