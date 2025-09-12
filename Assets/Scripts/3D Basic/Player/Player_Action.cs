@@ -34,7 +34,7 @@ public class Player_Action : MonoBehaviour
 
     public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
 
-    public IPlayerState_Action currentState;
+    public IPlayerState currentState;
 
     void Start()
     {
@@ -91,7 +91,7 @@ public class Player_Action : MonoBehaviour
         currentState?.Execute(this);
     }
 
-    public void ChangeState(IPlayerState_Action newstate)
+    public void ChangeState(IPlayerState newstate)
     {
         currentState?.Exit(this);
         currentState = newstate;
@@ -439,4 +439,21 @@ public class Player_Action : MonoBehaviour
             Debug.Log("피격당함");
         }
     }
+
+    public enum AnimationEventType
+    {
+        COMBO_WINDOW_OPEN,
+        ATTACK_ANIMATION_END
+    }
+
+    // --- ADDED: 애니메이션 이벤트를 현재 상태에 전달하는 중개 함수 ---
+    public void OnAnimationEvent(AnimationEventType eventType)
+    {
+        (currentState as IStateAnimationEvents)?.OnAnimationEvent(eventType);
+    }
+}
+
+public interface IStateAnimationEvents
+{
+    void OnAnimationEvent(Player_Action.AnimationEventType eventType);
 }

@@ -2,10 +2,11 @@ using UnityEngine;
 
 public class PlayerKickState : PlayerBaseState
 {
+    protected override PlayerAnimState GetAnimState() => PlayerAnimState.Kick;
     public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입 : kick");
-        player.Animator.SetTrigger("IsKick");
+        base.Enter(player);
         //player.IsKick = true;
     }
 

@@ -2,10 +2,12 @@ using UnityEngine;
 
 public class PlayerShieldState : PlayerBaseState
 {
+    protected override PlayerAnimState GetAnimState() => PlayerAnimState.Shield;
     public override void Enter(Player_Action player)
     {
+        base.Enter(player);
         Debug.Log("상태진입 : Shield");
-        player.Animator.SetBool("IsShield", true);
+        //player.Animator.SetBool("IsShield", true);
     }
 
     public override void Execute(Player_Action player)

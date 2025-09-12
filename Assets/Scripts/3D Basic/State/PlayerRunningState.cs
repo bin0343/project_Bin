@@ -10,12 +10,6 @@ public class PlayerRunningState : IPlayerState_Move
 
     public void Execute(Player_Move player) 
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            player.Action.ChangeState(new PlayerRunningAttackState());
-            return; 
-        }
-
         player.HandleRotation();
         player.HandleMovement();
         //player.HandleRun();

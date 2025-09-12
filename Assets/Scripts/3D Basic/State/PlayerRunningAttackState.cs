@@ -2,11 +2,14 @@ using UnityEngine;
 
 public class PlayerRunningAttackState : PlayerBaseState
 {
+    protected override PlayerAnimState GetAnimState() => PlayerAnimState.RunningAttack;
+
     public override void Enter(Player_Action player)
     {
+        base.Enter(player);
         Debug.Log("상태 진입: Running Slash");
 
-        player.Animator.SetTrigger("RunningSlash");     //트리거라서 수정을 할 때 이렇게 하면 일일이 다 건드려서 수정해야함(최상위 클래스에서 한 번 수정하면 모든게 수정되게 바꿀것)
+        //player.Animator.SetTrigger("RunningSlash");     //트리거라서 수정을 할 때 이렇게 하면 일일이 다 건드려서 수정해야함(최상위 클래스에서 한 번 수정하면 모든게 수정되게 바꿀것)
 
         Vector3 moveDir = player.Move.CharacterBody.forward;
         player.Rigidbody.velocity = moveDir * player.Move.CharacterRunSpeed;

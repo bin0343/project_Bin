@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class PlayerSitState : PlayerBaseState
 {
+    protected override PlayerAnimState GetAnimState() => PlayerAnimState.Sit;
     public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입 : Sit");
-        player.Animator.SetTrigger("SitTrigger");
-        
+        base.Enter(player);
     }
 
     public override void Execute(Player_Action player)
@@ -22,6 +22,5 @@ public class PlayerSitState : PlayerBaseState
     public override void Exit(Player_Action player)
     {
         player.Animator.SetBool("IsSitting", false);
-        player.Animator.ResetTrigger("SitTrigger");
     }
 }

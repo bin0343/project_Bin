@@ -19,6 +19,7 @@ public class Player_Move : MonoBehaviour
 
 
     private IPlayerState_Move currentMoveState;
+    public IPlayerState_Move CurrentMoveState => currentMoveState;
 
     void Start()
     {
@@ -40,7 +41,7 @@ public class Player_Move : MonoBehaviour
 
     private void FixedUpdate()
     {
-        IPlayerState_Action actionState = Action.currentState; // 가독성을 위해 현재 Action 상태를 가져옴
+        IPlayerState actionState = Action.currentState; // 가독성을 위해 현재 Action 상태를 가져옴
 
         // Action의 현재 상태가 공격 관련 상태이거나 죽었다면 이동 로직을 실행하지 않음
         if (actionState is PlayerAttackState || actionState is PlayerRunningAttackState || actionState is PlayerDeadState)

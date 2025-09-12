@@ -3,11 +3,12 @@ using UnityEngine;
 public class PlayerJumpState : PlayerBaseState
 {
     private float jumpForce = 5f;
+    protected override PlayerAnimState GetAnimState() => PlayerAnimState.Jump;
 
     public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입 : Jump");
-        player.Animator.SetTrigger("IsJump");
+        base.Enter(player);
         player.Rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         player.IsGrounded = false;
     }

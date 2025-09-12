@@ -5,9 +5,14 @@ public class PlayerIdleState : PlayerBaseState
     private float IdleTimer;
     private const float IdleDelay = 5f;
 
+    protected override PlayerAnimState GetAnimState() => PlayerAnimState.Idle;
+
     public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입 : Idle");
+        base.Enter(player);
+
+        PlayerAttackState.ResetCombo();
 
         player.Animator.SetFloat("Horizontal", 0);
         player.Animator.SetFloat("Vertical", 0);
@@ -19,7 +24,17 @@ public class PlayerIdleState : PlayerBaseState
         //공격 상태 전환
         if (Input.GetMouseButtonDown(0) && player.IsGrounded)
         {
-            player.ChangeState(new PlayerAttackState());
+            // Player_Move의 현재 상태를 확인합니다.
+            if (player.Move.CurrentMoveState is PlayerRunningState)
+            {
+                // 만약 '달리는 중'이라면 RunningAttack 상태로 전환
+                player.ChangeState(new PlayerRunningAttackState());
+            }
+            else
+            {
+                // 그 외의 경우(서있거나 걷는 중)에는 일반 Attack 상태로 전환
+                player.ChangeState(new PlayerAttackState());
+            }
             return;
         }
 

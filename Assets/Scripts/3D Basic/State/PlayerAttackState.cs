@@ -2,37 +2,59 @@ using UnityEngine;
 
 public class PlayerAttackState : PlayerBaseState
 {
+    private static int comboStep = 0;
+
+    protected override PlayerAnimState GetAnimState()
+    {
+        switch (comboStep)
+        {
+            case 1: return PlayerAnimState.Attack1;
+            case 2: return PlayerAnimState.Attack2;
+            case 3: return PlayerAnimState.Attack3;
+            default: return PlayerAnimState.Idle;
+        }
+    }
+
     public override void Enter(Player_Action player)
     {
-        Debug.Log("상태진입 : Attack");
-        player.Animator.SetTrigger("IsAttacking");
-        player.IsAttacking = true;
-        player.canReceiveInput = false; // 첫 입력 잠금
+        comboStep++;
+        if (comboStep > 3)
+        {
+            comboStep = 1;
+        }
+
+        player.canReceiveInput = false;   // 처음 들어올 때는 입력 잠금
+        base.Enter(player);               // Animator의 ActionState 세팅
+        Debug.Log($"상태 진입: Attack {comboStep}");
     }
 
     public override void Execute(Player_Action player)
     {
         AnimatorStateInfo stateInfo = player.Animator.GetCurrentAnimatorStateInfo(0);
+        bool isAttackAnimation = stateInfo.IsTag("Attack");
 
+        // 입력을 받을 수 있을 때만 다음 콤보 입력 허용
         if (player.canReceiveInput && Input.GetMouseButtonDown(0))
         {
-            player.Animator.SetTrigger("IsAttacking");
-            player.canReceiveInput = false; // 다시 입력 잠금
+            player.ChangeState(new PlayerAttackState());
+            return;
         }
 
-        if (!player.IsAttacking && stateInfo.IsTag("Attack"))
+        // 공격 애니메이션이 끝났다면 Idle 상태로 복귀
+        if (isAttackAnimation && stateInfo.normalizedTime >= 0.95f)
         {
             player.ChangeState(new PlayerIdleState());
         }
-
-        base.HandleCommonItemInput(player);
     }
 
     public override void Exit(Player_Action player)
     {
-        Debug.Log("상태 이탈 : Attack");
-        player.IsAttacking = false;
-        player.Animator.ResetTrigger("IsAttacking");
-        player.canReceiveInput = true; // 나가면서 초기화 (다음 공격 준비)
+        // 나갈 때 입력 다시 잠금
+        player.canReceiveInput = false;
+    }
+
+    public static void ResetCombo()
+    {
+        comboStep = 0;
     }
 }

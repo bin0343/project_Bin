@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerSkillTargetingState : PlayerBaseState
 {
+    protected override PlayerAnimState GetAnimState() => PlayerAnimState.Idle;
     public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입: Skill Targeting");
