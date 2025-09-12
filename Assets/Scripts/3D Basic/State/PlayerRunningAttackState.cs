@@ -9,10 +9,8 @@ public class PlayerRunningAttackState : PlayerBaseState
         base.Enter(player);
         Debug.Log("상태 진입: Running Slash");
 
-        //player.Animator.SetTrigger("RunningSlash");     //트리거라서 수정을 할 때 이렇게 하면 일일이 다 건드려서 수정해야함(최상위 클래스에서 한 번 수정하면 모든게 수정되게 바꿀것)
-
         Vector3 moveDir = player.Move.CharacterBody.forward;
-        player.Rigidbody.velocity = moveDir * player.Move.CharacterRunSpeed;
+        player.Rigidbody.velocity = moveDir * 8f;
     }
 
     public override void Execute(Player_Action player)
@@ -21,7 +19,14 @@ public class PlayerRunningAttackState : PlayerBaseState
 
         if (stateInfo.IsTag("Attack") && stateInfo.normalizedTime >= 0.95f)
         {
-            player.ChangeState(new PlayerIdleState());
+            if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+            {
+                player.ChangeState(new PlayerMoveState());
+            }
+            else
+            {
+                player.ChangeState(new PlayerIdleState());
+            }
         }
     }
 

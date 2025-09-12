@@ -30,6 +30,7 @@ public class PlayerAttackState : PlayerBaseState
 
     public override void Execute(Player_Action player)
     {
+        player.Move.HandleRotation();
         AnimatorStateInfo stateInfo = player.Animator.GetCurrentAnimatorStateInfo(0);
         bool isAttackAnimation = stateInfo.IsTag("Attack");
 
@@ -44,7 +45,15 @@ public class PlayerAttackState : PlayerBaseState
         if (isAttackAnimation && stateInfo.normalizedTime >= 0.95f)
         {
             player.ChangeState(new PlayerIdleState());
+
+            if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+            {
+                player.ChangeState(new PlayerMoveState());
+                return;
+            }
         }
+
+        
     }
 
     public override void Exit(Player_Action player)

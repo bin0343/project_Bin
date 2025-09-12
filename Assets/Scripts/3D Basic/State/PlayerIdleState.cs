@@ -24,17 +24,13 @@ public class PlayerIdleState : PlayerBaseState
         //공격 상태 전환
         if (Input.GetMouseButtonDown(0) && player.IsGrounded)
         {
-            // Player_Move의 현재 상태를 확인합니다.
-            if (player.Move.CurrentMoveState is PlayerRunningState)
-            {
-                // 만약 '달리는 중'이라면 RunningAttack 상태로 전환
-                player.ChangeState(new PlayerRunningAttackState());
-            }
-            else
-            {
-                // 그 외의 경우(서있거나 걷는 중)에는 일반 Attack 상태로 전환
-                player.ChangeState(new PlayerAttackState());
-            }
+            player.ChangeState(new PlayerAttackState());
+            return;
+        }
+
+        if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+        {
+            player.ChangeState(new PlayerMoveState());
             return;
         }
 

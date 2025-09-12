@@ -16,7 +16,7 @@ public class PlayerStandingState : IPlayerState_Move
 
         if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
         {
-            player.ChangeMoveState(new PlayerWalkingState());
+            //player.ChangeMoveState(new PlayerWalkingState());
         }
     }
 

@@ -10,19 +10,19 @@ public class PlayerWalkingState : IPlayerState_Move
 
     public void Execute(Player_Move player)
     {
-        player.HandleMovement();
+        //player.HandleMovement();
         player.HandleRotation();
         //player.HandleRun();
 
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            player.ChangeMoveState(new PlayerRunningState());
+            //player.ChangeMoveState(new PlayerRunningState());
             return;
         }
 
         if (Input.GetAxis("Horizontal") == 0 && Input.GetAxis("Vertical") == 0)
         {
-            player.ChangeMoveState(new PlayerStandingState());
+            //player.ChangeMoveState(new PlayerStandingState());
             return;
         }
     }

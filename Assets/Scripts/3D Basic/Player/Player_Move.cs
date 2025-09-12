@@ -8,7 +8,7 @@ public class Player_Move : MonoBehaviour
 {
     public Animator Animator { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
-    public Player_Action Action { get; private set; }
+    //public Player_Action Action { get; private set; }
     private CameraArm cameraArmScript;
 
     [SerializeField] private float CharacterSpeed = 2.0f;
@@ -18,22 +18,20 @@ public class Player_Move : MonoBehaviour
     [SerializeField] private float RotateSpeed = 2.0f;
 
 
-    private IPlayerState_Move currentMoveState;
-    public IPlayerState_Move CurrentMoveState => currentMoveState;
+    //private IPlayerState_Move currentMoveState;
+    //public IPlayerState_Move CurrentMoveState => currentMoveState;
 
     void Start()
     {
         Rigidbody = GetComponent<Rigidbody>();
         Animator = CharacterBody.GetComponentInChildren<Animator>();
-        Action = GetComponent<Player_Action>();
+        //Action = GetComponent<Player_Action>();
         cameraArmScript = CameraArm.GetComponent<CameraArm>();
 
-        ChangeMoveState(new PlayerStandingState());
     }
 
     void Update()
     {
-        // 1인칭일 때 Character 루트 오브젝트 전체를 회전시킵니다.
         if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
             return;
         Look();
@@ -41,7 +39,7 @@ public class Player_Move : MonoBehaviour
 
     private void FixedUpdate()
     {
-        IPlayerState actionState = Action.currentState; // 가독성을 위해 현재 Action 상태를 가져옴
+        /*IPlayerState actionState = Action.currentState; // 가독성을 위해 현재 Action 상태를 가져옴
 
         // Action의 현재 상태가 공격 관련 상태이거나 죽었다면 이동 로직을 실행하지 않음
         if (actionState is PlayerAttackState || actionState is PlayerRunningAttackState || actionState is PlayerDeadState)
@@ -53,7 +51,7 @@ public class Player_Move : MonoBehaviour
         //Move();
         //Run();
         //Rotate(); // 3인칭 전용 회전 처리
-        currentMoveState?.Execute(this);
+        currentMoveState?.Execute(this);*/
     }
 
     void Look()
@@ -66,43 +64,41 @@ public class Player_Move : MonoBehaviour
         }
     }
 
-    public void HandleMovement()
+    public void HandleMovement(Vector2 moveInput, float speed)
     {
-        if (Action != null && (Action.IsKick || Action.IsBuff || Action.IsAttacking)) return;
+        //if (Action != null && (Action.IsKick || Action.IsBuff || Action.IsAttacking)) return;
 
-        Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        bool isMoving = moveInput.magnitude != 0;
+        //Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        //bool isMoving = moveInput.magnitude != 0;
 
-        Animator.SetBool("IsMoving", isMoving);
+        /*Animator.SetBool("IsMoving", isMoving);
         Animator.SetFloat("Horizontal", moveInput.x);
-        Animator.SetFloat("Vertical", moveInput.y);
+        Animator.SetFloat("Vertical", moveInput.y);*/
 
-        if (!isMoving) return;
+        if (moveInput.magnitude == 0) return;
 
         Vector3 lookForward;
         Vector3 lookRight;
 
         if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
         {
-            // 1인칭: 회전하는 'Character' 루트의 방향을 기준으로 이동
             lookForward = transform.forward;
             lookRight = transform.right;
         }
         else
         {
-            // 3인칭: 카메라가 보는 방향을 기준으로 이동
             lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
             lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
             CharacterBody.forward = lookForward;
         }
 
-        float adjustedSpeed = GetAdjustedSpeed(moveInput);
+        //float adjustedSpeed = GetAdjustedSpeed(moveInput);
         Vector3 moveDir = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
 
-        Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * adjustedSpeed);
+        Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * speed);
     }
 
-    float GetAdjustedSpeed(Vector2 moveInput)
+    public float GetAdjustedSpeed(Vector2 moveInput)
     {
         float forwardWeight = 1.0f;
         float backwardWeight = 0.6f;
@@ -129,7 +125,6 @@ public class Player_Move : MonoBehaviour
             return; // 1인칭일 때는 이 함수를 실행하지 않음
         }
 
-        // 3인칭일 때만 카메라 방향으로 캐릭터를 부드럽게 회전
         Vector3 lookDir = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
         if (lookDir.sqrMagnitude > 0f)
         {
@@ -138,10 +133,10 @@ public class Player_Move : MonoBehaviour
         }
     }
 
-    public void ChangeMoveState(IPlayerState_Move newState)
+    /*public void ChangeMoveState(IPlayerState_Move newState)
     {
         currentMoveState?.Exit(this);
         currentMoveState = newState;
         currentMoveState.Enter(this);
-    }
+    }*/
 }
