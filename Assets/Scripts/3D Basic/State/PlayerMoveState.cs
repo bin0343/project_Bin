@@ -15,7 +15,11 @@ public class PlayerMoveState : PlayerBaseState
 
     public override void Execute(Player_Action player)
     {
-        base.HandleMovementInput(player);
+        if (Input.GetAxis("Horizontal") == 0 && Input.GetAxis("Vertical") == 0)
+        {
+            player.ChangeState(new PlayerIdleState());
+            return;
+        }
 
         if (Input.GetMouseButtonDown(0) && player.IsGrounded)
         {
@@ -30,9 +34,9 @@ public class PlayerMoveState : PlayerBaseState
             return;
         }
 
-        if (Input.GetAxis("Horizontal") == 0 && Input.GetAxis("Vertical") == 0)
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            player.ChangeState(new PlayerIdleState());
+            player.ChangeState(new PlayerKickState());
             return;
         }
 
@@ -47,6 +51,8 @@ public class PlayerMoveState : PlayerBaseState
             player.ChangeState(new PlayerSitState());
             return;
         }
+
+        base.HandleMovementInput(player);
 
         PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
         if (player.Animator.GetInteger("ActionState") != (int)expectedAnimState)

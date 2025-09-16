@@ -95,7 +95,6 @@ public class Player_Action : MonoBehaviour
     // 모든 상태 클래스가 호출할 스킬 처리 전용 함수
     public void HandleSkillInput(int slotIndex)
     {
-        // 기존 TryUseSkill의 로직을 그대로 가져옵니다.
         if (isTargetingSkill) return;
         if (slotIndex < 0 || slotIndex >= playerSkills.Length) return;
 
@@ -110,7 +109,8 @@ public class Player_Action : MonoBehaviour
         }
         else
         {
-            skillToUse.Use(gameObject);
+            //skillToUse.Use(gameObject);
+            ChangeState(new PlayerCastingState(skillToUse));
         }
     }
 

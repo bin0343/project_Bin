@@ -15,6 +15,8 @@ public abstract class Skill_Base : ScriptableObject
     public float mpCost;
     public float duration;
 
+    [Header("Casting")]
+    public float castTime = 0.5f;
 
     public void ApplySkillEffects(GameObject user)
     {

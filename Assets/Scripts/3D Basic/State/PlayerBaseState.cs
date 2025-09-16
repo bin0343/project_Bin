@@ -59,10 +59,8 @@ public abstract class PlayerBaseState : IPlayerState
     {
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
-        // 2. 입력이 있다면 이동/회전/애니메이션 처리
         if (moveInput.magnitude > 0)
         {
-            // 속도 계산 (상태별 속도 저하를 위해 speedModifier 사용)
             float speed = player.Move.GetAdjustedSpeed(moveInput) * speedModifier;
             player.Move.HandleMovement(moveInput, speed);
             player.Move.HandleRotation();
@@ -73,13 +71,13 @@ public abstract class PlayerBaseState : IPlayerState
 
         // 3. 달리기/걷기 애니메이션 상태 전환
         PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
-        /*if (player.Animator.GetInteger("ActionState") != (int)expectedAnimState)
+        if (player.Animator.GetInteger("ActionState") != (int)expectedAnimState)
         {
             // 현재 상태가 Move가 아닐 때도 애니메이션이 Run/Walk로 바뀌는 것을 방지하기 위해
             // 현재 상태가 Move 상태일 때만 애니메이션을 변경하도록 조건을 추가할 수 있습니다.
-            // if (player.currentState is PlayerMoveState)
+            if (player.currentState is PlayerMoveState)
             player.Animator.SetInteger("ActionState", (int)expectedAnimState);
-        }*/
+        }
 
     }
 }

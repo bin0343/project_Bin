@@ -29,6 +29,30 @@ public class PlayerSkillTargetingState : PlayerBaseState
 
     public override void Execute(Player_Action player)
     {
+        Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
+        if (moveInput.magnitude > 0.01f)
+        {
+            float speed = player.Move.GetAdjustedSpeed(moveInput);
+            player.Move.HandleMovement(moveInput, speed);
+            player.Move.HandleRotation();
+
+            player.Animator.SetFloat("Horizontal", moveInput.x);
+            player.Animator.SetFloat("Vertical", moveInput.y);
+
+            PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
+            if (player.Animator.GetInteger("ActionState") != (int)expectedAnimState)
+            {
+                player.Animator.SetInteger("ActionState", (int)expectedAnimState);
+            }
+        }
+        else
+        {
+            if (player.Animator.GetInteger("ActionState") != (int)PlayerAnimState.Idle)
+            {
+                player.Animator.SetInteger("ActionState", (int)PlayerAnimState.Idle);
+            }
+        }
     }
 
     public override void Exit(Player_Action player)
