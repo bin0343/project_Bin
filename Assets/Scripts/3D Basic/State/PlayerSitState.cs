@@ -11,16 +11,22 @@ public class PlayerSitState : PlayerBaseState
 
     public override void Execute(Player_Action player)
     {
+        base.HandleMovementInput(player, 0.5f);
         player.Animator.SetBool("IsSitting", true);
 
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
             player.ChangeState(new PlayerIdleState());
         }
+
+        if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+        {
+            player.ChangeState(new PlayerSitMoveState());
+            return;
+        }
     }
 
     public override void Exit(Player_Action player)
     {
-        player.Animator.SetBool("IsSitting", false);
     }
 }

@@ -15,14 +15,7 @@ public class PlayerMoveState : PlayerBaseState
 
     public override void Execute(Player_Action player)
     {
-        Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        float speed = player.Move.GetAdjustedSpeed(moveInput);
-        player.Move.HandleMovement(moveInput, speed);
-        player.Move.HandleRotation();
-
-        
-        player.Animator.SetFloat("Horizontal", moveInput.x);
-        player.Animator.SetFloat("Vertical", moveInput.y);
+        base.HandleMovementInput(player);
 
         if (Input.GetMouseButtonDown(0) && player.IsGrounded)
         {
@@ -37,7 +30,7 @@ public class PlayerMoveState : PlayerBaseState
             return;
         }
 
-        if (moveInput.magnitude == 0)
+        if (Input.GetAxis("Horizontal") == 0 && Input.GetAxis("Vertical") == 0)
         {
             player.ChangeState(new PlayerIdleState());
             return;
@@ -46,6 +39,12 @@ public class PlayerMoveState : PlayerBaseState
         if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded)
         {
             player.ChangeState(new PlayerJumpState());
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            player.ChangeState(new PlayerSitState());
             return;
         }
 

@@ -62,12 +62,6 @@ public class PlayerIdleState : PlayerBaseState
             return;
         }
 
-        if (player.Stat.CurrentHP <= 0)
-        {
-            player.ChangeState(new PlayerDeadState());
-            return;
-        }
-
         base.HandleCommonItemInput(player);
         base.HandleCommonSkillInput(player);
 
