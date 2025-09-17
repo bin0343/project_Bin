@@ -17,6 +17,8 @@ public class Enemy_Stat : MonoBehaviour
 
     public Vector3 damageTextOffset = new Vector3(0, 2.5f, 0);
 
+    private EnemyBase enemyBase;
+
     void Start()
     {
         hpBar = GetComponentInChildren<MonsterHpBar>();
@@ -24,12 +26,21 @@ public class Enemy_Stat : MonoBehaviour
             hpBar.Setup(this);
 
         myCanvas = GetComponentInChildren<Canvas>(true);
+        enemyBase = GetComponent<EnemyBase>();
     }
 
     public void TakeDamage(int damage)
     {
         CurrentHP -= damage;
         CurrentHP = Mathf.Max(CurrentHP, 0);
+
+        if (CurrentHP > 0 && damage >= 1)
+        {
+            if (enemyBase != null)
+            {
+                enemyBase.Stun();
+            }
+        }
 
         if (DamageTextSpawner.instance != null)
         {

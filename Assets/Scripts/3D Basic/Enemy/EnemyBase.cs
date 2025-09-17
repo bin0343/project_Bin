@@ -1,11 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEngine.GraphicsBuffer;
 
-public class EnemyBase : MonoBehaviour
+public enum HitEffectType
+{
+    Stun,
+    Slow,
+    Knockback
+}
+
+public struct HitInfo
+{
+    public int damage;
+    public HitEffectType effectType;
+    public float duration; // 스턴, 슬로우 등의 지속시간
+    public Vector3 knockbackDirection; // 넉백 방향
+    public float knockbackForce; // 넉백 힘
+}
+
+public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한 요소
 {
     private ENEMYSTATE CurrentState = ENEMYSTATE.IDLE;
     protected Animator Animator;
@@ -37,6 +49,7 @@ public class EnemyBase : MonoBehaviour
 
 
     private bool isPlayerNearby = false; // 시체 근처 감지
+    private bool isReactingToHit = false;   //피격반응 체크
 
     protected void Start()
     {
@@ -98,6 +111,8 @@ public class EnemyBase : MonoBehaviour
                 break;
             case ENEMYSTATE.ATTACK:
                 Attack();
+                break;
+            case ENEMYSTATE.STUN:
                 break;
             case ENEMYSTATE.Dead:
                 Dead();
@@ -300,6 +315,47 @@ public class EnemyBase : MonoBehaviour
         }
     }
     #endregion
+
+    #region Stun
+    public void Stun() //이렇게 하면 슬로우, 넉백 등을 일일이 함수로 만들어서 적용하기에 상태패턴의 의미가 사라짐. 그래서 피격이라는 상태를 만들어서 한꺼번에 관리해야함.
+    {
+        if (IsDead) return;
+
+
+        CurrentState = ENEMYSTATE.STUN; // 상태를 STUN으로 변경
+        Animator.SetTrigger("IsStun");
+    }
+    #endregion
+
+    public void OnHit(HitInfo hitInfo)
+    {
+        if (IsDead || isReactingToHit) return;
+
+        Stat.TakeDamage(hitInfo.damage);
+        if (Stat.CurrentHP < 0) return;
+
+        if (navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = true;
+        }
+
+        switch (hitInfo.effectType)
+        {
+            case HitEffectType.Stun:
+                Animator.SetTrigger("IsStun");
+                //StartCoroutine(HitReactionCoroutine(hitInfo.duration)); // 전달받은 시간만큼 기절
+                break;
+
+            case HitEffectType.Knockback:
+                //Animator.SetTrigger("IsStun");
+                //StartCoroutine(KnockbackCoroutine(hitInfo.knockbackDirection, hitInfo.knockbackForce, hitInfo.duration));
+                break;
+
+            case HitEffectType.Slow:
+                //StartCoroutine(SlowCoroutine(hitInfo.duration)); // 슬로우는 애니메이션 없이 속도만 조절
+                break;
+        }
+    }
 
     protected virtual void SetRandomMoveTarget()
     {
