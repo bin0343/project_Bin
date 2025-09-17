@@ -13,4 +13,6 @@ public static class Shared
     public static Stack<UI_Base> UIStack = new Stack<UI_Base>();
 
     public static TableManager TableManager;
+
+    public static MainCamera MainCamera;
 }

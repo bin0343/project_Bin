@@ -69,16 +69,19 @@ public class Player_AnimationEvents : MonoBehaviour
 
     public void OnComboWindowOpen()
     {
-        // 이제 Action의 canReceiveInput을 직접 true로 설정합니다.
         Action.canReceiveInput = true;
     }
 
-    /// <summary>
-    /// 공격 애니메이션이 완전히 끝났을 때 호출
-    /// </summary>
     public void OnAttackAnimationEnd()
     {
-        // Action에게 "공격 애니메이션 끝났어!" 라는 신호를 보냅니다.
         Action.OnAnimationEvent(Player_Action.AnimationEventType.ATTACK_ANIMATION_END);
+    }
+
+    public void CameraShakeEvent()
+    {
+        if (Shared.MainCamera != null)
+        {
+            Shared.MainCamera.Shake();
+        }
     }
 }
