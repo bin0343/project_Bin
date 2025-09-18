@@ -81,7 +81,15 @@ public class Player_AnimationEvents : MonoBehaviour
     {
         if (Shared.MainCamera != null)
         {
-            Shared.MainCamera.Shake();
+            Shared.MainCamera.Shake(0.2f, 3f, 4);
+        }
+    }
+
+    public void CameraShake_Attack()
+    {
+        if (Shared.MainCamera != null)
+        {
+            Shared.MainCamera.Shake(0.1f, 2f, 3);
         }
     }
 }

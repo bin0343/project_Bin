@@ -188,7 +188,7 @@ public class Player_Action : MonoBehaviour
         {
             if (enemy.CompareTag("Enemy"))
             {
-                enemy.GetComponent<Enemy_Stat>()?.TakeDamage(skillData.damageAmount);
+                enemy.GetComponent<Enemy_Stat>()?.TakeDamage(skillData.damageAmount, AttackType.None);
             }
         }
     }

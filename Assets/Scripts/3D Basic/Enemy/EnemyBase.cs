@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections;
 
 public enum HitEffectType
 {
@@ -39,7 +40,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     private NavMeshAgent navAgent;
     private Enemy_Stat Stat;
-    [SerializeField] private TrailRenderer slashTrail;
+    [SerializeField] public TrailRenderer slashTrail;
 
     private ItemDrop itemDropper;
 
@@ -49,7 +50,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
 
     private bool isPlayerNearby = false; // 시체 근처 감지
-    private bool isReactingToHit = false;   //피격반응 체크
+    //private bool isReactingToHit = false;   //피격반응 체크
 
     protected void Start()
     {
@@ -111,8 +112,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 break;
             case ENEMYSTATE.ATTACK:
                 Attack();
-                break;
-            case ENEMYSTATE.STUN:
                 break;
             case ENEMYSTATE.Dead:
                 Dead();
@@ -316,18 +315,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     }
     #endregion
 
-    #region Stun
-    public void Stun() //이렇게 하면 슬로우, 넉백 등을 일일이 함수로 만들어서 적용하기에 상태패턴의 의미가 사라짐. 그래서 피격이라는 상태를 만들어서 한꺼번에 관리해야함.
-    {
-        if (IsDead) return;
 
-
-        CurrentState = ENEMYSTATE.STUN; // 상태를 STUN으로 변경
-        Animator.SetTrigger("IsStun");
-    }
-    #endregion
-
-    public void OnHit(HitInfo hitInfo)
+    /*public void OnHit(HitInfo hitInfo)
     {
         if (IsDead || isReactingToHit) return;
 
@@ -355,7 +344,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 //StartCoroutine(SlowCoroutine(hitInfo.duration)); // 슬로우는 애니메이션 없이 속도만 조절
                 break;
         }
-    }
+    }*/
 
     protected virtual void SetRandomMoveTarget()
     {
@@ -467,5 +456,30 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         {
             hpBarObject.SetActive(false);
         }
+    }
+
+    public IEnumerator ApplyKnockback()
+    {
+        navAgent.isStopped = true;
+
+        Vector3 knockDir = (transform.position - Target.position).normalized; // 플레이어 반대 방향
+        float knockForce = 10f;
+        float knockTime = 0.3f;
+        float elapsed = 0f;
+
+        if (Shared.MainCamera != null)
+        {
+            yield return null;
+            Shared.MainCamera.Shake(0.15f, knockTime, 3);
+        }
+
+        while (elapsed < knockTime)
+        {
+            transform.position += knockDir * knockForce * Time.deltaTime;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        navAgent.isStopped = false;
     }
 }

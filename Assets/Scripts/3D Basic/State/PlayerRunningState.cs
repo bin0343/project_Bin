@@ -10,7 +10,7 @@ public class PlayerRunningState : IPlayerState_Move
 
     public void Execute(Player_Move player) 
     {
-        player.HandleRotation();
+        //player.HandleRotation();
         //player.HandleMovement();
         //player.HandleRun();
 

@@ -27,7 +27,7 @@ public class KickHitbox : MonoBehaviour
             if (EnemyStat != null && PlayerStat != null)
             {
                 int damage = Mathf.Max(KickAttackPower - EnemyStat.DefensePower, 1);
-                EnemyStat.TakeDamage(damage);
+                EnemyStat.TakeDamage(damage, AttackType.Normal);
                 Debug.Log($"몬스터가 {damage} 만큼 피해를 입음");
             }
         }

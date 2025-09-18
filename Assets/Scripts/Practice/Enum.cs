@@ -32,7 +32,6 @@ public enum ENEMYSTATE
     MOVE,
     SEARCH,
     ATTACK,
-    STUN,
     Dead
 }
 

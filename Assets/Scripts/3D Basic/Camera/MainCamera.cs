@@ -76,16 +76,16 @@ public partial class MainCamera : MonoBehaviour
             camera.y = OrgPos.y;
     }
 
-    public void Shake( int CameraID = 0)
+    public void Shake(float strength, float duration, int count)
     {
         /*if (false == IsFollowme)
             return;*/
 
         ShakeInfo.StartDelay = 0f;
-        ShakeInfo.TotalTime = 3f;
+        ShakeInfo.TotalTime = duration;
         ShakeInfo.UseTotalTime = true;
 
-        ShakeInfo.Shake = new Vector3(0.2f, 0.2f, 0f);
+        ShakeInfo.Shake = new Vector3(strength, strength, 0f);
 
         ShakeInfo.Dest = ShakeInfo.Shake;
         ShakeInfo.Dir = ShakeInfo.Shake;
@@ -101,7 +101,7 @@ public partial class MainCamera : MonoBehaviour
 
         ShakeInfo.DampingTime = ShakeInfo.RemainDist / ShakeInfo.Veclocity;
 
-        ShakeInfo.Count = 4;
+        ShakeInfo.Count = count;
         ShakeInfo.UseCount = true;
 
         StopCoroutine("ShakeCoroutine");

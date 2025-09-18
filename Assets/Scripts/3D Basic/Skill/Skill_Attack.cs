@@ -50,7 +50,7 @@ public class Skill_Attack : Skill_Base
                 Enemy_Stat enemyStat = enemy.GetComponent<Enemy_Stat>();
                 if (enemyStat != null)
                 {
-                    enemyStat.TakeDamage(damageAmount);
+                    enemyStat.TakeDamage(damageAmount, AttackType.None);
                 }
             }
         }

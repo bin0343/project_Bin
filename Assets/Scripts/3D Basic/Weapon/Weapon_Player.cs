@@ -22,13 +22,20 @@ public class Weapon_Player : MonoBehaviour
         {
             HasHit = true;
 
-            Enemy_Stat EnemyStat = other.GetComponent<Enemy_Stat>();
+            Enemy_Stat enemyStat = other.GetComponent<Enemy_Stat>();
             Player_Stat PlayerStat = GetComponentInParent<Player_Stat>();
 
-            if (EnemyStat != null && PlayerStat != null)
+            if (enemyStat != null && PlayerStat != null)
             {
-                int damage = Mathf.Max(PlayerStat.AttackPower + WeaponAttackPower - EnemyStat.DefensePower, 1);
-                EnemyStat.TakeDamage(damage);
+                int damage = Mathf.Max(PlayerStat.AttackPower + WeaponAttackPower - enemyStat.DefensePower, 1);
+                if (PlayerAttackState.comboStep == 3)
+                {
+                    enemyStat.TakeDamage(damage, AttackType.Knockback);
+                }
+                else
+                {
+                    enemyStat.TakeDamage(damage, AttackType.Normal);
+                }
                 Debug.Log($"몬스터가 {damage} 만큼 피해를 입음");
             }
         }

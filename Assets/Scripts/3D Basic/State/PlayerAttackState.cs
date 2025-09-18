@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerAttackState : PlayerBaseState
 {
-    private static int comboStep = 0;
+    public static int comboStep = 0;
 
     protected override PlayerAnimState GetAnimState()
     {
