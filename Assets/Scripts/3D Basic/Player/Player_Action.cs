@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +13,10 @@ public class Player_Action : MonoBehaviour
 
     [Header("Skills")]
     public Skill_Base[] assignedSkills = new Skill_Base[4];
+    public Skill_BasicSkill runningAttackData;
     public SkillHolder[] playerSkills;
+
+    private SkillHolder runningAttackHolder;
 
     public SkillTargetingController targetingController;
     private bool isTargetingSkill = false;
@@ -30,6 +34,7 @@ public class Player_Action : MonoBehaviour
 
     public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
 
+    public static event Action<Sprite, float> OnRunningAttackUsed;
     public IPlayerState currentState;
 
     void Start()
@@ -59,6 +64,11 @@ public class Player_Action : MonoBehaviour
             {
                 playerSkills[i] = null;
             }
+        }
+
+        if (runningAttackData != null)
+        {
+            runningAttackHolder = new SkillHolder(runningAttackData);
         }
 
         if (UI_SkillManager.Instance != null)
@@ -193,7 +203,33 @@ public class Player_Action : MonoBehaviour
         }
     }
     #endregion
-   
+
+    public bool CanUseRunningAttack()
+    {
+        if (runningAttackHolder == null) return false;
+        return runningAttackHolder.CanUse(0);
+    }
+
+    /*public void UseRunningAttack()
+    {
+        runningAttackHolder?.Use(gameObject);
+    }*/
+
+    public void UseRunningAttack()
+    {
+        if (runningAttackHolder == null) return;
+
+        runningAttackHolder.Use(gameObject);
+
+        // --- ADDED: 이벤트 방송! ---
+        // 구독자가 있다면(null이 아니라면) 이벤트를 호출하여 쿨타임 시간을 전달합니다.
+        if (runningAttackData != null)
+        {
+            OnRunningAttackUsed?.Invoke(runningAttackData.skillIcon, runningAttackData.cooldownTime);
+        }
+    }
+
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))

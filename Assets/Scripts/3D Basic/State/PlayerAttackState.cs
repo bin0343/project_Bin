@@ -34,14 +34,12 @@ public class PlayerAttackState : PlayerBaseState
         AnimatorStateInfo stateInfo = player.Animator.GetCurrentAnimatorStateInfo(0);
         bool isAttackAnimation = stateInfo.IsTag("Attack");
 
-        // 입력을 받을 수 있을 때만 다음 콤보 입력 허용
         if (player.canReceiveInput && Input.GetMouseButtonDown(0))
         {
             player.ChangeState(new PlayerAttackState());
             return;
         }
 
-        // 공격 애니메이션이 끝났다면 Idle 상태로 복귀
         if (isAttackAnimation && stateInfo.normalizedTime >= 0.95f)
         {
             player.ChangeState(new PlayerIdleState());
@@ -58,7 +56,6 @@ public class PlayerAttackState : PlayerBaseState
 
     public override void Exit(Player_Action player)
     {
-        // 나갈 때 입력 다시 잠금
         player.canReceiveInput = false;
     }
 

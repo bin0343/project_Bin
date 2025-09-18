@@ -25,7 +25,14 @@ public class PlayerMoveState : PlayerBaseState
         {
             if (player.Animator.GetInteger("ActionState") == (int)PlayerAnimState.Run)
             {
-                player.ChangeState(new PlayerRunningAttackState());
+                if (player.CanUseRunningAttack())
+                {
+                    player.ChangeState(new PlayerRunningAttackState());
+                }
+                else
+                {
+                    Debug.Log("러닝 어택 쿨타임입니다!");
+                }
             }
             else
             {

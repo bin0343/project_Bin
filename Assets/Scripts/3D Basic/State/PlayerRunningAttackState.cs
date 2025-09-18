@@ -9,6 +9,8 @@ public class PlayerRunningAttackState : PlayerBaseState
         base.Enter(player);
         Debug.Log("상태 진입: Running Slash");
 
+        player.UseRunningAttack();
+
         Vector3 moveDir = player.Move.CharacterBody.forward;
         player.Rigidbody.velocity = moveDir * 8f;
     }
