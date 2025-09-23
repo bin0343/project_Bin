@@ -2,6 +2,22 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
+public enum ENEMYSTATE
+{
+    IDLE,
+    MOVE,
+    SEARCH,
+    BATTLE,
+    DEAD
+}
+
+public enum BattleAction
+{
+    Waiting,    // 행동 결정 대기
+    Attacking,
+    Shielding
+}
+
 public enum HitEffectType
 {
     Stun,
@@ -9,18 +25,14 @@ public enum HitEffectType
     Knockback
 }
 
-public struct HitInfo
-{
-    public int damage;
-    public HitEffectType effectType;
-    public float duration; // 스턴, 슬로우 등의 지속시간
-    public Vector3 knockbackDirection; // 넉백 방향
-    public float knockbackForce; // 넉백 힘
-}
-
 public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한 요소
 {
     private ENEMYSTATE currentState = ENEMYSTATE.IDLE;
+    private BattleAction currentBattleAction = BattleAction.Waiting;
+    private bool isPerformingAction = false;
+
+    public float shieldProbability = 0.8f;      //플레이어가 공격시 쉴드 확률
+
     protected Animator animator;
 
     private float idleDuration = 3f;
@@ -29,7 +41,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     private Vector3 moveTarget;
     private float moveRadius = 10f;  // 랜덤 이동 범위
     private float moveSpeed = 2f;
-    private bool isAttacking = false;
+    public bool isAttacking = false;
     public bool isDead = false;
 
     public Transform target;
@@ -41,6 +53,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     private NavMeshAgent navAgent;
     private Enemy_Stat stat;
     [SerializeField] public TrailRenderer slashTrail;
+    private Player_Action playerAction;
 
     private ItemDrop itemDropper;
 
@@ -50,7 +63,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
 
     private bool isPlayerNearby = false; // 시체 근처 감지
-    //private bool isReactingToHit = false;   //피격반응 체크
 
     protected void Start()
     {
@@ -64,6 +76,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         if (player != null)
         {
             target = player.transform;
+            playerAction = player.GetComponent<Player_Action>();
         }
 
         if (hpBarObject != null)
@@ -112,10 +125,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             case ENEMYSTATE.SEARCH:
                 Search();
                 break;
-            case ENEMYSTATE.ATTACK:
-                Attack();
+            case ENEMYSTATE.BATTLE:
+                Battle();
                 break;
-            case ENEMYSTATE.Dead:
+            case ENEMYSTATE.DEAD:
                 Dead();
                 break;
         }
@@ -208,24 +221,38 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         if (distance <= attackRange)
         {
             navAgent.ResetPath();
-            currentState= ENEMYSTATE.ATTACK;
+            currentState= ENEMYSTATE.BATTLE;
             return;
         }
     }
     #endregion
 
-    #region Attack
-    protected virtual void Attack()
+    #region Battle
+    protected virtual void Battle()
     {
-        if (target == null)
+        if (target == null || playerAction == null || playerAction.IsDead)
         {
+            if (slashTrail != null)
+            {
+                slashTrail.emitting = false;
+            }
             currentState = ENEMYSTATE.IDLE;
             return;
         }
 
         float distance = Vector3.Distance(transform.position, target.position);
-        var relativePos = target.position - transform.position;
-        transform.rotation = Quaternion.LookRotation(relativePos);
+
+        if (distance >= attackRange)
+        {
+            if (slashTrail != null)
+            {
+                slashTrail.emitting = false;
+            }
+            isPerformingAction = false;
+            currentState = ENEMYSTATE.SEARCH;
+            return;
+        }
+        transform.LookAt(target.position);
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
         Player_Stat playerStat = target.GetComponent<Player_Stat>();
@@ -238,18 +265,18 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             return;
         }
 
-        bool IsAttack = stateInfo.IsName("Brute Attack");
-        float AniTime = stateInfo.normalizedTime;
+        //bool IsAttack = stateInfo.IsName("Brute Attack");
+        //float AniTime = stateInfo.normalizedTime;
 
         animator.SetBool("IsMoving", false);
 
-        if (IsAttack && AniTime < 1f)
+        /*if (IsAttack && AniTime < 1f)
         {
             isAttacking = true;
             return;
-        }
+        }*/
 
-        if (IsAttack && AniTime >= 1f)
+        /*if (IsAttack && AniTime >= 1f)
         {
             isAttacking = false;
 
@@ -266,13 +293,18 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 lastAttackTime = Time.time;
                 return;
             }
-        }
+        }*/
 
-        if (!IsAttack && Time.time >= lastAttackTime + attackDelay)
+        /*if (!IsAttack && Time.time >= lastAttackTime + attackDelay)
         {
             animator.SetTrigger("IsAttack");
             lastAttackTime = Time.time;
-        }
+        }*/
+
+        if (isPerformingAction) return;
+
+        ChooseNextAction();
+        ExecuteAction();
     }
     #endregion
 
@@ -285,7 +317,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         {
             animator.SetTrigger("IsDie");
             isDead = true;
-            currentState = ENEMYSTATE.Dead; // 상태 전이
+            currentState = ENEMYSTATE.DEAD; // 상태 전이
             navAgent.isStopped = true;
             navAgent.ResetPath(); // 이동 멈추기
             slashTrail.emitting = false;
@@ -317,6 +349,62 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     }
     #endregion
 
+    private void ChooseNextAction()
+    {
+        if (playerAction.IsAttacking && Random.value < shieldProbability)
+        {
+            currentBattleAction = BattleAction.Shielding;
+            return;
+        }
+
+        if (Time.time >= lastAttackTime + attackDelay)
+        {
+            currentBattleAction = BattleAction.Attacking;
+            return;
+        }
+
+        //둘다 아니면 대기
+        currentBattleAction = BattleAction.Waiting;
+    }
+
+    private void ExecuteAction()
+    {
+        switch (currentBattleAction)
+        {
+            case BattleAction.Attacking:
+                StartCoroutine(AttackCoroutine());
+                break;
+            case BattleAction.Shielding:
+                StartCoroutine (ShieldCoroutine());
+                break;
+            case BattleAction.Waiting:
+                break;
+        }
+    }
+
+    IEnumerator AttackCoroutine()
+    {
+        isPerformingAction = true;
+
+        animator.SetTrigger("IsAttack");
+        lastAttackTime = Time.time;
+
+        yield return new WaitForSeconds(2.2f); //공격 애니메이션 시간
+
+        isPerformingAction = false;
+    }
+
+    IEnumerator ShieldCoroutine()
+    {
+        isPerformingAction = true;
+
+        animator.SetTrigger("IsShield");
+
+        yield return new WaitForSeconds(2.0f);  //방패 들고 있을 시간.
+
+        //animator.SetTrigger("ShieldEnd"); //쉴드 내리는거(선택사항)
+        isPerformingAction= false;
+    }
 
     #region Attack Reaction
     public void OnAttackParried()
@@ -349,7 +437,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     protected virtual void DetectPlayer()
     {
-        if (currentState == ENEMYSTATE.ATTACK) return; 
+        if (currentState == ENEMYSTATE.BATTLE) return; 
 
         if (target == null)
         {
@@ -397,6 +485,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         if (!isDead && other.gameObject.CompareTag("Player_Foot"))
         {
             animator.SetTrigger("IsStun");
+            if (slashTrail != null)
+            {
+                slashTrail.emitting = false;
+            }
             Debug.Log("공격당함");
             return;
         }

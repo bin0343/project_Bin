@@ -36,7 +36,6 @@ public class Player_Action : MonoBehaviour
     public bool IsBuff = false;
 
     public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
-    private int upperBodyLayerIndex;
 
     public static event Action<Sprite, float> OnRunningAttackUsed;
     public IPlayerState currentState;
@@ -51,8 +50,6 @@ public class Player_Action : MonoBehaviour
         animEvents = player.GetComponent<Player_AnimationEvents>();
         skillUIManagers = FindObjectOfType<UI_SkillManager>();
         shield = player.GetComponentInChildren<Shield_Player>();
-
-        upperBodyLayerIndex = animator.GetLayerIndex("Upper Layer");
 
         targetingController = GetComponent<SkillTargetingController>();
         if (targetingController != null)
@@ -234,17 +231,11 @@ public class Player_Action : MonoBehaviour
         IsGuarding = true;
         Debug.Log("방어 시작");
 
-        // 상체 레이어의 가중치를 1로 만들어 방패 애니메이션을 활성화
         animator.SetBool("IsGuarding", true);
 
-        // 방패 콜라이더 활성화
         shield?.SetActiveShield(true);
-
-        // 추가: 방어 시 이동 속도 감소 로직
-        // move.SetSpeedModifier(0.5f); // 예시
     }
 
-    // 방어 중지 로직
     public void StopGuarding()
     {
         if (!IsGuarding) return; // 방어 중이 아니면 무시
@@ -252,14 +243,9 @@ public class Player_Action : MonoBehaviour
         IsGuarding = false;
         Debug.Log("방어 중지");
 
-        // 상체 레이어의 가중치를 0으로 만들어 방패 애니메이션을 비활성화
         animator.SetBool("IsGuarding", false);
 
-        // 방패 콜라이더 비활성화
         shield?.SetActiveShield(false);
-
-        // 추가: 이동 속도 원상 복구
-        // move.SetSpeedModifier(1.0f); // 예시
     }
 
     public bool CanUseRunningAttack()

@@ -44,7 +44,7 @@ public class Player_AnimationEvents : MonoBehaviour
 
     public void AttackEnd()
     {
-        //action.FinishAttack();
+        action.IsAttacking = false;
     }
 
     public void OnAttackCombo()

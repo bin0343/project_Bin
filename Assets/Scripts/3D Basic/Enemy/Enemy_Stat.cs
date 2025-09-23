@@ -62,12 +62,6 @@ public class Enemy_Stat : MonoBehaviour
             }
         }
         
-
-        /*if (CurrentHP > 0 && damage >= 1)
-        {
-            animator.SetTrigger("IsStun");
-        }
-*/
         if (DamageTextSpawner.instance != null)
         {
             Quaternion textRotation = Camera.main.transform.rotation;
@@ -82,10 +76,11 @@ public class Enemy_Stat : MonoBehaviour
 
     private void Stun()
     {
-        animator.SetTrigger("IsStun");
         if (enemyBase.slashTrail != null)
         {
             enemyBase.slashTrail.emitting = false;
         }
+        animator.SetTrigger("IsStun");
+        
     }
 }

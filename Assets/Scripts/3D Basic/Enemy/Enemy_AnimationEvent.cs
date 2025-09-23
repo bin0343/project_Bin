@@ -22,4 +22,14 @@ public class Enemy_AnimationEvent : MonoBehaviour
         if (enemy != null)
             enemy.slashTrail.emitting = false;
     }
+
+    public void StartAttack()
+    {
+        enemy.isAttacking = true;
+    }
+
+    public void EndAttack()
+    {
+        enemy.isAttacking = false;
+    }
 }

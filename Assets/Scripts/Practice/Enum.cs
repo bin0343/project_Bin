@@ -26,14 +26,7 @@ public enum AI
     AI_RESET
 }
 
-public enum ENEMYSTATE
-{
-    IDLE,
-    MOVE,
-    SEARCH,
-    ATTACK,
-    Dead
-}
+
 
 public enum BULLET
 {
