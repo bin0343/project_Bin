@@ -19,9 +19,9 @@ public class PlayerJumpState : PlayerBaseState
         base.Enter(player);
 
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        this.jumpSpeed = player.Move.GetAdjustedSpeed(moveInput);
+        this.jumpSpeed = player.move.GetAdjustedSpeed(moveInput);
 
-        player.Rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        player.rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         player.IsGrounded = false;
     }
 
@@ -29,8 +29,8 @@ public class PlayerJumpState : PlayerBaseState
     {
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
-        player.Move.HandleMovement(moveInput, jumpSpeed);
-        player.Move.HandleRotation();
+        player.move.HandleMovement(moveInput, jumpSpeed);
+        player.move.HandleRotation();
 
         if (player.IsGrounded)
         {

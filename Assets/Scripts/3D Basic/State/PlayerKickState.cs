@@ -6,15 +6,15 @@ public class PlayerKickState : PlayerBaseState
     public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입 : kick");
-        player.Animator.SetFloat("Horizontal", 0);
-        player.Animator.SetFloat("Vertical", 0);
+        player.animator.SetFloat("Horizontal", 0);
+        player.animator.SetFloat("Vertical", 0);
         base.Enter(player);
         
     }
 
     public override void Execute(Player_Action player)
     {
-        AnimatorStateInfo stateInfo = player.Animator.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo stateInfo = player.animator.GetCurrentAnimatorStateInfo(0);
 
         if (stateInfo.IsTag("Kick") && stateInfo.normalizedTime >= 0.9f)
         {

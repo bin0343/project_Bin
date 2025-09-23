@@ -435,15 +435,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb5f328cca299644680fd1d67a023edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Level: 1
-  Exp: 0
-  LevelUpExp: 100
-  MaxHP: 50
-  CurrentHP: 50
-  MaxMP: 100
-  CurrentMP: 100
-  AttackPower: 10
-  DefensePower: 5
+  level: 1
+  exp: 0
+  levelUpExp: 100
+  maxHP: 100
+  currentHP: 100
+  maxMP: 100
+  currentMP: 100
+  attackPower: 10
+  defensePower: 5
   damageTextOffset: {x: 0, y: 2.5, z: 0}
 --- !u!114 &6854339425477246251
 MonoBehaviour:
@@ -457,16 +457,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea724c0af42eff34f9cdf32ac2c16f1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Player: {fileID: 5089527828088059539}
-  Animator: {fileID: 0}
-  Rigidbody: {fileID: 0}
+  player: {fileID: 5089527828088059539}
+  move: {fileID: 0}
   assignedSkills:
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
-  Stat: {fileID: 0}
-  SkillUIManagers: {fileID: 0}
+  runningAttackData: {fileID: 0}
+  targetingController: {fileID: 0}
+  stat: {fileID: 0}
+  skillUIManagers: {fileID: 0}
   IsGrounded: 1
   IsDead: 0
   IsKick: 0

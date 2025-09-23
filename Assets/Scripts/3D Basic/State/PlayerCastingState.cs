@@ -18,8 +18,8 @@ public class PlayerCastingState : PlayerBaseState
     public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입: Casting (움직임 잠금)");
-        player.Animator.SetFloat("Horizontal", 0f);
-        player.Animator.SetFloat("Vertical", 0f);
+        player.animator.SetFloat("Horizontal", 0f);
+        player.animator.SetFloat("Vertical", 0f);
 
         if (skillToUse != null)
         {

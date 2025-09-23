@@ -33,24 +33,24 @@ public class PlayerSkillTargetingState : PlayerBaseState
 
         if (moveInput.magnitude > 0.01f)
         {
-            float speed = player.Move.GetAdjustedSpeed(moveInput);
-            player.Move.HandleMovement(moveInput, speed);
-            player.Move.HandleRotation();
+            float speed = player.move.GetAdjustedSpeed(moveInput);
+            player.move.HandleMovement(moveInput, speed);
+            player.move.HandleRotation();
 
-            player.Animator.SetFloat("Horizontal", moveInput.x);
-            player.Animator.SetFloat("Vertical", moveInput.y);
+            player.animator.SetFloat("Horizontal", moveInput.x);
+            player.animator.SetFloat("Vertical", moveInput.y);
 
             PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
-            if (player.Animator.GetInteger("ActionState") != (int)expectedAnimState)
+            if (player.animator.GetInteger("ActionState") != (int)expectedAnimState)
             {
-                player.Animator.SetInteger("ActionState", (int)expectedAnimState);
+                player.animator.SetInteger("ActionState", (int)expectedAnimState);
             }
         }
         else
         {
-            if (player.Animator.GetInteger("ActionState") != (int)PlayerAnimState.Idle)
+            if (player.animator.GetInteger("ActionState") != (int)PlayerAnimState.Idle)
             {
-                player.Animator.SetInteger("ActionState", (int)PlayerAnimState.Idle);
+                player.animator.SetInteger("ActionState", (int)PlayerAnimState.Idle);
             }
         }
     }

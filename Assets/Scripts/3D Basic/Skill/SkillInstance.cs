@@ -20,14 +20,14 @@ public class SkillInstance : MonoBehaviour
     public void Use(GameObject user)
     {
         var stat = user.GetComponent<Player_Stat>();
-        if (!CanUse(stat.CurrentMP))
+        if (!CanUse(stat.currentMP))
         {
             Debug.Log($"[{data.skillName}] 스킬 사용 불가 (쿨타임 or MP 부족)");
             return;
         }
 
         lastUseTime = Time.time;
-        stat.CurrentMP -= (int)data.mpCost;
+        stat.currentMP -= (int)data.mpCost;
 
         Animator anim = user.GetComponentInChildren<Animator>();
         if (anim != null && !string.IsNullOrEmpty(data.animTriggerName))
@@ -43,7 +43,7 @@ public class SkillInstance : MonoBehaviour
         switch (data.skillType)
         {
             case SKILLTYPE.Buff:
-                stat.AttackPower += data.attackIncreaseAmount;
+                stat.attackPower += data.attackIncreaseAmount;
                 user.GetComponent<MonoBehaviour>().StartCoroutine(RemoveBuffAfterDuration(stat, data.attackIncreaseAmount, data.duration));
                 break;
 
@@ -58,6 +58,6 @@ public class SkillInstance : MonoBehaviour
     private IEnumerator RemoveBuffAfterDuration(Player_Stat stat, int amount, float duration)
     {
         yield return new WaitForSeconds(duration);
-        stat.AttackPower -= amount;
+        stat.attackPower -= amount;
     }
 }

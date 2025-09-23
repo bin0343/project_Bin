@@ -5,33 +5,37 @@ using UnityEngine;
 
 public class Player_Stat : MonoBehaviour
 {
-    public int Level = 1;
-    public int Exp = 0;
-    public int LevelUpExp = 100;
+    public int level = 1;
+    public int exp = 0;
+    public int levelUpExp = 100;
 
-    public int MaxHP = 100;
-    public int CurrentHP = 100;
+    public int maxHP = 100;
+    public int currentHP = 100;
 
-    public int MaxMP = 100;
-    public int CurrentMP = 100;
+    public int maxMP = 100;
+    public int currentMP = 100;
 
-    public int AttackPower = 10;
-    public int DefensePower = 5;
+    public int attackPower = 10;
+    public int defensePower = 5;
 
     private Canvas myCanvas;
 
     public Vector3 damageTextOffset = new Vector3(0, 2.5f, 0);
 
+    private Player_Action action;
+
     void Start()
     {
         myCanvas = GetComponentInChildren<Canvas>(true);
+        action = GetComponent<Player_Action>();
     }
 
     public void TakeDamage(int damage)
     {
-        CurrentHP -= damage;
-        CurrentHP = Mathf.Max(CurrentHP, 0);
-        Debug.Log("플레이어가 피해를 입음. 남은 체력: " + CurrentHP);
+        currentHP -= damage;
+        currentHP = Mathf.Max(currentHP, 0);
+        action?.OnDamageTaken();
+        Debug.Log("플레이어가 피해를 입음. 남은 체력: " + currentHP);
 
         if (DamageTextSpawner.instance != null)
         {
@@ -46,20 +50,20 @@ public class Player_Stat : MonoBehaviour
 
     public void Heal(int amount)
     {
-        CurrentHP = Mathf.Clamp(CurrentHP + amount, 0, MaxHP);
+        currentHP = Mathf.Clamp(currentHP + amount, 0, maxHP);
     }
 
     public void RecoverMp(int amount)
     {
-        CurrentMP = Mathf.Clamp(CurrentMP + amount, 0, MaxMP);
+        currentMP = Mathf.Clamp(currentMP + amount, 0, maxMP);
     }
 
     public void GainExp(int amount)
     {
-        Exp += amount;
-        while (Exp >= LevelUpExp)
+        exp += amount;
+        while (exp >= levelUpExp)
         {
-            Exp -= LevelUpExp;
+            exp -= levelUpExp;
             LevelUp();
         }
     }
@@ -71,13 +75,13 @@ public class Player_Stat : MonoBehaviour
 
     private void LevelUp()
     {
-        Level++;
-        LevelUpExp *= 2;
+        level++;
+        levelUpExp *= 2;
 
-        MaxHP += 10;
-        MaxMP += 5;
-        CurrentHP = MaxHP;
-        CurrentMP = MaxMP;
+        maxHP += 10;
+        maxMP += 5;
+        currentHP = maxHP;
+        currentMP = maxMP;
 
         //StatPoints += 3;
     }

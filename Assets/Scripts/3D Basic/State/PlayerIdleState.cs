@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class PlayerIdleState : PlayerBaseState
 {
-    private float IdleTimer;
-    private const float IdleDelay = 5f;
+    private float idleTimer;
+    private const float idleDelay = 5f;
 
     protected override PlayerAnimState GetAnimState() => PlayerAnimState.Idle;
 
@@ -14,9 +14,9 @@ public class PlayerIdleState : PlayerBaseState
 
         PlayerAttackState.ResetCombo();
 
-        player.Animator.SetFloat("Horizontal", 0);
-        player.Animator.SetFloat("Vertical", 0);
-        IdleTimer = 0f;
+        player.animator.SetFloat("Horizontal", 0);
+        player.animator.SetFloat("Vertical", 0);
+        idleTimer = 0f;
     }
 
     public override void Execute(Player_Action player)
@@ -35,11 +35,11 @@ public class PlayerIdleState : PlayerBaseState
         }
 
         //방어 상태 전환
-        if (Input.GetMouseButtonDown(1))
+        /*if (Input.GetMouseButtonDown(1))
         {
             player.ChangeState(new PlayerShieldState());
             return;
-        }
+        }*/
 
         //앉기 상태 전환
         if (Input.GetKeyDown(KeyCode.LeftControl))
@@ -70,25 +70,25 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void Exit(Player_Action player)
     {
-        player.Animator.SetInteger("RandomIdleIndex", 0);
+        player.animator.SetInteger("RandomIdleIndex", 0);
         Debug.Log("상태 이탈 : Idle");
     }
 
     public void HandleRandomIdle(Player_Action player)
     {
-        if (player.Animator.GetCurrentAnimatorStateInfo(0).IsTag("Idle"))
+        if (player.animator.GetCurrentAnimatorStateInfo(0).IsTag("Idle"))
         {
-            IdleTimer += Time.deltaTime;
-            if (IdleTimer >= IdleDelay)
+            idleTimer += Time.deltaTime;
+            if (idleTimer >= idleDelay)
             {
                 int rand = Random.Range(1, 4);
-                player.Animator.SetInteger("RandomIdleIndex", rand);
-                IdleTimer = 0;
+                player.animator.SetInteger("RandomIdleIndex", rand);
+                idleTimer = 0;
             }
         }
         else
         {
-            IdleTimer = 0;
+            idleTimer = 0;
         }
     }
 }

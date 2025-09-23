@@ -12,7 +12,7 @@ public class PlayerSitState : PlayerBaseState
     public override void Execute(Player_Action player)
     {
         base.HandleMovementInput(player, 0.5f);
-        player.Animator.SetBool("IsSitting", true);
+        player.animator.SetBool("IsSitting", true);
 
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {

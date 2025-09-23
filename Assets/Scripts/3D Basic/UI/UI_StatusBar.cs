@@ -5,29 +5,29 @@ using UnityEngine.UI;
 
 public class UI_StatusBar : MonoBehaviour
 {
-    [SerializeField] private Image Hpbar;
-    [SerializeField] private Image Mpbar;
-    [SerializeField] private Image Expbar;
+    [SerializeField] private Image hpbar;
+    [SerializeField] private Image mpbar;
+    [SerializeField] private Image expbar;
 
-    private Coroutine HpChangeRoutine;
-    private Coroutine MpChangeRoutine;
-    private Coroutine ExpChangeRoutine;
+    private Coroutine hpChangeRoutine;
+    private Coroutine mpChangeRoutine;
+    private Coroutine expChangeRoutine;
 
     public void UpdateStatus(Player_Stat stat)
     {
         // HP는 코루틴으로 부드럽게 변화
-        if (HpChangeRoutine != null)
-            StopCoroutine(HpChangeRoutine);
-        HpChangeRoutine = StartCoroutine(AnimateSlider(Hpbar, (float)stat.CurrentHP / stat.MaxHP));
+        if (hpChangeRoutine != null)
+            StopCoroutine(hpChangeRoutine);
+        hpChangeRoutine = StartCoroutine(AnimateSlider(hpbar, (float)stat.currentHP / stat.maxHP));
 
         // MP도 부드럽게 변화시키고 싶으면 아래처럼
-        if (MpChangeRoutine != null)
-            StopCoroutine(MpChangeRoutine);
-        MpChangeRoutine = StartCoroutine(AnimateSlider(Mpbar, (float)stat.CurrentMP / stat.MaxMP));
+        if (mpChangeRoutine != null)
+            StopCoroutine(mpChangeRoutine);
+        mpChangeRoutine = StartCoroutine(AnimateSlider(mpbar, (float)stat.currentMP / stat.maxMP));
 
-        if (ExpChangeRoutine != null)
-            StopCoroutine(ExpChangeRoutine);
-        ExpChangeRoutine = StartCoroutine(AnimateSlider(Expbar, (float)stat.Exp / stat.LevelUpExp));
+        if (expChangeRoutine != null)
+            StopCoroutine(expChangeRoutine);
+        expChangeRoutine = StartCoroutine(AnimateSlider(expbar, (float)stat.exp / stat.levelUpExp));
     }
 
     private IEnumerator AnimateSlider(Image image, float targetValue)

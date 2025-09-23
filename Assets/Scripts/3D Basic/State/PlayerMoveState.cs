@@ -23,7 +23,7 @@ public class PlayerMoveState : PlayerBaseState
 
         if (Input.GetMouseButtonDown(0) && player.IsGrounded)
         {
-            if (player.Animator.GetInteger("ActionState") == (int)PlayerAnimState.Run)
+            if (player.animator.GetInteger("ActionState") == (int)PlayerAnimState.Run)
             {
                 if (player.CanUseRunningAttack())
                 {
@@ -62,9 +62,9 @@ public class PlayerMoveState : PlayerBaseState
         base.HandleMovementInput(player);
 
         PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
-        if (player.Animator.GetInteger("ActionState") != (int)expectedAnimState)
+        if (player.animator.GetInteger("ActionState") != (int)expectedAnimState)
         {
-            player.Animator.SetInteger("ActionState", (int)expectedAnimState);
+            player.animator.SetInteger("ActionState", (int)expectedAnimState);
         }
 
         // 5. 공통 입력(스킬, 아이템) 확인
@@ -75,7 +75,7 @@ public class PlayerMoveState : PlayerBaseState
     public override void Exit(Player_Action player)
     {
         Debug.Log("상태 이탈: Move");
-        player.Animator.SetFloat("Horizontal", 0);
-        player.Animator.SetFloat("Vertical", 0);
+        player.animator.SetFloat("Horizontal", 0);
+        player.animator.SetFloat("Vertical", 0);
     }
 }

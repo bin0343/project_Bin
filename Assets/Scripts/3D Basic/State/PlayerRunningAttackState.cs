@@ -11,13 +11,13 @@ public class PlayerRunningAttackState : PlayerBaseState
 
         player.UseRunningAttack();
 
-        Vector3 moveDir = player.Move.CharacterBody.forward;
-        player.Rigidbody.velocity = moveDir * 8f;
+        Vector3 moveDir = player.move.CharacterBody.forward;
+        player.rigidbody.velocity = moveDir * 8f;
     }
 
     public override void Execute(Player_Action player)
     {
-        AnimatorStateInfo stateInfo = player.Animator.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo stateInfo = player.animator.GetCurrentAnimatorStateInfo(0);
 
         if (stateInfo.IsTag("Attack") && stateInfo.normalizedTime >= 0.95f)
         {
@@ -35,6 +35,6 @@ public class PlayerRunningAttackState : PlayerBaseState
     public override void Exit(Player_Action player)
     {
         Debug.Log("╩Себ юле╩: Running Slash");
-        player.Rigidbody.velocity = Vector3.zero;
+        player.rigidbody.velocity = Vector3.zero;
     }
 }

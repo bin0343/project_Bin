@@ -15,7 +15,8 @@ public enum PlayerAnimState
     SitMove,    //10
     Kick,   //11
     Shield, //12
-    Dead    //13
+    Dead,    //13
+    Hit     //14
 }
 
 public abstract class PlayerBaseState : IPlayerState
@@ -23,7 +24,7 @@ public abstract class PlayerBaseState : IPlayerState
     protected abstract PlayerAnimState GetAnimState();
     public virtual void Enter(Player_Action player)
     {
-        player.Animator.SetInteger("ActionState", (int)GetAnimState());
+        player.animator.SetInteger("ActionState", (int)GetAnimState());
     }
 
     public abstract void Execute(Player_Action player);
@@ -61,22 +62,22 @@ public abstract class PlayerBaseState : IPlayerState
 
         if (moveInput.magnitude > 0)
         {
-            float speed = player.Move.GetAdjustedSpeed(moveInput) * speedModifier;
-            player.Move.HandleMovement(moveInput, speed);
-            player.Move.HandleRotation();
+            float speed = player.move.GetAdjustedSpeed(moveInput) * speedModifier;
+            player.move.HandleMovement(moveInput, speed);
+            player.move.HandleRotation();
 
-            player.Animator.SetFloat("Horizontal", moveInput.x);
-            player.Animator.SetFloat("Vertical", moveInput.y);
+            player.animator.SetFloat("Horizontal", moveInput.x);
+            player.animator.SetFloat("Vertical", moveInput.y);
         }
 
         // 3. 달리기/걷기 애니메이션 상태 전환
         PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
-        if (player.Animator.GetInteger("ActionState") != (int)expectedAnimState)
+        if (player.animator.GetInteger("ActionState") != (int)expectedAnimState)
         {
             // 현재 상태가 Move가 아닐 때도 애니메이션이 Run/Walk로 바뀌는 것을 방지하기 위해
             // 현재 상태가 Move 상태일 때만 애니메이션을 변경하도록 조건을 추가할 수 있습니다.
             if (player.currentState is PlayerMoveState)
-            player.Animator.SetInteger("ActionState", (int)expectedAnimState);
+            player.animator.SetInteger("ActionState", (int)expectedAnimState);
         }
 
     }

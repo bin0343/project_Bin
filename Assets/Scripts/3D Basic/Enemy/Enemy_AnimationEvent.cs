@@ -4,23 +4,22 @@ using UnityEngine;
 
 public class Enemy_AnimationEvent : MonoBehaviour
 {
-    public Animator animator;
-
-    [Header("Attack Effect")]
-    [SerializeField] private TrailRenderer slashTrail;
+    private EnemyBase enemy;
 
     void Start()
     {
-        slashTrail.emitting = false;
+        enemy = GetComponentInParent<EnemyBase>();
     }
 
     public void StartAttackTrail()
     {
-        slashTrail.emitting = true;
+        if (enemy != null)
+            enemy.slashTrail.emitting = true;
     }
 
     public void EndAttackTrail()
     {
-        slashTrail.emitting = false;
+        if (enemy != null)
+            enemy.slashTrail.emitting = false;
     }
 }

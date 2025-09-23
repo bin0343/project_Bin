@@ -4,52 +4,52 @@ using UnityEngine;
 
 public class Player_AnimationEvents : MonoBehaviour
 {
-    Player_Action Action;
-    Player_Move Move;
+    Player_Action action;
+    Player_Move move;
     public Animator animator;
 
     [Header("Attack Effect")]
-    [SerializeField] private TrailRenderer slashTrail;
+    [SerializeField] public TrailRenderer slashTrail;
 
     void Start()
     {
-        Action = GetComponentInParent<Player_Action>();
+        action = GetComponentInParent<Player_Action>();
         slashTrail.emitting = false;
     }
 
     public void KickEnd()
     {
-        Action.IsKick = false;
+        action.IsKick = false;
     }
 
     public void BuffStart()
     {
-        Action.IsBuff = true;
+        action.IsBuff = true;
     }
 
     public void BuffEnd()
     {
-        Action.IsBuff = false;
+        action.IsBuff = false;
     }
 
     public void OnJumpAttackEnd()
     {
-        Action.IsGrounded = true;
+        action.IsGrounded = true;
     }
 
     public void AttackStart()
     {
-        Action.IsAttacking = true;
+        action.IsAttacking = true;
     }
 
     public void AttackEnd()
     {
-        Action.IsAttacking = false;
+        //action.FinishAttack();
     }
 
     public void OnAttackCombo()
     {
-        Action.canReceiveInput = true;
+        action.canReceiveInput = true;
     }
 
     public void StartAttackTrail()
@@ -64,17 +64,22 @@ public class Player_AnimationEvents : MonoBehaviour
 
     public void ResetRandomIdle()
     {
-        Action.Animator.SetInteger("RandomIdleIndex", 0);
+        action.animator.SetInteger("RandomIdleIndex", 0);
     }
 
     public void OnComboWindowOpen()
     {
-        Action.canReceiveInput = true;
+        action.canReceiveInput = true;
     }
 
     public void OnAttackAnimationEnd()
     {
-        Action.OnAnimationEvent(Player_Action.AnimationEventType.ATTACK_ANIMATION_END);
+        action.OnAnimationEvent(Player_Action.AnimationEventType.ATTACK_ANIMATION_END);
+    }
+
+    public void OnHitAnimationEnd()
+    {
+        (action.currentState as PlayerHitState)?.OnHitAnimationEnd(action);
     }
 
     public void CameraShakeEvent()

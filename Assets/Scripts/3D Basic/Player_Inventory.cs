@@ -12,15 +12,15 @@ public enum ItemSortMethod
 
 public class Player_Inventory : MonoBehaviour
 {
-    public static Player_Inventory Instance;
+    public static Player_Inventory instance;
 
     public List<ItemHolder> inventorySlots = new List<ItemHolder>();
     public ItemHolder[] quickSlots = new ItemHolder[4];
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) Destroy(gameObject);
-        Instance = this;
+        if (instance != null && instance != this) Destroy(gameObject);
+        instance = this;
     }
 
     private void Start()
@@ -147,7 +147,7 @@ public class Player_Inventory : MonoBehaviour
             if (sourceItem != null)
             {
                 // 장착 시도
-                Player_Equipment.Instance.Equip(sourceItem, sourceType, sourceIndex);
+                Player_Equipment.instance.Equip(sourceItem, sourceType, sourceIndex);
                 // Equip 함수가 모든 데이터 처리와 UI갱신을 하므로 여기서 종료
                 return;
             }

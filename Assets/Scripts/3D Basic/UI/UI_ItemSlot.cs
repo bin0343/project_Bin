@@ -6,7 +6,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 {
     [Header("UI Components")]
     public Image ItemIcon;
-    public Text QuantityText;
+    public Text quantityText;
 
     [Header("Slot Info")]
     private ItemHolder assignedItemHolder;
@@ -17,7 +17,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     private bool isDraggable = true;
 
-    public bool IsEmpty => assignedItemHolder == null;
+    public bool isEmpty => assignedItemHolder == null;
 
     private void Awake()
     {
@@ -47,14 +47,17 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         ItemIcon.sprite = itemHolder.ItemData.itemIcon;
         ItemIcon.gameObject.SetActive(true);
 
-        if (itemHolder.Quantity > 1)
+        if (quantityText != null)
         {
-            QuantityText.text = itemHolder.Quantity.ToString();
-            QuantityText.gameObject.SetActive(true);
-        }
-        else
-        {
-            QuantityText.gameObject.SetActive(false);
+            if (itemHolder.Quantity > 1)
+            {
+                quantityText.text = itemHolder.Quantity.ToString();
+                quantityText.gameObject.SetActive(true);
+            }
+            else
+            {
+                quantityText.gameObject.SetActive(false);
+            }
         }
     }
 
@@ -63,19 +66,22 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         assignedItemHolder = null;
         ItemIcon.sprite = null;
         ItemIcon.gameObject.SetActive(false);
-        QuantityText.gameObject.SetActive(false);
+        if (quantityText != null)
+        {
+            quantityText.gameObject.SetActive(false);
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!isDraggable || IsEmpty) return;
+        if (!isDraggable || isEmpty) return;
         DragSlot.StartDrag(ItemIcon, assignedItemHolder, originalInventoryIndex, this.slotType);
         ItemIcon.color = new Color(1, 1, 1, 0.5f);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!isDraggable || IsEmpty) return;
+        if (!isDraggable || isEmpty) return;
         DragSlot.StartDrag(ItemIcon, this.slotType, this.originalInventoryIndex, this.slotType);
         DragSlot.dragIcon.transform.position = eventData.position;
     }
@@ -96,7 +102,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
         if (uiInventory != null)
         {
-            Player_Inventory.Instance.HandleSlotDrop(
+            Player_Inventory.instance.HandleSlotDrop(
                 DragSlot.originalSlotType,
                 DragSlot.originalIndex,
                 this.slotType,
@@ -106,7 +112,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
         else
         {
-            Player_Inventory.Instance.HandleSlotDrop(
+            Player_Inventory.instance.HandleSlotDrop(
                 DragSlot.originalSlotType,
                 DragSlot.originalIndex,
                 this.slotType,

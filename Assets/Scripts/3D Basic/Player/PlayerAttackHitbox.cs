@@ -5,59 +5,59 @@ using UnityEngine;
 public class PlayerAttackHitbox : MonoBehaviour
 {
     [SerializeField]
-    private Collider AttackHitbox;
+    private Collider attackHitbox;
     [SerializeField]
-    private Collider KickHitbox;
+    private Collider kickHitbox;
 
-    private bool HasHit = false;
-    Weapon_Player Weapon_Player;
+    private bool hasHit = false;
+    Weapon_Player weapon_Player;
 
     private void Awake()
     {
-        Weapon_Player = GetComponentInChildren<Weapon_Player>();
-        if (AttackHitbox != null)
-            AttackHitbox.enabled = false;
+        weapon_Player = GetComponentInChildren<Weapon_Player>();
+        if (attackHitbox != null)
+            attackHitbox.enabled = false;
 
-        if (KickHitbox != null)
-            KickHitbox.enabled = false;
+        if (kickHitbox != null)
+            kickHitbox.enabled = false;
     }
 
     public void EnableAttackHitbox()
     {
-        AttackHitbox.enabled = true;
-        HasHit = false;
+        attackHitbox.enabled = true;
+        hasHit = false;
     }
 
     public void DisableAttackHitbox()
     {
-        AttackHitbox.enabled = false;
+        attackHitbox.enabled = false;
     }
 
     public void ResetHasHit()
     {
-        Weapon_Player.HasHit = false;
+        weapon_Player.hasHit = false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (HasHit) return;
+        if (hasHit) return;
 
         if (other.CompareTag("Enemy"))
         {
             Debug.Log("공격!");
-            HasHit = true;
+            hasHit = true;
         }
     }
 
     public void EnableKickHitbox()
     {
-        KickHitbox.enabled = true;
+        kickHitbox.enabled = true;
 
-        KickHitbox.GetComponentInChildren<KickHitbox>().HasHit = false; // 중복 타격 방지 초기화
+        kickHitbox.GetComponentInChildren<KickHitbox>().HasHit = false; // 중복 타격 방지 초기화
     }
 
     public void DisableKickHitbox()
     {
-        KickHitbox.enabled = false;
+        kickHitbox.enabled = false;
     }
 }

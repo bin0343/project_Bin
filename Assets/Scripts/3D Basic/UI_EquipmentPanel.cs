@@ -23,7 +23,7 @@ public class UI_EquipmentPanel : MonoBehaviour
 
     public void RefreshUI()
     {
-        if (Player_Equipment.Instance == null) return;
+        if (Player_Equipment.instance == null) return;
 
         for (int i = 0; i < equipmentSlotsUI.Length; i++)
         {
@@ -32,7 +32,7 @@ public class UI_EquipmentPanel : MonoBehaviour
                 equipmentSlotsUI[i].gameObject.SetActive(true);
             }
 
-            ItemHolder equippedItem = Player_Equipment.Instance.equipmentSlots[i];
+            ItemHolder equippedItem = Player_Equipment.instance.equipmentSlots[i];
             if (equippedItem != null)
             {
                 equipmentSlotsUI[i].Setup(equippedItem);

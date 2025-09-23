@@ -5,8 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewConsumable", menuName = "Item/Consumable")]
 public class Item_Consumable : Item_Base
 {
-    public int HealAmount;
-    public int RecoverMpAmount;
+    public int healAmount;
+    public int recoverMpAmount;
 
     public override bool Use(GameObject user)
     {
@@ -15,17 +15,17 @@ public class Item_Consumable : Item_Base
 
         bool itemUsed = false; // 아이템이 실제로 효과를 발휘했는지 추적
 
-        if (HealAmount > 0 && stat.CurrentHP < stat.MaxHP)
+        if (healAmount > 0 && stat.currentHP < stat.maxHP)
         {
-            stat.CurrentHP = Mathf.Min(stat.CurrentHP + HealAmount, stat.MaxHP);
-            Debug.Log($"{itemName}을(를) 사용하여 체력을 {HealAmount} 회복했습니다.");
+            stat.currentHP = Mathf.Min(stat.currentHP + healAmount, stat.maxHP);
+            Debug.Log($"{itemName}을(를) 사용하여 체력을 {healAmount} 회복했습니다.");
             itemUsed = true;
         }
 
-        if (RecoverMpAmount > 0 && stat.CurrentMP < stat.MaxMP)
+        if (recoverMpAmount > 0 && stat.currentMP < stat.maxMP)
         {
-            stat.CurrentMP = Mathf.Min(stat.CurrentMP + RecoverMpAmount, stat.MaxMP);
-            Debug.Log($"{itemName}을(를) 사용하여 마나를 {RecoverMpAmount} 회복했습니다.");
+            stat.currentMP = Mathf.Min(stat.currentMP + recoverMpAmount, stat.maxMP);
+            Debug.Log($"{itemName}을(를) 사용하여 마나를 {recoverMpAmount} 회복했습니다.");
             itemUsed = true;
         }
 

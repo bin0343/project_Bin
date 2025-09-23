@@ -45,7 +45,7 @@ public class UI_LootSlot : MonoBehaviour, IPointerClickHandler
         if (displayedItem != null && eventData.button == PointerEventData.InputButton.Right)
         {
             // 1. 플레이어 인벤토리에 아이템 추가 시도
-            bool success = Player_Inventory.Instance.AddItem(displayedItem);
+            bool success = Player_Inventory.instance.AddItem(displayedItem);
 
             // 2. 인벤토리에 성공적으로 추가되었다면
             if (success)

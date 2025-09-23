@@ -1,8 +1,11 @@
 using UnityEngine;
 
-public class PlayerAttackState : PlayerBaseState
+public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 {
     public static int comboStep = 0;
+
+    // [추가] 상태 진입 직후 애니메이션 전환이 완료되었는지 확인하는 플래그
+    private bool isTransitionFinished = false;
 
     protected override PlayerAnimState GetAnimState()
     {
@@ -17,50 +20,73 @@ public class PlayerAttackState : PlayerBaseState
 
     public override void Enter(Player_Action player)
     {
+        isTransitionFinished = false;
+
         comboStep++;
         if (comboStep > 3)
         {
             comboStep = 1;
         }
-
-        player.canReceiveInput = false;   // 처음 들어올 때는 입력 잠금
-        base.Enter(player);               // Animator의 ActionState 세팅
-        Debug.Log($"상태 진입: Attack {comboStep}");
+        player.SetComboStep(comboStep);
+        player.canReceiveInput = false;
+        base.Enter(player);
     }
 
     public override void Execute(Player_Action player)
     {
-        player.Move.HandleRotation();
-        AnimatorStateInfo stateInfo = player.Animator.GetCurrentAnimatorStateInfo(0);
-        bool isAttackAnimation = stateInfo.IsTag("Attack");
+        player.move.HandleRotation();
 
-        if (player.canReceiveInput && Input.GetMouseButtonDown(0))
+        if (!isTransitionFinished)
         {
-            player.ChangeState(new PlayerAttackState());
-            return;
-        }
+            AnimatorStateInfo stateInfo = player.animator.GetCurrentAnimatorStateInfo(0);
+            int expectedAnimHash = Animator.StringToHash(GetAnimState().ToString());
 
-        if (isAttackAnimation && stateInfo.normalizedTime >= 0.95f)
-        {
-            player.ChangeState(new PlayerIdleState());
-
-            if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+            if (stateInfo.shortNameHash == expectedAnimHash)
             {
-                player.ChangeState(new PlayerMoveState());
-                return;
+                isTransitionFinished = true;
             }
         }
 
-        
+        if (player.canReceiveInput && Input.GetMouseButtonDown(0))
+        {
+            if (comboStep < 3)
+            {
+                player.ChangeState(new PlayerAttackState());
+                return;
+            }
+        }
     }
 
     public override void Exit(Player_Action player)
     {
+        player.animEvents?.EndAttackTrail();
         player.canReceiveInput = false;
     }
 
     public static void ResetCombo()
     {
         comboStep = 0;
+    }
+
+    public void OnAnimationEvent(Player_Action.AnimationEventType eventType, Player_Action player)
+    {
+        if (!isTransitionFinished)
+        {
+            return;
+        }
+
+        if (eventType == Player_Action.AnimationEventType.ATTACK_ANIMATION_END)
+        {
+            ResetCombo();
+
+            if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+            {
+                player.ChangeState(new PlayerMoveState());
+            }
+            else
+            {
+                player.ChangeState(new PlayerIdleState());
+            }
+        }
     }
 }

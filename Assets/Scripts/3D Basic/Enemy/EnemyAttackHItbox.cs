@@ -6,42 +6,42 @@ using UnityEngine;
 public class EnemyAttackHItbox : MonoBehaviour
 {
     [SerializeField]
-    private Collider Hitbox;
+    private Collider hitbox;
 
-    private bool HasHit = false;
-    Weapon_Brute Weapon_Brute;
+    private bool hasHit = false;
+    Weapon_Brute weapon_Brute;
 
     private void Awake()
     {
-        Weapon_Brute = GetComponentInChildren<Weapon_Brute>();
-        Hitbox = GetComponentInChildren<Collider>();
-        Hitbox.enabled = false;
+        weapon_Brute = GetComponentInChildren<Weapon_Brute>();
+        hitbox = GetComponentInChildren<Collider>();
+        hitbox.enabled = false;
     }
 
     public void EnableHitbox()
     {
-        Hitbox.enabled = true;
-        HasHit = false; 
+        hitbox.enabled = true;
+        hasHit = false; 
     }
 
     public void DisableHitbox()
     {
-        Hitbox.enabled = false;
+        hitbox.enabled = false;
     }
 
     public void ResetHasHit()
     {
-        Weapon_Brute.HasHit = false;
+        weapon_Brute.hasHit = false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (HasHit) return;
+        if (hasHit) return;
 
         if (other.CompareTag("Player"))
         {
             Debug.Log("АјАн!");
-            HasHit = true;
+            hasHit = true;
         }
     }
 }

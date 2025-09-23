@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class Weapon_Player : MonoBehaviour
 {
-    public int WeaponAttackPower = 3;
-    public bool HasHit = false;
+    public int weaponAttackPower = 3;
+    public bool hasHit = false;
 
     void Awake()
     {
@@ -16,11 +16,11 @@ public class Weapon_Player : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!GetComponent<Collider>().enabled) return;
-        if (HasHit) return;
+        if (hasHit) return;
 
         if (other.CompareTag("Enemy"))
         {
-            HasHit = true;
+            hasHit = true;
 
             Enemy_Stat enemyStat = other.GetComponent<Enemy_Stat>();
             Player_Stat PlayerStat = GetComponentInParent<Player_Stat>();
@@ -28,7 +28,7 @@ public class Weapon_Player : MonoBehaviour
 
             if (enemyStat != null && PlayerStat != null && playerAction != null)
             {
-                int damage = Mathf.Max(PlayerStat.AttackPower + WeaponAttackPower - enemyStat.DefensePower, 1);
+                int damage = Mathf.Max(PlayerStat.attackPower + weaponAttackPower - enemyStat.DefensePower, 1);
                 if (playerAction.currentState is PlayerRunningAttackState)
                 {
                     // 1. 현재 상태가 러닝 어택 상태일 경우
@@ -36,7 +36,7 @@ public class Weapon_Player : MonoBehaviour
                     enemyStat.TakeDamage(damage, AttackType.Knockback);
                     Debug.Log($"[러닝 어택] 몬스터가 {damage} 만큼 피해를 입음");
                 }
-                if (PlayerAttackState.comboStep == 3)
+                if (playerAction.currentComboStep == 3)
                 {
                     enemyStat.TakeDamage(damage, AttackType.Knockback);
                 }

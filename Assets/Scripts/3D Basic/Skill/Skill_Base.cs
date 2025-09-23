@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class Skill_Base : ScriptableObject
 {
     [Header("Basic Info")]
-    public string SkillName;
+    public string skillName;
     public SKILLTYPE skillType;
     public Sprite skillIcon;
     public string animTriggerName;
@@ -23,7 +23,7 @@ public abstract class Skill_Base : ScriptableObject
         var stat = user.GetComponent<Player_Stat>();
         if (stat == null) return;
 
-        stat.CurrentMP -= (int)mpCost;
+        stat.currentMP -= (int)mpCost;
 
         Animator anim = user.GetComponentInChildren<Animator>();
         if (anim != null && !string.IsNullOrEmpty(animTriggerName))

@@ -11,7 +11,7 @@ public class Skill_Buff : Skill_Base
     protected override void ApplyEffect(GameObject user)
     {
         Player_Stat stat = user.GetComponent<Player_Stat>();
-        stat.AttackPower += attackIncreaseAmount;
+        stat.attackPower += attackIncreaseAmount;
 
         Vector3 offset = new Vector3(0f, 0.5f, -0.7f);
         GameObject aura = Instantiate(auraPrefab, user.transform.position + offset, Quaternion.identity, user.transform);
@@ -23,6 +23,6 @@ public class Skill_Buff : Skill_Base
     private IEnumerator RemoveBuffAfterDuration(Player_Stat stat)
     {
         yield return new WaitForSeconds(duration);
-        stat.AttackPower -= attackIncreaseAmount;
+        stat.attackPower -= attackIncreaseAmount;
     }
 }

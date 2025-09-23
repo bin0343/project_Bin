@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Player_Equipment : MonoBehaviour
 {
-    public static Player_Equipment Instance;
+    public static Player_Equipment instance;
 
     public ItemHolder[] equipmentSlots = new ItemHolder[System.Enum.GetValues(typeof(EquipmentType)).Length];
 
@@ -13,8 +13,8 @@ public class Player_Equipment : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) Destroy(gameObject);
-        Instance = this;
+        if (instance != null && instance != this) Destroy(gameObject);
+        instance = this;
     }
 
     // REMOVED: Start에서 playerStat을 미리 찾아두지 않습니다.
@@ -43,16 +43,16 @@ public class Player_Equipment : MonoBehaviour
 
         if (sourceType == SlotType.INVENTORY)
         {
-            Player_Inventory.Instance.inventorySlots[sourceIndex] = previouslyEquipped;
+            Player_Inventory.instance.inventorySlots[sourceIndex] = previouslyEquipped;
         }
         else if (sourceType == SlotType.QUICKSLOT)
         {
-            Player_Inventory.Instance.quickSlots[sourceIndex] = previouslyEquipped;
+            Player_Inventory.instance.quickSlots[sourceIndex] = previouslyEquipped;
         }
 
         // 스탯 적용
-        stat.AttackPower += equipmentData.attackBonus;
-        stat.DefensePower += equipmentData.defenseBonus;
+        stat.attackPower += equipmentData.attackBonus;
+        stat.defensePower += equipmentData.defenseBonus;
         Debug.Log($"{equipmentData.itemName}을(를) 장착했습니다.");
 
         RefreshUI();
@@ -77,8 +77,8 @@ public class Player_Equipment : MonoBehaviour
             if (equipmentData != null)
             {
                 // 스탯 해제
-                stat.AttackPower -= equipmentData.attackBonus;
-                stat.DefensePower -= equipmentData.defenseBonus;
+                stat.attackPower -= equipmentData.attackBonus;
+                stat.defensePower -= equipmentData.defenseBonus;
             }
 
             equipmentSlots[slotIndex] = null;

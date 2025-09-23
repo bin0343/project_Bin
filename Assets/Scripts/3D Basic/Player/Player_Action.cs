@@ -6,10 +6,11 @@ using UnityEngine;
 public class Player_Action : MonoBehaviour
 {
     [SerializeField]
-    private GameObject Player;
-    public Animator Animator {  get; private set; }
-    public Rigidbody Rigidbody { get; private set; }
-    public Player_Move Move;
+    private GameObject player;
+    public Animator animator {  get; private set; }
+    public Player_AnimationEvents animEvents { get; private set; }
+    public new Rigidbody rigidbody { get; private set; }
+    public Player_Move move;
 
     [Header("Skills")]
     public Skill_Base[] assignedSkills = new Skill_Base[4];
@@ -22,10 +23,12 @@ public class Player_Action : MonoBehaviour
     private bool isTargetingSkill = false;
     public SkillHolder skillBeingAimed;
 
-    public Player_Stat Stat;
+    public Player_Stat stat;
     
-    public UI_SkillManager SkillUIManagers;
-    
+    public UI_SkillManager skillUIManagers;
+    public Shield_Player shield;
+
+    public bool IsGuarding { get; private set; } = false;
     public bool IsGrounded = true;
     public bool IsDead = false;
     public bool IsKick = false;
@@ -33,17 +36,23 @@ public class Player_Action : MonoBehaviour
     public bool IsBuff = false;
 
     public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
+    private int upperBodyLayerIndex;
 
     public static event Action<Sprite, float> OnRunningAttackUsed;
     public IPlayerState currentState;
+    public int currentComboStep { get; private set; }
 
     void Start()
     {
-        Animator = Player.GetComponent<Animator>();
-        Rigidbody = GetComponent<Rigidbody>();
-        Move = Player.GetComponentInParent<Player_Move>();
-        Stat = Player.GetComponentInParent<Player_Stat>();
-        SkillUIManagers = FindObjectOfType<UI_SkillManager>();
+        animator = player.GetComponent<Animator>();
+        rigidbody = GetComponent<Rigidbody>();
+        move = player.GetComponentInParent<Player_Move>();
+        stat = player.GetComponentInParent<Player_Stat>();
+        animEvents = player.GetComponent<Player_AnimationEvents>();
+        skillUIManagers = FindObjectOfType<UI_SkillManager>();
+        shield = player.GetComponentInChildren<Shield_Player>();
+
+        upperBodyLayerIndex = animator.GetLayerIndex("Upper Layer");
 
         targetingController = GetComponent<SkillTargetingController>();
         if (targetingController != null)
@@ -80,7 +89,7 @@ public class Player_Action : MonoBehaviour
 
     void Update()
     {
-        if (Stat.CurrentHP <= 0 && !(currentState is PlayerDeadState))
+        if (stat.currentHP <= 0 && !(currentState is PlayerDeadState))
         {
             ChangeState(new PlayerDeadState());
             return; 
@@ -90,7 +99,7 @@ public class Player_Action : MonoBehaviour
         if (IsDead) return;
         if (isTargetingSkill || (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen))
             return;
-        
+        HandleGuardInput();
         currentState?.Execute(this);
     }
 
@@ -110,7 +119,7 @@ public class Player_Action : MonoBehaviour
 
         SkillHolder skillToUse = playerSkills[slotIndex];
 
-        if (skillToUse == null || !skillToUse.CanUse(Stat.CurrentMP)) return;
+        if (skillToUse == null || !skillToUse.CanUse(stat.currentMP)) return;
 
         if (skillToUse.SkillData is Skill_AreaAttack areaSkill)
         {
@@ -128,9 +137,9 @@ public class Player_Action : MonoBehaviour
     public void HandleItemInput(int slotIndex)
     {
         // 기존 TryUseItem의 로직을 그대로 가져옵니다.
-        if (slotIndex < 0 || slotIndex >= Player_Inventory.Instance.quickSlots.Length) return;
+        if (slotIndex < 0 || slotIndex >= Player_Inventory.instance.quickSlots.Length) return;
 
-        ItemHolder itemToUse = Player_Inventory.Instance.quickSlots[slotIndex];
+        ItemHolder itemToUse = Player_Inventory.instance.quickSlots[slotIndex];
         if (itemToUse == null) return;
 
         bool success = itemToUse.Use(gameObject);
@@ -143,12 +152,12 @@ public class Player_Action : MonoBehaviour
 
             if (itemToUse.Quantity <= 0)
             {
-                Player_Inventory.Instance.quickSlots[slotIndex] = null;
+                Player_Inventory.instance.quickSlots[slotIndex] = null;
             }
 
             if (UI_ItemManager.Instance != null)
             {
-                UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.Instance.quickSlots[slotIndex]);
+                UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.instance.quickSlots[slotIndex]);
             }
         }
     }
@@ -204,16 +213,65 @@ public class Player_Action : MonoBehaviour
     }
     #endregion
 
+    private void HandleGuardInput()
+    {
+        // 방패 들기 (마우스 우클릭 누르는 순간)
+        if (Input.GetMouseButtonDown(1))
+        {
+            StartGuarding();
+        }
+        // 방패 내리기 (마우스 우클릭 떼는 순간)
+        else if (Input.GetMouseButtonUp(1))
+        {
+            StopGuarding();
+        }
+    }
+
+    public void StartGuarding()
+    {
+        if (IsGuarding) return; // 이미 방어 중이면 무시
+
+        IsGuarding = true;
+        Debug.Log("방어 시작");
+
+        // 상체 레이어의 가중치를 1로 만들어 방패 애니메이션을 활성화
+        animator.SetBool("IsGuarding", true);
+
+        // 방패 콜라이더 활성화
+        shield?.SetActiveShield(true);
+
+        // 추가: 방어 시 이동 속도 감소 로직
+        // move.SetSpeedModifier(0.5f); // 예시
+    }
+
+    // 방어 중지 로직
+    public void StopGuarding()
+    {
+        if (!IsGuarding) return; // 방어 중이 아니면 무시
+
+        IsGuarding = false;
+        Debug.Log("방어 중지");
+
+        // 상체 레이어의 가중치를 0으로 만들어 방패 애니메이션을 비활성화
+        animator.SetBool("IsGuarding", false);
+
+        // 방패 콜라이더 비활성화
+        shield?.SetActiveShield(false);
+
+        // 추가: 이동 속도 원상 복구
+        // move.SetSpeedModifier(1.0f); // 예시
+    }
+
     public bool CanUseRunningAttack()
     {
         if (runningAttackHolder == null) return false;
         return runningAttackHolder.CanUse(0);
     }
 
-    /*public void UseRunningAttack()
+    public void SetComboStep(int step)
     {
-        runningAttackHolder?.Use(gameObject);
-    }*/
+        currentComboStep = step;
+    }
 
     public void UseRunningAttack()
     {
@@ -221,11 +279,17 @@ public class Player_Action : MonoBehaviour
 
         runningAttackHolder.Use(gameObject);
 
-        // --- ADDED: 이벤트 방송! ---
-        // 구독자가 있다면(null이 아니라면) 이벤트를 호출하여 쿨타임 시간을 전달합니다.
         if (runningAttackData != null)
         {
             OnRunningAttackUsed?.Invoke(runningAttackData.skillIcon, runningAttackData.cooldownTime);
+        }
+    }
+
+    public void OnDamageTaken()
+    {
+        if (!IsDead)
+        {
+            ChangeState(new PlayerHitState());
         }
     }
 
@@ -252,14 +316,13 @@ public class Player_Action : MonoBehaviour
         ATTACK_ANIMATION_END
     }
 
-    // --- ADDED: 애니메이션 이벤트를 현재 상태에 전달하는 중개 함수 ---
     public void OnAnimationEvent(AnimationEventType eventType)
     {
-        (currentState as IStateAnimationEvents)?.OnAnimationEvent(eventType);
+        (currentState as IStateAnimationEvents)?.OnAnimationEvent(eventType, this);
     }
 }
 
 public interface IStateAnimationEvents
 {
-    void OnAnimationEvent(Player_Action.AnimationEventType eventType);
+    void OnAnimationEvent(Player_Action.AnimationEventType eventType, Player_Action player);
 }

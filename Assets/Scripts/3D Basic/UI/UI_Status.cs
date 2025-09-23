@@ -14,10 +14,10 @@ public class UI_Status : MonoBehaviour
 
     public void UpdateStatus(Player_Stat stat)
     {
-        hpSlider.value = (float)stat.CurrentHP / stat.MaxHP;
-        mpSlider.value = (float)stat.CurrentMP / stat.MaxMP;
+        hpSlider.value = (float)stat.currentHP / stat.maxHP;
+        mpSlider.value = (float)stat.currentMP / stat.maxMP;
 
-        hpText.text = $"{stat.CurrentHP} / {stat.MaxHP}";
-        mpText.text = $"{stat.CurrentMP}  /  {stat.MaxMP}";
+        hpText.text = $"{stat.currentHP} / {stat.maxHP}";
+        mpText.text = $"{stat.currentMP}  /  {stat.maxMP}";
     }
 }
