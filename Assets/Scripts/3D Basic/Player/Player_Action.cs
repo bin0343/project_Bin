@@ -9,6 +9,7 @@ public class Player_Action : MonoBehaviour
     private GameObject player;
     public Animator animator {  get; private set; }
     public Player_AnimationEvents animEvents { get; private set; }
+    public PlayerAttackHitbox attackHitbox { get; private set; }
     public new Rigidbody rigidbody { get; private set; }
     public Player_Move move;
 
@@ -222,6 +223,18 @@ public class Player_Action : MonoBehaviour
         {
             StopGuarding();
         }
+    }
+
+    public void OnAttackBlocked()
+    {
+        // 이미 막혔거나, 죽었거나, 다른 리액션 중일 때는 무시
+        if (currentState is PlayerAttackBlockState || currentState is PlayerHitState || IsDead)
+        {
+            return;
+        }
+
+        Debug.Log("공격이 막힘! 상태를 AttackBlocked로 변경합니다.");
+        ChangeState(new PlayerAttackBlockState());
     }
 
     public void StartGuarding()

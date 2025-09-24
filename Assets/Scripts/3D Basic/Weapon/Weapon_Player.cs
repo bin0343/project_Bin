@@ -15,8 +15,26 @@ public class Weapon_Player : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!GetComponent<Collider>().enabled) return;
-        if (hasHit) return;
+        if (!GetComponent<Collider>().enabled || hasHit) return;
+        //if (hasHit) return;
+
+        Weapon_EnemyDefense enemyDefense = other.GetComponent<Weapon_EnemyDefense>();
+        if (enemyDefense != null)
+        {
+            hasHit = true;
+            Debug.Log("플레이어: 공격이 몬스터의 무기에 막혔다!");
+
+            GetComponentInParent<Player_Action>()?.OnAttackBlocked();
+
+            // 몬스터에게 방어 성공 리액션을 하라고 알림
+            enemyDefense.OnParrySuccess();
+
+            // (선택) 플레이어도 공격이 튕기는 리액션을 할 수 있음
+            // GetComponentInParent<Player_Action>()?.PlayAttackBlockedReaction();
+
+            // 막혔으므로 데미지 로직을 실행하지 않고 함수 종료
+            return;
+        }
 
         if (other.CompareTag("Enemy"))
         {

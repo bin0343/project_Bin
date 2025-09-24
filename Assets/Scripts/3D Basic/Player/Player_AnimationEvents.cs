@@ -7,6 +7,7 @@ public class Player_AnimationEvents : MonoBehaviour
     Player_Action action;
     Player_Move move;
     public Animator animator;
+    PlayerAttackBlockState state;
 
     [Header("Attack Effect")]
     [SerializeField] public TrailRenderer slashTrail;
@@ -30,6 +31,11 @@ public class Player_AnimationEvents : MonoBehaviour
     public void BuffEnd()
     {
         action.IsBuff = false;
+    }
+
+    public void OnAnimationEnd()
+    {
+        state.OnBlockedAnimationEnd(action);
     }
 
     public void OnJumpAttackEnd()

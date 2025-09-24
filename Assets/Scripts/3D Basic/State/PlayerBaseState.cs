@@ -16,7 +16,8 @@ public enum PlayerAnimState
     Kick,   //11
     Shield, //12
     Dead,    //13
-    Hit     //14
+    Hit,     //14
+    AttackBlocked     //15
 }
 
 public abstract class PlayerBaseState : IPlayerState

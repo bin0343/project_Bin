@@ -398,12 +398,23 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     {
         isPerformingAction = true;
 
+        var defensePart = GetComponentInChildren<Weapon_EnemyDefense>();
+        if (defensePart != null)
+        {
+            defensePart.SetActiveDefense(true);
+        }
+
         animator.SetTrigger("IsShield");
 
         yield return new WaitForSeconds(2.0f);  //방패 들고 있을 시간.
 
+        if (defensePart != null)
+        {
+            defensePart.SetActiveDefense(false);
+        }
+
         //animator.SetTrigger("ShieldEnd"); //쉴드 내리는거(선택사항)
-        isPerformingAction= false;
+        isPerformingAction = false;
     }
 
     #region Attack Reaction
@@ -549,6 +560,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         float knockTime = 0.3f;
         float elapsed = 0f;
 
+        
+
         if (Shared.MainCamera != null)
         {
             yield return null;
@@ -563,5 +576,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         }
 
         navAgent.isStopped = false;
+        yield return new WaitForSeconds(1.5f);
     }
 }
