@@ -26,7 +26,14 @@ public enum AI
     AI_RESET
 }
 
-
+public enum STAT
+{
+    STAT_HP,
+    STAT_ATK,
+    STAT_CRI,
+    STAT_RATE,
+    STAT_END
+}
 
 public enum BULLET
 {

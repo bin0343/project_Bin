@@ -5,6 +5,17 @@ using UnityEngine;
 
 public class Player_Stat : MonoBehaviour
 {
+   /* STAT[] stat = new float[(int)STAT.STAT_END];   //스탯 관련 - enum을 쓰는 이유
+    public void SetStat(STAT _e, float _value)
+    {
+        stat[(int)_e] = _e;
+    }
+    public float GetStat(STAT _e)
+    {
+        return STAT[(int)_e];
+    }*/
+    
+
     public int level = 1;
     public int exp = 0;
     public int levelUpExp = 100;

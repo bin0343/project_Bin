@@ -7,6 +7,7 @@ public class Weapon_Player : MonoBehaviour
 {
     public int weaponAttackPower = 3;
     public bool hasHit = false;
+    private AttackData attackData;
 
     void Awake()
     {

@@ -73,14 +73,4 @@ public class Enemy_Stat : MonoBehaviour
         if (hpBar != null)
             hpBar.UpdateHpBar();
     }
-
-    private void Stun()
-    {
-        if (enemyBase.slashTrail != null)
-        {
-            enemyBase.slashTrail.emitting = false;
-        }
-        animator.SetTrigger("IsStun");
-        
-    }
 }

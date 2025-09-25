@@ -23,16 +23,13 @@ public class Weapon_Brute : MonoBehaviour
             hasHit = true;
             Debug.Log("몬스터: 공격이 방패에 막혔다!");
 
-            // 부모(EnemyBase)에게 공격이 막혔다고 알림
             if (enemyBase != null)
             {
                 enemyBase.OnAttackParried();
             }
 
-            // 플레이어의 방패에게 방어 성공 리액션을 하라고 알림
             shield.OnParrySuccess();
 
-            // 방패에 막혔으므로 데미지 로직은 실행하지 않고 종료
             return;
         }
         if (other.CompareTag("Player"))

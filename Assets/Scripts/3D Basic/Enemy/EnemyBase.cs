@@ -16,14 +16,8 @@ public enum BattleAction
 {
     Waiting,    // 행동 결정 대기
     Attacking,
-    Shielding
-}
-
-public enum HitEffectType
-{
-    Stun,
-    Slow,
-    Knockback
+    Shielding,
+    Avoiding
 }
 
 public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한 요소
@@ -33,6 +27,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     private bool isPerformingAction = false;
 
     public float shieldProbability = 0.8f;      //플레이어가 공격시 쉴드 확률
+    public float avoidProbability = 0.5f;
 
     protected Animator animator;
 
@@ -145,6 +140,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     #region Idle
     protected virtual void Idle()
     {
+        if (slashTrail != null) slashTrail.emitting = false;
         animator.SetBool("IsIdle", true);
         animator.SetBool("IsMoving", false);
 
@@ -169,6 +165,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     {
         if (isAttacking) return;
 
+        if (slashTrail != null) slashTrail.emitting = false;
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
@@ -207,6 +204,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             return;
         }
 
+        if (slashTrail != null) slashTrail.emitting = false;
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
@@ -369,13 +367,22 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     }
     #endregion
 
+    #region Battle
     private void ChooseNextAction()
     {
+        if (playerAction.IsAttacking && Random.value < avoidProbability)
+        {
+            currentBattleAction = BattleAction.Avoiding;
+            return;
+        }
+        //순서 바꾸면 우선순위 바뀜.
         if (playerAction.IsAttacking && Random.value < shieldProbability)
         {
             currentBattleAction = BattleAction.Shielding;
             return;
         }
+        
+        
 
         if (Time.time >= lastAttackTime + attackDelay)
         {
@@ -395,7 +402,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 StartCoroutine(AttackCoroutine());
                 break;
             case BattleAction.Shielding:
-                StartCoroutine (ShieldCoroutine());
+                StartCoroutine(ShieldCoroutine());
+                break;
+            case BattleAction.Avoiding:
+                StartCoroutine(AvoidCoroutine());
                 break;
             case BattleAction.Waiting:
                 break;
@@ -417,6 +427,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     IEnumerator ShieldCoroutine()
     {
         isPerformingAction = true;
+        if (slashTrail != null) slashTrail.emitting = false;
 
         var defensePart = GetComponentInChildren<Weapon_EnemyDefense>();
         if (defensePart != null)
@@ -433,9 +444,54 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             defensePart.SetActiveDefense(false);
         }
 
-        //animator.SetTrigger("ShieldEnd"); //쉴드 내리는거(선택사항)
         isPerformingAction = false;
     }
+
+    IEnumerator AvoidCoroutine()
+    {
+        isPerformingAction = true;
+        if (slashTrail != null) slashTrail.emitting = false;
+
+        animator.SetTrigger("IsAvoiding");
+
+        float avoidDuration = 0.8f; // 전체 점프 시간
+        float avoidDistance = 5.0f; // 점프 거리
+        float jumpHeight = 0.6f;    // 점프의 최대 높이
+
+        Vector3 startPos = transform.position;
+        Vector3 endPos = transform.position + (transform.position - target.position).normalized * avoidDistance;
+
+        float elapsed = 0f;
+
+        if (navAgent.enabled)
+        {
+            navAgent.enabled = false;
+        }
+
+        while (elapsed < avoidDuration)
+        {
+            float progress = elapsed / avoidDuration;
+
+            Vector3 horizontalPosition = Vector3.Lerp(startPos, endPos, progress);
+
+            float verticalPosition = jumpHeight * Mathf.Sin(progress * Mathf.PI);
+
+            transform.position = horizontalPosition + new Vector3(0, verticalPosition, 0);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = new Vector3(endPos.x, startPos.y, endPos.z);
+
+        if (!navAgent.enabled)
+        {
+            navAgent.enabled = true;
+        }
+
+        isPerformingAction = false;
+    }
+    #endregion
 
     #region Attack Reaction
     public void OnAttackParried()
@@ -455,6 +511,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     }
     #endregion
 
+    #region Stun
     public void EnterStunState(float duration)
     {
         // 이미 스턴 중이거나 죽었다면 중복 실행 방지
@@ -474,7 +531,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         Debug.Log("STUN 상태 진입: " + duration + "초 동안 행동 불가");
     }
 
-    // STUN 상태일 때 FixedUpdate에서 실행될 로직
     protected virtual void StunStateLogic()
     {
         stunTimer += Time.deltaTime;
@@ -495,6 +551,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             }
         }
     }
+    #endregion
 
     protected virtual void SetRandomMoveTarget()
     {
@@ -558,15 +615,9 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     private void OnTriggerEnter(Collider other)
     {
-        //if (IsDead) return;
 
         if (!isDead && other.gameObject.CompareTag("Player_Foot"))
         {
-            /*animator.SetTrigger("IsStun");
-            if (slashTrail != null)
-            {
-                slashTrail.emitting = false;
-            }*/
             EnterStunState(1.5f);
             Debug.Log("공격당함");
             return;
@@ -621,8 +672,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     public IEnumerator ApplyKnockback()
     {
-        //navAgent.isStopped = true;
-
         Vector3 knockDir = (transform.position - target.position).normalized; // 플레이어 반대 방향
         float knockForce = 10f;
         float knockTime = 0.3f;
@@ -645,6 +694,5 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         }
 
         navAgent.enabled = true;
-        //yield return new WaitForSeconds(1.5f);
     }
 }
