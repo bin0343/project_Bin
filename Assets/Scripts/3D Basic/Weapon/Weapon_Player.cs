@@ -22,17 +22,26 @@ public class Weapon_Player : MonoBehaviour
         if (enemyDefense != null)
         {
             hasHit = true;
-            Debug.Log("플레이어: 공격이 몬스터의 무기에 막혔다!");
+            Player_Action playerAction = GetComponentInParent<Player_Action>();
+            bool isGuardBreak = (playerAction.currentState is PlayerRunningAttackState);
 
-            GetComponentInParent<Player_Action>()?.OnAttackBlocked();
-
-            // 몬스터에게 방어 성공 리액션을 하라고 알림
-            enemyDefense.OnParrySuccess();
-
-            // (선택) 플레이어도 공격이 튕기는 리액션을 할 수 있음
-            // GetComponentInParent<Player_Action>()?.PlayAttackBlockedReaction();
-
-            // 막혔으므로 데미지 로직을 실행하지 않고 함수 종료
+            if (isGuardBreak)
+            {
+                EnemyBase enemyBase = other.GetComponentInParent<EnemyBase>();
+                if (enemyBase != null)
+                {
+                    // 2. 넉백과 함께 스턴 상태로 만듦
+                    //enemyBase.EnterStunState(1.5f);
+                    enemyBase.StartCoroutine(enemyBase.ApplyKnockback());
+                }
+            }
+            else
+            {
+                // [일반 공격일 때] -> 그냥 막힘 (기존 로직)
+                Debug.Log("플레이어: 공격이 몬스터의 무기에 막혔다!");
+                playerAction?.OnAttackBlocked();
+                enemyDefense.OnParrySuccess();
+            }
             return;
         }
 

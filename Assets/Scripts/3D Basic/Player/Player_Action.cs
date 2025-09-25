@@ -51,6 +51,7 @@ public class Player_Action : MonoBehaviour
         animEvents = player.GetComponent<Player_AnimationEvents>();
         skillUIManagers = FindObjectOfType<UI_SkillManager>();
         shield = player.GetComponentInChildren<Shield_Player>();
+        attackHitbox = GetComponentInChildren<PlayerAttackHitbox>(true);
 
         targetingController = GetComponent<SkillTargetingController>();
         if (targetingController != null)
@@ -228,13 +229,18 @@ public class Player_Action : MonoBehaviour
     public void OnAttackBlocked()
     {
         // 이미 막혔거나, 죽었거나, 다른 리액션 중일 때는 무시
-        if (currentState is PlayerAttackBlockState || currentState is PlayerHitState || IsDead)
+        if (currentState is PlayerHitState || IsDead)
         {
             return;
         }
 
         Debug.Log("공격이 막힘! 상태를 AttackBlocked로 변경합니다.");
-        ChangeState(new PlayerAttackBlockState());
+        ChangeState(new PlayerIdleState());
+
+        // 2. 공격 관련 상태들을 확실하게 정리해줍니다.
+        IsAttacking = false;
+        attackHitbox?.DisableAttackHitbox();
+        animEvents?.EndAttackTrail();
     }
 
     public void StartGuarding()

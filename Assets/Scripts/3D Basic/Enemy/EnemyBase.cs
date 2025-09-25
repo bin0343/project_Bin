@@ -8,6 +8,7 @@ public enum ENEMYSTATE
     MOVE,
     SEARCH,
     BATTLE,
+    STUN,
     DEAD
 }
 
@@ -49,6 +50,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     public float attackRange = 3f;
     private float attackDelay = 1.0f;
     private float lastAttackTime = 0f;
+    private float stunDuration = 1.5f;
+    private float stunTimer = 0f;
 
     private NavMeshAgent navAgent;
     private Enemy_Stat stat;
@@ -128,6 +131,9 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             case ENEMYSTATE.BATTLE:
                 Battle();
                 break;
+            case ENEMYSTATE.STUN:
+                StunStateLogic();
+                break;
             case ENEMYSTATE.DEAD:
                 Dead();
                 break;
@@ -204,15 +210,21 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
-        navAgent.stoppingDistance = attackRange * 0.9f;
-        navAgent.SetDestination(target.position);
+        if (navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.stoppingDistance = attackRange * 0.9f;
+            navAgent.SetDestination(target.position);
+        }
 
         float distance = Vector3.Distance(transform.position, target.position);
 
         if (distance > searchRange + 3f)
         {
             target = null;
-            navAgent.ResetPath();
+            if (navAgent.enabled && navAgent.isOnNavMesh)
+            {
+                navAgent.ResetPath();
+            }
             currentState = ENEMYSTATE.IDLE;
             idleTimer = 0f;
             return;
@@ -220,8 +232,11 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         if (distance <= attackRange)
         {
-            navAgent.ResetPath();
-            currentState= ENEMYSTATE.BATTLE;
+            if (navAgent.enabled && navAgent.isOnNavMesh)
+            {
+                navAgent.ResetPath();
+            }
+            currentState = ENEMYSTATE.BATTLE;
             return;
         }
     }
@@ -230,6 +245,11 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     #region Battle
     protected virtual void Battle()
     {
+        if (isPerformingAction)
+        {
+            return;
+
+        }
         if (target == null || playerAction == null || playerAction.IsDead)
         {
             if (slashTrail != null)
@@ -435,6 +455,47 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     }
     #endregion
 
+    public void EnterStunState(float duration)
+    {
+        // 이미 스턴 중이거나 죽었다면 중복 실행 방지
+        if (currentState == ENEMYSTATE.STUN || isDead) return;
+
+        currentState = ENEMYSTATE.STUN;
+        stunDuration = duration;
+        stunTimer = 0f; // 타이머 초기화
+
+        // 현재 하던 모든 행동을 즉시 중단
+        isPerformingAction = false;
+        StopAllCoroutines();
+        if (slashTrail != null) slashTrail.emitting = false;
+        if (navAgent.isOnNavMesh) navAgent.isStopped = true;
+
+        animator.SetTrigger("IsStun");
+        Debug.Log("STUN 상태 진입: " + duration + "초 동안 행동 불가");
+    }
+
+    // STUN 상태일 때 FixedUpdate에서 실행될 로직
+    protected virtual void StunStateLogic()
+    {
+        stunTimer += Time.deltaTime;
+        if (stunTimer >= stunDuration)
+        {
+            // 스턴 시간이 끝나면 다시 움직일 수 있도록 준비
+            if (navAgent.isOnNavMesh) navAgent.isStopped = false;
+
+            // 상황에 맞는 다음 상태로 자연스럽게 전환
+            float distance = Vector3.Distance(transform.position, target.position);
+            if (distance <= attackRange)
+            {
+                currentState = ENEMYSTATE.BATTLE;
+            }
+            else
+            {
+                currentState = ENEMYSTATE.SEARCH;
+            }
+        }
+    }
+
     protected virtual void SetRandomMoveTarget()
     {
         Vector2 randomCircle = Random.insideUnitCircle * moveRadius;
@@ -448,7 +509,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     protected virtual void DetectPlayer()
     {
-        if (currentState == ENEMYSTATE.BATTLE) return; 
+        if (currentState == ENEMYSTATE.STUN || currentState == ENEMYSTATE.DEAD || currentState == ENEMYSTATE.BATTLE)
+        {
+            return;
+        }
 
         if (target == null)
         {
@@ -462,7 +526,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                     if (dist <= searchRange)
                     {
                         target = found.transform;
-                        navAgent.SetDestination(target.position);
+                        if (navAgent.enabled && navAgent.isOnNavMesh)
+                        {
+                            navAgent.SetDestination(target.position);
+                        }
                         currentState = ENEMYSTATE.SEARCH;
                     }
                 }
@@ -495,11 +562,12 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         if (!isDead && other.gameObject.CompareTag("Player_Foot"))
         {
-            animator.SetTrigger("IsStun");
+            /*animator.SetTrigger("IsStun");
             if (slashTrail != null)
             {
                 slashTrail.emitting = false;
-            }
+            }*/
+            EnterStunState(1.5f);
             Debug.Log("공격당함");
             return;
         }
@@ -553,7 +621,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     public IEnumerator ApplyKnockback()
     {
-        navAgent.isStopped = true;
+        //navAgent.isStopped = true;
 
         Vector3 knockDir = (transform.position - target.position).normalized; // 플레이어 반대 방향
         float knockForce = 10f;
@@ -570,12 +638,13 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         while (elapsed < knockTime)
         {
+            navAgent.enabled = false;
             transform.position += knockDir * knockForce * Time.deltaTime;
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        navAgent.isStopped = false;
-        yield return new WaitForSeconds(1.5f);
+        navAgent.enabled = true;
+        //yield return new WaitForSeconds(1.5f);
     }
 }

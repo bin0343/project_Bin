@@ -53,10 +53,10 @@ public class Enemy_Stat : MonoBehaviour
                 case AttackType.None:
                     break;
                 case AttackType.Normal:
-                    Stun();
+                    enemyBase.EnterStunState(1.5f);
                     break;
                 case AttackType.Knockback:
-                    Stun();
+                    enemyBase.EnterStunState(1.5f);
                     StartCoroutine(enemyBase.ApplyKnockback());
                     break;
             }
