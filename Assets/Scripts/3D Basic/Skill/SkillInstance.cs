@@ -43,7 +43,9 @@ public class SkillInstance : MonoBehaviour
         switch (data.skillType)
         {
             case SKILLTYPE.Buff:
-                stat.attackPower += data.attackIncreaseAmount;
+                float currentAttack = stat.GetStat(STAT.Attack);
+                float newAttack = currentAttack + data.attackIncreaseAmount;
+                stat.SetStat(STAT.Attack, newAttack);
                 user.GetComponent<MonoBehaviour>().StartCoroutine(RemoveBuffAfterDuration(stat, data.attackIncreaseAmount, data.duration));
                 break;
 
@@ -58,6 +60,8 @@ public class SkillInstance : MonoBehaviour
     private IEnumerator RemoveBuffAfterDuration(Player_Stat stat, int amount, float duration)
     {
         yield return new WaitForSeconds(duration);
-        stat.attackPower -= amount;
+        float currentAttack = stat.GetStat(STAT.Attack);
+        float originalAttack = currentAttack - amount;
+        stat.SetStat(STAT.Attack, originalAttack);
     }
 }

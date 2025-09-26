@@ -8,15 +8,15 @@ public class MonsterHpBar : MonoBehaviour
     public Transform target;  // 머리 위치 (예: 몬스터 머리본 Transform)
     public Vector3 offset = new Vector3(0, 2f, 0); // 머리 위로 띄우는 오프셋
     private Camera cam;
-    public Image HpBarFront; // 체력바 fill 이미지 (UI에서 할당)
-    public Text DamageText;
-    private Enemy_Stat Stat; // 연동할 몬스터 스탯
+    public Image hpBarFront; // 체력바 fill 이미지 (UI에서 할당)
+    public Text damageText;
+    private Enemy_Stat stat; // 연동할 몬스터 스탯
 
     private Coroutine hpChangeCoroutine;
 
     void Start()
     {
-        Stat = GetComponentInParent<Enemy_Stat>();
+        stat = GetComponentInParent<Enemy_Stat>();
         cam = Camera.main;
     }
 
@@ -31,36 +31,36 @@ public class MonsterHpBar : MonoBehaviour
 
     public void Setup(Enemy_Stat stat)
     {
-        Stat = stat;
-        HpBarFront.fillAmount = (float)Stat.CurrentHP / Stat.MaxHP;
+        //stat = stat;
+        hpBarFront.fillAmount = (float)stat.currentHP / stat.maxHP;
     }
 
 
     public void UpdateHpBar()
     {
-        if (Stat != null && HpBarFront != null)
+        if (stat != null && hpBarFront != null)
         {
             if (hpChangeCoroutine != null)
                 StopCoroutine(hpChangeCoroutine);
 
-            float targetFillAmount = (float)Stat.CurrentHP / Stat.MaxHP;
+            float targetFillAmount = (float)stat.currentHP / stat.maxHP;
             hpChangeCoroutine = StartCoroutine(AnimateImageFill(targetFillAmount));
         }
     }
 
     private IEnumerator AnimateImageFill(float targetValue)
     {
-        float startValue = HpBarFront.fillAmount;
+        float startValue = hpBarFront.fillAmount;
         float elapsed = 0f;
         float duration = 0.3f; // 애니메이션 시간 (0.3초)
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            HpBarFront.fillAmount = Mathf.Lerp(startValue, targetValue, elapsed / duration);
+            hpBarFront.fillAmount = Mathf.Lerp(startValue, targetValue, elapsed / duration);
             yield return null; // 다음 프레임까지 대기
         }
 
-        HpBarFront.fillAmount = targetValue;
+        hpBarFront.fillAmount = targetValue;
     }
 }

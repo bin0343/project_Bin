@@ -12,13 +12,23 @@ public enum AttackType
 public class Enemy_Stat : MonoBehaviour
 {
     public string EnemyName;
-    public int MaxHP = 80;
-    public int CurrentHP = 80;
-
-    public int AttackPower = 8;
-    public int DefensePower = 3;
-
+    //public int MaxHP = 80;
     public int ExpReward = 50;
+    
+
+    //public int AttackPower = 8;
+    //public int DefensePower = 3;
+
+    public float[] stats = new float[(int)STAT.STAT_COUNT];
+
+    public void SetStat(STAT type, float value) { stats[(int)type] = value; }
+    public float GetStat(STAT type) { return stats[(int)type]; }
+
+    public int maxHP { get { return (int)GetStat(STAT.HP); } }
+    public int attackPower { get { return (int)GetStat(STAT.Attack); } }
+    public int defensePower { get { return (int)GetStat(STAT.Defense); } }
+
+    public int currentHP = 80;
     public MonsterHpBar hpBar;
     private Canvas myCanvas;
 
@@ -39,28 +49,16 @@ public class Enemy_Stat : MonoBehaviour
         enemyBase = GetComponent<EnemyBase>();
         animator = GetComponentInChildren<Animator>();
         enemyAnimation = GetComponentInChildren<Enemy_AnimationEvent>();
+        currentHP = maxHP;
     }
 
     public void TakeDamage(int damage, AttackType type)
     {
-        CurrentHP -= damage;
-        CurrentHP = Mathf.Max(CurrentHP, 0);
+        if (enemyBase.isDead) return;
 
-        if (CurrentHP > 0 && damage >= 1)
-        {
-            switch (type)
-            {
-                case AttackType.None:
-                    break;
-                case AttackType.Normal:
-                    enemyBase.EnterStunState(1.5f);
-                    break;
-                case AttackType.Knockback:
-                    enemyBase.EnterStunState(1.5f);
-                    StartCoroutine(enemyBase.ApplyKnockback());
-                    break;
-            }
-        }
+        int prevHP = currentHP;
+        currentHP -= damage;
+        currentHP = Mathf.Max(currentHP, 0);
         
         if (DamageTextSpawner.instance != null)
         {
@@ -72,5 +70,10 @@ public class Enemy_Stat : MonoBehaviour
 
         if (hpBar != null)
             hpBar.UpdateHpBar();
+
+        if (currentHP <= 0)
+        {
+            enemyBase.Dead(); // EnemyBase의 Dead 함수를 public으로 변경해야 합니다.
+        }
     }
 }

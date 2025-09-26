@@ -41,7 +41,7 @@ public class Weapon_Brute : MonoBehaviour
 
             if (playerStat != null && enemyStat != null)
             {
-                int damage = Mathf.Max(enemyStat.AttackPower + weaponAttackPower - playerStat.defensePower, 1);
+                int damage = Mathf.Max(enemyStat.attackPower + weaponAttackPower - playerStat.defensePower, 1);
                 playerStat.TakeDamage(damage);
                 Debug.Log($"플레이어가 {damage} 만큼 피해를 입음");
             }

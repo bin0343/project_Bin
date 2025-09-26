@@ -33,7 +33,7 @@ public class UI_MonsterUIManager : MonoBehaviour
         {
             float distance = Vector3.Distance(player.position, currentTarget.transform.position);
 
-            if (distance <= displayDistance && currentStat.CurrentHP > 0)
+            if (distance <= displayDistance && currentStat.currentHP > 0)
             {
                 if (!monsterHPPanel.gameObject.activeSelf)
                     monsterHPPanel.gameObject.SetActive(true);
@@ -57,7 +57,7 @@ public class UI_MonsterUIManager : MonoBehaviour
         currentTarget = monster;
         currentStat = monster.GetComponent<Enemy_Stat>();
 
-        hpSlider.value = (float)currentStat.CurrentHP / currentStat.MaxHP;
+        hpSlider.value = (float)currentStat.currentHP / currentStat.maxHP;
     }
 
     public void UpdateHPBar(int prevHP, int currentHP, int maxHP)

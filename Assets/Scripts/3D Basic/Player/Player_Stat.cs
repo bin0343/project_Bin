@@ -5,29 +5,42 @@ using UnityEngine;
 
 public class Player_Stat : MonoBehaviour
 {
-   /* STAT[] stat = new float[(int)STAT.STAT_END];   //스탯 관련 - enum을 쓰는 이유
-    public void SetStat(STAT _e, float _value)
+    public float[] baseStats = new float[(int)STAT.STAT_COUNT];
+    //private float[] baseStats = new float[(int)STAT.STAT_COUNT];
+    private float[] equipmentStats = new float[(int)STAT.STAT_COUNT];
+
+    public void SetStat(STAT type, float value)
     {
-        stat[(int)_e] = _e;
+        baseStats[(int)type] = value;
     }
-    public float GetStat(STAT _e)
+
+    public float GetStat(STAT type)
     {
-        return STAT[(int)_e];
-    }*/
-    
+        return baseStats[(int)type];
+    }
+    public void AddEquipmentStat(STAT type, float value)
+    {
+        equipmentStats[(int)type] += value;
+    }
+    public void RemoveEquipmentStat(STAT type, float value)
+    {
+        equipmentStats[(int)type] -= value;
+    }
+
+    public int maxHP { get { return (int)(GetStat(STAT.HP) + equipmentStats[(int)STAT.HP]); } }
+    public int maxMP { get { return (int)(GetStat(STAT.MP) + equipmentStats[(int)STAT.MP]); } }
+    public int attackPower { get { return (int)(GetStat(STAT.Attack) + equipmentStats[(int)STAT.Attack]); } }
+    public int defensePower { get { return (int)(GetStat(STAT.Defense) + equipmentStats[(int)STAT.Defense]); } }
 
     public int level = 1;
     public int exp = 0;
     public int levelUpExp = 100;
-
-    public int maxHP = 100;
+    //public int maxHP = 100;
     public int currentHP = 100;
-
-    public int maxMP = 100;
+    //public int maxMP = 100;
     public int currentMP = 100;
-
-    public int attackPower = 10;
-    public int defensePower = 5;
+    //public int attackPower = 10;
+    //public int defensePower = 5;
 
     private Canvas myCanvas;
 
@@ -39,6 +52,9 @@ public class Player_Stat : MonoBehaviour
     {
         myCanvas = GetComponentInChildren<Canvas>(true);
         action = GetComponent<Player_Action>();
+
+        currentHP = maxHP;
+        currentMP = maxMP;
     }
 
     public void TakeDamage(int damage)
@@ -89,8 +105,8 @@ public class Player_Stat : MonoBehaviour
         level++;
         levelUpExp *= 2;
 
-        maxHP += 10;
-        maxMP += 5;
+        SetStat(STAT.HP, GetStat(STAT.HP) + 10);
+        SetStat(STAT.MP, GetStat(STAT.MP) + 5);
         currentHP = maxHP;
         currentMP = maxMP;
 

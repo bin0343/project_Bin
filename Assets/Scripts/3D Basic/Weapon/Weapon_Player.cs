@@ -7,7 +7,6 @@ public class Weapon_Player : MonoBehaviour
 {
     public int weaponAttackPower = 3;
     public bool hasHit = false;
-    private AttackData attackData;
 
     void Awake()
     {
@@ -46,34 +45,41 @@ public class Weapon_Player : MonoBehaviour
             return;
         }
 
-        if (other.CompareTag("Enemy"))
+        if (other.TryGetComponent<Enemy_Stat>(out Enemy_Stat enemyStat))
         {
             hasHit = true;
 
-            Enemy_Stat enemyStat = other.GetComponent<Enemy_Stat>();
+            //Enemy_Stat enemyStat = other.GetComponent<Enemy_Stat>();
+            EnemyBase enemyBase = other.GetComponent<EnemyBase>();
             Player_Stat PlayerStat = GetComponentInParent<Player_Stat>();
             Player_Action playerAction = GetComponentInParent<Player_Action>();     //비동기, 유니테스크
 
-            if (enemyStat != null && PlayerStat != null && playerAction != null)
+            if (enemyStat != null && PlayerStat != null && playerAction != null && enemyBase != null)
             {
-                int damage = Mathf.Max(PlayerStat.attackPower + weaponAttackPower - enemyStat.DefensePower, 1);
-                if (playerAction.currentState is PlayerRunningAttackState)
+                int damage = Mathf.Max(PlayerStat.attackPower + weaponAttackPower - enemyStat.defensePower, 1);
+                AttackType currentAttackType;
+                if (playerAction.currentState is PlayerRunningAttackState || playerAction.currentComboStep == 3)
                 {
-                    // 1. 러닝 어택 처리
-                    enemyStat.TakeDamage(damage, AttackType.Knockback);
-                    Debug.Log($"[러닝 어택] 몬스터가 {damage} 만큼 피해를 입음");
-                }
-                else if (playerAction.currentComboStep == 3)
-                {
-                    // 2. 콤보 3타 처리
-                    enemyStat.TakeDamage(damage, AttackType.Knockback);
-                    Debug.Log($"[콤보 3타] 몬스터가 {damage} 만큼 피해를 입음");
+                    currentAttackType = AttackType.Knockback;
                 }
                 else
                 {
-                    // 3. 일반 공격(콤보 1, 2타 등) 처리
-                    enemyStat.TakeDamage(damage, AttackType.Normal);
-                    Debug.Log($"[일반 공격] 몬스터가 {damage} 만큼 피해를 입음");
+                    currentAttackType = AttackType.Normal;
+                }
+
+                // 3. Enemy_Stat에는 데미지만 전달하여 HP를 깎게 함
+                enemyStat.TakeDamage(damage, currentAttackType);
+
+                // 4. Weapon_Player가 직접 EnemyBase의 효과 함수를 호출 (핵심 변경점)
+                switch (currentAttackType)
+                {
+                    case AttackType.Normal:
+                        enemyBase.EnterStunState(1.5f);
+                        break;
+                    case AttackType.Knockback:
+                        enemyBase.EnterStunState(1.5f);
+                        StartCoroutine(enemyBase.ApplyKnockback());
+                        break;
                 }
             }
         }

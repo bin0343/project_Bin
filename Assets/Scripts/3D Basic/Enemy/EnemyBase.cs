@@ -105,12 +105,17 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     protected void FixedUpdate()
     {
-        ManageHpBarVisibility();
-        if (stat.CurrentHP <= 0)
+        
+        /*if (stat.currentHP <= 0 && !isDead)
         {
             Dead();
+        }*/
+        if (isDead)
+        {
             return;
         }
+
+        ManageHpBarVisibility();
 
         switch (currentState)
         {
@@ -327,43 +332,48 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     #endregion
 
     #region Dead
-    void Dead()
+    public void Dead()
     {
         if (isDead) return;
 
-        if (stat.CurrentHP <= 0)
+        isDead = true;
+        currentState = ENEMYSTATE.DEAD; // 상태를 DEAD로 전환
+        animator.SetTrigger("IsDie");   // 사망 애니메이션 재생
+
+        if (navAgent.enabled && navAgent.isOnNavMesh)
         {
-            animator.SetTrigger("IsDie");
-            isDead = true;
-            currentState = ENEMYSTATE.DEAD; // 상태 전이
             navAgent.isStopped = true;
-            navAgent.ResetPath(); // 이동 멈추기
-            slashTrail.emitting = false;
+            navAgent.ResetPath();
+        }
+        navAgent.enabled = false; // 죽은 후에는 NavMeshAgent를 완전히 꺼버리는 것이 안전합니다.
 
-            if (itemDropper != null)
+        if (slashTrail != null) slashTrail.emitting = false;
+
+        if (itemDropper != null)
+        {
+            itemDropper.GenerateLoot();
+        }
+
+        gameObject.tag = "Corpse"; // 태그 변경
+
+        if (hpBarObject != null)
+        {
+            hpBarObject.SetActive(false);
+        }
+
+        Collider col = GetComponent<Collider>();
+        if (col != null) col.isTrigger = true;
+
+        // 경험치 지급
+        if (target != null)
+        {
+            Player_Stat playerStat = target.GetComponent<Player_Stat>();
+            if (playerStat != null)
             {
-                itemDropper.GenerateLoot();
-            }
-
-            gameObject.tag = "Corpse";
-
-            if (hpBarObject != null)
-            {
-                hpBarObject.SetActive(false);
-            }
-
-            Collider col = GetComponent<Collider>();
-            if (col != null) col.isTrigger = true;
-
-            if (target != null)
-            {
-                Player_Stat playerStat = target.GetComponent<Player_Stat>();
-                if (playerStat != null)
-                {
-                    playerStat.GainExp(stat.ExpReward);
-                }
+                playerStat.GainExp(stat.ExpReward);
             }
         }
+        this.enabled = false;
     }
     #endregion
 

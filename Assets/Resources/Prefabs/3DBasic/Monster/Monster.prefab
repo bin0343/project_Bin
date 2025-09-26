@@ -65,11 +65,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnemyName: Brute
-  MaxHP: 30
-  CurrentHP: 30
-  AttackPower: 8
-  DefensePower: 3
   ExpReward: 50
+  stats:
+  - 80
+  - 0
+  - 8
+  - 3
+  currentHP: 80
   hpBar: {fileID: 0}
   damageTextOffset: {x: 0, y: 2.5, z: 0}
 --- !u!114 &4200508389218209283
@@ -84,10 +86,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31982cfd73082eb458c7fa1379275589, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsDead: 0
-  Target: {fileID: 0}
-  SearchRange: 10
-  AttackRange: 3
+  shieldProbability: 0.8
+  avoidProbability: 0.5
+  isAttacking: 0
+  isDead: 0
+  target: {fileID: 0}
+  searchRange: 10
+  attackRange: 3
   slashTrail: {fileID: 0}
   hpBarObject: {fileID: 8125778970120973617}
   hpBarVisibleRange: 12
@@ -136,7 +141,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
@@ -210,8 +215,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 4771388414845060857}
   offset: {x: 0, y: 0, z: 0}
-  HpBarFront: {fileID: 3316399665848963125}
-  DamageText: {fileID: 0}
+  hpBarFront: {fileID: 3316399665848963125}
+  damageText: {fileID: 0}
 --- !u!1 &7500191044979106418
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public partial class MainCamera : MonoBehaviour
 {
-    bool CameraShake = false;
+    //bool CameraShake = false;
 
     Transform ShakeTr;
     Vector3 baseLocalPos;
@@ -37,7 +37,7 @@ public partial class MainCamera : MonoBehaviour
     Vector3 OrgPos;
 
     float FovX = 0.2f;
-    float FovY = 0.2f;
+    //float FovY = 0.2f;
 
     private void Awake()
     {
@@ -52,13 +52,13 @@ public partial class MainCamera : MonoBehaviour
     {
         ShakeTr = transform.parent;
         baseLocalPos = ShakeTr.localPosition;
-        CameraShake = false;
+        //CameraShake = false;
     }
 
     protected void ResetShakeTr()
     {
         ShakeTr.localPosition = baseLocalPos;
-        CameraShake = false;
+        //CameraShake = false;
 
         CameraLimit();
     }
@@ -113,7 +113,7 @@ public partial class MainCamera : MonoBehaviour
 
     IEnumerator ShakeCoroutine()
     {
-        CameraShake = true;
+        //CameraShake = true;
 
         float dt, dist;
 
@@ -172,7 +172,7 @@ public partial class MainCamera : MonoBehaviour
 
         // 코루틴 종료 후 카메라 위치를 원래 위치로 확실히 되돌립니다.
         ShakeTr.localPosition = baseLocalPos;
-        CameraShake = false;
+        //CameraShake = false;
 
         yield break;
     }

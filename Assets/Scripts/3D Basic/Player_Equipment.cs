@@ -8,17 +8,11 @@ public class Player_Equipment : MonoBehaviour
 
     public ItemHolder[] equipmentSlots = new ItemHolder[System.Enum.GetValues(typeof(EquipmentType)).Length];
 
-    // REMOVED: 멤버 변수로 저장하지 않습니다.
-    // private Player_Stat playerStat;
-
     private void Awake()
     {
         if (instance != null && instance != this) Destroy(gameObject);
         instance = this;
     }
-
-    // REMOVED: Start에서 playerStat을 미리 찾아두지 않습니다.
-    // private void Start() { ... }
 
     public void Equip(ItemHolder itemToEquip, SlotType sourceType, int sourceIndex)
     {
@@ -51,8 +45,8 @@ public class Player_Equipment : MonoBehaviour
         }
 
         // 스탯 적용
-        stat.attackPower += equipmentData.attackBonus;
-        stat.defensePower += equipmentData.defenseBonus;
+        stat.AddEquipmentStat(STAT.Attack, equipmentData.attackBonus);
+        stat.AddEquipmentStat(STAT.Defense, equipmentData.defenseBonus);
         Debug.Log($"{equipmentData.itemName}을(를) 장착했습니다.");
 
         RefreshUI();
@@ -77,8 +71,8 @@ public class Player_Equipment : MonoBehaviour
             if (equipmentData != null)
             {
                 // 스탯 해제
-                stat.attackPower -= equipmentData.attackBonus;
-                stat.defensePower -= equipmentData.defenseBonus;
+                stat.RemoveEquipmentStat(STAT.Attack, equipmentData.attackBonus);
+                stat.RemoveEquipmentStat(STAT.Defense, equipmentData.defenseBonus);
             }
 
             equipmentSlots[slotIndex] = null;

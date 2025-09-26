@@ -10,7 +10,7 @@ public class Enemy_HpBar : MonoBehaviour
 
     public void UpdateStatus(Enemy_Stat stat)
     {
-        HpSlider.value = (float)stat.CurrentHP / stat.MaxHP;
+        HpSlider.value = (float)stat.currentHP / stat.maxHP;
         EnemyName.text = stat.EnemyName;
     }
 }

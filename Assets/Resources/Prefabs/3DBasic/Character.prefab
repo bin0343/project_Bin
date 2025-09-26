@@ -435,15 +435,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb5f328cca299644680fd1d67a023edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseStats:
+  - 100
+  - 100
+  - 10
+  - 5
   level: 1
   exp: 0
   levelUpExp: 100
-  maxHP: 100
   currentHP: 100
-  maxMP: 100
   currentMP: 100
-  attackPower: 10
-  defensePower: 5
   damageTextOffset: {x: 0, y: 2.5, z: 0}
 --- !u!114 &6854339425477246251
 MonoBehaviour:
@@ -468,6 +469,7 @@ MonoBehaviour:
   targetingController: {fileID: 0}
   stat: {fileID: 0}
   skillUIManagers: {fileID: 0}
+  shield: {fileID: 0}
   IsGrounded: 1
   IsDead: 0
   IsKick: 0
