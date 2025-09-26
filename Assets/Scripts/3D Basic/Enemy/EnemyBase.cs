@@ -26,8 +26,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     private BattleAction currentBattleAction = BattleAction.Waiting;
     private bool isPerformingAction = false;
 
-    public float shieldProbability = 0.8f;      //플레이어가 공격시 쉴드 확률
-    public float avoidProbability = 0.5f;
+    public float shieldProbability = 0.3f;      //플레이어가 공격시 쉴드 확률
+    public float avoidProbability = 0.8f;
 
     protected Animator animator;
 
@@ -53,7 +53,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     [SerializeField] public TrailRenderer slashTrail;
     private Player_Action playerAction;
 
-    private ItemDrop itemDropper;
+    public ItemDrop itemDropper;
 
     [Header("UI 설정")]
     public GameObject hpBarObject; // 몬스터 체력바 캔버스 오브젝트
@@ -145,7 +145,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     #region Idle
     protected virtual void Idle()
     {
-        if (slashTrail != null) slashTrail.emitting = false;
         animator.SetBool("IsIdle", true);
         animator.SetBool("IsMoving", false);
 
@@ -170,7 +169,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     {
         if (isAttacking) return;
 
-        if (slashTrail != null) slashTrail.emitting = false;
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
@@ -209,7 +207,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             return;
         }
 
-        if (slashTrail != null) slashTrail.emitting = false;
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
@@ -255,10 +252,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         }
         if (target == null || playerAction == null || playerAction.IsDead)
         {
-            if (slashTrail != null)
-            {
-                slashTrail.emitting = false;
-            }
             currentState = ENEMYSTATE.IDLE;
             return;
         }
@@ -267,10 +260,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         if (distance >= attackRange)
         {
-            if (slashTrail != null)
-            {
-                slashTrail.emitting = false;
-            }
             isPerformingAction = false;
             currentState = ENEMYSTATE.SEARCH;
             return;
@@ -288,96 +277,14 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             return;
         }
 
-        //bool IsAttack = stateInfo.IsName("Brute Attack");
-        //float AniTime = stateInfo.normalizedTime;
-
         animator.SetBool("IsMoving", false);
-
-        /*if (IsAttack && AniTime < 1f)
-        {
-            isAttacking = true;
-            return;
-        }*/
-
-        /*if (IsAttack && AniTime >= 1f)
-        {
-            isAttacking = false;
-
-            if (distance >= attackRange)
-            {
-                currentState = ENEMYSTATE.SEARCH;
-                return;
-            }
-
-            // 쿨타임이 끝났으면 다음 공격
-            if (Time.time >= lastAttackTime + attackDelay)
-            {
-                animator.SetTrigger("IsAttack");
-                lastAttackTime = Time.time;
-                return;
-            }
-        }*/
-
-        /*if (!IsAttack && Time.time >= lastAttackTime + attackDelay)
-        {
-            animator.SetTrigger("IsAttack");
-            lastAttackTime = Time.time;
-        }*/
 
         if (isPerformingAction) return;
 
         ChooseNextAction();
         ExecuteAction();
     }
-    #endregion
 
-    #region Dead
-    public void Dead()
-    {
-        if (isDead) return;
-
-        isDead = true;
-        currentState = ENEMYSTATE.DEAD; // 상태를 DEAD로 전환
-        animator.SetTrigger("IsDie");   // 사망 애니메이션 재생
-
-        if (navAgent.enabled && navAgent.isOnNavMesh)
-        {
-            navAgent.isStopped = true;
-            navAgent.ResetPath();
-        }
-        navAgent.enabled = false; // 죽은 후에는 NavMeshAgent를 완전히 꺼버리는 것이 안전합니다.
-
-        if (slashTrail != null) slashTrail.emitting = false;
-
-        if (itemDropper != null)
-        {
-            itemDropper.GenerateLoot();
-        }
-
-        gameObject.tag = "Corpse"; // 태그 변경
-
-        if (hpBarObject != null)
-        {
-            hpBarObject.SetActive(false);
-        }
-
-        Collider col = GetComponent<Collider>();
-        if (col != null) col.isTrigger = true;
-
-        // 경험치 지급
-        if (target != null)
-        {
-            Player_Stat playerStat = target.GetComponent<Player_Stat>();
-            if (playerStat != null)
-            {
-                playerStat.GainExp(stat.ExpReward);
-            }
-        }
-        this.enabled = false;
-    }
-    #endregion
-
-    #region Battle
     private void ChooseNextAction()
     {
         if (playerAction.IsAttacking && Random.value < avoidProbability)
@@ -391,8 +298,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             currentBattleAction = BattleAction.Shielding;
             return;
         }
-        
-        
+
+
 
         if (Time.time >= lastAttackTime + attackDelay)
         {
@@ -437,30 +344,28 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     IEnumerator ShieldCoroutine()
     {
         isPerformingAction = true;
-        if (slashTrail != null) slashTrail.emitting = false;
-
-        var defensePart = GetComponentInChildren<Weapon_EnemyDefense>();
+        //navAgent.isStopped = true;
+        /*var defensePart = GetComponentInChildren<Weapon_EnemyDefense>();
         if (defensePart != null)
         {
             defensePart.SetActiveDefense(true);
-        }
+        }*/
 
         animator.SetTrigger("IsShield");
 
         yield return new WaitForSeconds(2.0f);  //방패 들고 있을 시간.
 
-        if (defensePart != null)
+        /*if (defensePart != null)
         {
             defensePart.SetActiveDefense(false);
-        }
-
+        }*/
+        //navAgent.isStopped = false;
         isPerformingAction = false;
     }
 
     IEnumerator AvoidCoroutine()
     {
         isPerformingAction = true;
-        if (slashTrail != null) slashTrail.emitting = false;
 
         animator.SetTrigger("IsAvoiding");
 
@@ -503,19 +408,57 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     }
     #endregion
 
+    #region Dead
+    public void Dead()
+    {
+        Debug.LogError($"--- {gameObject.name}의 Dead() 함수가 호출되었습니다! ---");
+        if (isDead) return;
+
+        isDead = true;
+        currentState = ENEMYSTATE.DEAD; // 상태를 DEAD로 전환
+        animator.SetTrigger("IsDie");   // 사망 애니메이션 재생
+
+        if (navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = true;
+            navAgent.ResetPath();
+        }
+        navAgent.enabled = false; // 죽은 후에는 NavMeshAgent를 완전히 꺼버리는 것이 안전합니다.
+
+        if (itemDropper != null)
+        {
+            itemDropper.GenerateLoot();
+        }
+
+        gameObject.tag = "Corpse"; // 태그 변경
+
+        if (hpBarObject != null)
+        {
+            hpBarObject.SetActive(false);
+        }
+
+        Collider col = GetComponent<Collider>();
+        if (col != null) col.isTrigger = true;
+
+        // 경험치 지급
+        if (target != null)
+        {
+            Player_Stat playerStat = target.GetComponent<Player_Stat>();
+            if (playerStat != null)
+            {
+                playerStat.GainExp(stat.ExpReward);
+            }
+        }
+        this.enabled = false;
+    }
+    #endregion
+
     #region Attack Reaction
     public void OnAttackParried()
     {
         Debug.Log("몬스터: 무기가 튕겨나가는 애니메이션 재생!");
         animator.SetTrigger("IsParried");
 
-        if (slashTrail != null)
-        {
-            slashTrail.emitting = false;
-        }
-
-        // 현재 진행 중인 공격을 강제로 중단하고 싶을 때 사용
-        // 예: 공격 코루틴을 중단하거나, 공격 상태를 즉시 종료
         isAttacking = false; // IsAttacking 플래그가 있다면 초기화
         lastAttackTime = Time.time; // 다음 공격까지 잠시 딜레이를 줌
     }
@@ -525,7 +468,15 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     public void EnterStunState(float duration)
     {
         // 이미 스턴 중이거나 죽었다면 중복 실행 방지
-        if (currentState == ENEMYSTATE.STUN || isDead) return;
+        if (isDead) return;
+
+        if (currentState == ENEMYSTATE.STUN)
+        {
+            stunTimer = 0f;
+            animator.Play("Stun", 0, 0f); // 애니메이션을 처음부터 다시 재생하여 경직 효과를 명확히 보여줌
+            Debug.Log("스턴 갱신!");
+            return;
+        }
 
         currentState = ENEMYSTATE.STUN;
         stunDuration = duration;
@@ -534,7 +485,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         // 현재 하던 모든 행동을 즉시 중단
         isPerformingAction = false;
         StopAllCoroutines();
-        if (slashTrail != null) slashTrail.emitting = false;
+        //GetComponentInChildren<Weapon_EnemyDefense>(true)?.SetActiveDefense(false);
         if (navAgent.isOnNavMesh) navAgent.isStopped = true;
 
         animator.SetTrigger("IsStun");
@@ -635,18 +586,23 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         if (isDead && other.CompareTag("Player"))
         {
-            isPlayerNearby = true;
-            UI_Manager.Instance.ShowMessage("G : 시체확인");
+            Player_Action playerAction = other.GetComponent<Player_Action>();
+            if (playerAction != null)
+            {
+                playerAction.OnLootableCorpseEnter(itemDropper);
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        //if (!IsDead) return;
         if (isDead && other.CompareTag("Player"))
         {
-            isPlayerNearby = false;
-            UI_Manager.Instance.HideMessage();
+            Player_Action playerAction = other.GetComponent<Player_Action>();
+            if (playerAction != null)
+            {
+                playerAction.OnLootableCorpseExit();
+            }
         }
     }
 

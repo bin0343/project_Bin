@@ -12,12 +12,7 @@ public enum AttackType
 public class Enemy_Stat : MonoBehaviour
 {
     public string EnemyName;
-    //public int MaxHP = 80;
-    public int ExpReward = 50;
     
-
-    //public int AttackPower = 8;
-    //public int DefensePower = 3;
 
     public float[] stats = new float[(int)STAT.STAT_COUNT];
 
@@ -29,6 +24,7 @@ public class Enemy_Stat : MonoBehaviour
     public int defensePower { get { return (int)GetStat(STAT.Defense); } }
 
     public int currentHP = 80;
+    public int ExpReward = 50;
     public MonsterHpBar hpBar;
     private Canvas myCanvas;
 
@@ -75,5 +71,19 @@ public class Enemy_Stat : MonoBehaviour
         {
             enemyBase.Dead(); // EnemyBase의 Dead 함수를 public으로 변경해야 합니다.
         }
+
+        switch (type)
+        {
+            case AttackType.Normal:
+                enemyBase.EnterStunState(1.5f);
+                break;
+            case AttackType.Knockback:
+                enemyBase.EnterStunState(1.5f);
+                StartCoroutine(enemyBase.ApplyKnockback());
+                break;
+                // AttackType.None 이나 default는 아무 효과 없음
+        }
+
+        
     }
 }

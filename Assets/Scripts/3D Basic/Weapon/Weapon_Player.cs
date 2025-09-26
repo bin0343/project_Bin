@@ -50,11 +50,11 @@ public class Weapon_Player : MonoBehaviour
             hasHit = true;
 
             //Enemy_Stat enemyStat = other.GetComponent<Enemy_Stat>();
-            EnemyBase enemyBase = other.GetComponent<EnemyBase>();
+            //EnemyBase enemyBase = other.GetComponent<EnemyBase>();
             Player_Stat PlayerStat = GetComponentInParent<Player_Stat>();
             Player_Action playerAction = GetComponentInParent<Player_Action>();     //비동기, 유니테스크
 
-            if (enemyStat != null && PlayerStat != null && playerAction != null && enemyBase != null)
+            if (PlayerStat != null && playerAction != null)
             {
                 int damage = Mathf.Max(PlayerStat.attackPower + weaponAttackPower - enemyStat.defensePower, 1);
                 AttackType currentAttackType;
@@ -67,11 +67,9 @@ public class Weapon_Player : MonoBehaviour
                     currentAttackType = AttackType.Normal;
                 }
 
-                // 3. Enemy_Stat에는 데미지만 전달하여 HP를 깎게 함
                 enemyStat.TakeDamage(damage, currentAttackType);
 
-                // 4. Weapon_Player가 직접 EnemyBase의 효과 함수를 호출 (핵심 변경점)
-                switch (currentAttackType)
+                /*switch (currentAttackType)
                 {
                     case AttackType.Normal:
                         enemyBase.EnterStunState(1.5f);
@@ -80,7 +78,7 @@ public class Weapon_Player : MonoBehaviour
                         enemyBase.EnterStunState(1.5f);
                         StartCoroutine(enemyBase.ApplyKnockback());
                         break;
-                }
+                }*/
             }
         }
     }

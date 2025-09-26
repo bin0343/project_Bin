@@ -28,15 +28,16 @@ public class Player_Action : MonoBehaviour
     
     public UI_SkillManager skillUIManagers;
     public Shield_Player shield;
-
-    public bool IsGuarding { get; private set; } = false;
-    public bool IsGrounded = true;
-    public bool IsDead = false;
-    public bool IsKick = false;
-    public bool IsAttacking = false;
-    public bool IsBuff = false;
-
-    public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
+    private ItemDrop lootableCorpse;
+    
+    
+    [HideInInspector] public bool IsGuarding { get; private set; } = false;
+    [HideInInspector] public bool IsGrounded = true;
+    [HideInInspector] public bool IsDead = false;
+    [HideInInspector] public bool IsKick = false;
+    [HideInInspector] public bool IsAttacking = false;
+    [HideInInspector] public bool IsBuff = false;
+    [HideInInspector] public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
 
     public static event Action<Sprite, float> OnRunningAttackUsed;
     public IPlayerState currentState;
@@ -88,6 +89,19 @@ public class Player_Action : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            // 열려있는 확인창을 닫는 로직
+            if (UI_Loot.Instance.lootPanel.activeSelf)
+            {
+                UI_Loot.Instance.CloseLootPanel();
+            }
+            // 닫혀있고, 근처에 상호작용 가능한 시체가 있다면 확인창을 엶
+            else if (lootableCorpse != null)
+            {
+                UI_Loot.Instance.OpenLootPanel(lootableCorpse);
+            }
+        }
         if (stat.currentHP <= 0 && !(currentState is PlayerDeadState))
         {
             ChangeState(new PlayerDeadState());
@@ -298,6 +312,23 @@ public class Player_Action : MonoBehaviour
         }
     }
 
+    public void OnLootableCorpseEnter(ItemDrop itemDropper)
+    {
+        lootableCorpse = itemDropper;
+        UI_Manager.Instance.ShowMessage("G : 시체확인");
+    }
+
+    // 시체 범위에서 벗어났을 때 호출될 함수
+    public void OnLootableCorpseExit()
+    {
+        lootableCorpse = null;
+        UI_Manager.Instance.HideMessage();
+        // 만약 아이템창이 열려있다면 닫아주는 처리
+        if (UI_Loot.Instance.lootPanel.activeSelf)
+        {
+            UI_Loot.Instance.CloseLootPanel();
+        }
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
