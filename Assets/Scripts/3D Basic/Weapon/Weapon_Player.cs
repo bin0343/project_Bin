@@ -18,6 +18,7 @@ public class Weapon_Player : MonoBehaviour
         if (slashTrail == null) slashTrail = GetComponentInChildren<TrailRenderer>();
         GetComponent<Collider>().enabled = false;
         slashTrail.emitting = false;
+        DisableHitbox();
     }
 
     public void EnableHitbox()

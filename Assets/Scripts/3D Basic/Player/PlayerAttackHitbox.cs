@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerAttackHitbox : MonoBehaviour
 {
-    [SerializeField]
-    private Collider attackHitbox;
+    /*[SerializeField]
+    private Collider attackHitbox;*/
     [SerializeField]
     private Collider kickHitbox;
 
@@ -15,8 +15,9 @@ public class PlayerAttackHitbox : MonoBehaviour
     private void Awake()
     {
         weapon_Player = GetComponentInChildren<Weapon_Player>();
+        /*attackHitbox = GetComponentInChildren<Collider>();
         if (attackHitbox != null)
-            attackHitbox.enabled = false;
+            attackHitbox.enabled = false;*/
 
         if (kickHitbox != null)
             kickHitbox.enabled = false;
