@@ -5,17 +5,45 @@ using UnityEngine;
 
 public class Weapon_Player : MonoBehaviour
 {
-    public int weaponAttackPower = 3;
+    [Header("Weapon Components")]
+    [SerializeField] private Collider attackCollider;
+    [SerializeField] private TrailRenderer slashTrail;
+
+    public int weaponAttackPower = 3;   //아마 없애도 될듯?
     public bool hasHit = false;
 
     void Awake()
     {
+        if (attackCollider == null) attackCollider = GetComponent<Collider>();
+        if (slashTrail == null) slashTrail = GetComponentInChildren<TrailRenderer>();
         GetComponent<Collider>().enabled = false;
+        slashTrail.emitting = false;
+    }
+
+    public void EnableHitbox()
+    {
+        if (attackCollider != null) attackCollider.enabled = true;
+        hasHit = false;
+    }
+
+    public void DisableHitbox()
+    {
+        if (attackCollider != null) attackCollider.enabled = false;
+    }
+
+    public void StartTrail()
+    {
+        if (slashTrail != null) slashTrail.emitting = true;
+    }
+
+    public void StopTrail()
+    {
+        if (slashTrail != null) slashTrail.emitting = false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!GetComponent<Collider>().enabled || hasHit) return;
+        if (!attackCollider.enabled || hasHit) return;
         //if (hasHit) return;
 
         Weapon_EnemyDefense enemyDefense = other.GetComponent<Weapon_EnemyDefense>();

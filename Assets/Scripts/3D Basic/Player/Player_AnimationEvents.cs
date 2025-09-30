@@ -8,13 +8,14 @@ public class Player_AnimationEvents : MonoBehaviour
     Player_Move move;
     public Animator animator;
 
-    [Header("Attack Effect")]
-    [SerializeField] public TrailRenderer slashTrail;
+    /*[Header("Attack Effect")]
+    [SerializeField] public TrailRenderer slashTrail;*/
 
     void Start()
     {
         action = GetComponentInParent<Player_Action>();
-        slashTrail.emitting = false;
+        //slashTrail.emitting = false;
+        action.currentWeapon?.StopTrail();
     }
 
     public void KickEnd()
@@ -54,12 +55,22 @@ public class Player_AnimationEvents : MonoBehaviour
 
     public void StartAttackTrail()
     {
-        slashTrail.emitting = true;
+        action.currentWeapon?.StartTrail();
     }
 
     public void EndAttackTrail()
     {
-        slashTrail.emitting = false;
+        action.currentWeapon?.StopTrail();
+    }
+
+    public void EnableAttackHitbox()
+    {
+        action.currentWeapon?.EnableHitbox();
+    }
+
+    public void DisableAttackHitbox()
+    {
+        action.currentWeapon?.DisableHitbox();
     }
 
     public void ResetRandomIdle()

@@ -28,6 +28,7 @@ public class Player_Action : MonoBehaviour
     
     public UI_SkillManager skillUIManagers;
     public Shield_Player shield;
+    public Weapon_Player currentWeapon { get; private set; }
     private ItemDrop lootableCorpse;
     
     
@@ -226,6 +227,11 @@ public class Player_Action : MonoBehaviour
     }
     #endregion
 
+    public void SetCurrentWeapon(Weapon_Player newWeapon)
+    {
+        currentWeapon = newWeapon;
+    }
+
     private void HandleGuardInput()
     {
         // 방패 들기 (마우스 우클릭 누르는 순간)
@@ -253,8 +259,8 @@ public class Player_Action : MonoBehaviour
 
         // 2. 공격 관련 상태들을 확실하게 정리해줍니다.
         IsAttacking = false;
-        attackHitbox?.DisableAttackHitbox();
-        animEvents?.EndAttackTrail();
+        currentWeapon?.DisableHitbox();
+        currentWeapon?.StopTrail();
     }
 
     public void StartGuarding()

@@ -22,7 +22,7 @@ public class PlayerAttackHitbox : MonoBehaviour
             kickHitbox.enabled = false;
     }
 
-    public void EnableAttackHitbox()
+    /*public void EnableAttackHitbox()
     {
         attackHitbox.enabled = true;
         hasHit = false;
@@ -31,7 +31,7 @@ public class PlayerAttackHitbox : MonoBehaviour
     public void DisableAttackHitbox()
     {
         attackHitbox.enabled = false;
-    }
+    }*/
 
     public void ResetHasHit()
     {

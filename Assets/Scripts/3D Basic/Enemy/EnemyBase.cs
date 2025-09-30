@@ -59,9 +59,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     public GameObject hpBarObject; // 몬스터 체력바 캔버스 오브젝트
     public float hpBarVisibleRange = 12f; // 체력바가 보이는 거리 (SearchRange보다 길게 설정)
 
-
-    private bool isPlayerNearby = false; // 시체 근처 감지
-
     protected void Start()
     {
         animator = GetComponentInChildren<Animator>();
@@ -85,7 +82,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         slashTrail.emitting = false;
     }
 
-    private void Update()
+    /*private void Update()
     {
         if (isPlayerNearby && isDead && Input.GetKeyDown(KeyCode.G))
         {
@@ -101,7 +98,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 }
             }
         }
-    }
+    }*/
 
     protected void FixedUpdate()
     {
@@ -606,7 +603,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         }
     }
 
-    private void OnTriggerStay(Collider other)
+    /*private void OnTriggerStay(Collider other)
     {
         if (isDead && other.CompareTag("Player"))
         {
@@ -616,7 +613,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 UI_Manager.Instance.ShowMessage("G : 시체확인");
             }
         }
-    }
+    }*/
 
     void ManageHpBarVisibility()
     {
