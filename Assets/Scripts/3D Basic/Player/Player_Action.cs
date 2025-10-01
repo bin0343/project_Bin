@@ -9,7 +9,7 @@ public class Player_Action : MonoBehaviour
     private GameObject player;
     public Animator animator {  get; private set; }
     public Player_AnimationEvents animEvents { get; private set; }
-    public PlayerAttackHitbox attackHitbox { get; private set; }
+    //public PlayerAttackHitbox attackHitbox { get; private set; }
     public new Rigidbody rigidbody { get; private set; }
     public Player_Move move;
 
@@ -53,7 +53,7 @@ public class Player_Action : MonoBehaviour
         animEvents = player.GetComponent<Player_AnimationEvents>();
         skillUIManagers = FindObjectOfType<UI_SkillManager>();
         shield = player.GetComponentInChildren<Shield_Player>();
-        attackHitbox = GetComponentInChildren<PlayerAttackHitbox>(true);
+        //attackHitbox = GetComponentInChildren<PlayerAttackHitbox>(true);
 
         targetingController = GetComponent<SkillTargetingController>();
         if (targetingController != null)
