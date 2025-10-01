@@ -14,6 +14,10 @@ public class Item_Equipment : Item_Base
     [Tooltip("이 장비를 착용했을 때 캐릭터 손에 생성될 무기 프리팹입니다. 무기가 아니라면 비워두세요.")]
     public GameObject weaponPrefab;
 
+    [Header("애니메이션 오버라이드")]
+    [Tooltip("장비 착용 시 애니메이션 세트")]
+    public AnimatorOverrideController animationOverrides;
+
     public override bool Use(GameObject user)
     {
         bool itemUsed = false;

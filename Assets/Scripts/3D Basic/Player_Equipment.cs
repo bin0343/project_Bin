@@ -6,6 +6,8 @@ public class Player_Equipment : MonoBehaviour
 {
     public static Player_Equipment instance;
     private Player_Action playerAction;
+    private Animator animator;
+    private RuntimeAnimatorController defaultAnimatorController;
 
     [Header("Equipment Setup")]
     [SerializeField] private Transform weaponMountPoint;
@@ -18,6 +20,11 @@ public class Player_Equipment : MonoBehaviour
         if (instance != null && instance != this) Destroy(gameObject);
         instance = this;
         playerAction = GetComponent<Player_Action>();
+        animator = GetComponentInChildren<Animator>();
+        if (animator != null)
+        {
+            defaultAnimatorController = animator.runtimeAnimatorController;
+        }
     }
 
     public void Equip(ItemHolder itemToEquip, SlotType sourceType, int sourceIndex)
@@ -43,14 +50,20 @@ public class Player_Equipment : MonoBehaviour
 
         if (equipmentData.weaponPrefab != null)
         {
-            // 무기 프리팹을 weaponMountPoint의 자식으로 생성합니다.
             currentWeaponObject = Instantiate(equipmentData.weaponPrefab, weaponMountPoint);
 
-            // 새로 생성된 무기 오브젝트에서 Weapon_Player 컴포넌트를 찾아옵니다.
             Weapon_Player newWeaponController = currentWeaponObject.GetComponentInChildren<Weapon_Player>();
 
-            // Player_Action에 새로 장착된 무기의 컨트롤러를 등록합니다.
             playerAction.SetCurrentWeapon(newWeaponController);
+        }
+
+        if (equipmentData.animationOverrides != null)
+        {
+            animator.runtimeAnimatorController = equipmentData.animationOverrides;
+        }
+        else
+        {
+            animator.runtimeAnimatorController = defaultAnimatorController;
         }
 
         // 스탯 적용
@@ -95,6 +108,11 @@ public class Player_Equipment : MonoBehaviour
         }
 
         playerAction.SetCurrentWeapon(null);
+
+        if (animator != null)
+        {
+            animator.runtimeAnimatorController = defaultAnimatorController;
+        }
         return itemToUnEquip;
     }
 
