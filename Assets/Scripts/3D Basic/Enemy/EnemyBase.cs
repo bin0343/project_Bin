@@ -59,6 +59,21 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     public GameObject hpBarObject; // 몬스터 체력바 캔버스 오브젝트
     public float hpBarVisibleRange = 12f; // 체력바가 보이는 거리 (SearchRange보다 길게 설정)
 
+    [Header("AI - 시야각")]
+    [Range(0, 360)]
+    public float viewAngle = 120f;  //시야각
+    public float viewRadius { get { return searchRange; } }     //시야 반경
+    public Transform eyeTransform;      //시야의 시작점 or 몬스터 위치(눈이 없는 개체)
+
+    [Header("AI - 레이어")]
+    public LayerMask playerLayer;
+    public LayerMask obstacleLayerMask;     //장애물 레이어
+
+    [Header("AI - 추적로직")]
+    public float timeToGiveUp = 5f;     //추적 포기 시간
+    private float timeSinceLostTarget = 0f;
+    private Vector3 lastKnownPosition;
+
     protected void Start()
     {
         animator = GetComponentInChildren<Animator>();
@@ -70,7 +85,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            target = player.transform;
+            //target = player.transform;
             playerAction = player.GetComponent<Player_Action>();
         }
 
@@ -82,31 +97,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         slashTrail.emitting = false;
     }
 
-    /*private void Update()
-    {
-        if (isPlayerNearby && isDead && Input.GetKeyDown(KeyCode.G))
-        {
-            if (UI_Loot.Instance.lootPanel.activeSelf)
-            {
-                UI_Loot.Instance.CloseLootPanel();
-            }
-            else
-            {
-                if (itemDropper != null)
-                {
-                    UI_Loot.Instance.OpenLootPanel(itemDropper);
-                }
-            }
-        }
-    }*/
-
     protected void FixedUpdate()
     {
-        
-        /*if (stat.currentHP <= 0 && !isDead)
-        {
-            Dead();
-        }*/
         if (isDead)
         {
             return;
@@ -145,11 +137,11 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         animator.SetBool("IsIdle", true);
         animator.SetBool("IsMoving", false);
 
-        if (target != null && Vector3.Distance(transform.position, target.position) <= searchRange)
+        /*if (target != null && Vector3.Distance(transform.position, target.position) <= searchRange)
         {
             currentState = ENEMYSTATE.SEARCH;
             return;
-        }
+        }*/
 
         idleTimer += Time.deltaTime;
         if (idleTimer >= idleDuration)
@@ -168,12 +160,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
-
-        if (target != null && Vector3.Distance(transform.position, target.position) <= searchRange)
-        {
-            currentState = ENEMYSTATE.SEARCH;
-            return;
-        }
 
         if (navAgent == null)
         {
@@ -531,42 +517,43 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         if (target == null)
         {
-            GameObject found = GameObject.FindGameObjectWithTag("Player");
-            if (found != null)
+            Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, playerLayer);
+
+            for (int i = 0; i < targetsInViewRadius.Length; i++)
             {
-                Player_Stat playerStat = found.GetComponent<Player_Stat>();
-                if (playerStat != null && playerStat.currentHP > 0)
+                Transform potentialTarget = targetsInViewRadius[i].transform;
+                Vector3 dirToTarget = (potentialTarget.position - transform.position).normalized;
+
+                if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
                 {
-                    float dist = Vector3.Distance(transform.position, found.transform.position);
-                    if (dist <= searchRange)
+                    float distToTarget = Vector3.Distance(transform.position, potentialTarget.position);
+                    Vector3 eyePos = eyeTransform != null ? eyeTransform.position : transform.position;
+
+                    if (!Physics.Raycast(eyePos, dirToTarget, distToTarget, obstacleLayerMask))
                     {
-                        target = found.transform;
-                        if (navAgent.enabled && navAgent.isOnNavMesh)
-                        {
-                            navAgent.SetDestination(target.position);
-                        }
+                        target = potentialTarget;
                         currentState = ENEMYSTATE.SEARCH;
+                        return;
                     }
+                    else
+                    {
+                        Debug.Log("시야가 장애물에 막혔습니다."); // 디버그 로그
+                    }
+                }
+                else
+                {
+                    Debug.Log(potentialTarget.name + "가 시야각 밖에 있습니다."); // 디버그 로그
                 }
             }
         }
         else
         {
-            Player_Stat playerStat = target.GetComponent<Player_Stat>();
-            if (playerStat != null && playerStat.currentHP <= 0)
+            float distance = Vector3.Distance(transform.position, target.position);
+            if (distance > searchRange * 1.5f)
             {
                 target = null;
-                navAgent.ResetPath();
                 currentState = ENEMYSTATE.IDLE;
-                return;
-            }
-
-
-            float dist = Vector3.Distance(transform.position, target.position);
-            if (dist <= searchRange && currentState != ENEMYSTATE.SEARCH)
-            {
-                navAgent.SetDestination(target.position);
-                currentState = ENEMYSTATE.SEARCH;
+                Debug.Log("플레이어를 놓쳤다.");
             }
         }
     }
@@ -602,18 +589,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             }
         }
     }
-
-    /*private void OnTriggerStay(Collider other)
-    {
-        if (isDead && other.CompareTag("Player"))
-        {
-            if (!isPlayerNearby)
-            {
-                isPlayerNearby = true;
-                UI_Manager.Instance.ShowMessage("G : 시체확인");
-            }
-        }
-    }*/
 
     void ManageHpBarVisibility()
     {
@@ -658,4 +633,34 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         navAgent.enabled = true;
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        // 시야 반경(searchRange)을 원으로 표시
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, viewRadius);
+
+        // 시야각을 부채꼴로 표시
+        Vector3 forward = transform.forward;
+        Quaternion rotLeft = Quaternion.Euler(0, -viewAngle / 2, 0);
+        Quaternion rotRight = Quaternion.Euler(0, viewAngle / 2, 0);
+        Vector3 dirLeft = rotLeft * forward;
+        Vector3 dirRight = rotRight * forward;
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(transform.position, dirLeft * viewRadius);
+        Gizmos.DrawRay(transform.position, dirRight * viewRadius);
+
+        UnityEditor.Handles.color = new Color(1, 1, 0, 0.1f);
+        UnityEditor.Handles.DrawSolidArc(transform.position, Vector3.up, dirLeft, viewAngle, viewRadius);
+
+        // 현재 타겟이 있다면 타겟까지 선을 표시
+        if (target != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, target.position);
+        }
+    }
+#endif
 }
