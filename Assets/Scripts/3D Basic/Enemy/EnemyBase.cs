@@ -12,6 +12,13 @@ public enum ENEMYSTATE
     DEAD
 }
 
+public enum SearchPhase
+{
+    Chasing,
+    Investigating,
+    Patrolling
+}
+
 public enum BattleAction
 {
     Waiting,    // 행동 결정 대기
@@ -24,6 +31,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 {
     private ENEMYSTATE currentState = ENEMYSTATE.IDLE;
     private BattleAction currentBattleAction = BattleAction.Waiting;
+    private SearchPhase currentSearchPhase;
     private bool isPerformingAction = false;
 
     public float shieldProbability = 0.3f;      //플레이어가 공격시 쉴드 확률
@@ -73,6 +81,13 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     public float timeToGiveUp = 5f;     //추적 포기 시간
     private float timeSinceLostTarget = 0f;
     private Vector3 lastKnownPosition;
+
+    [Header("AI - Patrol Logic")]
+    [Tooltip("마지막 목격 지점 주변을 순찰할 반경")]
+    public float patrolRadius = 5f;
+    [Tooltip("주변을 순찰할 총 시간 (초)")]
+    public float patrolDuration = 5f;
+    private float patrolTimer = 0f;
 
     protected void Start()
     {
@@ -137,12 +152,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         animator.SetBool("IsIdle", true);
         animator.SetBool("IsMoving", false);
 
-        /*if (target != null && Vector3.Distance(transform.position, target.position) <= searchRange)
-        {
-            currentState = ENEMYSTATE.SEARCH;
-            return;
-        }*/
-
         idleTimer += Time.deltaTime;
         if (idleTimer >= idleDuration)
         {
@@ -184,43 +193,121 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     #region Search
     protected virtual void Search()
     {
-        if (target == null)
+        Debug.Log("현재 수색 단계: " + currentSearchPhase);
+        switch (currentSearchPhase)
         {
-            currentState = ENEMYSTATE.IDLE;
-            return;
+            case SearchPhase.Chasing:
+                Chase();
+                break;
+            case SearchPhase.Investigating:
+                Investigate();
+                break;
+            case SearchPhase.Patrolling:
+                PatrolArea();
+                break;
         }
+    }
 
+    private bool IsTargetVisible()
+    {
+        if (target == null) return false;
+
+        Vector3 dirToTarget = (target.position - transform.position).normalized;
+
+        // 시야각 체크
+        if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
+        {
+            float distToTarget = Vector3.Distance(transform.position, target.position);
+            Vector3 eyePos = eyeTransform != null ? eyeTransform.position : transform.position;
+
+            // 장애물 체크
+            if (!Physics.Raycast(eyePos, dirToTarget, distToTarget, obstacleLayerMask))
+            {
+                return true; //타겟 보임
+            }
+        }
+        return false; //타겟 안보임
+    }
+
+    private void Chase()
+    {
+        navAgent.isStopped = false;
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
-        if (navAgent.enabled && navAgent.isOnNavMesh)
+        if (IsTargetVisible())
         {
+            lastKnownPosition = target.position;
             navAgent.stoppingDistance = attackRange * 0.9f;
-            navAgent.SetDestination(target.position);
+            //navAgent.SetDestination(target.position);
+            if (navAgent.enabled && navAgent.isOnNavMesh)
+                navAgent.SetDestination(target.position);
+
+            if (Vector3.Distance(transform.position, target.position) <= navAgent.stoppingDistance)
+            {
+                currentState = ENEMYSTATE.BATTLE;
+                return;
+            }
+        }
+        else
+        {
+            currentSearchPhase = SearchPhase.Investigating;
+        }
+    }
+
+    private void Investigate()
+    {
+        navAgent.isStopped = false;
+        animator.SetBool("IsIdle", false);
+        animator.SetBool("IsMoving", true);
+        if (navAgent.enabled && navAgent.isOnNavMesh)
+            navAgent.SetDestination(lastKnownPosition);
+
+        if (IsTargetVisible())
+        {
+            currentSearchPhase = SearchPhase.Chasing;
+            return;
         }
 
-        float distance = Vector3.Distance(transform.position, target.position);
+        if (!navAgent.pathPending && navAgent.remainingDistance <= navAgent.stoppingDistance)
+        {
+            currentSearchPhase = SearchPhase.Patrolling;
+            patrolTimer = 0f;
+        }
+    }
 
-        if (distance > searchRange + 3f)
+    private void PatrolArea()
+    {
+        navAgent.isStopped = false;
+        animator.SetBool("IsIdle", false);
+        animator.SetBool("IsMoving", true);
+
+        patrolTimer += Time.fixedDeltaTime;
+        if (patrolTimer > patrolDuration)
         {
             target = null;
-            if (navAgent.enabled && navAgent.isOnNavMesh)
-            {
-                navAgent.ResetPath();
-            }
             currentState = ENEMYSTATE.IDLE;
-            idleTimer = 0f;
+            animator.SetBool("IsIdle", true);
+            animator.SetBool("IsMoving", false);
             return;
         }
 
-        if (distance <= attackRange)
+        if (IsTargetVisible())
         {
-            if (navAgent.enabled && navAgent.isOnNavMesh)
-            {
-                navAgent.ResetPath();
-            }
-            currentState = ENEMYSTATE.BATTLE;
+            currentSearchPhase = SearchPhase.Chasing;
             return;
+        }
+
+        if (!navAgent.pathPending && navAgent.remainingDistance <= navAgent.stoppingDistance)
+        {
+            Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
+            randomDirection += lastKnownPosition;
+
+            NavMeshHit navHit;
+            if (NavMesh.SamplePosition(randomDirection, out navHit, patrolRadius, -1))
+            {
+                navAgent.SetDestination(navHit.position);
+            }
         }
     }
     #endregion
@@ -480,18 +567,29 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         stunTimer += Time.deltaTime;
         if (stunTimer >= stunDuration)
         {
-            // 스턴 시간이 끝나면 다시 움직일 수 있도록 준비
-            if (navAgent.isOnNavMesh) navAgent.isStopped = false;
+            stunTimer = 0f;
+            if (navAgent.enabled && navAgent.isOnNavMesh) navAgent.isStopped = false;
 
-            // 상황에 맞는 다음 상태로 자연스럽게 전환
-            float distance = Vector3.Distance(transform.position, target.position);
-            if (distance <= attackRange)
+            // --- 여기가 핵심! 스턴이 풀렸을 때 타겟이 있는지 먼저 확인합니다. ---
+            if (target != null)
             {
-                currentState = ENEMYSTATE.BATTLE;
+                // 타겟이 있다면: 기존 로직대로 거리를 재서 BATTLE 또는 SEARCH로 전환
+                float distance = Vector3.Distance(transform.position, target.position);
+                if (distance <= attackRange)
+                {
+                    currentState = ENEMYSTATE.BATTLE;
+                }
+                else
+                {
+                    currentState = ENEMYSTATE.SEARCH;
+                    // 스턴에서 풀린 후 바로 추격할 수 있도록 하위 상태를 Chasing으로 설정
+                    currentSearchPhase = SearchPhase.Chasing;
+                }
             }
             else
             {
-                currentState = ENEMYSTATE.SEARCH;
+                // 타겟이 없다면: IDLE 상태로 돌아가서 다시 주변을 탐색 시작
+                currentState = ENEMYSTATE.IDLE;
             }
         }
     }
