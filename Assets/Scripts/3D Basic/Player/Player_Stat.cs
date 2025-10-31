@@ -35,12 +35,9 @@ public class Player_Stat : MonoBehaviour
     public int level = 1;
     public int exp = 0;
     public int levelUpExp = 100;
-    //public int maxHP = 100;
     public int currentHP = 100;
-    //public int maxMP = 100;
     public int currentMP = 100;
-    //public int attackPower = 10;
-    //public int defensePower = 5;
+    public int gold;
 
     private Canvas myCanvas;
 
