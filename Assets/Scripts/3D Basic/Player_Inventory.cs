@@ -103,6 +103,56 @@ public class Player_Inventory : MonoBehaviour
     }
     #endregion
 
+    #region Remove Item
+    public bool RemoveItem(Item_Base item, int quantityToRemove)
+    {
+        int totalOwned = 0;
+
+        if (!item.isStackable)
+        {
+            totalOwned = inventorySlots.Count(slot => slot != null && slot.ItemData == item);
+        }
+        else
+        {
+            totalOwned = inventorySlots.Where(slot => slot != null && slot.ItemData == item).Sum(slot => slot.Quantity);
+        }
+
+        if (totalOwned < quantityToRemove)
+        {
+            return false;
+        }
+
+        int remainingToRemove = quantityToRemove;
+
+        for (int i = inventorySlots.Count - 1; i >= 0; i--)
+        {
+            ItemHolder slot = inventorySlots[i];
+            if (slot == null || slot.ItemData != item) continue;
+
+            if (!item.isStackable)
+            {
+                inventorySlots[i] = null;
+                remainingToRemove--;
+            }
+            else
+            {
+                int amountToRemoveFromSlot = Mathf.Min(remainingToRemove, slot.Quantity);
+                slot.Quantity -= amountToRemoveFromSlot;
+                remainingToRemove -= amountToRemoveFromSlot;
+
+                if (slot.Quantity <= 0)
+                {
+                    inventorySlots[i] = null;
+                }
+            }
+
+            if (remainingToRemove <= 0) break;
+        }
+
+        RefreshAllUI();
+        return true;
+    }
+    #endregion
 
     #region New Helper Methods
     private ItemHolder GetItemHolderAt(SlotType type, int index)
@@ -136,7 +186,6 @@ public class Player_Inventory : MonoBehaviour
 
     public void HandleSlotDrop(SlotType sourceType, int sourceIndex, SlotType destType, int destIndex, UI_Inventory.InventoryTabType currentTab)
     {
-        // --- 이 부분을 맨 위로 옮기고 수정합니다 ---
         // Case 1: 아이템 장착 시도 (인벤토리/퀵슬롯 -> 장비 슬롯)
         if (destType == SlotType.EQUIPMENT)
         {

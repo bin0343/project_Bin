@@ -19,7 +19,10 @@ public class UI_Manager : MonoBehaviour
     public Text MessageText;
     public GameObject LootPanel;
     public UI_Loot UI_Loot;
-    
+
+    [Header("메시지 설정")]
+    public float messageDisplayTime = 2.0f; //메시지 표시 시간
+    private Coroutine hideMessageCoroutine;
 
     private Stack<GameObject> UIStack = new Stack<GameObject>();
 
@@ -145,9 +148,23 @@ public class UI_Manager : MonoBehaviour
     {
         if (MessagePanel != null)
         {
+            if (hideMessageCoroutine != null)   //다른 메시지 코루틴 진행중이면 그 코루틴 중지
+            {
+                StopCoroutine(hideMessageCoroutine);
+            }
             MessagePanel.SetActive(true);
             MessageText.text = msg;
+
+            hideMessageCoroutine = StartCoroutine(HideMessageRoutine(messageDisplayTime));
         }
+    }
+
+    private IEnumerator HideMessageRoutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        HideMessage();
+        hideMessageCoroutine = null;
     }
 
     public void HideMessage()
