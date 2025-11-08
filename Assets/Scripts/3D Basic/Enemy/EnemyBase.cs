@@ -79,7 +79,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     [Header("AI - 추적로직")]
     public float timeToGiveUp = 5f;     //추적 포기 시간
-    private float timeSinceLostTarget = 0f;
+    //private float timeSinceLostTarget = 0f;
     private Vector3 lastKnownPosition;
 
     [Header("AI - Patrol Logic")]

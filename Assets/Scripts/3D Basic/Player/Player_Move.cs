@@ -8,18 +8,13 @@ public class Player_Move : MonoBehaviour
 {
     public Animator Animator { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
-    //public Player_Action Action { get; private set; }
     private CameraArm cameraArmScript;
 
     [SerializeField] private float CharacterSpeed = 2.0f;
     [SerializeField] public float CharacterRunSpeed = 9.0f;
-    [SerializeField] public Transform CharacterBody; // 인스펙터: Player 모델 오브젝트 연결
-    [SerializeField] private Transform CameraArm;     // 인스펙터: CameraArm 피봇 오브젝트 연결
+    [SerializeField] public Transform CharacterBody; 
+    [SerializeField] private Transform CameraArm; 
     [SerializeField] private float RotateSpeed = 2.0f;
-
-
-    //private IPlayerState_Move currentMoveState;
-    //public IPlayerState_Move CurrentMoveState => currentMoveState;
 
     void Start()
     {
@@ -66,15 +61,6 @@ public class Player_Move : MonoBehaviour
 
     public void HandleMovement(Vector2 moveInput, float speed)
     {
-        //if (Action != null && (Action.IsKick || Action.IsBuff || Action.IsAttacking)) return;
-
-        //Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        //bool isMoving = moveInput.magnitude != 0;
-
-        /*Animator.SetBool("IsMoving", isMoving);
-        Animator.SetFloat("Horizontal", moveInput.x);
-        Animator.SetFloat("Vertical", moveInput.y);*/
-
         if (moveInput.magnitude == 0) return;
 
         Vector3 lookForward;
@@ -132,11 +118,4 @@ public class Player_Move : MonoBehaviour
             CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
         }
     }
-
-    /*public void ChangeMoveState(IPlayerState_Move newState)
-    {
-        currentMoveState?.Exit(this);
-        currentMoveState = newState;
-        currentMoveState.Enter(this);
-    }*/
 }

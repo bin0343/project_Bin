@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe5ae1b936dc3d64fae1cbc08a575e96, type: 3}
+  m_Name: One_Convo_001
+  m_EditorClassIdentifier: 
+  npcLine: "\"\uC548\uB155\uD558\uC138\uC694!\""
+  playerChoice:
+  - choiceText: "\"\uC548\uB155\uD558\uC138\uC694!\""
+    affinityChange: 0
+    npcResponse: "\"\uC88B\uC740 \uC544\uCE68\uC774\uB124\uC694\""
+  - choiceText: "\"\uBC18\uAC11\uC2B5\uB2C8\uB2E4\""
+    affinityChange: 10
+    npcResponse: '"test 22"'
+  - choiceText: '"test 33"'
+    affinityChange: -20
+    npcResponse: '"test 005"'

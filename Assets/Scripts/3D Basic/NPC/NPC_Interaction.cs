@@ -6,6 +6,10 @@ public class NPC_Interaction : Interactable
     [Header("일반 NPC 전용")]
     public GameObject interactionMenuPanel;
 
+    [Header("NPC 데이터")]
+    public NPC_Data npcData;
+    public Conversation conversation;
+
     [Header("UI 버튼")]
     public Button talkButton;
     public Button giftButton;
@@ -32,8 +36,23 @@ public class NPC_Interaction : Interactable
     //버튼 클릭 이벤트
     public void OnTalk()
     {
-        Debug.Log("대화를 시작합니다.");
+        Debug.Log("대화하기를 선택했습니다.");
+        if (npcData == null)
+        {
+            Debug.LogWarning("Npc 데이터가 없습니다.");
+            return;
+        }
         Closemenu();
+
+        Conversation convoToStart = conversation ?? npcData.startingConversation;
+        if (convoToStart != null)
+        {
+            DialogueManager.instance.StartConversation(convoToStart, npcData);
+        }
+        else
+        {
+            Debug.LogWarning("이 NPC에 대화가 없습니다.");
+        }
     }
 
     public void OnGiveGift()

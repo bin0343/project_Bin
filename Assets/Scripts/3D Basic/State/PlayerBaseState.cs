@@ -74,8 +74,6 @@ public abstract class PlayerBaseState : IPlayerState
         PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
         if (player.animator.GetInteger("ActionState") != (int)expectedAnimState)
         {
-            // 현재 상태가 Move가 아닐 때도 애니메이션이 Run/Walk로 바뀌는 것을 방지하기 위해
-            // 현재 상태가 Move 상태일 때만 애니메이션을 변경하도록 조건을 추가할 수 있습니다.
             if (player.currentState is PlayerMoveState)
             player.animator.SetInteger("ActionState", (int)expectedAnimState);
         }

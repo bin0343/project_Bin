@@ -8,6 +8,10 @@ public class UI_QuantityPopup : MonoBehaviour
     public Text quantityText;
     public Button confirmButton;
     public Button cancelButton;
+    public Button plusOneButton;
+    public Button plusTenButton;
+    public Button minusOneButton;
+    public Button minusTenButton;
 
     private int currentQuantity = 1;
     private int maxQuantity = 99;
@@ -38,6 +42,18 @@ public class UI_QuantityPopup : MonoBehaviour
 
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(OnCancel);
+
+        plusOneButton.onClick.RemoveAllListeners();
+        plusOneButton.onClick.AddListener(PlusOneQuantity);
+
+        plusTenButton.onClick.RemoveAllListeners();
+        plusTenButton.onClick.AddListener(PlusTenQuantity);
+
+        minusOneButton.onClick.RemoveAllListeners();
+        minusOneButton.onClick.AddListener(MinusOneQuantity);
+
+        minusTenButton.onClick.RemoveAllListeners();
+        minusTenButton.onClick.AddListener(MinusTenQuantity);
 
         currentState = PopupState.SelectingQuantity;
 
@@ -122,5 +138,33 @@ public class UI_QuantityPopup : MonoBehaviour
     {
         onCancelCallback?.Invoke();
         gameObject.SetActive(false);
+    }
+
+    private void PlusOneQuantity()
+    {
+        currentQuantity++;
+        if (currentQuantity > maxQuantity) currentQuantity = maxQuantity;
+        UpdateQuantityText();
+    }
+
+    private void PlusTenQuantity()
+    {
+        currentQuantity += 10;
+        if (currentQuantity > maxQuantity) currentQuantity = maxQuantity;
+        UpdateQuantityText();
+    }
+
+    private void MinusOneQuantity()
+    {
+        currentQuantity--;
+        if (currentQuantity < 1) currentQuantity = 1;
+        UpdateQuantityText();
+    }
+
+    private void MinusTenQuantity()
+    {
+        currentQuantity -= 10;
+        if (currentQuantity < 1) currentQuantity = 1;
+        UpdateQuantityText();
     }
 }
