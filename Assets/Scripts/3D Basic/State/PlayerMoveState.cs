@@ -2,17 +2,17 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerBaseState
 {
+    private float exitTimer;
+    private const float changeTimer = 0.1f;     //0.1초간 입력이 없어야
     protected override PlayerAnimState GetAnimState()
     {
-        // MoveState는 Walk 또는 Run 애니메이션을 유동적으로 사용하므로
-        // Enter 시점에 고정된 AnimState를 설정하지 않도록 Idle을 반환하거나,
-        // 혹은 Enter에서 직접 초기 애니메이션(Walk)을 설정할 수 있습니다.
-        return PlayerAnimState.Walk;
+        return PlayerAnimState.Run;
     }
 
     public override void Enter(Player_Action player)
     {
         base.Enter(player);
+        exitTimer = 0f;
     }
 
     public override void Execute(Player_Action player)
@@ -27,18 +27,26 @@ public class PlayerMoveState : PlayerBaseState
         // 최우선 순위: 이동을 멈췄는가?
         if (!isMoving)
         {
-            player.ChangeState(new PlayerIdleState());
+            exitTimer += Time.deltaTime;
+
+            if (exitTimer >= changeTimer)
+            {
+                player.ChangeState(new PlayerIdleState());
+                return;
+            }
+            
         }
         // 이동 중일 때만 다른 입력들을 확인
         else
         {
+            exitTimer = 0f;
             // 1순위: 점프
-            if (jumpInput && player.IsGrounded)
+            /*if (jumpInput && player.IsGrounded)
             {
                 player.ChangeState(new PlayerJumpState());
-            }
+            }*/
             // 2순위: 공격 입력이 있었는가?
-            else if (attackInput)
+            if (attackInput)
             {
                 // 공격 입력이 있다면, 달리기 공격 시도인지 확인
                 if (Input.GetKey(KeyCode.LeftShift))
@@ -77,6 +85,6 @@ public class PlayerMoveState : PlayerBaseState
     {
         // Move 상태를 벗어날 때는 IsMoving 애니메이션 파라미터를 false로 설정하여
         // 다른 상태(예: 공격)에서 불필요한 움직임 애니메이션이 재생되는 것을 방지합니다.
-        player.animator.SetBool("IsMoving", false);
+        //player.animator.SetBool("IsMoving", false);
     }
 }

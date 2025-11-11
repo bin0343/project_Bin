@@ -14,8 +14,8 @@ public class PlayerIdleState : PlayerBaseState
 
         PlayerAttackState.ResetCombo();
 
-        player.animator.SetFloat("Horizontal", 0);
-        player.animator.SetFloat("Vertical", 0);
+        /*player.animator.SetFloat("Horizontal", 0);
+        player.animator.SetFloat("Vertical", 0);*/
         idleTimer = 0f;
     }
 
@@ -42,7 +42,7 @@ public class PlayerIdleState : PlayerBaseState
         }*/
 
         //앉기 상태 전환
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        /*if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             player.ChangeState(new PlayerSitState());
             return;
@@ -60,7 +60,7 @@ public class PlayerIdleState : PlayerBaseState
         {
             player.ChangeState(new PlayerKickState());
             return;
-        }
+        }*/
 
         base.HandleCommonItemInput(player);
         base.HandleCommonSkillInput(player);

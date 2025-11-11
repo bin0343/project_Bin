@@ -1749,6 +1749,8 @@ MonoBehaviour:
   interactionPromptUI: {fileID: 190453233}
   interactionText: {fileID: 2075161696}
   interactionMenuPanel: {fileID: 1914849562}
+  npcData: {fileID: 0}
+  conversation: {fileID: 0}
   talkButton: {fileID: 1930131771}
   giftButton: {fileID: 1079764777}
   closeButton: {fileID: 1445958298}
@@ -2759,6 +2761,10 @@ MonoBehaviour:
   quantityText: {fileID: 286331754}
   confirmButton: {fileID: 443115208}
   cancelButton: {fileID: 1782936274}
+  plusOneButton: {fileID: 0}
+  plusTenButton: {fileID: 0}
+  minusOneButton: {fileID: 0}
+  minusTenButton: {fileID: 0}
 --- !u!1 &1343891012
 GameObject:
   m_ObjectHideFlags: 0
@@ -5774,7 +5780,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 864614928277336921, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: minZoom
-      value: -0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1390115494373609078, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: m_LocalPosition.x

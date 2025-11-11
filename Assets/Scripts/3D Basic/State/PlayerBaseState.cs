@@ -3,7 +3,7 @@ using UnityEngine;
 public enum PlayerAnimState
 {
     Idle,   //0
-    Walk,   //1
+    Hit,   //1
     Run,    //2
     Attack1,    //3
     Attack2,    //4
@@ -16,7 +16,7 @@ public enum PlayerAnimState
     Kick,   //11
     Shield, //12
     Dead,    //13
-    Hit     //14
+    //Hit     //14
 }
 
 public abstract class PlayerBaseState : IPlayerState
@@ -66,17 +66,17 @@ public abstract class PlayerBaseState : IPlayerState
             player.move.HandleMovement(moveInput, speed);
             player.move.HandleRotation();
 
-            player.animator.SetFloat("Horizontal", moveInput.x);
-            player.animator.SetFloat("Vertical", moveInput.y);
+            /*player.animator.SetFloat("Horizontal", moveInput.x);
+            player.animator.SetFloat("Vertical", moveInput.y);*/
         }
 
         // 3. 달리기/걷기 애니메이션 상태 전환
-        PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
+        /*PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
         if (player.animator.GetInteger("ActionState") != (int)expectedAnimState)
         {
             if (player.currentState is PlayerMoveState)
             player.animator.SetInteger("ActionState", (int)expectedAnimState);
-        }
+        }*/
 
     }
 }

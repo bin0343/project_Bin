@@ -37,13 +37,13 @@ public class PlayerSkillTargetingState : PlayerBaseState
             player.move.HandleMovement(moveInput, speed);
             player.move.HandleRotation();
 
-            player.animator.SetFloat("Horizontal", moveInput.x);
-            player.animator.SetFloat("Vertical", moveInput.y);
+            /*player.animator.SetFloat("Horizontal", moveInput.x);
+            player.animator.SetFloat("Vertical", moveInput.y);*/
 
-            PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
-            if (player.animator.GetInteger("ActionState") != (int)expectedAnimState)
+            //PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
+            if (player.animator.GetInteger("ActionState") != (int)PlayerAnimState.Run)
             {
-                player.animator.SetInteger("ActionState", (int)expectedAnimState);
+                player.animator.SetInteger("ActionState", (int)PlayerAnimState.Run);
             }
         }
         else

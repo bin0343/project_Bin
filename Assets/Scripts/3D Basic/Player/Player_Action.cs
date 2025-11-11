@@ -113,7 +113,7 @@ public class Player_Action : MonoBehaviour
         if (IsDead) return;
         if (isTargetingSkill || (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen))
             return;
-        HandleGuardInput();
+        //HandleGuardInput();
         currentState?.Execute(this);
     }
 
@@ -232,7 +232,7 @@ public class Player_Action : MonoBehaviour
         currentWeapon = newWeapon;
     }
 
-    private void HandleGuardInput()
+    /*private void HandleGuardInput()
     {
         // 방패 들기 (마우스 우클릭 누르는 순간)
         if (Input.GetMouseButtonDown(1))
@@ -244,7 +244,7 @@ public class Player_Action : MonoBehaviour
         {
             StopGuarding();
         }
-    }
+    }*/
 
     public void OnAttackBlocked()
     {
@@ -263,7 +263,7 @@ public class Player_Action : MonoBehaviour
         currentWeapon?.StopTrail();
     }
 
-    public void StartGuarding()
+    /*public void StartGuarding()
     {
         if (IsGuarding) return; // 이미 방어 중이면 무시
 
@@ -273,9 +273,9 @@ public class Player_Action : MonoBehaviour
         animator.SetBool("IsGuarding", true);
 
         shield?.SetActiveShield(true);
-    }
+    }*/
 
-    public void StopGuarding()
+    /*public void StopGuarding()
     {
         if (!IsGuarding) return; // 방어 중이 아니면 무시
 
@@ -285,7 +285,7 @@ public class Player_Action : MonoBehaviour
         animator.SetBool("IsGuarding", false);
 
         shield?.SetActiveShield(false);
-    }
+    }*/
 
     public bool CanUseRunningAttack()
     {

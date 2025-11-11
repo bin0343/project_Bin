@@ -10,7 +10,7 @@ public class Player_Move : MonoBehaviour
     public Rigidbody Rigidbody { get; private set; }
     private CameraArm cameraArmScript;
 
-    [SerializeField] private float CharacterSpeed = 2.0f;
+    //[SerializeField] private float CharacterSpeed = 2.0f;
     [SerializeField] public float CharacterRunSpeed = 9.0f;
     [SerializeField] public Transform CharacterBody; 
     [SerializeField] private Transform CameraArm; 
@@ -51,12 +51,12 @@ public class Player_Move : MonoBehaviour
 
     void Look()
     {
-        if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
+        /*if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
         {
             float mouseX = Input.GetAxis("Mouse X");
             // 이 스크립트가 붙어있는 'Character' 루트 오브젝트를 회전
             transform.Rotate(Vector3.up * mouseX);
-        }
+        }*/
     }
 
     public void HandleMovement(Vector2 moveInput, float speed)
@@ -66,22 +66,36 @@ public class Player_Move : MonoBehaviour
         Vector3 lookForward;
         Vector3 lookRight;
 
-        if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
+        /*if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
         {
             lookForward = transform.forward;
             lookRight = transform.right;
         }
         else
         {
-            lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
-            lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
-            CharacterBody.forward = lookForward;
-        }
+            
+            //CharacterBody.forward = lookForward;
+        }*/
+
+        lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
+        lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
 
         //float adjustedSpeed = GetAdjustedSpeed(moveInput);
         Vector3 moveDir = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
 
         Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * speed);
+
+        /*if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
+        {
+            return;
+        }*/
+
+        // 3인칭일 때, moveDir (실제 움직이는 방향)을 바라보도록 회전
+        if (moveDir.sqrMagnitude > 0f) // sqrMagnitude는 0보다 클 때만 (즉, 움직임이 있을 때만)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDir);
+            CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
+        }
     }
 
     public float GetAdjustedSpeed(Vector2 moveInput)
@@ -100,13 +114,13 @@ public class Player_Move : MonoBehaviour
             directionWeight = (sideWeight + vertical) / 2f;
         }
 
-        float baseSpeed = Input.GetKey(KeyCode.LeftShift) ? CharacterRunSpeed : CharacterSpeed;
+        float baseSpeed = CharacterRunSpeed;
         return baseSpeed * directionWeight;
     }
 
     public void HandleRotation()
     {
-        if (cameraArmScript == null || cameraArmScript.FirstPersonCamera.enabled)
+        /*if (cameraArmScript == null || cameraArmScript.FirstPersonCamera.enabled)
         {
             return; // 1인칭일 때는 이 함수를 실행하지 않음
         }
@@ -116,6 +130,6 @@ public class Player_Move : MonoBehaviour
         {
             Quaternion targetRotation = Quaternion.LookRotation(lookDir);
             CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
-        }
+        }*/
     }
 }
