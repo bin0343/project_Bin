@@ -519,6 +519,20 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 playerStat.GainExp(stat.ExpReward);
             }
         }
+
+        //퀘스트 로직
+        if (QuestManager.instance != null && stat != null)
+        {
+            // 이 몬스터의 ID (Enemy_Stat의 EnemyName)를 퀘스트 매니저에 "1마리 처치"로 보고합니다.
+            if (!string.IsNullOrEmpty(stat.EnemyName))
+            {
+                QuestManager.instance.AdvanceQuestProgress(stat.EnemyName, 1);
+            }
+            else
+            {
+                Debug.LogWarning($"이 몬스터({gameObject.name})의 Enemy_Stat에 EnemyName이 지정되지 않아 퀘스트 카운트가 오르지 않습니다.");
+            }
+        }
         this.enabled = false;
     }
     #endregion

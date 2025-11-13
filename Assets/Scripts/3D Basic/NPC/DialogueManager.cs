@@ -76,18 +76,32 @@ public class DialogueManager : MonoBehaviour
         //1. 친밀도 변경
         NPC_Manager.instance.ChangeAffinity(currentNpc.NPCID, choice.affinityChange);
 
-        //2. 선택지 버튼 숨기기
+        // 2. 퀘스트 수락
+        if (choice.questToStart != null)
+        {
+            QuestManager.instance.AcceptQuest(choice.questToStart);
+            // (메시지는 퀘스트 매니저가 띄워주는 게 더 좋음)
+        }
+
+        // 3. 퀘스트 완료 (보상 받기)
+        if (choice.questToComplete != null)
+        {
+            // (주의: 퀘스트가 COMPLETED 상태인지 확인하는 로직이 ClaimReward에 있음)
+            QuestManager.instance.ClaimReward(choice.questToComplete);
+        }
+
+        //4. 선택지 버튼 숨기기
         foreach (GameObject button in spawnedButton)
         {
             button.SetActive(false);
         }
 
-        //3. npc 응답 보여주기
+        //5. npc 응답 보여주기
         dialogueLineText.text = ""; //기존 질문 가리기
         npcResponseText.gameObject.SetActive(true);
         npcResponseText.text = choice.npcResponse;
 
-        //4. 대화 창 닫기
+        //6. 대화 창 닫기
         StartCoroutine(EndDialogueAfterDelay(2.0f));
     }
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class NPC_Interaction : Interactable
 {
@@ -44,7 +45,7 @@ public class NPC_Interaction : Interactable
         }
         Closemenu();
 
-        Conversation convoToStart = conversation ?? npcData.startingConversation;
+        Conversation convoToStart = DetermineConversation();
         if (convoToStart != null)
         {
             DialogueManager.instance.StartConversation(convoToStart, npcData);
@@ -65,5 +66,31 @@ public class NPC_Interaction : Interactable
     {
         Debug.Log("메뉴를 닫습니다.");
         //CloseInteractionMenu();
+    }
+
+    private Conversation DetermineConversation()
+    {
+        // (간단하게, 이 NPC가 주는 첫 번째 퀘스트만 확인)
+        Quest quest = npcData.availableQuests.FirstOrDefault();
+
+        if (quest != null)
+        {
+            QuestStatus status = QuestManager.instance.GetQuestStatus(quest.questID);
+
+            if (status == QuestStatus.COMPLETED && npcData.questCompleteConversation != null)
+            {
+                // 1. 완료 가능 상태 -> 완료 대화
+                return npcData.questCompleteConversation;
+            }
+            else if (status == QuestStatus.IN_PROGRESS && npcData.questInProgressConversation != null)
+            {
+                // 2. 진행 중 상태 -> 진행 중 대화
+                return npcData.questInProgressConversation;
+            }
+            // 3. 수락 전 또는 완료 후 -> 기본 대화 (기본 대화에서 퀘스트 수락이 이뤄짐)
+        }
+
+        // 퀘스트가 없거나, 수락 전이거나, 완료 후일 때
+        return conversation ?? npcData.startingConversation;
     }
 }

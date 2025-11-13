@@ -20,6 +20,10 @@ public abstract class Interactable : MonoBehaviour
         {
             OpenMenu();
         }
+        if (isPlayerInRange && !isMenuOpen && interactionPromptUI != null)
+        {
+            interactionPromptUI.SetActive(true);
+        }
         if (Input.GetKeyDown(KeyCode.Escape)) isMenuOpen = false;
     }
 
