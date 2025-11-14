@@ -1,16 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 public class QuestManager : MonoBehaviour
 {
     public static QuestManager instance;
 
     public Dictionary<string, PlayerQuestStatus> questLog = new Dictionary<string, PlayerQuestStatus>();
-
     private Dictionary<string, Quest> questDatabase;
-
     public List<PlayerQuestStatus> debug_QuestLogList = new List<PlayerQuestStatus>();
+
+    public event Action<Quest> OnQuestAccepted;
+    public event Action<PlayerQuestStatus, Quest> OnQuestProgressChanged;
+    public event Action<PlayerQuestStatus, Quest> OnQuestCompleted;
+    public event Action<Quest> OnQuestRewardClaimed;
 
     private void Awake()
     {
@@ -46,6 +50,16 @@ public class QuestManager : MonoBehaviour
         }
     }
 
+    public Quest GetQuestByID(string questID)
+    {
+        if (questDatabase.TryGetValue(questID, out Quest quest))
+        {
+            return quest;
+        }
+        Debug.LogWarning($"QuestDatabase에 ID가 없습니다: {questID}");
+        return null;
+    }
+
     public QuestStatus GetQuestStatus(string questID)
     {
         if (questLog.ContainsKey(questID))
@@ -62,6 +76,8 @@ public class QuestManager : MonoBehaviour
         PlayerQuestStatus newQuest = new PlayerQuestStatus(quest);
         questLog[quest.questID] = newQuest;
         Debug.Log($"퀘스트 수락: {quest.questTitle}");
+
+        OnQuestAccepted?.Invoke(quest);
     }
 
     public void AdvanceQuestProgress(string targetID, int amount)
@@ -91,6 +107,7 @@ public class QuestManager : MonoBehaviour
                 // 4. 로그 수정 (이제 '?' 대신 'requiredAmount' 표시)
                 Debug.Log($"퀘스트 진행: {questStatus.questID} - {targetID} ({questStatus.objectiveProgress[targetID]} / {objective.requiredAmount})");
 
+                OnQuestProgressChanged?.Invoke(questStatus, originalQuest);
                 // 5. 이 퀘스트의 모든 목표가 달성되었는지 확인
                 CheckQuestCompletion(questStatus, originalQuest);
             }
@@ -122,6 +139,9 @@ public class QuestManager : MonoBehaviour
         {
             // 상태를 'COMPLETED'로 변경!
             status.status = QuestStatus.COMPLETED;
+
+            OnQuestCompleted?.Invoke(status, quest);
+
             Debug.Log($"퀘스트 목표 달성: {quest.questTitle}! NPC에게 돌아가 보상을 받으세요.");
             // TODO: 퀘스트 로그 UI 갱신, NPC 머리 위에 '?' 아이콘 띄우기 등
         }
@@ -148,5 +168,6 @@ public class QuestManager : MonoBehaviour
         questLog[quest.questID].status = QuestStatus.REWARD_CLAIMED;
         Debug.Log($"퀘스트 완료 및 보상 수령: {quest.questTitle}");
         // TODO: UI 갱신
+        OnQuestRewardClaimed?.Invoke(quest);
     }
 }

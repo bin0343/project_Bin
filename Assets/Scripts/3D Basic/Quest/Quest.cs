@@ -11,6 +11,7 @@ public class Quest : ScriptableObject
     [Header("퀘스트 내용")]
     [TextArea(3, 5)]
     public string description;      //퀘스트 설명
+    public string shortDescription;
 
     public List<QuestObjective> objectives;     //이 퀘스트의 목표
     public QuestReward rewards;     //완료 보상
