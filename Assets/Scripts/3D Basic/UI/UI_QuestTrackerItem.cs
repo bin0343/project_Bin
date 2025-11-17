@@ -6,16 +6,12 @@ public class UI_QuestTrackerItem : MonoBehaviour
 {
     [Header("UI 요소 연결")]
     public Text titleText;
-    //public TextMeshProUGUI shortDescriptionText;
-
-    [Tooltip("목표 텍스트 프리팹이 생성될 부모")]
     public Transform objectivesContainer;
-
-    [Tooltip("목표 텍스트 하나를 표시할 Text 프리팹")]
     public GameObject objectiveTextPrefab;
 
     [Header("완료 시 시각 효과")]
-    public Color completedColor = Color.yellow;
+    public Color completedColor = Color.green;
+    public Color normalColor = Color.white;
 
     // 빠른 접근을 위해 목표(targetID)별 텍스트 컴포넌트 저장
     private Dictionary<string, Text> objectiveTexts = new Dictionary<string, Text>();
@@ -23,7 +19,11 @@ public class UI_QuestTrackerItem : MonoBehaviour
     // UI 항목 초기 설정
     public void Setup(Quest quest, PlayerQuestStatus status)
     {
-        titleText.text = quest.questTitle;
+        if (titleText != null)
+        {
+            titleText.text = quest.questTitle;
+            titleText.color = normalColor;
+        }
         //shortDescriptionText.text = quest.shortDescription;
 
         // 기존 목표 텍스트가 있다면 모두 삭제
@@ -42,13 +42,15 @@ public class UI_QuestTrackerItem : MonoBehaviour
             if (objectiveText != null)
             {
                 // 현재 진행도 가져오기
-                int currentAmount = status.objectiveProgress[obj.targetID];
+                int currentAmount = status.objectiveProgress.ContainsKey(obj.targetID) ? status.objectiveProgress[obj.targetID] : 0;
                 objectiveText.text = FormatObjectiveText(obj, currentAmount);
 
                 // 딕셔너리에 추가
                 objectiveTexts[obj.targetID] = objectiveText;
             }
         }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
 
     // 퀘스트 진행도 업데이트
@@ -60,6 +62,8 @@ public class UI_QuestTrackerItem : MonoBehaviour
             {
                 int currentAmount = status.objectiveProgress[obj.targetID];
                 objectiveText.text = FormatObjectiveText(obj, currentAmount);
+
+                //if (currentAmount >= obj.requiredAmount) objectiveText.color = completedColor;
             }
         }
     }

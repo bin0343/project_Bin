@@ -13,6 +13,10 @@ public class Quest : ScriptableObject
     public string description;      //퀘스트 설명
     public string shortDescription;
 
+    [Header("퀘스트 전용 대화")]
+    public Conversation startConversation;
+    public Conversation completeConversation;
+
     public List<QuestObjective> objectives;     //이 퀘스트의 목표
     public QuestReward rewards;     //완료 보상
 }
