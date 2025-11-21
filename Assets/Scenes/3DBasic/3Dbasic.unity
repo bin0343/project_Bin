@@ -415,6 +415,11 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!4 &178555670 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 79237143088779011, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+  m_PrefabInstance: {fileID: 8090253868912860513}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &190453233
 GameObject:
   m_ObjectHideFlags: 0
@@ -1751,9 +1756,12 @@ MonoBehaviour:
   interactionMenuPanel: {fileID: 1914849562}
   npcData: {fileID: 0}
   conversation: {fileID: 0}
+  pendingConversation: {fileID: 0}
   talkButton: {fileID: 1930131771}
   giftButton: {fileID: 1079764777}
   closeButton: {fileID: 1445958298}
+  questButton: {fileID: 0}
+  questButtonText: {fileID: 0}
 --- !u!1 &821029759
 GameObject:
   m_ObjectHideFlags: 0
@@ -6071,6 +6079,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6854339425477246251, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: itemLayer.m_Bits
+      value: 512
+      objectReference: {fileID: 0}
+    - target: {fileID: 6854339425477246251, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: runningAttackData
       value: 
       objectReference: {fileID: 11400000, guid: edfb98f86c505944cb9e39f860767141, type: 2}
@@ -6277,13 +6289,25 @@ PrefabInstance:
       value: Weapon_Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: lootMethod
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: dropSpawnPoint
+      value: 
+      objectReference: {fileID: 178555670}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: fieldItemPrefab
+      value: 
+      objectReference: {fileID: 7709485948146272864, guid: 6d2377186a7132e429b5efede9575704, type: 3}
+    - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: dropTable.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: dropTable.Array.data[0].itemData
       value: 
-      objectReference: {fileID: 11400000, guid: 7c486dd6fdad8b842811c64e0b6dde9b, type: 2}
+      objectReference: {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
     - target: {fileID: 7442217668681245080, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: dropTable.Array.data[0].maxAmount
       value: 2

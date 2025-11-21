@@ -481,7 +481,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     #region Dead
     public void Dead()
     {
-        Debug.LogError($"--- {gameObject.name}의 Dead() 함수가 호출되었습니다! ---");
+        //Debug.LogError($"--- {gameObject.name}의 Dead() 함수가 호출되었습니다! ---");
         if (isDead) return;
 
         isDead = true;
@@ -495,20 +495,31 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         }
         navAgent.enabled = false; // 죽은 후에는 NavMeshAgent를 완전히 꺼버리는 것이 안전합니다.
 
+        gameObject.tag = "Corpse"; // 태그 변경
+
         if (itemDropper != null)
         {
             itemDropper.GenerateLoot();
         }
 
-        gameObject.tag = "Corpse"; // 태그 변경
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+        {
+            col.isTrigger = true;
+
+            if (itemDropper != null && itemDropper.lootMethod == LootMethod.DropOnGround)
+            {
+                col.enabled = false;
+            }
+        }
 
         if (hpBarObject != null)
         {
             hpBarObject.SetActive(false);
         }
 
-        Collider col = GetComponent<Collider>();
-        if (col != null) col.isTrigger = true;
+        /*Collider col = GetComponent<Collider>();
+        if (col != null) col.isTrigger = true;*/
 
         // 경험치 지급
         if (target != null)
@@ -533,7 +544,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 Debug.LogWarning($"이 몬스터({gameObject.name})의 Enemy_Stat에 EnemyName이 지정되지 않아 퀘스트 카운트가 오르지 않습니다.");
             }
         }
-        this.enabled = false;
+        //this.enabled = false;
     }
     #endregion
 
@@ -682,6 +693,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         if (isDead && other.CompareTag("Player"))
         {
+            if (itemDropper != null && itemDropper.lootMethod == LootMethod.DropOnGround)
+            {
+                return;
+            }
             Player_Action playerAction = other.GetComponent<Player_Action>();
             if (playerAction != null)
             {

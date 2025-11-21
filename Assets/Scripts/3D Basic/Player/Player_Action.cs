@@ -30,8 +30,12 @@ public class Player_Action : MonoBehaviour
     public Shield_Player shield;
     public Weapon_Player currentWeapon { get; private set; }
     private ItemDrop lootableCorpse;
-    
-    
+
+    [Header("아이템 줍기 반경")]
+    public float pickupRadius = 3.0f;
+    public LayerMask itemLayer;
+
+
     [HideInInspector] public bool IsGuarding { get; private set; } = false;
     [HideInInspector] public bool IsGrounded = true;
     [HideInInspector] public bool IsDead = false;
@@ -96,12 +100,16 @@ public class Player_Action : MonoBehaviour
             if (UI_Loot.Instance.lootPanel.activeSelf)
             {
                 UI_Loot.Instance.CloseLootPanel();
+                return;
             }
             // 닫혀있고, 근처에 상호작용 가능한 시체가 있다면 확인창을 엶
             else if (lootableCorpse != null)
             {
                 UI_Loot.Instance.OpenLootPanel(lootableCorpse);
+                return;
             }
+
+            TryPickUpNearbyItems();
         }
         if (stat.currentHP <= 0 && !(currentState is PlayerDeadState))
         {
@@ -226,6 +234,42 @@ public class Player_Action : MonoBehaviour
         }
     }
     #endregion
+
+    private void TryPickUpNearbyItems()
+    {
+        // 플레이어 주변의 아이템 레이어 물체 감지
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, pickupRadius, itemLayer);
+
+        bool pickedUpAny = false;
+
+        foreach (var hitCollider in hitColliders)
+        {
+            FieldItem fieldItem = hitCollider.GetComponent<FieldItem>();
+            if (fieldItem != null)
+            {
+                Item_Base itemData = fieldItem.GetItem();
+
+                // 아이템 데이터가 있고, 인벤토리에 추가 성공했다면
+                if (itemData != null && Player_Inventory.instance.AddItem(itemData))
+                {
+                    Debug.Log($"아이템 획득: {itemData.itemName}");
+                    fieldItem.DestroyItem(); // 필드 오브젝트 삭제
+                    pickedUpAny = true;
+
+                    break;
+                    // 로스트아크는 G키 한 번에 주변 아이템을 다 줍지 않고, 가장 가까운거 하나씩 줍거나 다 줍습니다.
+                    // 만약 한 번에 다 줍게 하려면 break를 지우세요.
+                    // 하나씩 줍게 하려면 여기서 break; 
+                }
+                else if (itemData != null)
+                {
+                    Debug.Log("인벤토리가 가득 찼습니다.");
+                    // 가득 찼다는 메시지 띄우기 (UI_Manager 활용)
+                    break;
+                }
+            }
+        }
+    }
 
     public void SetCurrentWeapon(Weapon_Player newWeapon)
     {

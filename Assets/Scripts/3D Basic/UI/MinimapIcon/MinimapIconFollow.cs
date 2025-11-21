@@ -15,6 +15,6 @@ public class MinimapIconFollow : MonoBehaviour
         );
 
         // 아이콘의 방향을 플레이어에 맞추고 싶으면
-        transform.rotation = Quaternion.Euler(0, target.eulerAngles.y, 0);
+        transform.rotation = Quaternion.Euler(0, target.eulerAngles.y + 180, 0);
     }
 }
