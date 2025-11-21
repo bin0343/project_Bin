@@ -2070,6 +2070,10 @@ MonoBehaviour:
   stat: {fileID: 0}
   skillUIManagers: {fileID: 0}
   shield: {fileID: 0}
+  pickupRadius: 3
+  itemLayer:
+    serializedVersion: 2
+    m_Bits: 0
   IsGrounded: 1
   IsDead: 0
   IsKick: 0
@@ -2092,6 +2096,9 @@ MonoBehaviour:
   CharacterBody: {fileID: 5614425455300389929}
   CameraArm: {fileID: 6941324783796181333}
   RotateSpeed: 2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!136 &3050126407679256677
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2599,7 +2606,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 7824089770105362860}
-  offset: {x: 0, y: 15, z: -10}
+  offset: {x: 0, y: 10, z: -10}
   fixedRotationX: 45
 --- !u!20 &3605168388399675475
 Camera:

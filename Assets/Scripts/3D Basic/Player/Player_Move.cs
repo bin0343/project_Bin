@@ -10,11 +10,16 @@ public class Player_Move : MonoBehaviour
     public Rigidbody Rigidbody { get; private set; }
     private CameraArm cameraArmScript;
 
-    //[SerializeField] private float CharacterSpeed = 2.0f;
     [SerializeField] public float CharacterRunSpeed = 9.0f;
     [SerializeField] public Transform CharacterBody; 
     [SerializeField] private Transform CameraArm; 
-    [SerializeField] private float RotateSpeed = 2.0f;
+    [SerializeField] private float RotateSpeed = 5.0f;
+
+    private Transform currentReference;
+
+    [SerializeField] private LayerMask groundLayer;
+
+    private Coroutine rotationCoroutine;
 
     void Start()
     {
@@ -22,7 +27,9 @@ public class Player_Move : MonoBehaviour
         Animator = CharacterBody.GetComponentInChildren<Animator>();
         //Action = GetComponent<Player_Action>();
         cameraArmScript = CameraArm.GetComponent<CameraArm>();
+        currentReference = CameraArm;
 
+        if (groundLayer == 0) groundLayer = -1;
     }
 
     void Update()
@@ -61,36 +68,39 @@ public class Player_Move : MonoBehaviour
 
     public void HandleMovement(Vector2 moveInput, float speed)
     {
-        if (moveInput.magnitude == 0) return;
+        /*if (moveInput.magnitude == 0) return;
 
         Vector3 lookForward;
         Vector3 lookRight;
 
-        /*if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
-        {
-            lookForward = transform.forward;
-            lookRight = transform.right;
-        }
-        else
-        {
-            
-            //CharacterBody.forward = lookForward;
-        }*/
-
         lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
         lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
 
-        //float adjustedSpeed = GetAdjustedSpeed(moveInput);
         Vector3 moveDir = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
 
         Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * speed);
 
-        /*if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
+        // 3인칭일 때, moveDir (실제 움직이는 방향)을 바라보도록 회전
+        if (moveDir.sqrMagnitude > 0f) // sqrMagnitude는 0보다 클 때만 (즉, 움직임이 있을 때만)
         {
-            return;
+            Quaternion targetRotation = Quaternion.LookRotation(moveDir);
+            CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
         }*/
 
-        // 3인칭일 때, moveDir (실제 움직이는 방향)을 바라보도록 회전
+        if (moveInput.magnitude == 0) return;
+
+        // [!] 수정: CameraArm 대신 currentReference를 사용
+        // 만약 currentReference가 없으면 기본값으로 CameraArm 사용
+        Transform refTransform = currentReference != null ? currentReference : CameraArm;
+
+        Vector3 lookForward = new Vector3(refTransform.forward.x, 0f, refTransform.forward.z).normalized;
+        Vector3 lookRight = new Vector3(refTransform.right.x, 0f, refTransform.right.z).normalized;
+
+        Vector3 moveDir = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
+
+        Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * speed);
+
+        // 회전 로직 (1인칭 아닐 때만)
         if (moveDir.sqrMagnitude > 0f) // sqrMagnitude는 0보다 클 때만 (즉, 움직임이 있을 때만)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);
@@ -116,6 +126,98 @@ public class Player_Move : MonoBehaviour
 
         float baseSpeed = CharacterRunSpeed;
         return baseSpeed * directionWeight;
+    }
+
+    public void SetReferenceTransform(Transform newReference)
+    {
+        currentReference = newReference;
+        Debug.Log($"이동 기준이 {newReference.name}로 변경되었습니다.");
+    }
+
+    public void LookAtMouse()
+    {
+        /*Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 100f, groundLayer))
+        {
+            Vector3 targetPoint = hit.point;
+            Vector3 lookPoint = new Vector3(targetPoint.x, transform.position.y, targetPoint.z);
+
+            CharacterBody.LookAt(lookPoint);
+        }
+        else
+        {
+            Plane groundPlane = new Plane(Vector3.up, transform.position);
+            float enter;
+            if (groundPlane.Raycast(ray, out enter))
+            {
+                Vector3 hitPoint = ray.GetPoint(enter);
+                Vector3 lookPoint = new Vector3(hitPoint.x, transform.position.y, hitPoint.z);
+                CharacterBody.LookAt(lookPoint);
+            }
+        }*/
+
+        if (rotationCoroutine != null)
+        {
+            StopCoroutine(rotationCoroutine);
+        }
+        rotationCoroutine = StartCoroutine(RotateToMouseCoroutine());
+    }
+
+    private IEnumerator RotateToMouseCoroutine()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        Vector3 targetPoint = Vector3.zero;
+        bool hasHit = false;
+
+        if (Physics.Raycast(ray, out hit, 100f, groundLayer))
+        {
+            targetPoint = hit.point;
+            hasHit = true;
+        }
+        else
+        {
+            Plane groundPlane = new Plane(Vector3.up, transform.position);
+            float enter;
+            if (groundPlane.Raycast(ray, out enter))
+            {
+                targetPoint = ray.GetPoint(enter);
+                hasHit = true;
+            }
+        }
+
+        if (hasHit)
+        {
+            // 2. 목표 회전값 계산
+            Vector3 direction = (targetPoint - transform.position).normalized;
+            direction.y = 0; // 수직 회전 방지
+
+            if (direction != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+                // 3. 회전 루프 (목표 각도와 거의 비슷해질 때까지)
+                // 20.0f는 매우 빠른 회전 속도입니다. (일반 이동 회전보다 훨씬 빠름)
+                float attackRotateSpeed = 20.0f;
+
+                while (Quaternion.Angle(CharacterBody.rotation, targetRotation) > 1.0f)
+                {
+                    CharacterBody.rotation = Quaternion.Slerp(
+                        CharacterBody.rotation,
+                        targetRotation,
+                        Time.deltaTime * attackRotateSpeed
+                    );
+                    yield return null; // 다음 프레임까지 대기
+                }
+
+                // 4. 루프가 끝나면 깔끔하게 목표 각도로 확정
+                CharacterBody.rotation = targetRotation;
+            }
+        }
+
+        rotationCoroutine = null;
     }
 
     public void HandleRotation()

@@ -1247,6 +1247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be81c8f0f87fd4844ac86d784c0eee8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerMove: {fileID: 2070424797}
   dailyCameraSystem: {fileID: 801341263}
   combatCameraSystem: {fileID: 104397446}
 --- !u!114 &387092764
@@ -6311,6 +6312,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2031790643}
   m_CullTransparentMesh: 1
+--- !u!114 &2070424797 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6675883505787172727, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+  m_PrefabInstance: {fileID: 7621378517641559083}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06267e9e847e84041bca383b9f636d07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2075161693
 GameObject:
   m_ObjectHideFlags: 0
@@ -8078,7 +8090,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7267067681055074766, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: offset.y
-      value: 7
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7824089770105362860, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: m_LocalPosition.x

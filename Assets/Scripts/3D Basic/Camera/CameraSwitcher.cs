@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CameraSwitcher : MonoBehaviour
 {
+    [SerializeField] private Player_Move playerMove;
     [SerializeField] private GameObject dailyCameraSystem;
     [SerializeField] private GameObject combatCameraSystem;
 
@@ -11,6 +12,10 @@ public class CameraSwitcher : MonoBehaviour
 
     void Start()
     {
+        if (playerMove == null)
+        {
+            playerMove = FindObjectOfType<Player_Move>();
+        }
         SwitchToDailyMode();
     }
 
@@ -39,6 +44,11 @@ public class CameraSwitcher : MonoBehaviour
         isCombatMode = false;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (playerMove != null)
+        {
+            playerMove.SetReferenceTransform(dailyCameraSystem.transform);
+        }
     }
     
     public void SwitchToCombatMode()
@@ -48,5 +58,10 @@ public class CameraSwitcher : MonoBehaviour
         isCombatMode = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        if (playerMove != null)
+        {
+            playerMove.SetReferenceTransform(combatCameraSystem.transform);
+        }
     }
 }

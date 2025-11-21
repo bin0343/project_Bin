@@ -20,6 +20,10 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public override void Enter(Player_Action player)
     {
+        if (Cursor.visible || Cursor.lockState == CursorLockMode.None)
+        {
+            player.move.LookAtMouse();
+        }
         isTransitionFinished = false;
 
         comboStep++;
