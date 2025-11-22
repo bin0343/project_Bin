@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CameraSwitcher : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class CameraSwitcher : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (combatCameraSystem == null) return;
+
         if (Input.GetKeyDown(KeyCode.V))
         {
             isCombatMode = !isCombatMode;
@@ -39,8 +42,15 @@ public class CameraSwitcher : MonoBehaviour
 
     public void SwitchToDailyMode()
     {
-        dailyCameraSystem.SetActive(true);
-        combatCameraSystem.SetActive(false);
+        if (dailyCameraSystem != null)
+        {
+            dailyCameraSystem.SetActive(true);
+        }
+
+        if (combatCameraSystem != null)
+        {
+            combatCameraSystem.SetActive(false);
+        }
         isCombatMode = false;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -53,8 +63,15 @@ public class CameraSwitcher : MonoBehaviour
     
     public void SwitchToCombatMode()
     {
-        dailyCameraSystem.SetActive(false);
-        combatCameraSystem.SetActive(true);
+        if (dailyCameraSystem != null)
+        {
+            dailyCameraSystem.SetActive(false);
+        }
+
+        if (combatCameraSystem != null)
+        {
+            combatCameraSystem.SetActive(true);
+        }
         isCombatMode = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

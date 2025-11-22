@@ -92,6 +92,11 @@ public class Player_Action : MonoBehaviour
         ChangeState(new PlayerIdleState());
     }
 
+    private void Awake()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.G))
@@ -257,8 +262,7 @@ public class Player_Action : MonoBehaviour
                     pickedUpAny = true;
 
                     break;
-                    // 로스트아크는 G키 한 번에 주변 아이템을 다 줍지 않고, 가장 가까운거 하나씩 줍거나 다 줍습니다.
-                    // 만약 한 번에 다 줍게 하려면 break를 지우세요.
+                    // 만약 한 번에 다 줍게 하려면 break를 지우기.
                     // 하나씩 줍게 하려면 여기서 break; 
                 }
                 else if (itemData != null)
@@ -276,20 +280,6 @@ public class Player_Action : MonoBehaviour
         currentWeapon = newWeapon;
     }
 
-    /*private void HandleGuardInput()
-    {
-        // 방패 들기 (마우스 우클릭 누르는 순간)
-        if (Input.GetMouseButtonDown(1))
-        {
-            StartGuarding();
-        }
-        // 방패 내리기 (마우스 우클릭 떼는 순간)
-        else if (Input.GetMouseButtonUp(1))
-        {
-            StopGuarding();
-        }
-    }*/
-
     public void OnAttackBlocked()
     {
         // 이미 막혔거나, 죽었거나, 다른 리액션 중일 때는 무시
@@ -306,30 +296,6 @@ public class Player_Action : MonoBehaviour
         currentWeapon?.DisableHitbox();
         currentWeapon?.StopTrail();
     }
-
-    /*public void StartGuarding()
-    {
-        if (IsGuarding) return; // 이미 방어 중이면 무시
-
-        IsGuarding = true;
-        Debug.Log("방어 시작");
-
-        animator.SetBool("IsGuarding", true);
-
-        shield?.SetActiveShield(true);
-    }*/
-
-    /*public void StopGuarding()
-    {
-        if (!IsGuarding) return; // 방어 중이 아니면 무시
-
-        IsGuarding = false;
-        Debug.Log("방어 중지");
-
-        animator.SetBool("IsGuarding", false);
-
-        shield?.SetActiveShield(false);
-    }*/
 
     public bool CanUseRunningAttack()
     {

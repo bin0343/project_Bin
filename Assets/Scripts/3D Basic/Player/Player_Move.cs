@@ -10,10 +10,10 @@ public class Player_Move : MonoBehaviour
     public Rigidbody Rigidbody { get; private set; }
     private CameraArm cameraArmScript;
 
-    [SerializeField] public float CharacterRunSpeed = 9.0f;
+    [SerializeField] public float CharacterRunSpeed = 12.0f;
     [SerializeField] public Transform CharacterBody; 
     [SerializeField] private Transform CameraArm; 
-    [SerializeField] private float RotateSpeed = 5.0f;
+    [SerializeField] private float RotateSpeed = 7.0f;
 
     private Transform currentReference;
 
@@ -41,19 +41,7 @@ public class Player_Move : MonoBehaviour
 
     private void FixedUpdate()
     {
-        /*IPlayerState actionState = Action.currentState; // 가독성을 위해 현재 Action 상태를 가져옴
-
-        // Action의 현재 상태가 공격 관련 상태이거나 죽었다면 이동 로직을 실행하지 않음
-        if (actionState is PlayerAttackState || actionState is PlayerRunningAttackState || actionState is PlayerDeadState)
-        {
-            return;
-        }
-        if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
-            return;
-        //Move();
-        //Run();
-        //Rotate(); // 3인칭 전용 회전 처리
-        currentMoveState?.Execute(this);*/
+        
     }
 
     void Look()
@@ -68,25 +56,6 @@ public class Player_Move : MonoBehaviour
 
     public void HandleMovement(Vector2 moveInput, float speed)
     {
-        /*if (moveInput.magnitude == 0) return;
-
-        Vector3 lookForward;
-        Vector3 lookRight;
-
-        lookForward = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
-        lookRight = new Vector3(CameraArm.right.x, 0f, CameraArm.right.z).normalized;
-
-        Vector3 moveDir = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
-
-        Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * speed);
-
-        // 3인칭일 때, moveDir (실제 움직이는 방향)을 바라보도록 회전
-        if (moveDir.sqrMagnitude > 0f) // sqrMagnitude는 0보다 클 때만 (즉, 움직임이 있을 때만)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDir);
-            CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
-        }*/
-
         if (moveInput.magnitude == 0) return;
 
         // [!] 수정: CameraArm 대신 currentReference를 사용
@@ -136,28 +105,6 @@ public class Player_Move : MonoBehaviour
 
     public void LookAtMouse()
     {
-        /*Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, 100f, groundLayer))
-        {
-            Vector3 targetPoint = hit.point;
-            Vector3 lookPoint = new Vector3(targetPoint.x, transform.position.y, targetPoint.z);
-
-            CharacterBody.LookAt(lookPoint);
-        }
-        else
-        {
-            Plane groundPlane = new Plane(Vector3.up, transform.position);
-            float enter;
-            if (groundPlane.Raycast(ray, out enter))
-            {
-                Vector3 hitPoint = ray.GetPoint(enter);
-                Vector3 lookPoint = new Vector3(hitPoint.x, transform.position.y, hitPoint.z);
-                CharacterBody.LookAt(lookPoint);
-            }
-        }*/
-
         if (rotationCoroutine != null)
         {
             StopCoroutine(rotationCoroutine);
@@ -220,18 +167,16 @@ public class Player_Move : MonoBehaviour
         rotationCoroutine = null;
     }
 
+    public void SetDailyCameraActive(bool isActive)
+    {
+        if (CameraArm != null)
+        {
+            CameraArm.gameObject.SetActive(isActive);
+        }
+    }
+
     public void HandleRotation()
     {
-        /*if (cameraArmScript == null || cameraArmScript.FirstPersonCamera.enabled)
-        {
-            return; // 1인칭일 때는 이 함수를 실행하지 않음
-        }
-
-        Vector3 lookDir = new Vector3(CameraArm.forward.x, 0f, CameraArm.forward.z).normalized;
-        if (lookDir.sqrMagnitude > 0f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(lookDir);
-            CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
-        }*/
+        
     }
 }
