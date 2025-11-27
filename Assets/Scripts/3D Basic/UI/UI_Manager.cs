@@ -19,6 +19,7 @@ public class UI_Manager : MonoBehaviour
     public Text MessageText;
     public GameObject LootPanel;
     public UI_Loot UI_Loot;
+    public GameObject localMapPanel;
 
     [Header("메시지 설정")]
     public float messageDisplayTime = 2.0f; //메시지 표시 시간
@@ -70,6 +71,37 @@ public class UI_Manager : MonoBehaviour
             {
                 UpdatePlayerStatus();
                 OpenUI(StatusPanel);
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            if (localMapPanel != null)
+            {
+                if (localMapPanel.activeSelf)
+                {
+                    // 1. 맵 컨트롤러의 닫기 로직 실행 (시간 재개 등)
+                    LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
+                    if (controller != null)
+                    {
+                        controller.CloseLocalMap();
+                    }
+
+                    // 2. UI 매니저의 스택에서 제거 및 비활성화
+                    CloseSpecificUI(localMapPanel);
+                }
+                else
+                {
+                    // 1. UI 매니저 스택에 추가 및 활성화
+                    OpenUI(localMapPanel);
+
+                    // 2. 맵 컨트롤러의 열기 로직 실행 (시간 정지, 버튼 포커스 등)
+                    LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
+                    if (controller != null)
+                    {
+                        controller.OpenLocalMap();
+                    }
+                }
             }
         }
 
