@@ -16,14 +16,18 @@ public class MapController : MonoBehaviour
     // 씬 이름과 해당 버튼을 짝지어두는 구조체 리스트
     [SerializeField] private List<MapButtonEntry> mapEntries;
 
-    private string targetSceneName; // 이동하려고 선택한 씬 이름 임시 저장
+    private MapButtonEntry currentTargetEntry;
+    //private string targetSceneName; // 이동하려고 선택한 씬 이름 임시 저장
     private GameObject lastSelectedMapButton;
 
     [System.Serializable]
     public struct MapButtonEntry
     {
-        public string sceneName; // 예: TownScene
+        public string locationName; // UI 표시용 (예: 숲, 학교)
+        public string sceneName;
         public Button buttonObj; // 해당 씬을 담당하는 버튼 오브젝트
+
+        public string targetSpawnName;  //다음 씬에 갈때 찾을 스폰포인트 이름
     }
 
     public void OpenMapPanel()
@@ -57,22 +61,26 @@ public class MapController : MonoBehaviour
         }
     }
 
-    public void OnClickMapButton(string sceneName)
+    public void OnClickMapButton(int index)
     {
-        targetSceneName = sceneName;
+        if (index < 0 || index >= mapEntries.Count) return;
+
+        currentTargetEntry = mapEntries[index];
         lastSelectedMapButton = EventSystem.current.currentSelectedGameObject;
         confirmationPanel.SetActive(true);
         if (confirmText != null)
         {
-            confirmText.text = $"{sceneName}으로 이동하시겠습니까?";
+            string displayName = string.IsNullOrEmpty(currentTargetEntry.locationName) ? currentTargetEntry.sceneName : currentTargetEntry.locationName;
+            confirmText.text = $"{displayName}으로 이동하시겠습니까?";
         }
         EventSystem.current.SetSelectedGameObject(confirmYesButton.gameObject);
     }
 
     public void OnConfirmYes()
     {
+        SceneTransferManager.TargetSpawnName = currentTargetEntry.targetSpawnName;
         Time.timeScale = 1f; // 게임 시간 재개
-        SceneManager.LoadScene(targetSceneName);
+        SceneManager.LoadScene(currentTargetEntry.sceneName);
     }   
 
     public void OnConfirmNo()

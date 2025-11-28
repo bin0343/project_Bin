@@ -181,10 +181,14 @@ MonoBehaviour:
   confirmYesButton: {fileID: 88231523}
   confirmNoButton: {fileID: 696865974}
   mapEntries:
-  - sceneName: Battle
+  - locationName: "\uC232"
+    sceneName: Battle
     buttonObj: {fileID: 967802890}
-  - sceneName: Village
+    targetSpawnName: Spawn_FromVillage
+  - locationName: 
+    sceneName: Village
     buttonObj: {fileID: 965915482}
+    targetSpawnName: 
 --- !u!114 &255446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5379,11 +5383,11 @@ MonoBehaviour:
       - m_Target: {fileID: 255445}
         m_TargetAssemblyTypeName: MapController, Assembly-CSharp
         m_MethodName: OnClickMapButton
-        m_Mode: 5
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: Village
           m_BoolArgument: 0
@@ -5492,7 +5496,7 @@ MonoBehaviour:
       - m_Target: {fileID: 255445}
         m_TargetAssemblyTypeName: MapController, Assembly-CSharp
         m_MethodName: OnClickMapButton
-        m_Mode: 5
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -6601,10 +6605,14 @@ MonoBehaviour:
   confirmYesButton: {fileID: 650451352}
   confirmNoButton: {fileID: 2007654668}
   mapEntries:
-  - sceneName: Battle
+  - locationName: 
+    sceneName: Battle
     buttonObj: {fileID: 620165275}
-  - sceneName: Village
+    targetSpawnName: 
+  - locationName: 
+    sceneName: Village
     buttonObj: {fileID: 548114518}
+    targetSpawnName: 
 --- !u!1 &1198341615
 GameObject:
   m_ObjectHideFlags: 0
@@ -11062,6 +11070,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3500612165348554451, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3668584187216141591, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3711747182613166259, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
