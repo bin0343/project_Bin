@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Player_Action : MonoBehaviour
 {
@@ -47,6 +47,15 @@ public class Player_Action : MonoBehaviour
     public static event Action<Sprite, float> OnRunningAttackUsed;
     public IPlayerState currentState;
     public int currentComboStep { get; private set; }
+
+    public bool IsPointerOverUI()       //마우스가 ui위에 있는지 확인
+    {
+        // EventSystem이 없으면 false 반환 (에러 방지)
+        if (EventSystem.current == null) return false;
+
+        // 마우스 포인터가 UI 요소(Raycast Target이 켜진 패널/버튼 등) 위에 있으면 true 반환
+        return EventSystem.current.IsPointerOverGameObject();
+    }
 
     void Start()
     {
@@ -121,10 +130,10 @@ public class Player_Action : MonoBehaviour
             ChangeState(new PlayerDeadState());
             return; 
         }
-        if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
-            return;
+        /*if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
+            return;*/
         if (IsDead) return;
-        if (isTargetingSkill || (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen))
+        if (isTargetingSkill)
             return;
         //HandleGuardInput();
         currentState?.Execute(this);

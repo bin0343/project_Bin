@@ -9,7 +9,7 @@ public class ChangeMap : MonoBehaviour
 
     private void Start()
     {
-        GameObject canvas = GameObject.Find("Canvas");
+        GameObject canvas = GameObject.Find("UI_Canvas");
 
         if (canvas != null)
         {

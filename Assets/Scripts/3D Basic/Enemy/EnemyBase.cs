@@ -60,6 +60,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     private Enemy_Stat stat;
     [SerializeField] public TrailRenderer slashTrail;
     private Player_Action playerAction;
+    private MonsterSpawner mySpawner;
 
     public ItemDrop itemDropper;
 
@@ -89,6 +90,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     public float patrolDuration = 5f;
     private float patrolTimer = 0f;
 
+    public void SetSpawner(MonsterSpawner spawner) { mySpawner = spawner; }
+
     protected void Start()
     {
         animator = GetComponentInChildren<Animator>();
@@ -97,11 +100,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         itemDropper = GetComponent<ItemDrop>();
         slashTrail = GetComponentInChildren<TrailRenderer>();
 
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
         {
-            //target = player.transform;
-            playerAction = player.GetComponent<Player_Action>();
+            playerAction = playerObj.GetComponent<Player_Action>();
         }
 
         if (hpBarObject != null)
@@ -481,10 +483,13 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     #region Dead
     public void Dead()
     {
-        //Debug.LogError($"--- {gameObject.name}의 Dead() 함수가 호출되었습니다! ---");
         if (isDead) return;
 
         isDead = true;
+        if (mySpawner != null)
+        {
+            mySpawner.OnMonsterDead(this.gameObject);
+        }
         currentState = ENEMYSTATE.DEAD; // 상태를 DEAD로 전환
         animator.SetTrigger("IsDie");   // 사망 애니메이션 재생
 
@@ -493,7 +498,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             navAgent.isStopped = true;
             navAgent.ResetPath();
         }
-        navAgent.enabled = false; // 죽은 후에는 NavMeshAgent를 완전히 꺼버리는 것이 안전합니다.
+        navAgent.enabled = false; 
 
         gameObject.tag = "Corpse"; // 태그 변경
 
@@ -518,10 +523,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             hpBarObject.SetActive(false);
         }
 
-        /*Collider col = GetComponent<Collider>();
-        if (col != null) col.isTrigger = true;*/
-
-        // 경험치 지급
         if (target != null)
         {
             Player_Stat playerStat = target.GetComponent<Player_Stat>();
@@ -534,7 +535,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         //퀘스트 로직
         if (QuestManager.instance != null && stat != null)
         {
-            // 이 몬스터의 ID (Enemy_Stat의 EnemyName)를 퀘스트 매니저에 "1마리 처치"로 보고합니다.
             if (!string.IsNullOrEmpty(stat.EnemyName))
             {
                 QuestManager.instance.AdvanceQuestProgress(stat.EnemyName, 1);
@@ -719,16 +719,27 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     void ManageHpBarVisibility()
     {
-        if (isDead || target == null || hpBarObject == null) return;
+        if (isDead || hpBarObject == null) return;
 
-        float distance = Vector3.Distance(transform.position, target.position);
+        Transform playerTr = null;
+        if (playerAction != null)
+        {
+            playerTr = playerAction.transform;
+        }
+        else
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) playerTr = p.transform;
+        }
 
-        // 플레이어가 가시 범위 안에 있고 체력바가 꺼져있으면 켠다
+        if (playerTr == null) return;
+
+        float distance = Vector3.Distance(transform.position, playerTr.position);
+
         if (distance <= hpBarVisibleRange && !hpBarObject.activeSelf)
         {
             hpBarObject.SetActive(true);
         }
-        // 플레이어가 가시 범위를 벗어났고 체력바가 켜져있으면 끈다
         else if (distance > hpBarVisibleRange && hpBarObject.activeSelf)
         {
             hpBarObject.SetActive(false);
@@ -741,8 +752,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         float knockForce = 10f;
         float knockTime = 0.3f;
         float elapsed = 0f;
-
-        
 
         if (Shared.MainCamera != null)
         {
@@ -759,6 +768,22 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         }
 
         navAgent.enabled = true;
+    }
+
+    public void OnDamageTaken(Transform attacker)
+    {
+        if (isDead) return;
+
+        // 공격한 대상을 타겟으로 설정
+        target = attacker;
+        
+        // 현재 상태가 이미 BATTLE이나 STUN이 아니라면 전투 태세로 전환
+        if (currentState != ENEMYSTATE.BATTLE && currentState != ENEMYSTATE.STUN && currentState != ENEMYSTATE.DEAD)
+        {
+            currentState = ENEMYSTATE.BATTLE;
+            // 추적을 위해 NavMesh 재설정 등 필요한 로직 추가 가능
+            if(navAgent.enabled && navAgent.isOnNavMesh) navAgent.isStopped = false;
+        }
     }
 
 #if UNITY_EDITOR

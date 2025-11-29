@@ -52,10 +52,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3935379731fb4fa4fb58631904cbd204, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lootMethod: 0
-  dropTable: []
-  fieldItemPrefab: {fileID: 0}
-  dropSpawnPoint: {fileID: 0}
+  lootMethod: 1
+  dropTable:
+  - itemData: {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
+    minAmount: 1
+    maxAmount: 2
+    dropChance: 54.3
+  fieldItemPrefab: {fileID: 7709485948146272864, guid: 6d2377186a7132e429b5efede9575704, type: 3}
+  dropSpawnPoint: {fileID: 79237143088779011}
 --- !u!114 &1462598004550336977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,10 +109,10 @@ MonoBehaviour:
   eyeTransform: {fileID: 0}
   playerLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   obstacleLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
   timeToGiveUp: 5
   patrolRadius: 5
   patrolDuration: 5
@@ -214,7 +218,7 @@ Transform:
   m_GameObject: {fileID: 4858605729468191220}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -4.0388748e-20, w: 1}
-  m_LocalPosition: {x: 0.17, y: -0.1400001, z: 0.15}
+  m_LocalPosition: {x: 0.17, y: -10, z: 0.15}
   m_LocalScale: {x: 0.19999999, y: 1, z: 0.19999999}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1013,6 +1017,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 84f12b2c44cea14439f45c2bd89a3d36, type: 3}
+--- !u!4 &79237143088779011 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6381775003714690295, guid: 84f12b2c44cea14439f45c2bd89a3d36, type: 3}
+  m_PrefabInstance: {fileID: 6451722364311000052}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5569214478771072919 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1495419657965796451, guid: 84f12b2c44cea14439f45c2bd89a3d36, type: 3}

@@ -34,8 +34,8 @@ public class Player_Move : MonoBehaviour
 
     void Update()
     {
-        if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
-            return;
+        /*if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
+            return;*/
         Look();
     }
 
@@ -100,7 +100,17 @@ public class Player_Move : MonoBehaviour
     public void SetReferenceTransform(Transform newReference)
     {
         currentReference = newReference;
-        Debug.Log($"이동 기준이 {newReference.name}로 변경되었습니다.");
+
+        // [수정] newReference가 null일 경우 .name을 호출하면 에러가 나므로 예외 처리
+        if (newReference != null)
+        {
+            Debug.Log($"이동 기준이 {newReference.name}로 변경되었습니다.");
+        }
+        else
+        {
+            // null이 들어오면 "기본값"으로 변경되었다고 로그 출력
+            Debug.Log("이동 기준이 기본값(CameraArm)으로 변경되었습니다.");
+        }
     }
 
     public void LookAtMouse()

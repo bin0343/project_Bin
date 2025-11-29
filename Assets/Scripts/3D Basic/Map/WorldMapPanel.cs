@@ -15,8 +15,18 @@ public class WorldMapPanel : MonoBehaviour
     public float worldMinZ;
     public float worldMaxZ;
 
+    private void OnEnable() // 패널이 켜질 때마다 확인
+    {
+        if (player == null)
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) player = p.transform;
+        }
+    }
+
     private void Update()
     {
+        if (player == null) return;
         Vector2 mapPos = WorldToMapPosition(player.position);
 
         playerIcon.anchoredPosition = mapPos;

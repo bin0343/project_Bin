@@ -20,6 +20,7 @@ public class UI_Manager : MonoBehaviour
     public GameObject LootPanel;
     public UI_Loot UI_Loot;
     public GameObject localMapPanel;
+    public bool isBattleMode { get; set; } = false;
 
     [Header("메시지 설정")]
     public float messageDisplayTime = 2.0f; //메시지 표시 시간
@@ -41,6 +42,8 @@ public class UI_Manager : MonoBehaviour
         {
             UI_Loot = LootPanel.GetComponent<UI_Loot>();
         }
+
+        //UpdateCursorState();
     }
 
     private void Awake()
@@ -80,15 +83,12 @@ public class UI_Manager : MonoBehaviour
             {
                 if (localMapPanel.activeSelf)
                 {
-                    // 1. 맵 컨트롤러의 닫기 로직 실행 (시간 재개 등)
+                    CloseSpecificUI(localMapPanel);
                     LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
                     if (controller != null)
                     {
                         controller.CloseLocalMap();
                     }
-
-                    // 2. UI 매니저의 스택에서 제거 및 비활성화
-                    CloseSpecificUI(localMapPanel);
                 }
                 else
                 {
@@ -120,6 +120,11 @@ public class UI_Manager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (UIStack.Count > 0 && UIStack.Peek() == localMapPanel)
+            {
+                LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
+                if (controller != null) controller.CloseLocalMap();
+            }
             CloseTopUI();
         }
         UI_StatusBar.UpdateStatus(PlayerStat);
@@ -154,17 +159,16 @@ public class UI_Manager : MonoBehaviour
 
     public void CloseSpecificUI(GameObject panel)
     {
-        if (panel.activeSelf)
+        panel.SetActive(false); // 일단 끈다.
+
+        if (UIStack.Contains(panel))
         {
-            panel.SetActive(false);
             Stack<GameObject> tempStack = new Stack<GameObject>();
             while (UIStack.Count > 0)
             {
                 GameObject top = UIStack.Pop();
                 if (top != panel)
                     tempStack.Push(top);
-                else
-                    break;
             }
 
             while (tempStack.Count > 0)
@@ -210,7 +214,7 @@ public class UI_Manager : MonoBehaviour
     public void UpdateCursorState()
     {
         // UI 창이 열려있거나, '스킬 조준 모드'일 경우
-        if (IsUIOpen || IsInTargetingMode)
+        if (IsUIOpen || IsInTargetingMode || isBattleMode)
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
@@ -230,6 +234,12 @@ public class UI_Manager : MonoBehaviour
                 Cursor.lockState = CursorLockMode.Locked;
             }
         }
+    }
+
+    public void SetBattleMode(bool isBattle)
+    {
+        isBattleMode = isBattle;
+        UpdateCursorState(); // 모드가 바뀌었으니 커서 상태도 바로 갱신
     }
 
     #region Cursor Management

@@ -20,7 +20,7 @@ public class PlayerMoveState : PlayerBaseState
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         bool isMoving = moveInput.magnitude > 0;
         bool jumpInput = Input.GetButtonDown("Jump");
-        bool attackInput = Input.GetMouseButtonDown(0);
+        bool attackInput = Input.GetMouseButtonDown(0) && !player.IsPointerOverUI();
 
         // --- 2. 상태 전환 우선순위 결정 ---
 

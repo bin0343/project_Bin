@@ -79,7 +79,7 @@ public class MapController : MonoBehaviour
     public void OnConfirmYes()
     {
         SceneTransferManager.TargetSpawnName = currentTargetEntry.targetSpawnName;
-        Time.timeScale = 1f; // 게임 시간 재개
+        CloseMapPanel();
         SceneManager.LoadScene(currentTargetEntry.sceneName);
     }   
 
@@ -95,26 +95,9 @@ public class MapController : MonoBehaviour
     public void CloseMapPanel()
     {
         Time.timeScale = 1f;
+        confirmationPanel.SetActive (false);
         gameObject.SetActive(false);
         //Cursor.lockState = CursorLockMode.Locked;
         //Cursor.visible = false;
     }
-
-    /*public void OnClickLocationButton(string sceneName)
-    {
-        // 씬 이름이 비어있지 않은지 확인
-        if (!string.IsNullOrEmpty(sceneName))
-        {
-            Debug.Log($"{sceneName}으로 이동합니다.");
-
-            // 시간이 멈춰있다면 다시 흐르게 하고 이동 (중요!)
-            Time.timeScale = 1f;
-
-            SceneManager.LoadScene(sceneName);
-        }
-        else
-        {
-            Debug.LogError("이동할 씬 이름이 설정되지 않았습니다!");
-        }
-    }*/
 }

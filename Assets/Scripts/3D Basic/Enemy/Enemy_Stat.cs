@@ -67,9 +67,15 @@ public class Enemy_Stat : MonoBehaviour
         if (hpBar != null)
             hpBar.UpdateHpBar();
 
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            enemyBase.OnDamageTaken(player.transform);
+        }
+
         if (currentHP <= 0)
         {
-            enemyBase.Dead(); // EnemyBase의 Dead 함수를 public으로 변경해야 합니다.
+            enemyBase.Dead();
         }
 
         switch (type)

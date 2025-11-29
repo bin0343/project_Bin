@@ -22,7 +22,7 @@ public class PlayerIdleState : PlayerBaseState
     public override void Execute(Player_Action player)
     {
         //공격 상태 전환
-        if (Input.GetMouseButtonDown(0) && player.IsGrounded)
+        if (Input.GetMouseButtonDown(0) && player.IsGrounded && !player.IsPointerOverUI())
         {
             player.ChangeState(new PlayerAttackState());
             return;
@@ -33,34 +33,6 @@ public class PlayerIdleState : PlayerBaseState
             player.ChangeState(new PlayerMoveState());
             return;
         }
-
-        //방어 상태 전환
-        /*if (Input.GetMouseButtonDown(1))
-        {
-            player.ChangeState(new PlayerShieldState());
-            return;
-        }*/
-
-        //앉기 상태 전환
-        /*if (Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            player.ChangeState(new PlayerSitState());
-            return;
-        }
-
-        //점프 상태 전환
-        if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded)
-        {
-            player.ChangeState(new PlayerJumpState());
-            return;
-        }
-        
-        //킥 상태 전환
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            player.ChangeState(new PlayerKickState());
-            return;
-        }*/
 
         base.HandleCommonItemInput(player);
         base.HandleCommonSkillInput(player);
