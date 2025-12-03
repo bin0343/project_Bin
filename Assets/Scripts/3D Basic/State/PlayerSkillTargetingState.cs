@@ -5,9 +5,14 @@ using UnityEngine;
 public class PlayerSkillTargetingState : PlayerBaseState
 {
     protected override PlayerAnimState GetAnimState() => PlayerAnimState.Idle;
+
     public override void Enter(Player_Action player)
     {
         Debug.Log("상태 진입: Skill Targeting");
+
+        // [수정] 스킬 조준 시 마우스 커서를 강제로 보이게 하고 잠금 해제
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
         if (player.skillBeingAimed == null)
         {
@@ -24,11 +29,15 @@ public class PlayerSkillTargetingState : PlayerBaseState
             return;
         }
 
+        // 컨트롤러 시작
         player.targetingController.EnterTargetingMode(areaSkill, player.transform);
     }
 
     public override void Execute(Player_Action player)
     {
+        // TargetingController에서 이미 Update를 돌며 인디케이터를 움직이고 있으므로
+        // 여기서는 플레이어 이동만 처리하면 됩니다.
+
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
         if (moveInput.magnitude > 0.01f)
@@ -37,10 +46,6 @@ public class PlayerSkillTargetingState : PlayerBaseState
             player.move.HandleMovement(moveInput, speed);
             player.move.HandleRotation();
 
-            /*player.animator.SetFloat("Horizontal", moveInput.x);
-            player.animator.SetFloat("Vertical", moveInput.y);*/
-
-            //PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
             if (player.animator.GetInteger("ActionState") != (int)PlayerAnimState.Run)
             {
                 player.animator.SetInteger("ActionState", (int)PlayerAnimState.Run);
@@ -58,5 +63,7 @@ public class PlayerSkillTargetingState : PlayerBaseState
     public override void Exit(Player_Action player)
     {
         Debug.Log("상태 이탈: Skill Targeting");
+        // 상태를 빠져나갈 때 커서 설정을 원래대로 돌리고 싶다면 UI_Manager를 통해 처리하거나 여기서 처리
+        // 예: UI_Manager.Instance.UpdateCursorState(); 
     }
 }

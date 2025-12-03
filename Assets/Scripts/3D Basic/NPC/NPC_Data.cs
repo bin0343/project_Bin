@@ -9,6 +9,13 @@ public class NPC_Data : ScriptableObject
     public string NPCName;
     public Sprite NPCImage;
 
+    [Header("전투 설정(기초 스탯)")]
+    public float[] baseStats = new float[(int)STAT.STAT_COUNT];
+
+    [Header("성장률(백분율 %)")]
+    [Range(0, 100)]     //레벨업 시 각 스탯이 오를 확률(50이면 50%확률로 +1)
+    public int[] growthRates = new int[(int)STAT.STAT_COUNT];
+
     [Header("대화 설정")]
     public Conversation startingConversation;
 
