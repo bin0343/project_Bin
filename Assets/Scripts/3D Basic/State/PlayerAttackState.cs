@@ -65,6 +65,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
     {
         player.animEvents?.EndAttackTrail();
         player.canReceiveInput = false;
+        player.IsAttacking = false;
     }
 
     public static void ResetCombo()

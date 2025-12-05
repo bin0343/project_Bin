@@ -233,7 +233,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     private void Chase()
     {
-        navAgent.isStopped = false;
+        /*navAgent.isStopped = false;
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
@@ -254,16 +254,45 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         else
         {
             currentSearchPhase = SearchPhase.Investigating;
+        }*/
+
+        if (navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = false;
+            navAgent.stoppingDistance = attackRange * 0.9f;
+            navAgent.SetDestination(target.position);
+        }
+
+        animator.SetBool("IsIdle", false);
+        animator.SetBool("IsMoving", true);
+
+        if (IsTargetVisible())
+        {
+            lastKnownPosition = target.position;
+
+            // 거리 체크
+            if (Vector3.Distance(transform.position, target.position) <= navAgent.stoppingDistance)
+            {
+                currentState = ENEMYSTATE.BATTLE;
+                return;
+            }
+        }
+        else
+        {
+            currentSearchPhase = SearchPhase.Investigating;
         }
     }
 
     private void Investigate()
     {
-        navAgent.isStopped = false;
+        if (navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = false;
+            navAgent.SetDestination(lastKnownPosition);
+        }
+
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
-        if (navAgent.enabled && navAgent.isOnNavMesh)
-            navAgent.SetDestination(lastKnownPosition);
 
         if (IsTargetVisible())
         {
@@ -280,7 +309,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     private void PatrolArea()
     {
-        navAgent.isStopped = false;
+        if (navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = false;
+        }
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
@@ -317,14 +349,12 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     #region Battle
     protected virtual void Battle()
     {
-        if (isPerformingAction)
-        {
-            return;
+        if (isPerformingAction) return;
 
-        }
-        if (target == null || playerAction == null || playerAction.IsDead)
+        if (target == null || IsTargetDead(target))
         {
             currentState = ENEMYSTATE.IDLE;
+            target = null;
             return;
         }
 
@@ -357,15 +387,44 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         ExecuteAction();
     }
 
+    //타겟이 죽었는지 확인하는 헬퍼 함수
+    private bool IsTargetDead(Transform targetObj)
+    {
+        if (targetObj.CompareTag("Player"))
+        {
+            return playerAction != null && playerAction.stat.currentHP <= 0;
+        }
+        else if (targetObj.CompareTag("Companion"))
+        {
+            var npcStat = targetObj.GetComponent<NPC_Stat>();
+            return npcStat != null && npcStat.currentHP <= 0;
+        }
+        return true; // 모르는 대상이면 죽은 취급
+    }
+
     private void ChooseNextAction()
     {
-        if (playerAction.IsAttacking && Random.value < avoidProbability)
+        // [수정] 타겟이 공격 중인지 확인 (방어/회피 확률 계산용)
+        bool isTargetAttacking = false;
+
+        if (target.CompareTag("Player"))
+        {
+            isTargetAttacking = playerAction.IsAttacking;
+        }
+        else if (target.CompareTag("Companion"))
+        {
+            var npcBase = target.GetComponent<NPCBase>();
+            // 동료가 공격 상태인지 확인
+            if (npcBase != null) isTargetAttacking = (npcBase.currentState == NPCState.ATTACK);
+        }
+
+        if (isTargetAttacking && Random.value < avoidProbability)
         {
             currentBattleAction = BattleAction.Avoiding;
             return;
         }
         //순서 바꾸면 우선순위 바뀜.
-        if (playerAction.IsAttacking && Random.value < shieldProbability)
+        if (isTargetAttacking && Random.value < shieldProbability)
         {
             currentBattleAction = BattleAction.Shielding;
             return;
@@ -409,6 +468,24 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         lastAttackTime = Time.time;
 
         yield return new WaitForSeconds(2.2f); //공격 애니메이션 시간
+
+        if (target != null)
+        {
+            if (target.CompareTag("Player"))
+            {
+                var pStat = target.GetComponent<Player_Stat>();
+                if (pStat != null) pStat.TakeDamage(stat.attackPower);
+            }
+            else if (target.CompareTag("Companion")) // 동료라면
+            {
+                var nStat = target.GetComponent<NPC_Stat>();
+                if (nStat != null)
+                {
+                    // [중요] 나 자신(transform)을 공격자로 넘겨줌
+                    nStat.TakeDamage(stat.attackPower, transform);
+                }
+            }
+        }
 
         isPerformingAction = false;
     }

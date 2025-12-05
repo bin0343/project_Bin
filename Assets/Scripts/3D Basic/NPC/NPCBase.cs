@@ -15,24 +15,26 @@ public class NPCBase : MonoBehaviour
 {
     [Header("상태 및 타겟")]
     public NPCState currentState = NPCState.IDLE;
-    public Transform playerTransform; // 플레이어 (따라다닐 대상)
-    public Transform currentTarget;   // 공격할 몬스터
+    public Transform playerTransform;
+    public Transform currentTarget;
+
+    // [추가] 나를 마지막으로 공격한 적
+    private Transform lastAttacker;
 
     [Header("거리 설정")]
-    public float followDistance = 3.0f; // 이 거리보다 멀어지면 따라감
-    public float stopDistance = 2.0f;   // 이 거리 안쪽이면 멈춤
-    public float detectRange = 10.0f;   // 적 탐지 범위
-    public float attackRange = 1.5f;    // 공격 사거리
+    public float followDistance = 3.0f;
+    public float stopDistance = 2.0f;
+    public float detectRange = 10.0f;
+    public float attackRange = 1.5f;
 
     [Header("전투 설정")]
     public float attackDelay = 2.0f;
     private float lastAttackTime = 0f;
 
-    // 컴포넌트 참조
     private NavMeshAgent navAgent;
     private Animator animator;
     private NPC_Stat myStat;
-    private Player_Action playerAction; // 플레이어의 상태(공격 여부) 확인용
+    private Player_Action playerAction;
 
     void Start()
     {
@@ -40,7 +42,6 @@ public class NPCBase : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         myStat = GetComponent<NPC_Stat>();
 
-        // 플레이어 찾기 (태그 사용)
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
@@ -48,7 +49,6 @@ public class NPCBase : MonoBehaviour
             playerAction = playerObj.GetComponent<Player_Action>();
         }
 
-        // NavMeshAgent 설정
         navAgent.stoppingDistance = stopDistance;
     }
 
@@ -56,7 +56,31 @@ public class NPCBase : MonoBehaviour
     {
         if (myStat.isDead || currentState == NPCState.DEAD) return;
 
-        // FSM 상태 머신
+        // [수정] 전투 중일 때는 타겟이 죽었는지 매 프레임 체크해야 "제자리 걷기" 버그가 안 생김
+        if (currentState == NPCState.BATTLE_READY || currentState == NPCState.ATTACK)
+        {
+            if (!IsTargetAlive(currentTarget))
+            {
+                // 타겟이 죽었거나 사라졌으면 즉시 정지 및 재탐색
+                StopMoving();
+                currentTarget = null;
+
+                // 바로 다음 타겟 찾기 시도
+                FindBestTarget();
+
+                // 그래도 없으면 IDLE 복귀
+                if (currentTarget == null)
+                {
+                    currentState = NPCState.IDLE;
+                    return; // 이번 프레임 종료
+                }
+                else
+                {
+                    currentState = NPCState.BATTLE_READY; // 새 타겟 잡고 전투 계속
+                }
+            }
+        }
+
         switch (currentState)
         {
             case NPCState.IDLE:
@@ -76,94 +100,83 @@ public class NPCBase : MonoBehaviour
 
     #region State Logics
 
-    // 1. IDLE: 플레이어 주변에서 대기하며 거리를 잼
     private void HandleIdle()
     {
         animator.SetBool("IsMoving", false);
 
-        // 플레이어와의 거리 체크
         float distToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
-        // 너무 멀어지면 따라가기
         if (distToPlayer > followDistance)
         {
             currentState = NPCState.FOLLOW;
             return;
         }
 
-        // 주변에 적이 있고, 플레이어가 공격 중이면 전투 돌입!
         CheckForBattleStart();
     }
 
-    // 2. FOLLOW: 플레이어를 따라감
     private void HandleFollow()
     {
         animator.SetBool("IsMoving", true);
-        navAgent.SetDestination(playerTransform.position);
+
+        // [안전장치] NavMesh 위에 있을 때만 이동
+        if (navAgent.isOnNavMesh)
+            navAgent.SetDestination(playerTransform.position);
 
         float distToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
-        // 충분히 가까워지면 다시 IDLE
         if (distToPlayer <= stopDistance)
         {
-            navAgent.ResetPath();
+            StopMoving(); // 이동 멈춤 함수 분리
             currentState = NPCState.IDLE;
             return;
         }
 
-        // 이동 중에도 전투 시작 체크
         CheckForBattleStart();
     }
 
-    // 3. BATTLE_READY: 전투 감지는 했으나 타겟팅/대기 중
     private void HandleBattleReady()
     {
-        // 타겟이 없거나 죽었으면 다시 탐색
+        // 타겟이 없으면 재탐색 (위의 Update에서 처리했지만 이중 체크)
         if (currentTarget == null)
         {
-            FindNearestEnemy();
+            FindBestTarget(); // [변경] FindBestTarget 사용
             if (currentTarget == null)
             {
-                // 적이 없으면 다시 일상 모드로 복귀
                 currentState = NPCState.IDLE;
                 return;
             }
         }
 
-        // 타겟을 향해 이동 및 공격 전환
         float distToEnemy = Vector3.Distance(transform.position, currentTarget.position);
+
+        // 공격 사거리 안쪽인가?
         if (distToEnemy <= attackRange)
         {
+            StopMoving(); // 공격 전에는 멈춰야 함
             currentState = NPCState.ATTACK;
         }
         else
         {
             // 적을 향해 이동
-            navAgent.SetDestination(currentTarget.position);
+            if (navAgent.isOnNavMesh)
+                navAgent.SetDestination(currentTarget.position);
             animator.SetBool("IsMoving", true);
         }
     }
 
-    // 4. ATTACK: 실제 공격 수행
     private void HandleAttack()
     {
-        if (currentTarget == null)
-        {
-            currentState = NPCState.BATTLE_READY;
-            return;
-        }
+        // 타겟 유효성 검사는 Update에서 이미 수행함
 
-        navAgent.ResetPath(); // 멈춰서 공격
-        animator.SetBool("IsMoving", false);
-        transform.LookAt(currentTarget); // 적 바라보기
+        transform.LookAt(currentTarget);
 
-        // 공격 쿨타임 체크
         if (Time.time >= lastAttackTime + attackDelay)
         {
             StartCoroutine(AttackRoutine());
         }
 
-        // 적이 도망가서 멀어지면 다시 추적
+        // 적이 도망가면 다시 추적
         float distToEnemy = Vector3.Distance(transform.position, currentTarget.position);
         if (distToEnemy > attackRange)
         {
@@ -175,36 +188,49 @@ public class NPCBase : MonoBehaviour
 
     #region Helpers
 
-    // 전투 시작 조건 체크 (IDLE, FOLLOW 상태에서 호출)
     private void CheckForBattleStart()
     {
-        // 1. 플레이어가 '공격 상태(IsAttacking)'인지 확인
-        if (playerAction != null && playerAction.IsAttacking)
+        // 1. 내가 맞았거나(lastAttacker), 플레이어가 공격 중이면 전투 태세
+        bool isUnderAttack = IsTargetAlive(lastAttacker);
+        bool isPlayerFighting = (playerAction != null && playerAction.IsAttacking);
+
+        if (isUnderAttack || isPlayerFighting)
         {
-            // 2. 주변에 적이 있는지 확인
-            FindNearestEnemy();
+            FindBestTarget(); // 타겟 선정
 
             if (currentTarget != null)
             {
-                // 조건 만족! 전투 모드로 전환
-                Debug.Log("동료: 플레이어의 공격을 감지! 전투 합류!");
+                Debug.Log("동료: 전투 개시!");
                 currentState = NPCState.BATTLE_READY;
             }
         }
     }
 
-    // 가장 가까운 적 찾기
-    private void FindNearestEnemy()
+    // [핵심 변경] 최적의 타겟 찾기 (우선순위: 나를 때린 놈 > 가장 가까운 놈)
+    private void FindBestTarget()
     {
-        Collider[] enemies = Physics.OverlapSphere(transform.position, detectRange, LayerMask.GetMask("Enemy")); // Enemy 레이어 설정 필수
+        // 1. 나를 공격한 적이 살아있고 근처에 있다면 1순위
+        if (IsTargetAlive(lastAttacker))
+        {
+            float dist = Vector3.Distance(transform.position, lastAttacker.position);
+            if (dist <= detectRange * 1.5f) // 감지 범위보다 조금 더 멀어도 복수하러 감
+            {
+                currentTarget = lastAttacker;
+                return;
+            }
+        }
+
+        // 2. 그 외 주변 적들 중 가장 가까운 적 탐색
+        Collider[] enemies = Physics.OverlapSphere(transform.position, detectRange, LayerMask.GetMask("Enemy"));
 
         Transform nearest = null;
         float minDist = float.MaxValue;
 
         foreach (var enemy in enemies)
         {
-            // 죽은 적은 제외 (Enemy_Stat의 isDead 체크 등 필요)
-            // if (enemy.GetComponent<Enemy_Stat>().isDead) continue;
+            // 이미 죽은 적 패스 (Enemy_Stat 체크)
+            var stat = enemy.GetComponent<Enemy_Stat>();
+            if (stat == null || stat.currentHP <= 0) continue;
 
             float dist = Vector3.Distance(transform.position, enemy.transform.position);
             if (dist < minDist)
@@ -217,38 +243,77 @@ public class NPCBase : MonoBehaviour
         currentTarget = nearest;
     }
 
-    // 공격 코루틴
+    // [추가] 타겟이 살아있는지 확인하는 헬퍼 함수
+    private bool IsTargetAlive(Transform targetToCheck)
+    {
+        if (targetToCheck == null) return false;
+        if (!targetToCheck.gameObject.activeInHierarchy) return false;
+
+        var stat = targetToCheck.GetComponent<Enemy_Stat>();
+        if (stat != null && stat.currentHP <= 0) return false;
+
+        return true;
+    }
+
+    // [추가] 이동 멈춤 처리 (제자리 걸음 버그 방지)
+    private void StopMoving()
+    {
+        if (navAgent.isOnNavMesh) navAgent.ResetPath();
+        animator.SetBool("IsMoving", false);
+    }
+
+    // [중요] 외부(NPC_Stat)에서 호출: "나 맞았어!"
+    public void OnDamageTaken(Transform attacker)
+    {
+        // 이미 죽었으면 무시
+        if (myStat.isDead) return;
+
+        lastAttacker = attacker; // 복수 대상 등록
+
+        // 쉬고 있거나 따라가는 중이었다면 바로 전투 태세로 전환
+        if (currentState == NPCState.IDLE || currentState == NPCState.FOLLOW)
+        {
+            currentTarget = attacker;
+            currentState = NPCState.BATTLE_READY;
+        }
+    }
+
     private IEnumerator AttackRoutine()
     {
         lastAttackTime = Time.time;
-        animator.SetTrigger("IsAttack"); // 애니메이션 트리거
+        animator.SetTrigger("IsAttack");
 
-        // 데미지 판정 타이밍 맞추기 (예: 0.5초 뒤)
         yield return new WaitForSeconds(0.5f);
 
-        if (currentTarget != null)
+        // 공격 시점에도 타겟이 살아있는지 체크
+        if (IsTargetAlive(currentTarget))
         {
-            // 적에게 데미지 주기
             var enemyStat = currentTarget.GetComponent<Enemy_Stat>();
             if (enemyStat != null)
             {
-                // NPC 공격력으로 데미지 계산
                 int dmg = myStat.attackPower;
                 enemyStat.TakeDamage(dmg, AttackType.Normal);
-
-                // 경험치 획득 (막타가 아니어도 공격 시 경험치 줄지, 처치 시 줄지는 기획에 따라)
-                myStat.GainExp(10); // 예시: 공격 한 번당 경험치 10 획득
+                myStat.GainExp(10);
             }
         }
 
-        yield return new WaitForSeconds(1.0f); // 후딜레이
+        yield return new WaitForSeconds(1.0f);
     }
 
     public void OnDeath()
     {
         currentState = NPCState.DEAD;
-        navAgent.isStopped = true;
+        StopMoving();
+        if (navAgent.isOnNavMesh) navAgent.isStopped = true;
         animator.SetTrigger("IsDie");
+    }
+
+    public void OnAttackFinished()
+    {
+        if (currentState == NPCState.ATTACK)
+        {
+            currentState = NPCState.BATTLE_READY;
+        }
     }
 
     #endregion

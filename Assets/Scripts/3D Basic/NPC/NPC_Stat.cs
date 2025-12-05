@@ -106,7 +106,7 @@ public class NPC_Stat : MonoBehaviour
     }
 
     // 2. 피해 입기
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, Transform attacker = null)
     {
         if (isDead) return;
 
@@ -114,6 +114,10 @@ public class NPC_Stat : MonoBehaviour
         currentHP = Mathf.Max(currentHP, 0);
 
         // TODO: 데미지 텍스트 띄우기 (DamageTextSpawner 연동)
+        if (attacker != null)
+        {
+            GetComponent<NPCBase>()?.OnDamageTaken(attacker);
+        }
 
         if (currentHP <= 0)
         {
