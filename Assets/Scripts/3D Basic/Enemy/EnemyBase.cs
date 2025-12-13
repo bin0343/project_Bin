@@ -404,7 +404,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
     private void ChooseNextAction()
     {
-        // [수정] 타겟이 공격 중인지 확인 (방어/회피 확률 계산용)
         bool isTargetAttacking = false;
 
         if (target.CompareTag("Player"))
@@ -414,7 +413,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         else if (target.CompareTag("Companion"))
         {
             var npcBase = target.GetComponent<NPCBase>();
-            // 동료가 공격 상태인지 확인
             if (npcBase != null) isTargetAttacking = (npcBase.currentState == NPCState.ATTACK);
         }
 
@@ -423,7 +421,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             currentBattleAction = BattleAction.Avoiding;
             return;
         }
-        //순서 바꾸면 우선순위 바뀜.
+
         if (isTargetAttacking && Random.value < shieldProbability)
         {
             currentBattleAction = BattleAction.Shielding;
@@ -438,7 +436,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             return;
         }
 
-        //둘다 아니면 대기
         currentBattleAction = BattleAction.Waiting;
     }
 
@@ -467,25 +464,24 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         animator.SetTrigger("IsAttack");
         lastAttackTime = Time.time;
 
-        yield return new WaitForSeconds(2.2f); //공격 애니메이션 시간
+        yield return new WaitForSeconds(2.2f);
 
-        if (target != null)
+        /*if (target != null)
         {
             if (target.CompareTag("Player"))
             {
                 var pStat = target.GetComponent<Player_Stat>();
                 if (pStat != null) pStat.TakeDamage(stat.attackPower);
             }
-            else if (target.CompareTag("Companion")) // 동료라면
+            else if (target.CompareTag("Companion"))
             {
                 var nStat = target.GetComponent<NPC_Stat>();
                 if (nStat != null)
                 {
-                    // [중요] 나 자신(transform)을 공격자로 넘겨줌
                     nStat.TakeDamage(stat.attackPower, transform);
                 }
             }
-        }
+        }*/
 
         isPerformingAction = false;
     }
@@ -493,22 +489,11 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     IEnumerator ShieldCoroutine()
     {
         isPerformingAction = true;
-        //navAgent.isStopped = true;
-        /*var defensePart = GetComponentInChildren<Weapon_EnemyDefense>();
-        if (defensePart != null)
-        {
-            defensePart.SetActiveDefense(true);
-        }*/
 
         animator.SetTrigger("IsShield");
 
         yield return new WaitForSeconds(2.0f);  //방패 들고 있을 시간.
-
-        /*if (defensePart != null)
-        {
-            defensePart.SetActiveDefense(false);
-        }*/
-        //navAgent.isStopped = false;
+        
         isPerformingAction = false;
     }
 

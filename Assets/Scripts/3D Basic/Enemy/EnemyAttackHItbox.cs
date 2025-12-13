@@ -38,7 +38,7 @@ public class EnemyAttackHItbox : MonoBehaviour
     {
         if (hasHit) return;
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.CompareTag("Companion"))
         {
             Debug.Log("АјАн!");
             hasHit = true;

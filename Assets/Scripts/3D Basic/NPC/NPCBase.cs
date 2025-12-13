@@ -36,6 +36,8 @@ public class NPCBase : MonoBehaviour
     private NPC_Stat myStat;
     private Player_Action playerAction;
 
+    private bool isDead = false;
+
     void Start()
     {
         navAgent = GetComponent<NavMeshAgent>();
@@ -56,19 +58,26 @@ public class NPCBase : MonoBehaviour
     {
         if (myStat.isDead || currentState == NPCState.DEAD) return;
 
-        // [수정] 전투 중일 때는 타겟이 죽었는지 매 프레임 체크해야 "제자리 걷기" 버그가 안 생김
+        if (playerTransform == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                playerTransform = playerObj.transform;
+                playerAction = playerObj.GetComponent<Player_Action>();
+            }
+            return; // 찾기 전까진 아무것도 안 함
+        }
+
         if (currentState == NPCState.BATTLE_READY || currentState == NPCState.ATTACK)
         {
             if (!IsTargetAlive(currentTarget))
             {
-                // 타겟이 죽었거나 사라졌으면 즉시 정지 및 재탐색
                 StopMoving();
                 currentTarget = null;
 
-                // 바로 다음 타겟 찾기 시도
                 FindBestTarget();
 
-                // 그래도 없으면 IDLE 복귀
                 if (currentTarget == null)
                 {
                     currentState = NPCState.IDLE;
@@ -94,6 +103,9 @@ public class NPCBase : MonoBehaviour
                 break;
             case NPCState.ATTACK:
                 HandleAttack();
+                break;
+            case NPCState.DEAD:
+                OnDeath();
                 break;
         }
     }
@@ -137,10 +149,9 @@ public class NPCBase : MonoBehaviour
 
     private void HandleBattleReady()
     {
-        // 타겟이 없으면 재탐색 (위의 Update에서 처리했지만 이중 체크)
         if (currentTarget == null)
         {
-            FindBestTarget(); // [변경] FindBestTarget 사용
+            FindBestTarget();
             if (currentTarget == null)
             {
                 currentState = NPCState.IDLE;
@@ -190,13 +201,12 @@ public class NPCBase : MonoBehaviour
 
     private void CheckForBattleStart()
     {
-        // 1. 내가 맞았거나(lastAttacker), 플레이어가 공격 중이면 전투 태세
         bool isUnderAttack = IsTargetAlive(lastAttacker);
         bool isPlayerFighting = (playerAction != null && playerAction.IsAttacking);
 
         if (isUnderAttack || isPlayerFighting)
         {
-            FindBestTarget(); // 타겟 선정
+            FindBestTarget(); 
 
             if (currentTarget != null)
             {
@@ -206,21 +216,18 @@ public class NPCBase : MonoBehaviour
         }
     }
 
-    // [핵심 변경] 최적의 타겟 찾기 (우선순위: 나를 때린 놈 > 가장 가까운 놈)
     private void FindBestTarget()
     {
-        // 1. 나를 공격한 적이 살아있고 근처에 있다면 1순위
         if (IsTargetAlive(lastAttacker))
         {
             float dist = Vector3.Distance(transform.position, lastAttacker.position);
-            if (dist <= detectRange * 1.5f) // 감지 범위보다 조금 더 멀어도 복수하러 감
+            if (dist <= detectRange * 1.5f)
             {
                 currentTarget = lastAttacker;
                 return;
             }
         }
 
-        // 2. 그 외 주변 적들 중 가장 가까운 적 탐색
         Collider[] enemies = Physics.OverlapSphere(transform.position, detectRange, LayerMask.GetMask("Enemy"));
 
         Transform nearest = null;
@@ -228,7 +235,6 @@ public class NPCBase : MonoBehaviour
 
         foreach (var enemy in enemies)
         {
-            // 이미 죽은 적 패스 (Enemy_Stat 체크)
             var stat = enemy.GetComponent<Enemy_Stat>();
             if (stat == null || stat.currentHP <= 0) continue;
 
@@ -243,7 +249,6 @@ public class NPCBase : MonoBehaviour
         currentTarget = nearest;
     }
 
-    // [추가] 타겟이 살아있는지 확인하는 헬퍼 함수
     private bool IsTargetAlive(Transform targetToCheck)
     {
         if (targetToCheck == null) return false;
@@ -255,22 +260,18 @@ public class NPCBase : MonoBehaviour
         return true;
     }
 
-    // [추가] 이동 멈춤 처리 (제자리 걸음 버그 방지)
     private void StopMoving()
     {
         if (navAgent.isOnNavMesh) navAgent.ResetPath();
         animator.SetBool("IsMoving", false);
     }
 
-    // [중요] 외부(NPC_Stat)에서 호출: "나 맞았어!"
     public void OnDamageTaken(Transform attacker)
     {
-        // 이미 죽었으면 무시
         if (myStat.isDead) return;
 
         lastAttacker = attacker; // 복수 대상 등록
 
-        // 쉬고 있거나 따라가는 중이었다면 바로 전투 태세로 전환
         if (currentState == NPCState.IDLE || currentState == NPCState.FOLLOW)
         {
             currentTarget = attacker;
@@ -285,7 +286,6 @@ public class NPCBase : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-        // 공격 시점에도 타겟이 살아있는지 체크
         if (IsTargetAlive(currentTarget))
         {
             var enemyStat = currentTarget.GetComponent<Enemy_Stat>();
@@ -302,10 +302,23 @@ public class NPCBase : MonoBehaviour
 
     public void OnDeath()
     {
+        if (isDead) return;
+        StartCoroutine(DeathRoutine());
+    }
+
+    public IEnumerator DeathRoutine()
+    {
+        isDead = true;
+
+        
         currentState = NPCState.DEAD;
         StopMoving();
         if (navAgent.isOnNavMesh) navAgent.isStopped = true;
         animator.SetTrigger("IsDie");
+
+        yield return new WaitForSeconds(5f);
+
+        gameObject.SetActive(false);
     }
 
     public void OnAttackFinished()
