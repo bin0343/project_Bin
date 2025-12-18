@@ -32,7 +32,10 @@ public class NPC_Stat : MonoBehaviour
             hpBar.Setup(this);
         }
         npcBase = GetComponent<NPCBase>();
-        InitializeFromManager();
+        if (npcData != null)
+        {
+            InitializeFromManager();
+        }
     }
 
     public void InitializeFromManager()
@@ -54,6 +57,21 @@ public class NPC_Stat : MonoBehaviour
         {
             hpBar.Setup(this);
         }
+    }
+
+    // [추가] 외부(BattleManager)에서 데이터를 주입하고 초기화하는 함수
+    public void SetCharacter(NPC_Data data)
+    {
+        npcData = data;
+
+        // 체력바 등 컴포넌트가 아직 연결 안 됐을 수 있으니 안전하게 호출
+        if (hpBar == null) hpBar = GetComponentInChildren<CompanionHpBar>();
+        if (npcBase == null) npcBase = GetComponent<NPCBase>();
+
+        InitializeFromManager(); // 매니저에서 레벨, 경험치 불러오기
+
+        // 체력바에도 다시 연결 (확실하게 하기 위해)
+        if (hpBar != null) hpBar.Setup(this);
     }
 
     public float GetBaseStat(STAT type)

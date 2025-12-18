@@ -7,9 +7,6 @@ public class AIMonster : MonoBehaviour
 
     public Monster Monster;
 
-    bool CharacterMove = false;
-
-    int Index = 0;
 
     public void State()
     {
@@ -39,7 +36,7 @@ public class AIMonster : MonoBehaviour
 
     protected virtual void Search()
     {
-        float distance = Vector3.Distance(Monster.transform.position, Shared.BattleManager.TRPATH[Index].position); //길찾기 (distance안에 오면 다음길 찾고 다음길 찾겠다.)
+        /*float distance = Vector3.Distance(Monster.transform.position, Shared.BattleManager.TRPATH[Index].position); //길찾기 (distance안에 오면 다음길 찾고 다음길 찾겠다.)
 
         if (distance < 3f)
         {
@@ -48,28 +45,28 @@ public class AIMonster : MonoBehaviour
         else
             CharacterMove = false;
 
-        /*if (CharacterMove == false) //!CharacterMove !~~ 이게 not, 가장 빠름.
+        *//*if (CharacterMove == false) //!CharacterMove !~~ 이게 not, 가장 빠름.
         {
             float distance = Vector3.Distance(Monster.transform.position, TRPATH[Index].position);
-        }*/
+        }*//*
 
         if (distance < 1f)
         {
-            if (Shared.BattleManager.TRPATH.Length > Index)
+            *//*if (Shared.BattleManager.TRPATH.Length > Index)
                 Index++;
             else
-                Index = 0;
+                Index = 0;*//*
         }
 
         //적찾기
         //방황하기
 
-        AI = AI.AI_MOVE;
+        AI = AI.AI_MOVE;*/
     }
 
     protected virtual void Move()
     {
-        if (!CharacterMove)
+        /*if (!CharacterMove)
         {
             transform.LookAt(Shared.BattleManager.TRPATH[Index].position);
 
@@ -87,7 +84,7 @@ public class AIMonster : MonoBehaviour
                 Attack();       //공격을한것일뿐. 맞은건 아님(상대가 피할 수 있기 때문)
 
             Monster.Move(Shared.BattleManager.Character.transform.position);
-        }
+        }*/
 
 
         AI = AI.AI_SEARCH;

@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+public enum NPCClassType { 검술반, 마법반, 궁술반 }
+
 [CreateAssetMenu(fileName = "NPC Data", menuName = "NPC/NPC Data")]
 public class NPC_Data : ScriptableObject
 {
@@ -8,6 +10,11 @@ public class NPC_Data : ScriptableObject
     public string NPCID;       //string? int?
     public string NPCName;
     public Sprite NPCImage;
+    public GameObject npcPrefab;
+
+    [Header("소속 정보")]
+    public NPCClassType classType;
+    public Sprite standingIllust;
 
     [Header("전투 설정(기초 스탯)")]
     public float[] baseStats = new float[(int)STAT.STAT_COUNT];

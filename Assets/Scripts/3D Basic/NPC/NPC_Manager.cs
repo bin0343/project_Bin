@@ -5,7 +5,7 @@ using UnityEngine;
 public class NPCStatus
 {
     public string npcID;
-    public int currentAffinity;
+    public int currentAffinity; // 인스펙터에서 수정 가능해짐
 
     // 전투 관련 데이터
     public int level;
@@ -13,28 +13,23 @@ public class NPCStatus
     public int maxExp = 100;
     public float[] currentStats;
 
-    // 스탯이 초기화되었는지 확인하는 플래그
     public bool isStatInitialized = false;
 
-    // 생성자: ID만으로 생성 (친밀도용)
     public NPCStatus(string id)
     {
         npcID = id;
-        currentAffinity = 0;
+        currentAffinity = 10;
         level = 1;
         currentExp = 0;
         currentStats = new float[(int)STAT.STAT_COUNT];
-        isStatInitialized = false; // 아직 스탯은 없는 상태
+        isStatInitialized = false;
     }
 
-    // 전투 데이터 초기화 (NPC_Data가 들어왔을 때 호출)
     public void InitializeStats(NPC_Data data)
     {
         if (isStatInitialized || data == null) return;
-
-        // 베이스 스탯 복사
         System.Array.Copy(data.baseStats, currentStats, data.baseStats.Length);
-        isStatInitialized = true; // 초기화 완료 표시
+        isStatInitialized = true;
     }
 }
 
@@ -42,7 +37,15 @@ public class NPC_Manager : MonoBehaviour
 {
     public static NPC_Manager instance;
 
+    // [핵심] 인스펙터용 리스트 추가!
+    // Dictionary는 인스펙터에 안 보이지만, List는 보입니다.
+    // NPCStatus가 클래스(Class)이므로, 리스트 값을 바꾸면 딕셔너리 값도 같이 바뀝니다.
+    public List<NPCStatus> npcStatusList = new List<NPCStatus>();
+
     public Dictionary<string, NPCStatus> npcStatusDictionary = new Dictionary<string, NPCStatus>();
+
+    // [추가] 동아리 편성용 파티 리스트
+    public List<string> currentPartyIDs = new List<string>();
 
     private void Awake()
     {
@@ -55,21 +58,22 @@ public class NPC_Manager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    // NPC 상태 가져오기 (전투/일상 공용)
-    // data가 null이면 친밀도 등 기본 정보만 가져오고,
-    // data가 있으면 스탯 초기화 여부를 확인하고 필요시 초기화함
     public NPCStatus GetNPCStatus(string npcID, NPC_Data data = null)
     {
-        // 1. 딕셔너리에 없으면 새로 생성 (기본 상태)
+        // 1. 딕셔너리에 없으면 새로 생성
         if (!npcStatusDictionary.ContainsKey(npcID))
         {
-            npcStatusDictionary[npcID] = new NPCStatus(npcID);
+            NPCStatus newStatus = new NPCStatus(npcID);
+
+            // 딕셔너리에 등록
+            npcStatusDictionary[npcID] = newStatus;
+
+            // [핵심] 인스펙터용 리스트에도 등록 (서로 같은 객체를 바라봄)
+            npcStatusList.Add(newStatus);
         }
 
         NPCStatus status = npcStatusDictionary[npcID];
 
-        // 2. 데이터가 제공되었고, 아직 스탯 초기화가 안 되어 있다면 초기화 진행
-        // (예: 일상 파트에서 친밀도만 올렸다가, 처음 전투에 나가는 경우)
         if (data != null && !status.isStatInitialized)
         {
             status.InitializeStats(data);
@@ -78,7 +82,21 @@ public class NPC_Manager : MonoBehaviour
         return status;
     }
 
-    // 경험치 획득 및 레벨업 처리
+    // 영입 조건 확인 함수 (동아리 편성 때 사용)
+    public bool IsRecruited(string npcID)
+    {
+        if (!npcStatusDictionary.ContainsKey(npcID)) return false;
+
+        // 예: 친밀도 10 이상이면 영입된 것으로 간주
+        return npcStatusDictionary[npcID].currentAffinity >= 10;
+    }
+
+    // 파티 저장
+    public void SaveParty(List<string> newPartyIDs)
+    {
+        currentPartyIDs = new List<string>(newPartyIDs);
+    }
+
     public void AddExperience(string npcID, int amount, NPC_Data data)
     {
         NPCStatus status = GetNPCStatus(npcID, data);
@@ -107,15 +125,12 @@ public class NPC_Manager : MonoBehaviour
         }
     }
 
-    // 친밀도 가져오기 (NPC_Data 없이 ID만으로 호출 가능)
     public int GetAffinity(string npcID)
     {
-        // NPC_Data 없이 호출하므로 스탯 초기화는 안 되지만, 친밀도는 가져올 수 있음
         NPCStatus status = GetNPCStatus(npcID, null);
         return status.currentAffinity;
     }
 
-    // 친밀도 변경
     public void ChangeAffinity(string npcID, int amount)
     {
         if (amount == 0) return;
@@ -123,6 +138,6 @@ public class NPC_Manager : MonoBehaviour
         NPCStatus status = GetNPCStatus(npcID, null);
         status.currentAffinity += amount;
 
-        Debug.Log($"[{npcID}] 친밀도 변경: {status.currentAffinity - amount} -> {status.currentAffinity} (변동: {amount})");
+        Debug.Log($"[{npcID}] 친밀도 변경: {status.currentAffinity - amount} -> {status.currentAffinity}");
     }
 }
