@@ -5,9 +5,8 @@ using UnityEngine;
 public class NPCStatus
 {
     public string npcID;
-    public int currentAffinity; // 인스펙터에서 수정 가능해짐
+    public int currentAffinity;
 
-    // 전투 관련 데이터
     public int level;
     public int currentExp;
     public int maxExp = 100;
@@ -37,15 +36,13 @@ public class NPC_Manager : MonoBehaviour
 {
     public static NPC_Manager instance;
 
-    // [핵심] 인스펙터용 리스트 추가!
-    // Dictionary는 인스펙터에 안 보이지만, List는 보입니다.
-    // NPCStatus가 클래스(Class)이므로, 리스트 값을 바꾸면 딕셔너리 값도 같이 바뀝니다.
     public List<NPCStatus> npcStatusList = new List<NPCStatus>();
 
     public Dictionary<string, NPCStatus> npcStatusDictionary = new Dictionary<string, NPCStatus>();
 
-    // [추가] 동아리 편성용 파티 리스트
     public List<string> currentPartyIDs = new List<string>();
+
+    public List<NPC_Data> currentPartyData = new List<NPC_Data>();
 
     private void Awake()
     {
@@ -58,17 +55,20 @@ public class NPC_Manager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    public void SaveParty(List<string> newPartyIDs, List<NPC_Data> newPartyData)
+    {
+        currentPartyIDs = new List<string>(newPartyIDs);
+        currentPartyData = new List<NPC_Data>(newPartyData); 
+    }
+
     public NPCStatus GetNPCStatus(string npcID, NPC_Data data = null)
     {
-        // 1. 딕셔너리에 없으면 새로 생성
         if (!npcStatusDictionary.ContainsKey(npcID))
         {
             NPCStatus newStatus = new NPCStatus(npcID);
 
-            // 딕셔너리에 등록
             npcStatusDictionary[npcID] = newStatus;
 
-            // [핵심] 인스펙터용 리스트에도 등록 (서로 같은 객체를 바라봄)
             npcStatusList.Add(newStatus);
         }
 
@@ -82,16 +82,13 @@ public class NPC_Manager : MonoBehaviour
         return status;
     }
 
-    // 영입 조건 확인 함수 (동아리 편성 때 사용)
     public bool IsRecruited(string npcID)
     {
         if (!npcStatusDictionary.ContainsKey(npcID)) return false;
 
-        // 예: 친밀도 10 이상이면 영입된 것으로 간주
         return npcStatusDictionary[npcID].currentAffinity >= 10;
     }
 
-    // 파티 저장
     public void SaveParty(List<string> newPartyIDs)
     {
         currentPartyIDs = new List<string>(newPartyIDs);

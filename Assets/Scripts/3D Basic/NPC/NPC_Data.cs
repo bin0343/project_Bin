@@ -7,7 +7,7 @@ public enum NPCClassType { 검술반, 마법반, 궁술반 }
 public class NPC_Data : ScriptableObject
 {
     [Header("NPC 고유 정보")]
-    public string NPCID;       //string? int?
+    public string NPCID; 
     public string NPCName;
     public Sprite NPCImage;
     public GameObject npcPrefab;
@@ -20,16 +20,16 @@ public class NPC_Data : ScriptableObject
     public float[] baseStats = new float[(int)STAT.STAT_COUNT];
 
     [Header("성장률(백분율 %)")]
-    [Range(0, 100)]     //레벨업 시 각 스탯이 오를 확률(50이면 50%확률로 +1)
+    [Range(0, 100)] 
     public int[] growthRates = new int[(int)STAT.STAT_COUNT];
 
     [Header("대화 설정")]
     public Conversation startingConversation;
 
     [Header("퀘스트")]
-    public List<Quest> availableQuests; // 이 NPC가 주는 퀘스트 목록
+    public List<Quest> availableQuests;
 
     [Header("퀘스트 상태별 대화")]
-    public Conversation questInProgressConversation; // 퀘스트 진행 중일 때 대화
-    public Conversation questCompleteConversation; // 퀘스트 완료 (보상 전) 대화
+    public Conversation questInProgressConversation;
+    public Conversation questCompleteConversation;
 }

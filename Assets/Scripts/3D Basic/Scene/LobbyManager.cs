@@ -1,92 +1,141 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class LobbyManager : MonoBehaviour
 {
-    [Header("--- 텍스트 UI 연결 (Group_Top) ---")]
+    public static LobbyManager instance;
+
+    [Header("--- 텍스트 UI 연결 ---")]
     public Text txtName;
     public Text txtLevel;
     public Text txtGold;
     public Text txtAP;
 
-    [Header("--- 로비 메인 요소 (팝업 뜰 때 숨길 것들) ---")]
-    public GameObject characterGroup; // Hierarchy의 'Character' 오브젝트
-    public GameObject topGroup;       // Hierarchy의 'Group_Top' (선택: 팝업 때 켜둘지 끌지)
-    public GameObject bottomGroup;    // Hierarchy의 'Group_Bottom'
-    public GameObject rightGroup;     // Hierarchy의 'Group_Right'
+    [Header("--- 로비 UI 그룹 ---")]
+    public GameObject characterGroup;
+    public GameObject topGroup;
+    public GameObject bottomGroup;
+    public GameObject rightGroup;
 
-    [Header("--- 팝업 패널 (새로 만들어야 함) ---")]
-    public GameObject panelClub;      // 동아리 패널
-    public GameObject panelBag;       // 가방 패널
-    public GameObject panelStore;     // 상점 패널
-    public GameObject panelSchedule;  // 일정 패널
+    [Header("--- 팝업 패널 ---")]
+    public GameObject panelClub;
+    public GameObject panelBag;
+    public GameObject panelStore;
+    public GameObject panelSchedule;
 
-    // 현재 열려있는 팝업 기억용
-    private GameObject currentPopup = null;
+    [Header("--- 전역 뒤로가기 버튼 ---")]
+    public GameObject globalBackButton;
+
+    // 스택 선언
+    private Stack<GameObject> popupStack = new Stack<GameObject>();
+
+    private void Awake()
+    {
+        if (instance == null) instance = this;
+        else Destroy(gameObject);
+    }
 
     void Start()
     {
-        // 1. 유저 정보 표시
         RefreshUserInfo();
-
-        // 2. 시작할 때 모든 팝업 끄기
         CloseAllPopups();
+        if (globalBackButton != null) globalBackButton.SetActive(false);
     }
 
     void RefreshUserInfo()
     {
-        if (PlayerPrefs.HasKey("PlayerName"))
-            txtName.text = PlayerPrefs.GetString("PlayerName");
-        else
-            txtName.text = "선생님";
+        // (기존과 동일)
+        if (PlayerPrefs.HasKey("PlayerName")) txtName.text = PlayerPrefs.GetString("PlayerName");
+        else txtName.text = "선생님";
 
-        // 임시 데이터 (나중엔 GameManager 연동)
         int level = PlayerPrefs.GetInt("PlayerLevel", 1);
         int gold = PlayerPrefs.GetInt("PlayerGold", 0);
-
         txtLevel.text = $"Lv.{level}";
         txtGold.text = string.Format("{0:n0}", gold);
         txtAP.text = "120/120";
     }
 
-    // ====================================================
-    // 공통 기능: 팝업 열기/닫기 로직
-    // ====================================================
-
-    void OpenPopup(GameObject popup)
+    // [1단계] 메인 팝업 열기 (스택 초기화)
+    public void OpenPopup(GameObject popup)
     {
         if (popup == null) return;
 
-        currentPopup = popup;
+        popupStack.Clear(); // 스택 깨끗하게 비움
+        popupStack.Push(popup); // 첫 번째 패널(예: 일정) 넣기
 
-        // 1. 팝업 켜기
         popup.SetActive(true);
+        if (globalBackButton != null) globalBackButton.SetActive(true);
 
-        // 2. 로비 UI 숨기기 (캐릭터와 하단 메뉴 등)
+        // 로비 UI 숨김
         if (characterGroup) characterGroup.SetActive(false);
         if (bottomGroup) bottomGroup.SetActive(false);
         if (rightGroup) rightGroup.SetActive(false);
 
-        // (선택) 상단바도 가리고 싶으면 아래 주석 해제
-        // if(topGroup) topGroup.SetActive(false);
+        Debug.Log($"[OpenPopup] {popup.name} 열림. 스택 수: {popupStack.Count}");
     }
 
-    // 뒤로가기 버튼에 연결할 함수
-    public void OnClickBack()
+    // [2단계] 깊이 들어가기 (스택 쌓기)
+    public void OpenDepthPanel(GameObject nextPanel)
     {
-        // 팝업 닫기
-        if (currentPopup != null)
+        if (nextPanel == null) return;
+
+        // 중복 방지: 이미 스택 맨 위에 있는 패널을 또 열려고 하면 무시
+        if (popupStack.Count > 0 && popupStack.Peek() == nextPanel)
         {
-            currentPopup.SetActive(false);
-            currentPopup = null;
+            return;
         }
 
-        // 로비 UI 다시 보이기
+        // 이전 패널 끄지 않음 (부모-자식 관계 유지 위해)
+        popupStack.Push(nextPanel);
+        nextPanel.SetActive(true);
+
+        Debug.Log($"[Depth] {nextPanel.name} 진입. 스택 수: {popupStack.Count}");
+    }
+
+    // [뒤로가기]
+    public void OnClickBack()
+    {
+        if (popupStack.Count == 0)
+        {
+            ReturnToLobby();
+            return;
+        }
+
+        // 1. 현재 패널 끄기
+        GameObject current = popupStack.Pop();
+        if (current != null) current.SetActive(false);
+
+        Debug.Log($"[Back] {current.name} 닫음. 남은 스택: {popupStack.Count}");
+
+        // 2. 이전 패널이 남아있다면 보여주기
+        if (popupStack.Count > 0)
+        {
+            GameObject prev = popupStack.Peek();
+            if (prev != null) prev.SetActive(true);
+
+            // 만약 이전 패널이 'Schedule' 같은 부모라면, 자식들이 꺼졌는지 확인하는 로직은 필요 없음
+            // (자식이 꺼지면 부모만 보이게 됨)
+        }
+        else
+        {
+            // 3. 스택이 비었으면 로비로
+            ReturnToLobby();
+        }
+    }
+
+    void ReturnToLobby()
+    {
+        Debug.Log("[Lobby] 로비로 복귀");
+        if (globalBackButton != null) globalBackButton.SetActive(false);
+
         if (characterGroup) characterGroup.SetActive(true);
         if (bottomGroup) bottomGroup.SetActive(true);
         if (rightGroup) rightGroup.SetActive(true);
         if (topGroup) topGroup.SetActive(true);
+
+        CloseAllPopups(); // 안전하게 모든 팝업 끄기
     }
 
     void CloseAllPopups()
@@ -95,35 +144,13 @@ public class LobbyManager : MonoBehaviour
         if (panelBag) panelBag.SetActive(false);
         if (panelStore) panelStore.SetActive(false);
         if (panelSchedule) panelSchedule.SetActive(false);
+        popupStack.Clear();
     }
 
-    // ====================================================
-    // 버튼 연결 함수
-    // ====================================================
-
-    public void OnClickBattle()
-    {
-        // 전투는 씬 이동
-        SceneManager.LoadScene("Village");
-    }
-
-    public void OnClickClub()
-    {
-        OpenPopup(panelClub);
-    }
-
-    public void OnClickBag()
-    {
-        OpenPopup(panelBag);
-    }
-
-    public void OnClickStore()
-    {
-        OpenPopup(panelStore);
-    }
-
-    public void OnClickSchedule()
-    {
-        OpenPopup(panelSchedule);
-    }
+    // 버튼 연결용 함수들
+    public void OnClickBattle() => SceneManager.LoadScene("Battle");
+    public void OnClickClub() => OpenPopup(panelClub);
+    public void OnClickBag() => OpenPopup(panelBag);
+    public void OnClickStore() => OpenPopup(panelStore);
+    public void OnClickSchedule() => OpenPopup(panelSchedule);
 }

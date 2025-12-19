@@ -13,13 +13,10 @@ public class ChangeMap : MonoBehaviour
 
         if (canvas != null)
         {
-            // 2. transform.Find는 꺼져있는 자식 오브젝트도 찾을 수 있습니다!
-            // (주의: 하이어라키에 있는 패널 이름이 "MapPanel"과 정확히 일치해야 합니다)
             Transform panelTrans = canvas.transform.Find("MapWindow");
 
             if (panelTrans != null)
             {
-                // 3. 찾은 패널에서 스크립트 가져오기
                 mapController = panelTrans.GetComponent<MapController>();
             }
             else
