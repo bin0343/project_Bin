@@ -2,126 +2,112 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 
-public class NPC_Interaction : Interactable
+// Interactable 상속 제거 (이제 UI 버튼으로만 작동)
+public class NPC_Interaction : MonoBehaviour
 {
-    [Header("일반 NPC 전용")]
-    public GameObject interactionMenuPanel;
+    [Header("UI 연결")]
+    public GameObject interactionMenuPanel; // 대화/선물/퀘스트 버튼이 있는 패널
 
     [Header("NPC 데이터")]
     public NPC_Data npcData;
-    public Conversation conversation;   //일반대화
-    public Conversation pendingConversation;
+
+    [Header("대화 데이터")]
+    public Conversation greetingConversation; // "안녕? 무슨 일이야?" (선택지: 대화하기 / 나가기)
+    public Conversation normalConversation;   // 실제 "대화하기" 눌렀을 때 내용
+
+    private Conversation pendingConversation;
     private Quest pendingQuest;
 
-    [Header("UI 버튼")]
+    [Header("메뉴 버튼")]
     public Button talkButton;
     public Button giftButton;
-    public Button closeButton;
+    //public Button closeButton;
     public Button questButton;
-
     public Text questButtonText;
 
-    void Start()
+    private void Start()
+    {
+        // 이 스크립트가 붙은 오브젝트(NPC 그림) 자체가 버튼 역할을 함
+        Button myButton = GetComponent<Button>();
+        if (myButton != null)
+        {
+            myButton.onClick.RemoveAllListeners();
+            myButton.onClick.AddListener(OnClickNPC);
+        }
+
+        // 메뉴 패널 버튼 연결
+        if (talkButton != null) talkButton.onClick.AddListener(OnTalk);
+        if (giftButton != null) giftButton.onClick.AddListener(OnGiveGift);
+        //if (closeButton != null) closeButton.onClick.AddListener(CloseMenu);
+        if (questButton != null) questButton.onClick.AddListener(OnQuestButton);
+
+        // 시작 시 메뉴 패널 끄기
+        if (interactionMenuPanel != null) interactionMenuPanel.SetActive(false);
+    }
+
+    // 1. NPC 버튼 클릭 시 -> 인사 대화 실행
+    public void OnClickNPC()
+    {
+        if (npcData == null) return;
+
+        // greetingConversation이 없으면 데이터의 기본 대화 사용
+        Conversation startConvo = greetingConversation != null ? greetingConversation : npcData.startingConversation;
+
+        // 대화 매니저에게 "내가(this) 대화 요청했다"고 알림
+        DialogueManager.instance.StartConversation(startConvo, npcData, this);
+    }
+
+    // 2. 대화 매니저가 호출해주는 함수 (메뉴판 열기)
+    public void ShowInteractionMenu()
     {
         if (interactionMenuPanel != null)
         {
-            interactionMenuPanel.SetActive(false);
+            CheckForQuests(); // 퀘스트 상태 확인
+            UI_Manager.Instance.OpenUI(interactionMenuPanel);
         }
-
-        if (talkButton != null) talkButton.onClick.AddListener(OnTalk);
-        if (giftButton != null) giftButton.onClick.AddListener(OnGiveGift);
-        if (closeButton != null) closeButton.onClick.AddListener(Closemenu);
-        if (questButton != null) questButton.onClick.AddListener(OnQuestButton);
     }
 
-    //메뉴 관리
-    protected override void OpenMenu()
+    // 3. 메뉴 닫기
+    public void CloseMenu()
     {
-        base.OpenMenu(interactionMenuPanel);
-
-        CheckForQuests();
+        if (interactionMenuPanel != null)
+            UI_Manager.Instance.CloseSpecificUI(interactionMenuPanel);
     }
 
-    //버튼 클릭 이벤트
+    // --- 이하 버튼 기능 ---
+
     public void OnTalk()
     {
-        Debug.Log("대화하기를 선택했습니다.");
-        if (npcData == null)
-        {
-            Debug.LogWarning("Npc 데이터가 없습니다.");
-            return;
-        }
-        Closemenu();
+        CloseMenu(); // 메뉴 닫고 실제 대화 시작
 
-        /*Conversation convoToStart = DetermineConversation();
-        if (convoToStart != null)
-        {
-            DialogueManager.instance.StartConversation(convoToStart, npcData);
-        }
-        else
-        {
-            Debug.LogWarning("이 NPC에 대화가 없습니다.");
-        }*/
-        Conversation convo = conversation ?? npcData.startingConversation;
+        Conversation convo = normalConversation ?? npcData.startingConversation;
         if (convo != null)
         {
-            DialogueManager.instance.StartConversation(convo, npcData);
-        }
-        else
-        {
-            Debug.LogWarning("이 NPC에 할당된 일반 대화가 없습니다.");
+            // 여기서는 메뉴를 또 열 필요가 없으므로 this를 넘기지 않거나, 
+            // 선택지에 openInteractionMenu가 false여야 함
+            DialogueManager.instance.StartConversation(convo, npcData, null);
         }
     }
 
     public void OnGiveGift()
     {
-        Debug.Log("선물하기 창을 엽니다. (인벤토리 연동)");
-        Closemenu();
+        Debug.Log("선물하기 UI 열기");
+        CloseMenu();
     }
 
-    public void OnCloseMenu()
-    {
-        Debug.Log("메뉴를 닫습니다.");
-        //CloseInteractionMenu();
-    }
-
-    private Conversation DetermineConversation()
-    {
-        // (간단하게, 이 NPC가 주는 첫 번째 퀘스트만 확인)
-        Quest quest = npcData.availableQuests.FirstOrDefault();
-
-        if (quest != null)
-        {
-            QuestStatus status = QuestManager.instance.GetQuestStatus(quest.questID);
-
-            if (status == QuestStatus.COMPLETED && npcData.questCompleteConversation != null)
-            {
-                // 1. 완료 가능 상태 -> 완료 대화
-                return npcData.questCompleteConversation;
-            }
-            else if (status == QuestStatus.IN_PROGRESS && npcData.questInProgressConversation != null)
-            {
-                // 2. 진행 중 상태 -> 진행 중 대화
-                return npcData.questInProgressConversation;
-            }
-            // 3. 수락 전 또는 완료 후 -> 기본 대화 (기본 대화에서 퀘스트 수락이 이뤄짐)
-        }
-
-        // 퀘스트가 없거나, 수락 전이거나, 완료 후일 때
-        return conversation ?? npcData.startingConversation;
-    }
-
+    // 퀘스트 버튼 로직 (기존 유지)
     private void CheckForQuests()
     {
-        if (npcData == null || questButton == null) return;
+        if (questButton == null) return;
 
         pendingQuest = null;
         pendingConversation = null;
         bool showQuestButton = false;
 
+        // 완료 가능한 퀘스트 확인
         foreach (var quest in npcData.availableQuests)
         {
-            if (QuestManager.instance.GetQuestStatus(quest.questID) ==QuestStatus.COMPLETED)
+            if (QuestManager.instance.GetQuestStatus(quest.questID) == QuestStatus.COMPLETED)
             {
                 pendingQuest = quest;
                 pendingConversation = quest.completeConversation;
@@ -131,6 +117,7 @@ public class NPC_Interaction : Interactable
             }
         }
 
+        // 받을 수 있는 퀘스트 확인
         if (!showQuestButton)
         {
             foreach (var quest in npcData.availableQuests)
@@ -147,25 +134,15 @@ public class NPC_Interaction : Interactable
         }
 
         questButton.gameObject.SetActive(showQuestButton);
-
-        if (showQuestButton)
-        {
-            questButton.transform.SetAsFirstSibling();
-        }
+        if (showQuestButton) questButton.transform.SetAsFirstSibling();
     }
 
     public void OnQuestButton()
     {
-        if (pendingQuest != null && pendingConversation != null)
+        if (pendingConversation != null)
         {
-            Debug.Log($"퀘스트 관련 대화 시작: {pendingQuest.questTitle}");
-            Closemenu();
-
-            DialogueManager.instance.StartConversation(pendingConversation, npcData);
-        }
-        else
-        {
-            Debug.LogWarning("실행할 퀘스트 대화가 없습니다.");
+            CloseMenu();
+            DialogueManager.instance.StartConversation(pendingConversation, npcData, null);
         }
     }
 }

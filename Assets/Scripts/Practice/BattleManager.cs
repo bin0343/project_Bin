@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BattleManager : MonoBehaviour
+public class BattleManager2 : MonoBehaviour
 {
     public Transform[] TRPATH;
 
@@ -24,7 +24,7 @@ public class BattleManager : MonoBehaviour
 
     private void Awake()
     {
-        Shared.BattleManager = this;
+        //Shared.BattleManager = this;
     }
 
     private void Start()

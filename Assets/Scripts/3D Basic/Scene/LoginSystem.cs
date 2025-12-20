@@ -28,7 +28,6 @@ public class LoginSystem : MonoBehaviour
 
     void Start()
     {
-        // 메시지 텍스트 초기화
         if (messageText != null) messageText.text = "";
 
         if (PlayerPrefs.GetInt("AutoLogin", 0) == 1 && PlayerPrefs.HasKey("UserID"))
@@ -129,6 +128,17 @@ public class LoginSystem : MonoBehaviour
 
         ShowLoginPopup();
         messageText.text = "계정이 생성되었습니다.\n로그인 해주세요."; // 안내 메시지
+    }
+
+    public void OnClickLogout()
+    {
+        Debug.Log("[TEST] 로그아웃 및 데이터 초기화");
+        PlayerPrefs.SetInt("AutoLogin", 0);
+        PlayerPrefs.Save();
+
+        isLoginComplete = false;
+        ShowLoginPopup();
+        return;
     }
 
     void ShowTouchToStart()
