@@ -27,6 +27,50 @@ public class Player_Equipment : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        InitializeEquipment();
+    }
+
+    private void InitializeEquipment()
+    {
+        Player_Stat stat = GetComponent<Player_Stat>();
+
+        for (int i = 0; i < equipmentSlots.Length; i++)
+        {
+            // 슬롯에 아이템이 있고, 데이터가 유효하다면
+            if (equipmentSlots[i] != null && equipmentSlots[i].ItemData != null)
+            {
+                Item_Equipment equipmentData = equipmentSlots[i].ItemData as Item_Equipment;
+                if (equipmentData == null) continue;
+
+                // 1. 무기 프리팹 생성 (무기 슬롯인 경우 혹은 무기 프리팹이 있는 경우)
+                if (equipmentData.weaponPrefab != null)
+                {
+                    // 기존 무기가 있다면 제거 (혹시 모를 중복 방지)
+                    if (currentWeaponObject != null) Destroy(currentWeaponObject);
+
+                    currentWeaponObject = Instantiate(equipmentData.weaponPrefab, weaponMountPoint);
+                    Weapon_Player newWeaponController = currentWeaponObject.GetComponentInChildren<Weapon_Player>();
+                    playerAction.SetCurrentWeapon(newWeaponController);
+                }
+
+                // 2. 애니메이션 오버라이드 적용
+                if (equipmentData.animationOverrides != null)
+                {
+                    animator.runtimeAnimatorController = equipmentData.animationOverrides;
+                }
+
+                // 3. 스탯 적용
+                if (stat != null)
+                {
+                    stat.AddEquipmentStat(STAT.Attack, equipmentData.attackBonus);
+                    stat.AddEquipmentStat(STAT.Defense, equipmentData.defenseBonus);
+                }
+            }
+        }
+    }
+
     public void Equip(ItemHolder itemToEquip, SlotType sourceType, int sourceIndex)
     {
         if (itemToEquip == null || itemToEquip.ItemData.itemType != ITEMTYPE.Equipment) return;

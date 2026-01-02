@@ -44,7 +44,7 @@ public class UI_Inventory : MonoBehaviour
         }
 
         ChangeTab(InventoryTabType.ALL);
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 
     // 처음에 인벤토리 크기만큼 슬롯을 미리 생성하고 리스트에 담아둡니다.

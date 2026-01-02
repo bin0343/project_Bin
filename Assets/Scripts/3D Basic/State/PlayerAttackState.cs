@@ -1,10 +1,10 @@
-using UnityEngine;
+    using UnityEngine;
 
 public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 {
     public static int comboStep = 0;
 
-    // [추가] 상태 진입 직후 애니메이션 전환이 완료되었는지 확인하는 플래그
+    //상태 진입 직후 애니메이션 전환이 완료되었는지 확인하는 플래그
     private bool isTransitionFinished = false;
 
     protected override PlayerAnimState GetAnimState()
@@ -24,6 +24,11 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
         {
             player.move.LookAtMouse();
         }
+        else
+        {
+            player.move.AlignToCameraForward();
+        }
+
         isTransitionFinished = false;
 
         comboStep++;

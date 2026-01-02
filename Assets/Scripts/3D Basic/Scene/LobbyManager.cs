@@ -114,14 +114,24 @@ public class LobbyManager : MonoBehaviour
         {
             GameObject prev = popupStack.Peek();
             if (prev != null) prev.SetActive(true);
-
-            // 만약 이전 패널이 'Schedule' 같은 부모라면, 자식들이 꺼졌는지 확인하는 로직은 필요 없음
-            // (자식이 꺼지면 부모만 보이게 됨)
         }
         else
         {
             // 3. 스택이 비었으면 로비로
             ReturnToLobby();
+        }
+    }
+
+    public void OnClickBag()
+    {
+        OpenPopup(panelBag);
+
+        // 가방을 열 때 UI를 새로고침
+        UI_Inventory uiInv = panelBag.GetComponent<UI_Inventory>();
+        if (uiInv != null)
+        {
+            uiInv.ChangeTab(UI_Inventory.InventoryTabType.ALL); // 기본 탭으로 열기
+            uiInv.RefreshUI();
         }
     }
 
@@ -148,9 +158,9 @@ public class LobbyManager : MonoBehaviour
     }
 
     // 버튼 연결용 함수들
-    public void OnClickBattle() => SceneManager.LoadScene("Battle");
+    public void OnClickBattle() => SceneManager.LoadScene("Village");
     public void OnClickClub() => OpenPopup(panelClub);
-    public void OnClickBag() => OpenPopup(panelBag);
+    
     public void OnClickStore() => OpenPopup(panelStore);
     public void OnClickSchedule() => OpenPopup(panelSchedule);
 }

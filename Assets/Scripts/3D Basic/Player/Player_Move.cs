@@ -15,7 +15,7 @@ public class Player_Move : MonoBehaviour
     [SerializeField] private Transform CameraArm; 
     [SerializeField] private float RotateSpeed = 7.0f;
 
-    private Transform currentReference;
+    //private Transform currentReference;
 
     [SerializeField] private LayerMask groundLayer;
 
@@ -27,7 +27,7 @@ public class Player_Move : MonoBehaviour
         Animator = CharacterBody.GetComponentInChildren<Animator>();
         //Action = GetComponent<Player_Action>();
         cameraArmScript = CameraArm.GetComponent<CameraArm>();
-        currentReference = CameraArm;
+        //currentReference = CameraArm;
 
         if (groundLayer == 0) groundLayer = -1;
     }
@@ -60,7 +60,7 @@ public class Player_Move : MonoBehaviour
 
         // [!] 수정: CameraArm 대신 currentReference를 사용
         // 만약 currentReference가 없으면 기본값으로 CameraArm 사용
-        Transform refTransform = currentReference != null ? currentReference : CameraArm;
+        Transform refTransform = CameraArm;
 
         Vector3 lookForward = new Vector3(refTransform.forward.x, 0f, refTransform.forward.z).normalized;
         Vector3 lookRight = new Vector3(refTransform.right.x, 0f, refTransform.right.z).normalized;
@@ -97,19 +97,21 @@ public class Player_Move : MonoBehaviour
         return baseSpeed * directionWeight;
     }
 
-    public void SetReferenceTransform(Transform newReference)
+    public void AlignToCameraForward()
     {
-        currentReference = newReference;
+        Transform camTransform = Camera.main.transform;
 
-        // [수정] newReference가 null일 경우 .name을 호출하면 에러가 나므로 예외 처리
-        if (newReference != null)
+        // 카메라의 정면 벡터를 가져와서 y축(높이)은 무시
+        Vector3 camForward = camTransform.forward;
+        camForward.y = 0;
+
+        // 벡터 정규화
+        if (camForward.sqrMagnitude > 0)
         {
-            Debug.Log($"이동 기준이 {newReference.name}로 변경되었습니다.");
-        }
-        else
-        {
-            // null이 들어오면 "기본값"으로 변경되었다고 로그 출력
-            Debug.Log("이동 기준이 기본값(CameraArm)으로 변경되었습니다.");
+            camForward.Normalize();
+
+            // 캐릭터의 몸통을 카메라 방향으로 즉시 회전
+            CharacterBody.rotation = Quaternion.LookRotation(camForward);
         }
     }
 
@@ -175,14 +177,6 @@ public class Player_Move : MonoBehaviour
         }
 
         rotationCoroutine = null;
-    }
-
-    public void SetDailyCameraActive(bool isActive)
-    {
-        if (CameraArm != null)
-        {
-            CameraArm.gameObject.SetActive(isActive);
-        }
     }
 
     public void HandleRotation()
