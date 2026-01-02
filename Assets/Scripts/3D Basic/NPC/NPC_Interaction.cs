@@ -54,7 +54,7 @@ public class NPC_Interaction : MonoBehaviour
         Conversation startConvo = greetingConversation != null ? greetingConversation : npcData.startingConversation;
 
         // 대화 매니저에게 "내가(this) 대화 요청했다"고 알림
-        DialogueManager.instance.StartConversation(startConvo, npcData, this);
+        //DialogueManager.instance.StartConversation(startConvo, npcData, this);
     }
 
     // 2. 대화 매니저가 호출해주는 함수 (메뉴판 열기)
@@ -85,7 +85,7 @@ public class NPC_Interaction : MonoBehaviour
         {
             // 여기서는 메뉴를 또 열 필요가 없으므로 this를 넘기지 않거나, 
             // 선택지에 openInteractionMenu가 false여야 함
-            DialogueManager.instance.StartConversation(convo, npcData, null);
+            //DialogueManager.instance.StartConversation(convo, npcData, null);
         }
     }
 
@@ -142,7 +142,8 @@ public class NPC_Interaction : MonoBehaviour
         if (pendingConversation != null)
         {
             CloseMenu();
-            DialogueManager.instance.StartConversation(pendingConversation, npcData, null);
+            //
+            //DialogueManager.instance.StartConversation(pendingConversation, npcData, null);
         }
     }
 }
