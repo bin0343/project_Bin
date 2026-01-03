@@ -2,14 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
+public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("UI Components")]
     public Image ItemIcon;
     public Text quantityText;
 
     [Header("Slot Info")]
-    private ItemHolder assignedItemHolder;
+    private ItemHolder assignedItemHolder;  //슬롯에 담긴 아이템 정보
     private SlotType slotType;
     private int originalInventoryIndex;
 
@@ -75,6 +75,10 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!isDraggable || isEmpty) return;
+        if (uiInventory != null)
+        {
+            uiInventory.CloseDetailPanel();
+        }
         DragSlot.StartDrag(ItemIcon, assignedItemHolder, originalInventoryIndex, this.slotType);
         ItemIcon.color = new Color(1, 1, 1, 0.5f);
     }
@@ -88,7 +92,8 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        DragSlot.EndDrag();
+        if (uiInventory.enableDrag != false)
+            DragSlot.EndDrag();
         ItemIcon.color = new Color(1, 1, 1, 1);
     }
 
@@ -119,6 +124,32 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 this.originalInventoryIndex,
                 UI_Inventory.InventoryTabType.ALL
             );
+        }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (uiInventory != null && uiInventory.showDetailOnHover && !isEmpty)
+        {
+            uiInventory.UpdateDetailView(assignedItemHolder);
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (uiInventory != null && uiInventory.showDetailOnHover)
+        {
+            uiInventory.CloseDetailPanel();
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (isEmpty) return;
+
+        if (uiInventory != null && !uiInventory.showDetailOnHover)
+        {
+            uiInventory.UpdateDetailView(assignedItemHolder);
         }
     }
 }

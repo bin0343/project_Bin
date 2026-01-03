@@ -48,22 +48,21 @@ public class LobbyManager : MonoBehaviour
     {
         // (기존과 동일)
         if (PlayerPrefs.HasKey("PlayerName")) txtName.text = PlayerPrefs.GetString("PlayerName");
-        else txtName.text = "선생님";
+        else txtName.text = "학생";
 
         int level = PlayerPrefs.GetInt("PlayerLevel", 1);
         int gold = PlayerPrefs.GetInt("PlayerGold", 0);
         txtLevel.text = $"Lv.{level}";
-        txtGold.text = string.Format("{0:n0}", gold);
+        txtGold.text = string.Format("{0:n0}G", gold);
         txtAP.text = "120/120";
     }
 
-    // [1단계] 메인 팝업 열기 (스택 초기화)
     public void OpenPopup(GameObject popup)
     {
         if (popup == null) return;
 
-        popupStack.Clear(); // 스택 깨끗하게 비움
-        popupStack.Push(popup); // 첫 번째 패널(예: 일정) 넣기
+        popupStack.Clear(); 
+        popupStack.Push(popup);
 
         popup.SetActive(true);
         if (globalBackButton != null) globalBackButton.SetActive(true);
@@ -76,7 +75,6 @@ public class LobbyManager : MonoBehaviour
         Debug.Log($"[OpenPopup] {popup.name} 열림. 스택 수: {popupStack.Count}");
     }
 
-    // [2단계] 깊이 들어가기 (스택 쌓기)
     public void OpenDepthPanel(GameObject nextPanel)
     {
         if (nextPanel == null) return;
@@ -103,13 +101,11 @@ public class LobbyManager : MonoBehaviour
             return;
         }
 
-        // 1. 현재 패널 끄기
         GameObject current = popupStack.Pop();
         if (current != null) current.SetActive(false);
 
         Debug.Log($"[Back] {current.name} 닫음. 남은 스택: {popupStack.Count}");
 
-        // 2. 이전 패널이 남아있다면 보여주기
         if (popupStack.Count > 0)
         {
             GameObject prev = popupStack.Peek();
@@ -117,7 +113,6 @@ public class LobbyManager : MonoBehaviour
         }
         else
         {
-            // 3. 스택이 비었으면 로비로
             ReturnToLobby();
         }
     }
