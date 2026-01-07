@@ -14,8 +14,8 @@ public class Quest : ScriptableObject
     public string shortDescription;
 
     [Header("퀘스트 전용 대화")]
-    public Conversation startConversation;
-    public Conversation completeConversation;
+    public int startDialogueID;    // 퀘스트 시작 시 보여줄 CSV ID (예: 2001)
+    public int completeDialogueID; // 퀘스트 완료 시 보여줄 CSV ID (예: 2005)
 
     public List<QuestObjective> objectives;     //이 퀘스트의 목표
     public QuestReward rewards;     //완료 보상

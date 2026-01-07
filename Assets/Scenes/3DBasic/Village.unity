@@ -3252,7 +3252,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 820347828}
-  - component: {fileID: 820347829}
   - component: {fileID: 820347827}
   - component: {fileID: 820347826}
   - component: {fileID: 820347825}
@@ -3381,26 +3380,6 @@ Transform:
   - {fileID: 394828471}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &820347829
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 820347823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5dac0140180de24bb285759b38456e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  interactionMenuPanel: {fileID: 1914849562}
-  npcData: {fileID: 11400000, guid: 67d5a67abe4df5d489065372a640b13d, type: 2}
-  greetingConversation: {fileID: 0}
-  normalConversation: {fileID: 0}
-  talkButton: {fileID: 1930131771}
-  giftButton: {fileID: 1079764777}
-  questButton: {fileID: 713569231}
-  questButtonText: {fileID: 1951557605}
 --- !u!1 &821029759
 GameObject:
   m_ObjectHideFlags: 0
@@ -8733,6 +8712,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3506005197796100937, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 35.009766
+      objectReference: {fileID: 0}
     - target: {fileID: 3668584187216141591, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -9033,6 +9016,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -54.78
       objectReference: {fileID: 0}
+    - target: {fileID: 6360009926198295505, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.0024414062
+      objectReference: {fileID: 0}
     - target: {fileID: 6425336570142573325, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -9140,6 +9127,10 @@ PrefabInstance:
     - target: {fileID: 7771525320528366380, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7823426964859613311, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 2.0058594
       objectReference: {fileID: 0}
     - target: {fileID: 7832957446280793433, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_SizeDelta.y

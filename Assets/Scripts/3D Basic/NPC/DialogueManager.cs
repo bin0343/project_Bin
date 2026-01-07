@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager instance;
@@ -16,112 +18,74 @@ public class DialogueManager : MonoBehaviour
     public GameObject choiceButtonPrefab;// 버튼 프리팹
 
     [Header("데이터")]
-    public TextAsset csvFile;            // CSV 파일
+    public TextAsset[] csvFiles;            // CSV 파일
 
     [Header("설정")]
-    public float typingSpeed = 0.001f;    // 글자 나오는 속도
+    public float typingSpeed = 0.05f;    // 글자 나오는 속도
 
     // 내부 변수
-    private Dictionary<int, DialogueEntry> dialogueDic = new Dictionary<int, DialogueEntry>();
     private NPC_Data currentTargetNPC;
 
+    // CSV 모드용 변수
+    private Dictionary<int, DialogueEntry> dialogueDic = new Dictionary<int, DialogueEntry>();
+    private DialogueEntry currentCSVEntry;
+
+    // 퀘스트(Conversation) 모드용 변수
+    private Conversation currentConversation;
+    private bool isQuestMode = false; // 현재 모드 판별 (true: 퀘스트/SO, false: CSV)
+
     // 상태 관리 변수
-    private bool isTyping = false;       // 현재 타이핑 중인가?
-    private string fullText = "";        // 전체 텍스트 저장용
-    private DialogueEntry currentEntry;  // 현재 대화 데이터
-    private Coroutine typingCoroutine;   // 타이핑 코루틴 저장용
+    private bool isTyping = false;
+    private string fullText = "";
+    private Coroutine typingCoroutine;
 
     private void Awake()
     {
         instance = this;
         dialogueRoot.SetActive(false);
-        ParseCSV();
+        ParseCSV(); // CSV 데이터 미리 로드
     }
 
     private void Update()
     {
-        // 대화창이 꺼져있으면 클릭 감지 안 함
         if (!dialogueRoot.activeSelf) return;
 
-        // 마우스 왼쪽 클릭 (모바일 터치 포함)
+        // 마우스 클릭 (타이핑 스킵 or 선택지 표시 or 대화 종료)
         if (Input.GetMouseButtonDown(0))
         {
-            // 1. 타이핑 중일 때 클릭 -> 즉시 전체 텍스트 출력
             if (isTyping)
             {
+                // 타이핑 중 클릭 -> 즉시 전체 출력
                 StopCoroutine(typingCoroutine);
                 txtDialogue.text = fullText;
                 isTyping = false;
             }
-            // 2. 타이핑이 끝났는데 선택지가 안 뜬 상태에서 클릭 -> 선택지 보여주기
-            else if (choiceGroup.gameObject.activeSelf == false)
+            else if (!choiceGroup.gameObject.activeSelf)
             {
+                // 타이핑 끝났는데 선택지가 안 떴다면 -> 선택지 표시
                 ShowChoices();
             }
-            // 3. 선택지가 이미 떠 있다면 -> 버튼을 눌러야 하므로 화면 클릭은 무시
-        }
-    }
-
-    // --- CSV 파싱 (기존과 동일) ---
-    void ParseCSV()
-    {
-        if (csvFile == null) return;
-        List<Dictionary<string, object>> data = CSVReader.Read(csvFile);
-
-        for (int i = 0; i < data.Count; i++)
-        {
-            try
+            // 선택지가 떠있을 땐 버튼 클릭을 기다림 (아무것도 안 함)
+            // 단, 결과(응답) 화면일 경우 클릭 시 종료 처리
+            else if (choiceGroup.childCount == 0 && !isTyping)
             {
-                int id = int.Parse(data[i]["ID"].ToString());
-                string speaker = data[i]["Speaker"].ToString();
-                string text = data[i]["Text"].ToString();
-
-                DialogueEntry entry = new DialogueEntry();
-                entry.id = id;
-                entry.speakerName = speaker;
-                entry.dialogueText = text;
-
-                if (data[i].ContainsKey("Choice1")) AddChoice(entry, data[i]["Choice1"], data[i]["NextID1"], data[i]["EffectType1"], data[i]["EffectValue1"]);
-                if (data[i].ContainsKey("Choice2")) AddChoice(entry, data[i]["Choice2"], data[i]["NextID2"], data[i]["EffectType2"], data[i]["EffectValue2"]);
-                if (data[i].ContainsKey("Choice3")) AddChoice(entry, data[i]["Choice3"], data[i]["NextID3"], data[i]["EffectType3"], data[i]["EffectValue3"]);
-
-                if (!dialogueDic.ContainsKey(id)) dialogueDic.Add(id, entry);
+                EndDialogue();
             }
-            catch (System.Exception e) { Debug.LogError($"CSV 파싱 에러: {e.Message}"); }
         }
     }
 
-    void AddChoice(DialogueEntry entry, object textObj, object nextIDObj, object effTypeObj, object effValObj)
-    {
-        string text = textObj.ToString();
-        if (string.IsNullOrEmpty(text)) return;
-
-        ChoiceData c = new ChoiceData();
-        c.text = text;
-        c.nextID = nextIDObj.ToString().Trim();
-        c.effectType = effTypeObj.ToString().Trim();
-        int.TryParse(effValObj.ToString(), out c.effectValue);
-        entry.choices.Add(c);
-    }
-
-    // --- 대화 시작 ---
+    // CSV 기반 대화 (일상 대화)
     public void StartDialogue(int startID, NPC_Data npcData)
     {
+        isQuestMode = false; // CSV 모드
+        currentConversation = null;
         currentTargetNPC = npcData;
-        dialogueRoot.SetActive(true);
 
-        if (npcData.standingIllust != null)
-        {
-            standingCG.sprite = npcData.standingIllust;
-            standingCG.gameObject.SetActive(true);
-        }
-        else standingCG.gameObject.SetActive(false);
-
-        ShowDialogueStep(startID);
+        OpenDialogueUI();
+        ShowCSVStep(startID);
     }
 
-    // --- 단계별 대화 표시 (수정됨) ---
-    void ShowDialogueStep(int id)
+    void ShowCSVStep(int id)
     {
         if (!dialogueDic.ContainsKey(id))
         {
@@ -129,25 +93,59 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        currentEntry = dialogueDic[id];
-        txtName.text = currentEntry.speakerName;
-
-        // [중요] 텍스트 타이핑 준비
-        fullText = currentEntry.dialogueText.Replace("\\n", "\n");
-        txtDialogue.text = ""; // 일단 비워둠
-
-        // 선택지 그룹은 숨겨둠 (클릭해야 나옴)
+        foreach (Transform child in choiceGroup) Destroy(child.gameObject);
         choiceGroup.gameObject.SetActive(false);
 
-        // 이전 버튼들 청소
-        foreach (Transform child in choiceGroup) Destroy(child.gameObject);
+        currentCSVEntry = dialogueDic[id];
+        txtName.text = currentCSVEntry.speakerName;
 
-        // 타이핑 코루틴 시작
+        SetDialogueText(currentCSVEntry.dialogueText);
+    }
+
+    // ScriptableObject 기반 대화 (퀘스트)
+    // NPC_Interaction에서 호출하는 함수
+    public void StartConversation(Conversation convo, NPC_Data npcData, NPC_Interaction interactable = null)
+    {
+        if (convo == null) return;
+
+        isQuestMode = true; // 퀘스트 모드
+        currentCSVEntry = null;
+        currentConversation = convo;
+        currentTargetNPC = npcData;
+
+        OpenDialogueUI();
+
+        // 대화 내용 출력
+        txtName.text = npcData.NPCName; // SO에는 화자 이름이 없으므로 NPC 데이터 사용
+        SetDialogueText(convo.npcLine);
+    }
+
+    // UI 및 로직 처리
+
+    void OpenDialogueUI()
+    {
+        dialogueRoot.SetActive(true);
+        if (currentTargetNPC != null && currentTargetNPC.standingIllust != null)
+        {
+            standingCG.sprite = currentTargetNPC.standingIllust;
+            standingCG.gameObject.SetActive(true);
+        }
+        else standingCG.gameObject.SetActive(false);
+
+        // 이전 선택지 청소
+        foreach (Transform child in choiceGroup) Destroy(child.gameObject);
+        choiceGroup.gameObject.SetActive(false);
+    }
+
+    void SetDialogueText(string text)
+    {
+        fullText = text.Replace("\\n", "\n");
+        txtDialogue.text = "";
+
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeDialogue());
     }
 
-    // 한글자씩 출력하는 코루틴
     IEnumerator TypeDialogue()
     {
         isTyping = true;
@@ -159,49 +157,108 @@ public class DialogueManager : MonoBehaviour
         isTyping = false;
     }
 
-    // 선택지 버튼 생성 및 표시 (클릭 시 실행됨)
+    // 선택지 버튼 생성 (모드에 따라 분기)
     void ShowChoices()
     {
-        choiceGroup.gameObject.SetActive(true); // 이제 선택지 그룹 켜기
+        choiceGroup.gameObject.SetActive(true);
 
-        if (currentEntry.choices.Count > 0)
+        // 1. 퀘스트 모드 (Conversation SO)
+        if (isQuestMode && currentConversation != null)
         {
-            foreach (ChoiceData choice in currentEntry.choices)
+            if (currentConversation.playerChoice.Count > 0)
             {
-                GameObject btnObj = Instantiate(choiceButtonPrefab, choiceGroup);
-                btnObj.GetComponentInChildren<Text>().text = choice.text;
-                Button btn = btnObj.GetComponent<Button>();
-                btn.onClick.AddListener(() => OnChoiceClicked(choice));
+                foreach (var choice in currentConversation.playerChoice)
+                {
+                    CreateChoiceButton(choice.choiceText, () => OnQuestChoiceClicked(choice));
+                }
+            }
+            else
+            {
+                CreateChoiceButton("▼", () => EndDialogue());
             }
         }
-        else
+        // 2. CSV 모드
+        else if (!isQuestMode && currentCSVEntry != null)
         {
-            // 선택지가 없는 경우 (종료 버튼)
-            GameObject btnObj = Instantiate(choiceButtonPrefab, choiceGroup);
-            btnObj.GetComponentInChildren<Text>().text = "▼";
-            btnObj.GetComponent<Button>().onClick.AddListener(() => EndDialogue());
+            if (currentCSVEntry.choices.Count > 0)
+            {
+                foreach (var choice in currentCSVEntry.choices)
+                {
+                    CreateChoiceButton(choice.text, () => OnChoiceClicked(choice));
+                }
+            }
+            else
+            {
+                CreateChoiceButton("▼", () => EndDialogue());
+            }
         }
     }
 
-    // --- 선택지 클릭 ---
+    void CreateChoiceButton(string text, UnityEngine.Events.UnityAction action)
+    {
+        GameObject btnObj = Instantiate(choiceButtonPrefab, choiceGroup);
+        btnObj.GetComponentInChildren<Text>().text = text;
+        btnObj.GetComponent<Button>().onClick.AddListener(action);
+    }
+
+    // 선택지 클릭 처리
     void OnChoiceClicked(ChoiceData choice)
     {
         ApplyEffect(choice.effectType, choice.effectValue);
 
         if (choice.nextID == "EXIT") EndDialogue();
-        else ShowDialogueStep(int.Parse(choice.nextID));
+        else ShowCSVStep(int.Parse(choice.nextID));
     }
 
-    void ApplyEffect(string type, int value)
+    // [퀘스트] 선택지 클릭 처리
+    void OnQuestChoiceClicked(DialogueChoice choice)
     {
-        if (value == 0) return;
+        // 1. 친밀도 적용
+        if (choice.affinityChange != 0)
+            NPC_Manager.instance.ChangeAffinity(currentTargetNPC.NPCID, choice.affinityChange);
+
+        // 2. 퀘스트 수락/완료 처리
+        if (choice.questToStart != null)
+            QuestManager.instance.AcceptQuest(choice.questToStart);
+
+        if (choice.questToComplete != null)
+            QuestManager.instance.ClaimReward(choice.questToComplete);
+
+        // 3. NPC 응답 보여주기 (간단한 연출: 질문 텍스트를 응답으로 교체)
+        // 선택지 버튼들은 숨김
+        foreach (Transform child in choiceGroup) Destroy(child.gameObject);
+
+        // 응답 텍스트 출력
+        SetDialogueText(choice.npcResponse);
+
+        // 응답 출력 후 클릭하면 종료되도록 설정 (Update문에서 처리됨)
+    }
+
+    // 효과 적용 (CSV용)
+    void ApplyEffect(string type, string value)
+    {
+        if (string.IsNullOrEmpty(value) || value == "0") return;
         switch (type)
         {
             case "AFFINITY":
-                NPC_Manager.instance.ChangeAffinity(currentTargetNPC.NPCID, value);
+                if (int.TryParse(value, out int affinityVal))
+                {
+                    NPC_Manager.instance.ChangeAffinity(currentTargetNPC.NPCID, affinityVal);
+                }
                 break;
             case "NPC_STR":
                 Debug.Log($"NPC 힘 {value} 증가");
+                break;
+            case "QUEST_START":
+                // QuestManager에서 ID(문자열)로 퀘스트를 찾아 수락
+                Quest qStart = QuestManager.instance.GetQuestByID(value);
+                if (qStart != null) QuestManager.instance.AcceptQuest(qStart);
+                break;
+
+            // [추가] 퀘스트 완료(보상) 기능
+            case "QUEST_COMPLETE":
+                Quest qEnd = QuestManager.instance.GetQuestByID(value);
+                if (qEnd != null) QuestManager.instance.ClaimReward(qEnd);
                 break;
         }
     }
@@ -210,5 +267,71 @@ public class DialogueManager : MonoBehaviour
     {
         dialogueRoot.SetActive(false);
         currentTargetNPC = null;
+        currentConversation = null;
+        currentCSVEntry = null;
+    }
+
+    // --- CSV 파싱 로직 (기존 유지) ---
+    void ParseCSV()
+    {
+        if (csvFiles == null || csvFiles.Length == 0)
+        {
+            Debug.LogError("DialogueManager: 연결된 CSV 파일이 없습니다!");
+            return;
+        }
+        foreach (TextAsset file in csvFiles)
+        {
+            if (file == null) continue;
+
+            List<Dictionary<string, object>> data = CSVReader.Read(file);
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                try
+                {
+                    int id = int.Parse(data[i]["ID"].ToString());
+                    string speaker = data[i]["Speaker"].ToString();
+                    string text = data[i]["Text"].ToString();
+
+                    DialogueEntry entry = new DialogueEntry();
+                    entry.id = id;
+                    entry.speakerName = speaker;
+                    entry.dialogueText = text;
+
+                    if (data[i].ContainsKey("Choice1")) AddChoice(entry, data[i]["Choice1"], data[i]["NextID1"], data[i]["EffectType1"], data[i]["EffectValue1"]);
+                    if (data[i].ContainsKey("Choice2")) AddChoice(entry, data[i]["Choice2"], data[i]["NextID2"], data[i]["EffectType2"], data[i]["EffectValue2"]);
+                    if (data[i].ContainsKey("Choice3")) AddChoice(entry, data[i]["Choice3"], data[i]["NextID3"], data[i]["EffectType3"], data[i]["EffectValue3"]);
+
+                    // 중복 ID 체크 (서로 다른 파일이라도 ID가 겹치면 안 됨)
+                    if (!dialogueDic.ContainsKey(id))
+                    {
+                        dialogueDic.Add(id, entry);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[주의] 중복된 대화 ID 발견: {id}. ({file.name})");
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"CSV 파싱 에러 ({file.name}): {e.Message}");
+                }
+            }
+        }
+
+        Debug.Log($"총 {dialogueDic.Count}개의 대화 데이터를 로드했습니다.");
+    }
+
+    void AddChoice(DialogueEntry entry, object textObj, object nextIDObj, object effTypeObj, object effValObj)
+    {
+        string text = textObj.ToString();
+        if (string.IsNullOrEmpty(text)) return;
+
+        ChoiceData c = new ChoiceData();
+        c.text = text;
+        c.nextID = nextIDObj.ToString().Trim();
+        c.effectType = effTypeObj.ToString().Trim();
+        c.effectValue = effValObj.ToString().Trim();
+        entry.choices.Add(c);
     }
 }

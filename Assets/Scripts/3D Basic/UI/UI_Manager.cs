@@ -34,10 +34,7 @@ public class UI_Manager : MonoBehaviour
 
     private void Start()
     {
-        if (PlayerStat == null)
-        {
-            PlayerStat = FindObjectOfType<Player_Stat>();
-        }
+        FindLocalPlayerStat();
         if (UI_Loot == null && LootPanel != null)
         {
             UI_Loot = LootPanel.GetComponent<UI_Loot>();
@@ -131,9 +128,42 @@ public class UI_Manager : MonoBehaviour
         //Enemy_HpBar.UpdateStatus(EnemyStat);
     }
 
-    public void UpdatePlayerStatus()
+    private void FindLocalPlayerStat()
     {
-        UI_Status.UpdateStatus(PlayerStat);
+        // 씬에 있는 모든 Player_Stat을 다 뒤짐
+        Player_Stat[] allStats = FindObjectsOfType<Player_Stat>();
+
+        foreach (var stat in allStats)
+        {
+            // Global 데이터(매니저)가 아닌 녀석을 발견하면 그게 진짜 캐릭터임
+            if (!stat.isGlobalData)
+            {
+                PlayerStat = stat;
+                break; // 찾았으면 반복 종료
+            }
+        }
+    }
+
+    public void UpdatePlayerStatus(Player_Stat stat = null)
+    {
+        // 1. 외부에서 직접 찔러준 경우 (가장 확실함)
+        if (stat != null && !stat.isGlobalData)
+        {
+            PlayerStat = stat;
+        }
+
+        // 2. 아직도 누군지 모르거나, 알고 있는 애가 Global 놈이라면? -> 다시 찾아!
+        if (PlayerStat == null || PlayerStat.isGlobalData)
+        {
+            FindLocalPlayerStat();
+        }
+
+        // 3. 찾은 진짜 캐릭터로 UI 갱신
+        if (PlayerStat != null && !PlayerStat.isGlobalData)
+        {
+            if (UI_Status != null) UI_Status.UpdateStatus(PlayerStat);
+            if (UI_StatusBar != null) UI_StatusBar.UpdateStatus(PlayerStat);
+        }
     }
 
     public void OpenUI(GameObject panel)

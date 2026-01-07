@@ -5,8 +5,9 @@ using UnityEngine;
 
 public class Player_Stat : MonoBehaviour
 {
+    public static Player_Stat globalInstance;
+
     public float[] baseStats = new float[(int)STAT.STAT_COUNT];
-    //private float[] baseStats = new float[(int)STAT.STAT_COUNT];
     private float[] equipmentStats = new float[(int)STAT.STAT_COUNT];
 
     public void SetStat(STAT type, float value)
@@ -44,18 +45,59 @@ public class Player_Stat : MonoBehaviour
     public Vector3 damageTextOffset = new Vector3(0, 2.5f, 0);
 
     private Player_Action action;
+    public bool isGlobalData = false;
+
+    private void Awake()
+    {
+        // 'Player_Inventory'와 같은 오브젝트에 있다면 -> Global Data
+        if (GetComponent<Player_Inventory>() != null)
+        {
+            // 이미 전역 데이터(globalInstance)가 살아있다면
+            // 씬 이동으로 인해 생긴 '임시 중복 오브젝트'이므로 연결하지 않고 무시
+            if (globalInstance != null && globalInstance != this)
+            {
+                return;
+            }
+
+            isGlobalData = true;
+            globalInstance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            isGlobalData = false;
+        }
+    }
 
     void Start()
     {
+        //만약 나는 캐릭터(Local)인데, Global 데이터가 있다면? -> 동기화
+        if (!isGlobalData && globalInstance != null)
+        {
+            // Global에서 데이터 가져오기 (로드)
+            this.level = globalInstance.level;
+            this.gold = globalInstance.gold;
+            this.exp = globalInstance.exp;
+            this.baseStats = (float[])globalInstance.baseStats.Clone();
+
+            currentHP = maxHP;
+            currentMP = maxMP;
+
+            Debug.Log("캐릭터가 생성되어 Global 데이터를 불러왔습니다.");
+        }
+
         myCanvas = GetComponentInChildren<Canvas>(true);
         action = GetComponent<Player_Action>();
 
-        currentHP = maxHP;
-        currentMP = maxMP;
+        if (!isGlobalData && UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.UpdatePlayerStatus(this);
+        }
     }
 
     public void TakeDamage(int damage)
     {
+        if (isGlobalData) return;
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0);
         action?.OnDamageTaken();
@@ -69,17 +111,28 @@ public class Player_Stat : MonoBehaviour
             DamageTextSpawner.instance.SpawnDamageText(damage, spawnPosition, textRotation, myCanvas);
         }
 
-        UI_Manager.Instance.UpdatePlayerStatus();
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.UpdatePlayerStatus(this);
+        }
     }
 
     public void Heal(int amount)
     {
         currentHP = Mathf.Clamp(currentHP + amount, 0, maxHP);
+        if (!isGlobalData && UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.UpdatePlayerStatus(this);
+        }
     }
 
     public void RecoverMp(int amount)
     {
         currentMP = Mathf.Clamp(currentMP + amount, 0, maxMP);
+        if (!isGlobalData && UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.UpdatePlayerStatus(this);
+        }
     }
 
     public void GainExp(int amount)
@@ -90,12 +143,34 @@ public class Player_Stat : MonoBehaviour
             exp -= levelUpExp;
             LevelUp();
         }
+
+        // Global 동기화
+        if (!isGlobalData && globalInstance != null)
+        {
+            globalInstance.exp = this.exp;
+            globalInstance.level = this.level;
+        }
     }
 
-    /*public void GainGold(int amount)
+    public void GainGold(int amount)
     {
-        Gold += amount;
-    }*/
+        gold += amount;
+
+        // 내가 캐릭터라면, Global에도 반영해줘야 함
+        if (!isGlobalData && globalInstance != null)
+        {
+            globalInstance.gold = this.gold;
+        }
+        else if (isGlobalData)
+        {
+            // 내가 Global이라면 그냥 저장
+            // (필요하다면 PlayerPrefs 저장 로직 추가)
+        }
+        if (!isGlobalData && UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.UpdatePlayerStatus(this);
+        }
+    }
 
     private void LevelUp()
     {

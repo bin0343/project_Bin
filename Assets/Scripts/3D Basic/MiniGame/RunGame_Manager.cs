@@ -45,15 +45,27 @@ public class RunGame_Manager : MonoBehaviour
         else if (survivalTime >= 30f) { rank = "B"; goldReward = 100; expReward = 40; }
         else { rank = "C"; goldReward = 10; expReward = 10; }
 
-        // 보상 지급 (PlayerPrefs에 저장 -> 로비 매니저가 읽어서 반영)
-        // 1. 골드
+        // 1. Global Stat (Manager)에 즉시 반영 -> 로비 UI 갱신용
+        Player_Stat globalStat = Player_Stat.globalInstance;
+        if (globalStat == null && Player_Inventory.instance != null)
+        {
+            globalStat = Player_Inventory.instance.GetComponent<Player_Stat>();
+        }
+
+        if (globalStat != null)
+        {
+            globalStat.GainGold(goldReward);
+            globalStat.GainExp(expReward);
+            Debug.Log($"미니게임 보상 지급 완료: {goldReward}G, {expReward}Exp");
+        }
+        else
+        {
+            Debug.LogWarning("Global Player_Stat을 찾을 수 없습니다! 매니저 오브젝트를 확인하세요.");
+        }
+
+        // 2. PlayerPrefs 백업 (기존 유지 - 데이터 보존용)
         int currentGold = PlayerPrefs.GetInt("PlayerGold", 0);
         PlayerPrefs.SetInt("PlayerGold", currentGold + goldReward);
-
-        // 2. 경험치 (플레이어 레벨 데이터가 있다면 여기서 처리)
-        // (예시: int currentExp = PlayerPrefs.GetInt("PlayerExp", 0)...)
-
-        PlayerPrefs.Save(); // 저장 필수!
 
         // 결과창 표시
         resultPanel.SetActive(true);

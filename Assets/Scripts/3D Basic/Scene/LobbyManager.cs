@@ -46,15 +46,30 @@ public class LobbyManager : MonoBehaviour
 
     void RefreshUserInfo()
     {
-        // (기존과 동일)
-        if (PlayerPrefs.HasKey("PlayerName")) txtName.text = PlayerPrefs.GetString("PlayerName");
-        else txtName.text = "학생";
+        if (txtName != null) txtName.text = PlayerPrefs.GetString("PlayerName", "학생");
 
-        int level = PlayerPrefs.GetInt("PlayerLevel", 1);
-        int gold = PlayerPrefs.GetInt("PlayerGold", 0);
-        txtLevel.text = $"Lv.{level}";
-        txtGold.text = string.Format("{0:n0}G", gold);
-        txtAP.text = "120/120";
+        // Global Manager에서 Player_Stat 찾기
+        Player_Stat playerStat = Player_Stat.globalInstance;
+
+        // 만약 globalInstance가 설정 안 되어 있다면 수동으로 찾기
+        if (playerStat == null && Player_Inventory.instance != null)
+        {
+            playerStat = Player_Inventory.instance.GetComponent<Player_Stat>();
+        }
+
+        if (playerStat != null)
+        {
+            if (txtGold != null) txtGold.text = string.Format("{0:n0}G", playerStat.gold);
+            if (txtLevel != null) txtLevel.text = "Lv." + playerStat.level;
+
+            // 데이터가 잘 연결되었는지 로그 확인
+            // Debug.Log($"로비 UI 갱신: {playerStat.gold}G");
+        }
+        else
+        {
+            // 데이터가 없을 때 (테스트용)
+            if (txtGold != null) txtGold.text = PlayerPrefs.GetInt("PlayerGold", 0).ToString();
+        }
     }
 
     public void OpenPopup(GameObject popup)
@@ -141,6 +156,8 @@ public class LobbyManager : MonoBehaviour
         if (topGroup) topGroup.SetActive(true);
 
         CloseAllPopups(); // 안전하게 모든 팝업 끄기
+
+        RefreshUserInfo();
     }
 
     void CloseAllPopups()
@@ -153,7 +170,7 @@ public class LobbyManager : MonoBehaviour
     }
 
     // 버튼 연결용 함수들
-    public void OnClickBattle() => SceneManager.LoadScene("Village");
+    public void OnClickBattle() => SceneManager.LoadScene("Battle");
     public void OnClickClub() => OpenPopup(panelClub);
     
     public void OnClickStore() => OpenPopup(panelStore);
