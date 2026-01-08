@@ -16,6 +16,15 @@ public class QuestManager : MonoBehaviour
     public event Action<PlayerQuestStatus, Quest> OnQuestCompleted;
     public event Action<Quest> OnQuestRewardClaimed;
 
+    private void Start()
+    {
+        // 1. TimeManager의 날짜 변경 이벤트 구독
+        if (TimeManager.instance != null)
+        {
+            TimeManager.instance.OnDayChanged += CheckQuestDeadlines;
+        }
+    }
+
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -47,6 +56,15 @@ public class QuestManager : MonoBehaviour
         if (Application.isEditor)
         {
             debug_QuestLogList = questLog.Values.ToList();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 이벤트 구독 해제 (중복 방지)
+        if (TimeManager.instance != null)
+        {
+            TimeManager.instance.OnDayChanged -= CheckQuestDeadlines;
         }
     }
 
@@ -111,6 +129,65 @@ public class QuestManager : MonoBehaviour
                 // 5. 이 퀘스트의 모든 목표가 달성되었는지 확인
                 CheckQuestCompletion(questStatus, originalQuest);
             }
+        }
+    }
+
+    // --- [핵심 기능] 날짜가 바뀔 때마다 마감일 체크 ---
+    public void CheckQuestDeadlines(int year, int month, int day)
+    {
+        List<string> failedQuestIDs = new List<string>();
+
+        // 현재 날짜를 DateTime으로 변환
+        DateTime currentDate = new DateTime(year, month, day);
+
+        foreach (var questID in questLog.Keys)
+        {
+            PlayerQuestStatus status = questLog[questID];
+            if (status.status != QuestStatus.IN_PROGRESS) continue;
+            if (!questDatabase.ContainsKey(questID)) continue;
+
+            Quest questData = questDatabase[questID];
+
+            if (questData.hasTimeLimit)
+            {
+                // 퀘스트의 마감일을 DateTime으로 변환
+                // (주의: dueDay가 해당 월의 최대 일수보다 크면 오류나므로 예외처리 필요할 수 있음)
+                // 여기선 기획자가 데이터를 잘 넣었다고 가정합니다.
+                try
+                {
+                    DateTime dueDate = new DateTime(questData.dueYear, questData.dueMonth, questData.dueDay);
+
+                    // 날짜 비교 (현재 날짜가 마감일보다 미래라면 실패)
+                    if (currentDate > dueDate)
+                    {
+                        failedQuestIDs.Add(questID);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"퀘스트 '{questData.questTitle}' 날짜 데이터 오류: {e.Message}");
+                }
+            }
+        }
+
+        foreach (string id in failedQuestIDs)
+        {
+            FailQuest(id);
+        }
+    }
+
+    // 퀘스트 실패 처리 함수
+    public void FailQuest(string questID)
+    {
+        if (questLog.ContainsKey(questID))
+        {
+            questLog[questID].status = QuestStatus.FAILED;
+
+            // 알림용 이벤트 발생 (필요하면 UI_Toast 등으로 연결)
+            Debug.Log($"[퀘스트 실패] 기한이 지나 퀘스트 '{questID}' 실패 처리됨.");
+
+            // 만약 퀘스트 실패 시 UI를 갱신해야 한다면 호출
+            // OnQuestProgressChanged?.Invoke(questLog[questID], questDatabase[questID]);
         }
     }
 

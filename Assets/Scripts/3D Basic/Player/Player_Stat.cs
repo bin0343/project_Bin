@@ -39,6 +39,8 @@ public class Player_Stat : MonoBehaviour
     public int currentHP = 100;
     public int currentMP = 100;
     public int gold;
+    public int currentAP = 100;
+    public int maxAP = 100;
 
     private Canvas myCanvas;
 
@@ -183,5 +185,16 @@ public class Player_Stat : MonoBehaviour
         currentMP = maxMP;
 
         //StatPoints += 3;
+    }
+
+    public bool UseAP(int amount)
+    {
+        if (currentAP >= amount)
+        {
+            currentAP -= amount;
+            // UI 갱신 호출
+            return true; // 사용 성공
+        }
+        return false; // 행동력 부족
     }
 }

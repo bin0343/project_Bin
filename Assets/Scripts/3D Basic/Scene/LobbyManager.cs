@@ -24,6 +24,7 @@ public class LobbyManager : MonoBehaviour
     public GameObject panelBag;
     public GameObject panelStore;
     public GameObject panelSchedule;
+    public GameObject panelCalendar;
 
     [Header("--- 전역 뒤로가기 버튼 ---")]
     public GameObject globalBackButton;
@@ -145,6 +146,18 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
+    public void OnClickCalendarButton()
+    {
+        if (panelCalendar != null)
+        {
+            panelCalendar.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("LobbyManager에 Panel_Calendar가 연결되지 않았습니다!");
+        }
+    }
+
     void ReturnToLobby()
     {
         Debug.Log("[Lobby] 로비로 복귀");
@@ -166,6 +179,7 @@ public class LobbyManager : MonoBehaviour
         if (panelBag) panelBag.SetActive(false);
         if (panelStore) panelStore.SetActive(false);
         if (panelSchedule) panelSchedule.SetActive(false);
+        if (panelCalendar) panelCalendar.SetActive(false);
         popupStack.Clear();
     }
 

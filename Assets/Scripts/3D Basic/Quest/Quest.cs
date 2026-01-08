@@ -19,4 +19,10 @@ public class Quest : ScriptableObject
 
     public List<QuestObjective> objectives;     //이 퀘스트의 목표
     public QuestReward rewards;     //완료 보상
+
+    [Header("기간 제한 설정")]
+    public bool hasTimeLimit = false; // 기간 제한이 있는 퀘스트인가?
+    public int dueYear = 1;           // 마감 연도 (보통 1년차 게임이면 1로 고정해도 됨)
+    public int dueMonth = 1;          // 마감 월
+    public int dueDay = 1;
 }

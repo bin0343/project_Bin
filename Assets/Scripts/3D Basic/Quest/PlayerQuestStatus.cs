@@ -5,7 +5,8 @@ public enum QuestStatus
     NOT_STARTED,
     IN_PROGRESS,
     COMPLETED,      //완료지만 보상 안받음
-    REWARD_CLAIMED  //보상까지 다 받음
+    REWARD_CLAIMED,  //보상까지 다 받음
+    FAILED
 }
 
 [System.Serializable]
