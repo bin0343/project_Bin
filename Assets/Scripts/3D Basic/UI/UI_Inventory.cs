@@ -191,37 +191,13 @@ public class UI_Inventory : MonoBehaviour
         }
         //상세창 켜기
         if (detailPanel != null) detailPanel.SetActive(true);
-
-        //이미지 설정
-        /*if (detailPanel != null)
-        {
-            itemIcon.sprite = itemHolder.ItemData.itemIcon;
-            itemIcon.gameObject.SetActive(true);
-        }
-
-        //이름 설정
-        if (detailPanel != null)
-        {
-            itemName.text = itemHolder.ItemData.itemName;
-        }
-
-        //수량 설정
-        if (detailPanel != null)
-        {
-            itemCount.text = $"보유 수량\n <b><color=blue>×{itemHolder.Quantity}</color></b>";
-        }
-
-        //설명 설정
-        if (detailPanel != null)
-        {
-            itemDescription.text = itemHolder.ItemData.description;
-        }*/
+        
         if (detailPanel != null)
         {
             if (itemIcon != null) { itemIcon.sprite = itemHolder.ItemData.itemIcon; itemIcon.gameObject.SetActive(true); }
             if (itemName != null) itemName.text = itemHolder.ItemData.itemName;
             if (itemCount != null) itemCount.text = $"보유 수량\n <b><color=blue>×{itemHolder.Quantity}</color></b>";
-            if (itemDescription != null) itemDescription.text = itemHolder.ItemData.description;
+            if (itemDescription != null) itemDescription.text = itemHolder.ItemData.itemDescription;
         }
 
         if (showDetailOnHover && detailPanel != null)

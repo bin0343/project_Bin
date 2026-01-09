@@ -15,7 +15,7 @@ public abstract class Item_Base : ScriptableObject
     public int cooldownTime;
 
     [TextArea]
-    public string description;
+    public string itemDescription;
 
     [Header("아이템 속성")]
     public bool isStackable = true; // 겹치는게 가능한가?

@@ -118,7 +118,7 @@ public class NPC_Shop : Interactable
             {
                 // 1. 슬롯 데이터 설정 및 클릭 이벤트 연결
                 // "이 슬롯이 클릭되면, HandleSlotSelection 함수를 이 아이템 정보와 함께 호출해라"
-                slotUI.Setup(sellingItems[i], HandleSlotSelection);
+                //slotUI.Setup(sellingItems[i], HandleSlotSelection);
                 createdSlots.Add(slotUI);
             }
         }
@@ -212,10 +212,10 @@ public class NPC_Shop : Interactable
 
             if (slotUI != null)
             {
-                slotUI.Setup(displayItem, (clickedShopItem) => {
+                /*slotUI.Setup(displayItem, (clickedShopItem) => {
                     // (clickedShopItem은 무시)
                     HandleSellSlotSelection(playerItemHolder);
-                });
+                });*/
                 createdSellSlots.Add(slotUI);
             }
         }

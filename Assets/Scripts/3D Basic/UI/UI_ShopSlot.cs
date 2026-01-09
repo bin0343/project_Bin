@@ -2,45 +2,50 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-[RequireComponent(typeof(Button))]
 public class UI_ShopSlot : MonoBehaviour
 {
-    [Header("UI 요소")]
-    public Image itemIcon;
-    public Text itemNameText;
-    public Text itemEffectText;
-    public Text itemPriceText;
+    [Header("UI 연결")]
+    public Image iconImage;
+    public Text nameText;
+    public Text priceText;
+    public GameObject selectHighlight; // 선택 강조 효과
 
-    public ShopItem currentShopItem { get; private set; }
+    private Item_Base myItem;
+    private int myPrice;
+    private Action<Item_Base, int> onClickCallback; // 클릭 시 실행할 함수 (아이템, 가격 전달)
 
-    public Button selfButton;
-
-    //public event Action<ShopItem> OnBuyButtonClicked;
-
-    /*void Awake()
+    public void Setup(Item_Base item, int price, Action<Item_Base, int> onClick)
     {
-        selfButton = GetComponent<Button>();
-    }*/
-    
-    public void Setup(ShopItem shopItem, Action<ShopItem> onClickAction) 
-    {
-        currentShopItem = shopItem;
+        myItem = item;
+        myPrice = price;
+        onClickCallback = onClick;
 
-        // UI 업데이트
-        itemIcon.sprite = shopItem.itemData.itemIcon;
-        itemNameText.text = shopItem.itemData.itemName;
-        itemPriceText.text = $"{shopItem.price} G"; // 가격 표시 (G는 예시)
+        if (iconImage != null) iconImage.sprite = item.itemIcon;
+        if (nameText != null) nameText.text = item.itemName;
+        if (priceText != null) priceText.text = $"{price} G";
 
-        selfButton.onClick.RemoveAllListeners();
-        selfButton.onClick.AddListener(() => onClickAction(currentShopItem));
+        if (selectHighlight != null) selectHighlight.SetActive(false);
     }
 
-    /*private void OnClickBuy()
+    public void OnClickSlot()
     {
-        Debug.Log($"{currentShopItem.itemData.itemName} 구매 시도");
+        onClickCallback?.Invoke(myItem, myPrice);
+        if (selectHighlight != null) selectHighlight.SetActive(true);
+        if (nameText != null && priceText != null) 
+        {
+            nameText.color = Color.black;
+            priceText.color = Color.black;
+        }
+        
+    }
 
-        // OnBuyButtonClicked 이벤트를 구독(Listen)하고 있는 
-        // 모든 스크립트(NPC_Shop)에게 currentShopItem 정보를 전달
-        OnBuyButtonClicked?.Invoke(currentShopItem);
-    }*/
+    public void Deselect()
+    {
+        if (selectHighlight != null) selectHighlight.SetActive(false);
+        if (nameText != null && priceText != null)
+        {
+            nameText.color = Color.white;
+            priceText.color = Color.white;
+        }
+    }
 }

@@ -25,6 +25,7 @@ public class LobbyManager : MonoBehaviour
     public GameObject panelStore;
     public GameObject panelSchedule;
     public GameObject panelCalendar;
+    public GameObject panelQuest;
 
     [Header("--- 전역 뒤로가기 버튼 ---")]
     public GameObject globalBackButton;
@@ -45,7 +46,7 @@ public class LobbyManager : MonoBehaviour
         if (globalBackButton != null) globalBackButton.SetActive(false);
     }
 
-    void RefreshUserInfo()
+    public void RefreshUserInfo()
     {
         if (txtName != null) txtName.text = PlayerPrefs.GetString("PlayerName", "학생");
 
@@ -146,6 +147,14 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
+    public void OnClickQuestButton()
+    {
+        if (panelQuest != null)
+        {
+            OpenPopup(panelQuest);
+        }
+    }
+
     public void OnClickCalendarButton()
     {
         if (panelCalendar != null)
@@ -155,6 +164,18 @@ public class LobbyManager : MonoBehaviour
         else
         {
             Debug.LogError("LobbyManager에 Panel_Calendar가 연결되지 않았습니다!");
+        }
+    }
+
+    public void OnClickStore()
+    {
+        if (panelStore != null)
+        {
+            OpenPopup(panelStore);
+        }
+        else
+        {
+            Debug.LogError("LobbyManager에 panel_Store가 연결되지 않았습니다!");
         }
     }
 
@@ -180,6 +201,7 @@ public class LobbyManager : MonoBehaviour
         if (panelStore) panelStore.SetActive(false);
         if (panelSchedule) panelSchedule.SetActive(false);
         if (panelCalendar) panelCalendar.SetActive(false);
+        if (panelQuest) panelQuest.SetActive(false);
         popupStack.Clear();
     }
 
@@ -187,6 +209,6 @@ public class LobbyManager : MonoBehaviour
     public void OnClickBattle() => SceneManager.LoadScene("Battle");
     public void OnClickClub() => OpenPopup(panelClub);
     
-    public void OnClickStore() => OpenPopup(panelStore);
+    
     public void OnClickSchedule() => OpenPopup(panelSchedule);
 }
