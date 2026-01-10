@@ -11,7 +11,9 @@ public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     [Header("UI ¼³Á¤")]
     public GameObject nameTagObj;
     private Image myImage;
-    
+
+    [HideInInspector] public UI_MapPin linkedPin;
+
     void Start()
     {
         myImage = GetComponent<Image>();
@@ -24,11 +26,17 @@ public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (nameTagObj != null) nameTagObj.SetActive(true);
+        
+        if (linkedPin != null) linkedPin.SetHover(true);
+        Debug.Log("ÇÉ È®ÀÎ");
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (nameTagObj != null) nameTagObj.SetActive(false);
+        
+        if (linkedPin != null) linkedPin.SetHover(false);
+        Debug.Log("ÇÉ ¾Æ¿ô");
     }
 
     public void OnPointerClick(PointerEventData eventData)

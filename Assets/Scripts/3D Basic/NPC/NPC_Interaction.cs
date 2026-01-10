@@ -67,6 +67,21 @@ public class NPC_Interaction : MonoBehaviour
         }
     }
 
+    public void OnQuestClicked()
+    {
+        // 0이 아니면 할당된 대화가 있다는 뜻
+        if (pendingDialogueID != 0)
+        {
+            CloseMenu();
+
+            if (DialogueManager.instance != null)
+            {
+                // StartConversation 대신 StartDialogue 사용 (ID 넘김)
+                DialogueManager.instance.StartDialogue(pendingDialogueID, npcData);
+            }
+        }
+    }
+
     public void OnTalkClicked()
     {
         CloseMenu();
@@ -84,7 +99,7 @@ public class NPC_Interaction : MonoBehaviour
         // UI_Gift.Instance.Open(npcData); 
     }
 
-    // [변경 2] 퀘스트 체크 로직에서 ID를 할당하도록 수정
+    // 퀘스트 체크 로직에서 ID를 할당하도록 수정
     private void CheckForQuests()
     {
         if (questButton == null) return;
@@ -93,7 +108,7 @@ public class NPC_Interaction : MonoBehaviour
         bool showQuestButton = false;
         string btnText = "";
 
-        // (1) 완료 가능한 퀘스트 찾기
+        // 완료 가능한 퀘스트 찾기
         foreach (var quest in npcData.availableQuests)
         {
             if (QuestManager.instance.GetQuestStatus(quest.questID) == QuestStatus.COMPLETED)
@@ -106,7 +121,7 @@ public class NPC_Interaction : MonoBehaviour
             }
         }
 
-        // (2) 시작 가능한 퀘스트 찾기
+        // 시작 가능한 퀘스트 찾기
         if (!showQuestButton)
         {
             foreach (var quest in npcData.availableQuests)
@@ -126,22 +141,6 @@ public class NPC_Interaction : MonoBehaviour
         if (showQuestButton && questButtonText != null)
         {
             questButtonText.text = btnText;
-        }
-    }
-
-    // [변경 3] 퀘스트 버튼 클릭 시 CSV 대화 함수 호출
-    public void OnQuestClicked()
-    {
-        // 0이 아니면 할당된 대화가 있다는 뜻
-        if (pendingDialogueID != 0)
-        {
-            CloseMenu();
-
-            if (DialogueManager.instance != null)
-            {
-                // StartConversation 대신 StartDialogue 사용 (ID 넘김)
-                DialogueManager.instance.StartDialogue(pendingDialogueID, npcData);
-            }
         }
     }
 }

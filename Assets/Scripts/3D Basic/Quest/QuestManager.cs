@@ -104,7 +104,7 @@ public class QuestManager : MonoBehaviour
         {
             if (questStatus.objectiveProgress.ContainsKey(targetID))
             {
-                // 1. 퀘스트 원본 데이터 가져오기
+                // 퀘스트 원본 데이터 가져오기
                 if (!questDatabase.ContainsKey(questStatus.questID))
                 {
                     Debug.LogWarning($"데이터베이스에 {questStatus.questID}가 없습니다!");
@@ -112,27 +112,27 @@ public class QuestManager : MonoBehaviour
                 }
                 Quest originalQuest = questDatabase[questStatus.questID];
 
-                // 2. 이 퀘스트의 해당 목표(objective) 찾기
+                // 이 퀘스트의 해당 목표(objective) 찾기
                 QuestObjective objective = originalQuest.objectives.Find(o => o.targetID == targetID);
                 if (objective == null) continue; // (이론상 발생 안 함)
 
-                // 3. 진행도 상승 (최대치를 넘지 않도록)
+                // 진행도 상승 (최대치를 넘지 않도록)
                 questStatus.objectiveProgress[targetID] = Mathf.Min(
                     questStatus.objectiveProgress[targetID] + amount,
                     objective.requiredAmount
                 );
 
-                // 4. 로그 수정 (이제 '?' 대신 'requiredAmount' 표시)
+                // 로그 수정 (이제 '?' 대신 'requiredAmount' 표시)
                 Debug.Log($"퀘스트 진행: {questStatus.questID} - {targetID} ({questStatus.objectiveProgress[targetID]} / {objective.requiredAmount})");
 
                 OnQuestProgressChanged?.Invoke(questStatus, originalQuest);
-                // 5. 이 퀘스트의 모든 목표가 달성되었는지 확인
+                // 이 퀘스트의 모든 목표가 달성되었는지 확인
                 CheckQuestCompletion(questStatus, originalQuest);
             }
         }
     }
 
-    // --- [핵심 기능] 날짜가 바뀔 때마다 마감일 체크 ---
+    // 날짜가 바뀔 때마다 마감일 체크
     public void CheckQuestDeadlines(int year, int month, int day)
     {
         List<string> failedQuestIDs = new List<string>();
@@ -151,8 +151,6 @@ public class QuestManager : MonoBehaviour
             if (questData.hasTimeLimit)
             {
                 // 퀘스트의 마감일을 DateTime으로 변환
-                // (주의: dueDay가 해당 월의 최대 일수보다 크면 오류나므로 예외처리 필요할 수 있음)
-                // 여기선 기획자가 데이터를 잘 넣었다고 가정합니다.
                 try
                 {
                     DateTime dueDate = new DateTime(questData.dueYear, questData.dueMonth, questData.dueDay);
@@ -214,7 +212,6 @@ public class QuestManager : MonoBehaviour
         // 'allObjectivesMet'가 true로 유지되었다면 (모든 목표를 달성했다면)
         if (allObjectivesMet)
         {
-            // 상태를 'COMPLETED'로 변경!
             status.status = QuestStatus.COMPLETED;
 
             OnQuestCompleted?.Invoke(status, quest);
