@@ -34,7 +34,7 @@ public class ChangeMap : MonoBehaviour
     {
         if (other.CompareTag("Player") && mapController != null)
         {
-            mapController.OpenMapPanel();
+            //mapController.OpenMapPanel();
         }
     }
 }
