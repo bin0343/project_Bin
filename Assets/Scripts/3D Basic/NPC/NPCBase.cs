@@ -1,6 +1,14 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using System.Collections.Generic;
+
+public enum NPCTeam
+{
+    Ally,       //아군(플레이어 편) 
+    Enemy,      //적 (시험 상대, 몬스터 편)
+    Neutral     //중립
+}
 
 public enum NPCState
 {
@@ -13,13 +21,18 @@ public enum NPCState
 
 public class NPCBase : MonoBehaviour
 {
+    [Header("소속 설정(스토리에 따라 변경)")]
+    public NPCTeam currentTeam = NPCTeam.Ally;
+
     [Header("상태 및 타겟")]
     public NPCState currentState = NPCState.IDLE;
     public Transform playerTransform;
     public Transform currentTarget;
+    
+    private Transform lastAttacker;     // 나를 마지막으로 공격한 적
 
-    // [추가] 나를 마지막으로 공격한 적
-    private Transform lastAttacker;
+    [Header("스킬 관리")]
+    public List<SkillHolder> skillHolders = new List<SkillHolder>();
 
     [Header("거리 설정")]
     public float followDistance = 3.0f;
@@ -29,11 +42,12 @@ public class NPCBase : MonoBehaviour
 
     [Header("전투 설정")]
     public float attackDelay = 2.0f;
-    private float lastAttackTime = 0f;
+    protected float lastAttackTime = 0f;
 
     private NavMeshAgent navAgent;
-    private Animator animator;
+    protected Animator animator;
     private NPC_Stat myStat;
+    private NPC_Data myData;
     private Player_Action playerAction;
 
     private bool isDead = false;
@@ -49,6 +63,16 @@ public class NPCBase : MonoBehaviour
         {
             playerTransform = playerObj.transform;
             playerAction = playerObj.GetComponent<Player_Action>();
+        }
+
+        myData = myStat.npcData;
+        if (myData != null && myData.npcSkills != null)
+        {
+            foreach (var skillData in myData.npcSkills)
+            {
+                if (skillData != null)
+                    skillHolders.Add(new SkillHolder(skillData));
+            }
         }
 
         navAgent.stoppingDistance = stopDistance;
@@ -178,21 +202,65 @@ public class NPCBase : MonoBehaviour
 
     private void HandleAttack()
     {
-        // 타겟 유효성 검사는 Update에서 이미 수행함
+        if (currentTarget == null)
+        {
+            currentState = NPCState.IDLE;
+        }
 
         transform.LookAt(currentTarget);
+        float distToTarget = Vector3.Distance(transform.position, currentTarget.position);
 
+        //공격 쿨타임 체크
         if (Time.time >= lastAttackTime + attackDelay)
         {
-            StartCoroutine(AttackRoutine());
-        }
+            SkillHolder bestSkill = GetBestAvailableSkill(distToTarget);
 
-        // 적이 도망가면 다시 추적
-        float distToEnemy = Vector3.Distance(transform.position, currentTarget.position);
-        if (distToEnemy > attackRange)
-        {
-            currentState = NPCState.BATTLE_READY;
+            if (bestSkill != null)
+            {
+                StartCoroutine(UseSkillRoutine(bestSkill));
+            }
+            else
+            {
+                // 2. 스킬이 없거나 쿨타임이면 일반 공격 (사거리 체크)
+                if (distToTarget <= attackRange)
+                {
+                    StartCoroutine(AttackRoutine());
+                }
+                else
+                {
+                    // 공격 사거리 밖이면 다시 접근
+                    currentState = NPCState.BATTLE_READY;
+                }
+            }
         }
+    }
+
+    private SkillHolder GetBestAvailableSkill(float distance)
+    {
+        foreach (var holder in skillHolders)
+        {
+            // MP와 쿨타임 조건 확인
+            if (holder.CanUse(myStat.currentMP))
+            {
+                // *추가 고려사항: 스킬별 사거리 데이터가 Skill_Data에 있다면 여기서 거리 체크 가능
+                // 지금은 일단 사용 가능한 첫 번째 스킬을 반환
+                return holder;
+            }
+        }
+        return null;
+    }
+
+    private IEnumerator UseSkillRoutine(SkillHolder skill)
+    {
+        lastAttackTime = Time.time; // 글로벌 쿨타임 적용 (스킬 후 바로 평타 못치게)
+
+        // 스킬 사용 (SkillHolder 내부에서 Skill_Base.ApplySkillEffects 호출)
+        skill.Use(gameObject);
+
+        // 애니메이션 대기 등 (Skill_Data에 castTime이 있다면 활용)
+        yield return new WaitForSeconds(skill.SkillData.castTime > 0 ? skill.SkillData.castTime : 0.5f);
+
+        // 스킬 사용 후 상태 정리 (필요시)
     }
 
     #endregion
@@ -218,6 +286,17 @@ public class NPCBase : MonoBehaviour
 
     private void FindBestTarget()
     {
+        int targetLayerMask = 0;    //적대 레이어
+
+        if (currentTeam == NPCTeam.Ally)
+        {
+            targetLayerMask = LayerMask.GetMask("Enemy");
+        }
+        else if (currentTeam == NPCTeam.Enemy)
+        {
+            targetLayerMask = LayerMask.GetMask("Player", "Companion");
+        }
+
         if (IsTargetAlive(lastAttacker))
         {
             float dist = Vector3.Distance(transform.position, lastAttacker.position);
@@ -228,21 +307,24 @@ public class NPCBase : MonoBehaviour
             }
         }
 
-        Collider[] enemies = Physics.OverlapSphere(transform.position, detectRange, LayerMask.GetMask("Enemy"));
+        Collider[] targets = Physics.OverlapSphere(transform.position, detectRange, targetLayerMask);
 
         Transform nearest = null;
         float minDist = float.MaxValue;
 
-        foreach (var enemy in enemies)
+        foreach (var target in targets)
         {
-            var stat = enemy.GetComponent<Enemy_Stat>();
-            if (stat == null || stat.currentHP <= 0) continue;
+            if (target.gameObject == gameObject) continue;
+            if (!IsTargetAlive(target.transform)) continue;
 
-            float dist = Vector3.Distance(transform.position, enemy.transform.position);
+            /*var stat = target.GetComponent<Enemy_Stat>();
+            if (stat == null || stat.currentHP <= 0) continue;*/
+
+            float dist = Vector3.Distance(transform.position, target.transform.position);
             if (dist < minDist)
             {
                 minDist = dist;
-                nearest = enemy.transform;
+                nearest = target.transform;
             }
         }
 
@@ -279,7 +361,7 @@ public class NPCBase : MonoBehaviour
         }
     }
 
-    private IEnumerator AttackRoutine()
+    protected virtual IEnumerator AttackRoutine()
     {
         lastAttackTime = Time.time;
         animator.SetTrigger("IsAttack");

@@ -23,6 +23,9 @@ public class NPC_Data : ScriptableObject
     [Range(0, 100)] 
     public int[] growthRates = new int[(int)STAT.STAT_COUNT];
 
+    [Header("캐릭터 보유 스킬")]
+    public List<Skill_Base> npcSkills;  //npc보유 스킬
+
     [Header("대화 설정")]
     public Conversation startingConversation;
 

@@ -20,10 +20,19 @@ public abstract class Skill_Base : ScriptableObject
 
     public void ApplySkillEffects(GameObject user)
     {
-        var stat = user.GetComponent<Player_Stat>();
-        if (stat == null) return;
+        var playerStat = user.GetComponent<Player_Stat>();
+        var npcStat = user.GetComponent <NPC_Stat>();
 
-        stat.currentMP -= (int)mpCost;
+        if (playerStat != null)
+        {
+            if (playerStat.currentMP < mpCost) return;
+            playerStat.currentMP -= (int)mpCost;
+        }
+        else if (npcStat != null)
+        {
+            if (npcStat.currentMP < mpCost) return;
+            npcStat.currentMP -= (int)mpCost;
+        }
 
         Animator anim = user.GetComponentInChildren<Animator>();
         if (anim != null && !string.IsNullOrEmpty(animTriggerName))

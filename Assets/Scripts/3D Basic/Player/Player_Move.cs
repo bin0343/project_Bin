@@ -58,8 +58,6 @@ public class Player_Move : MonoBehaviour
     {
         if (moveInput.magnitude == 0) return;
 
-        // [!] 수정: CameraArm 대신 currentReference를 사용
-        // 만약 currentReference가 없으면 기본값으로 CameraArm 사용
         Transform refTransform = CameraArm;
 
         Vector3 lookForward = new Vector3(refTransform.forward.x, 0f, refTransform.forward.z).normalized;
@@ -68,6 +66,9 @@ public class Player_Move : MonoBehaviour
         Vector3 moveDir = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
 
         Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * speed);
+
+        if (!GetComponentInParent<Player_Action>().CanRotate)
+            return;
 
         // 회전 로직 (1인칭 아닐 때만)
         if (moveDir.sqrMagnitude > 0f) // sqrMagnitude는 0보다 클 때만 (즉, 움직임이 있을 때만)

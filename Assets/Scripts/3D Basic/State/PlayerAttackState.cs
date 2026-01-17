@@ -1,4 +1,4 @@
-    using UnityEngine;
+using UnityEngine;
 
 public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 {
@@ -20,6 +20,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public override void Enter(Player_Action player)
     {
+        player.CanRotate = false;
         if (Cursor.visible || Cursor.lockState == CursorLockMode.None)
         {
             player.move.LookAtMouse();
@@ -43,7 +44,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public override void Execute(Player_Action player)
     {
-        player.move.HandleRotation();
+        //player.move.HandleRotation();
 
         if (!isTransitionFinished)
         {
@@ -68,6 +69,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public override void Exit(Player_Action player)
     {
+        player.CanRotate = true;
         player.animEvents?.EndAttackTrail();
         player.canReceiveInput = false;
         player.IsAttacking = false;

@@ -43,6 +43,7 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public bool IsAttacking = false;
     [HideInInspector] public bool IsBuff = false;
     [HideInInspector] public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
+    [HideInInspector] public bool CanRotate = true;
 
     public static event Action<Sprite, float> OnRunningAttackUsed;
     public IPlayerState currentState;
