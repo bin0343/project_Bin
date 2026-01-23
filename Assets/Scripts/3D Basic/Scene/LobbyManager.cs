@@ -205,6 +205,15 @@ public class LobbyManager : MonoBehaviour
         popupStack.Clear();
     }
 
+    public void SetLobbyUIVisible(bool isVisible)
+    {
+        if (characterGroup) characterGroup.SetActive(isVisible);
+        if (topGroup) topGroup.SetActive(isVisible);
+        if (bottomGroup) bottomGroup.SetActive(isVisible);
+        if (rightGroup) rightGroup.SetActive(isVisible);
+        if (globalBackButton) globalBackButton.SetActive(false);
+    }
+
     // 버튼 연결용 함수들
     public void OnClickBattle() => SceneManager.LoadScene("Battle");
     public void OnClickClub() => OpenPopup(panelClub);
