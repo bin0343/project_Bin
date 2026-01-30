@@ -271,7 +271,6 @@ public class DialogueManager : MonoBehaviour
         currentCSVEntry = null;
     }
 
-    // --- CSV 파싱 로직 (기존 유지) ---
     void ParseCSV()
     {
         if (csvFiles == null || csvFiles.Length == 0)

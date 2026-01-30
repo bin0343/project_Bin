@@ -4,6 +4,9 @@ using UnityEngine.EventSystems;
 
 public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
+    [Header("건물 ID")]
+    public int buildingID;
+
     [Header("이동 설정")]
     public GameObject nextPanel;
     public GameObject currentPanel;
@@ -14,9 +17,12 @@ public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     [HideInInspector] public UI_MapPin linkedPin;
 
+    private IntroManager introManager;
+
     void Start()
     {
         myImage = GetComponent<Image>();
+        introManager = FindObjectOfType<IntroManager>();
 
         if (nameTagObj != null) nameTagObj.SetActive(false);
 
@@ -41,6 +47,15 @@ public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (introManager != null)
+        {
+            // 만약 CheckBuildingClick이 false를 반환하면(클릭 금지), 여기서 함수 종료!
+            if (!introManager.CheckBuildingClick(buildingID))
+            {
+                return;
+            }
+        }
+
         if (nextPanel != null)
         {
             if (LobbyManager.instance != null)

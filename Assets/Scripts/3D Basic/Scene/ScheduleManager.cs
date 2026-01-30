@@ -4,12 +4,18 @@ public class ScheduleManager : MonoBehaviour
 {
     [Header("초기 설정")]
     public GameObject layerMap;
-
     public Transform layersParent;
+
+    public IntroManager introManager;
 
     private void OnEnable()
     {
         ResetToMap();
+
+        if (introManager != null && introManager.isScheduleGuidePhase)
+        {
+            introManager.StartMapExplanation();
+        }
     }
 
     public void ResetToMap()

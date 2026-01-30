@@ -1,10 +1,24 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
+[System.Serializable]
+public class IntroData
+{
+    public int id;
+    public string speaker;
+    public string text;
+    public string eventType;
+}
 
 public class IntroManager : MonoBehaviour
 {
-    [Header("--- UI 연결: 기존 대화창 재사용 ---")]
+    [Header("--- 데이터 파일 ---")]
+    public TextAsset tutorialCsv;
+
+    [Header("--- UI 연결 ---")]
     public GameObject dialoguePanel;
     public Text txtName;
     public Text txtDialogue;
@@ -13,30 +27,36 @@ public class IntroManager : MonoBehaviour
     public Image standingCG;
     public Sprite assistantSprite;
 
-    [Header("--- UI 연결: 이름 입력 ---")]
+    [Header("--- UI 연결: 기능 ---")]
     public GameObject nameInputPanel;
     public InputField inputName;
     public Button btnConfirm;
-
-    [Header("--- UI 연결: 인트로 전용 클릭 ---")]
     public Button introNextButton;
 
     [Header("--- 매니저 연결 ---")]
     public LobbyManager lobbyManager;
-    // [추가] 기존 대화 매니저를 잠재우기 위해 연결
     public DialogueManager originDialogueManager;
 
-    private int step = 0;
+    private List<IntroData> introDataList = new List<IntroData>();
+    private int currentIndex = 0;
+
+    // [상태 변수]
+    public bool isScheduleGuidePhase = false;   // 스케줄 버튼 누르기 대기 중
+    public bool isForcingBuilding = false;      // 건물 강제 클릭 모드
+    public int targetBuildingID = 0;            // 목표 건물 ID
+
+    private bool isMapTutorialActive = false;
 
     void Start()
     {
+        ParseCSV();
+
         if (PlayerPrefs.GetInt("IsFirstVisit", 0) == 1)
         {
             StartIntro();
         }
         else
         {
-            // 인트로가 아니면 얌전히 꺼지기
             if (nameInputPanel) nameInputPanel.SetActive(false);
             if (introNextButton) introNextButton.gameObject.SetActive(false);
             gameObject.SetActive(false);
@@ -46,6 +66,38 @@ public class IntroManager : MonoBehaviour
         if (introNextButton) introNextButton.onClick.AddListener(OnClickNextDialogue);
     }
 
+    void Update()
+    {
+        if (isMapTutorialActive && lobbyManager != null && lobbyManager.globalBackButton != null)
+        {
+            if (lobbyManager.globalBackButton.activeSelf)
+            {
+                lobbyManager.globalBackButton.SetActive(false);
+            }
+        }
+    }
+
+    void ParseCSV()
+    {
+        if (tutorialCsv == null) return;
+        string[] lines = tutorialCsv.text.Replace("\r\n", "\n").Split('\n');
+        string pattern = @",(?=(?:[^""]*""[^""]*"")*[^""]*$)";
+
+        for (int i = 1; i < lines.Length; i++)
+        {
+            if (string.IsNullOrWhiteSpace(lines[i])) continue;
+            string[] cols = Regex.Split(lines[i], pattern);
+            if (cols.Length < 4) continue;
+
+            IntroData data = new IntroData();
+            data.id = int.Parse(cols[0]);
+            data.speaker = cols[1];
+            data.text = cols[2].Replace("\"", "").Replace("\\n", "\n");
+            data.eventType = cols[3].Trim();
+            introDataList.Add(data);
+        }
+    }
+
     void StartIntro()
     {
         if (lobbyManager != null) lobbyManager.SetLobbyUIVisible(false);
@@ -53,7 +105,7 @@ public class IntroManager : MonoBehaviour
 
         dialoguePanel.SetActive(true);
         if (choiceGroup != null) choiceGroup.SetActive(false);
-        nameInputPanel.SetActive(false);
+        if (nameInputPanel) nameInputPanel.SetActive(false);
 
         if (introNextButton) introNextButton.gameObject.SetActive(true);
 
@@ -64,30 +116,54 @@ public class IntroManager : MonoBehaviour
             standingCG.preserveAspect = true;
         }
 
-        txtName.text = "조교";
-        step = 0;
-        NextDialogue();
+        currentIndex = 0;
+        ShowDialogue();
+    }
+
+    void ShowDialogue()
+    {
+        if (currentIndex >= introDataList.Count)
+        {
+            EndIntro();
+            return;
+        }
+
+        IntroData data = introDataList[currentIndex];
+
+        txtName.text = data.speaker;
+        string processedText = data.text.Replace("{NAME}", PlayerPrefs.GetString("PlayerName", "신입생"));
+        txtDialogue.text = processedText;
+
+        switch (data.eventType)
+        {
+            case "NAME_INPUT":
+                if (nameInputPanel) nameInputPanel.SetActive(true);
+                break;
+            case "SCHEDULE_GUIDE":
+                GuideToSchedule();
+                break;
+            case "FORCE_MAIN_BUILDING":
+                isForcingBuilding = true;
+                targetBuildingID = 101;
+                break;
+            case "EXIT": // 종료 이벤트 처리 (필요 시)
+                break;
+        }
     }
 
     public void OnClickNextDialogue()
     {
-        if (step == 4) return;
-        NextDialogue();
-    }
+        if (currentIndex < introDataList.Count && introDataList[currentIndex].eventType == "NAME_INPUT") return;
+        if (isScheduleGuidePhase) return;
 
-    void NextDialogue()
-    {
-        if (choiceGroup != null) choiceGroup.SetActive(false);
-
-        step++;
-
-        if (step == 1) txtDialogue.text = "신입생 환영회에 온 것을 환영한다.";
-        else if (step == 2) txtDialogue.text = "아카데미 입학 처리를 위해 서류를 작성해야 해.";
-        else if (step == 3) txtDialogue.text = "자네의 이름은 무엇인가?";
-        else if (step == 4)
+        if (isForcingBuilding)
         {
-            nameInputPanel.SetActive(true);
+            CloseDialogueForBuildingClick();
+            return;
         }
+
+        currentIndex++;
+        ShowDialogue();
     }
 
     void OnClickConfirmName()
@@ -100,25 +176,116 @@ public class IntroManager : MonoBehaviour
         PlayerPrefs.Save();
 
         nameInputPanel.SetActive(false);
-
-        txtName.text = "조교";
-        txtDialogue.text = $"{playerName}? 흐음... 기억해두지.\n이제 자유롭게 활동해라.";
-
-        Invoke("EndIntro", 2.5f);
+        currentIndex++;
+        ShowDialogue();
     }
 
-    void EndIntro()
+    void GuideToSchedule()
+    {
+        if (standingCG != null) standingCG.gameObject.SetActive(false);
+        if (lobbyManager != null) lobbyManager.ShowOnlyScheduleButton();
+
+        isScheduleGuidePhase = true;
+        Invoke("CloseDialogueForInput", 1.5f);
+    }
+
+    void CloseDialogueForInput()
     {
         dialoguePanel.SetActive(false);
         if (introNextButton) introNextButton.gameObject.SetActive(false);
+    }
+
+    public void StartMapExplanation()
+    {
+        if (!isScheduleGuidePhase) return;
+
+        isScheduleGuidePhase = false;
+
+        isMapTutorialActive = true;
+
+        dialoguePanel.SetActive(true);
+        if (standingCG) standingCG.gameObject.SetActive(true);
+        if (introNextButton) introNextButton.gameObject.SetActive(true);
+
+        int mapStartIndex = introDataList.FindIndex(x => x.id == 10);
+        if (mapStartIndex != -1)
+        {
+            currentIndex = mapStartIndex;
+            ShowDialogue();
+        }
+    }
+
+    void CloseDialogueForBuildingClick()
+    {
+        dialoguePanel.SetActive(false);
+        if (introNextButton) introNextButton.gameObject.SetActive(false);
+    }
+
+    public bool CheckBuildingClick(int clickedID)
+    {
+        if (!isForcingBuilding) return true;
+
+        if (clickedID == targetBuildingID)
+        {
+            isForcingBuilding = false;
+            // 패널 열리는 시간(0.5초) 뒤에 마지막 대사 출력
+            Invoke("StartFinalMessage", 0.5f);
+            return true;
+        }
+        else
+        {
+            ShowWarningDialogue();
+            return false;
+        }
+    }
+
+    void ShowWarningDialogue()
+    {
+        dialoguePanel.SetActive(true);
+        if (introNextButton) introNextButton.gameObject.SetActive(true);
+        ShowDialogue();
+    }
+
+    void StartFinalMessage()
+    {
+        dialoguePanel.SetActive(true);
+        if (introNextButton) introNextButton.gameObject.SetActive(true);
+        if (standingCG) standingCG.gameObject.SetActive(true);
+
+        int finalIndex = introDataList.FindIndex(x => x.id == 20);
+        if (finalIndex != -1)
+        {
+            currentIndex = finalIndex;
+            ShowDialogue();
+        }
+    }
+
+    public void EndIntro()
+    {
+        dialoguePanel.SetActive(false);
+        if (introNextButton) introNextButton.gameObject.SetActive(false);
+        if (standingCG) standingCG.gameObject.SetActive(false);
 
         if (originDialogueManager != null) originDialogueManager.enabled = true;
+
+        isMapTutorialActive = false;
 
         if (lobbyManager != null)
         {
             lobbyManager.RefreshUserInfo();
             lobbyManager.SetLobbyUIVisible(true);
+            lobbyManager.RestoreAllBottomButtons();
+
+            if (lobbyManager.globalBackButton) lobbyManager.globalBackButton.SetActive(true);
         }
-        if (standingCG != null) standingCG.sprite = null;
+
+        isScheduleGuidePhase = false;
+        isForcingBuilding = false;
+
+        if (GameDataManager.instance != null)
+        {
+            GameDataManager.instance.saveData.isTutorialFinished = true;
+            GameDataManager.instance.SaveGame();
+        }
     }
 }

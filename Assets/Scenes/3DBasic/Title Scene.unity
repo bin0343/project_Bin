@@ -4747,6 +4747,190 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1819866805}
   m_CullTransparentMesh: 1
+--- !u!1 &1853514905
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1853514907}
+  - component: {fileID: 1853514906}
+  - component: {fileID: 1853514908}
+  - component: {fileID: 1853514909}
+  m_Layer: 0
+  m_Name: GameDataManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1853514906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853514905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c47676f710f16d43b0070e6c32958a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saveData:
+    playerName: 
+    playerLevel: 0
+    playerGold: 0
+    playerExp: 0
+    baseStats: []
+    day: 0
+    timeOfDay: 
+    isTutorialFinished: 0
+    inventoryList: []
+    quickSlotList: []
+    equipmentList: []
+    npcList: []
+  allGameItems:
+  - {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
+  - {fileID: 11400000, guid: 04522cde152a0a347b3b6317cbd8e235, type: 2}
+  - {fileID: 11400000, guid: 97f274b4969323449a8df8ce6f02c60a, type: 2}
+  - {fileID: 11400000, guid: 6c1f89a8bd2e4704588981c1fb586cd3, type: 2}
+--- !u!4 &1853514907
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853514905}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 692.27026, y: 763.4247, z: -5.6371803}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1853514908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853514905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80e03782a68ccab49afec6af4c35e93d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  npcStatusList: []
+  currentPartyIDs: []
+  currentPartyData: []
+  allNPCDataList:
+  - {fileID: 11400000, guid: 67d5a67abe4df5d489065372a640b13d, type: 2}
+  - {fileID: 11400000, guid: 8ebae2cb216e81a4b98369c02b5889e6, type: 2}
+--- !u!114 &1853514909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853514905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8471fbdc19be28459c987f4f04ce852, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventorySlots:
+  - ItemData: {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
+    Quantity: 2
+  - ItemData: {fileID: 11400000, guid: 04522cde152a0a347b3b6317cbd8e235, type: 2}
+    Quantity: 2
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  quickSlots:
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
+  - ItemData: {fileID: 0}
+    Quantity: 0
 --- !u!1 &1905266462
 GameObject:
   m_ObjectHideFlags: 0
@@ -5369,3 +5553,4 @@ SceneRoots:
   - {fileID: 2117381385}
   - {fileID: 659900520}
   - {fileID: 704888243}
+  - {fileID: 1853514907}

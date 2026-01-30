@@ -197,4 +197,28 @@ public class Player_Stat : MonoBehaviour
         }
         return false; // 행동력 부족
     }
+    
+    //저장된 데이터로 스탯 덮어씌우기
+    public void LoadStatsFromSaveData(int lvl, int gld, int ex, float[] savedStats)
+    {
+        this.level = lvl;
+        this.gold = gld;
+        this.exp = ex;
+
+        // 저장된 스탯 배열이 있고, 개수가 맞으면 복사
+        if (savedStats != null && savedStats.Length == baseStats.Length)
+        {
+            // 배열 값을 하나씩 복사 (참조가 아니라 값 복사)
+            for (int i = 0; i < baseStats.Length; i++)
+            {
+                baseStats[i] = savedStats[i];
+            }
+        }
+
+        // UI가 있다면 갱신
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.UpdatePlayerStatus(this);
+        }
+    }
 }

@@ -13,6 +13,7 @@ public abstract class Item_Base : ScriptableObject
     public ITEMTYPE itemType;
     public int Quantity;
     public int cooldownTime;
+    public string itemID;
 
     [TextArea]
     public string itemDescription;

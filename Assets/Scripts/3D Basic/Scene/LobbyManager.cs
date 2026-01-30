@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using DG.Tweening;
 
 public class LobbyManager : MonoBehaviour
 {
@@ -27,8 +28,16 @@ public class LobbyManager : MonoBehaviour
     public GameObject panelCalendar;
     public GameObject panelQuest;
 
+    [Header("페이드 설정")]
+    public Image screenFader;
+    public float fadeDuration = 0.5f;
+
     [Header("--- 전역 뒤로가기 버튼 ---")]
     public GameObject globalBackButton;
+
+    [Header("튜토리얼 전용 버튼 제어")]
+    public GameObject btnSchedule;
+    public GameObject[] otherButtons;
 
     // 스택 선언
     private Stack<GameObject> popupStack = new Stack<GameObject>();
@@ -44,16 +53,48 @@ public class LobbyManager : MonoBehaviour
         RefreshUserInfo();
         CloseAllPopups();
         if (globalBackButton != null) globalBackButton.SetActive(false);
+        screenFader.gameObject.SetActive(false);
+    }
+
+    //튜토리얼 전용
+    public void ShowOnlyScheduleButton()    //일정 버튼만 활성화
+    {
+        SetLobbyUIVisible(false);
+
+        if (bottomGroup) bottomGroup.SetActive(true);
+
+        if (btnSchedule) btnSchedule.SetActive(true);
+
+        if (otherButtons != null)
+        {
+            foreach (var btn in otherButtons)
+            {
+                if (btn != null) btn.SetActive(false);
+            }
+        }
+    }
+
+    public void RestoreAllBottomButtons()
+    {
+        if (btnSchedule) btnSchedule.SetActive(true);
+
+        if (otherButtons != null)
+        {
+            foreach (var btn in otherButtons)
+            {
+                if (btn != null) btn.SetActive(true);
+            }
+        }
+
+        if (bottomGroup) bottomGroup.SetActive(true);
     }
 
     public void RefreshUserInfo()
     {
         if (txtName != null) txtName.text = PlayerPrefs.GetString("PlayerName", "학생");
 
-        // Global Manager에서 Player_Stat 찾기
         Player_Stat playerStat = Player_Stat.globalInstance;
 
-        // 만약 globalInstance가 설정 안 되어 있다면 수동으로 찾기
         if (playerStat == null && Player_Inventory.instance != null)
         {
             playerStat = Player_Inventory.instance.GetComponent<Player_Stat>();
@@ -76,20 +117,24 @@ public class LobbyManager : MonoBehaviour
 
     public void OpenPopup(GameObject popup)
     {
-        if (popup == null) return;
+        if (popup == null || screenFader == null) return;
 
-        popupStack.Clear(); 
+        StartFadeEffect(() => {
+            ExecuteOpenPopup(popup);
+        }, 1.0f);
+    }
+
+    private void ExecuteOpenPopup(GameObject popup)
+    {
+        popupStack.Clear();
         popupStack.Push(popup);
 
         popup.SetActive(true);
         if (globalBackButton != null) globalBackButton.SetActive(true);
 
-        // 로비 UI 숨김
         if (characterGroup) characterGroup.SetActive(false);
         if (bottomGroup) bottomGroup.SetActive(false);
         if (rightGroup) rightGroup.SetActive(false);
-
-        Debug.Log($"[OpenPopup] {popup.name} 열림. 스택 수: {popupStack.Count}");
     }
 
     public void OpenDepthPanel(GameObject nextPanel)
@@ -119,18 +164,21 @@ public class LobbyManager : MonoBehaviour
         }
 
         GameObject current = popupStack.Pop();
-        if (current != null) current.SetActive(false);
-
-        Debug.Log($"[Back] {current.name} 닫음. 남은 스택: {popupStack.Count}");
-
-        if (popupStack.Count > 0)
+        if (current != null)
         {
-            GameObject prev = popupStack.Peek();
-            if (prev != null) prev.SetActive(true);
-        }
-        else
-        {
-            ReturnToLobby();
+            // 뒤로가기는 대기 시간 없이(0f) 바로 전환되도록 합니다.
+            StartFadeEffect(() => {
+                current.SetActive(false);
+                if (popupStack.Count > 0)
+                {
+                    GameObject prev = popupStack.Peek();
+                    if (prev != null) prev.SetActive(true);
+                }
+                else
+                {
+                    ReturnToLobby();
+                }
+            }, 0f); // 대기 시간 0초 전달
         }
     }
 
@@ -220,4 +268,35 @@ public class LobbyManager : MonoBehaviour
     
     
     public void OnClickSchedule() => OpenPopup(panelSchedule);
+
+    private void StartFadeEffect(System.Action onMidWay, float waitTime)
+    {
+        if (screenFader == null) return;
+
+        screenFader.DOKill();
+        Sequence fadeSeq = DOTween.Sequence();
+
+        screenFader.gameObject.SetActive(true);
+
+        // 1. 화면 검게 만들기 (Fade In)
+        fadeSeq.Append(screenFader.DOFade(1f, fadeDuration));
+
+        // 2. 전달받은 waitTime만큼 대기 (뒤로가기는 0, 일반 오픈은 1.0)
+        if (waitTime > 0)
+        {
+            fadeSeq.AppendInterval(waitTime);
+        }
+
+        // 3. 화면이 검은 상태에서 로직 실행
+        fadeSeq.AppendCallback(() => {
+            onMidWay?.Invoke();
+        });
+
+        // 4. 화면 다시 밝게 만들기 (Fade Out)
+        fadeSeq.Append(screenFader.DOFade(0f, fadeDuration));
+
+        fadeSeq.OnComplete(() => {
+            screenFader.gameObject.SetActive(false);
+        });
+    }
 }

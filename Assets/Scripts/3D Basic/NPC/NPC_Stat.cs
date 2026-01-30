@@ -41,21 +41,28 @@ public class NPC_Stat : MonoBehaviour
     public void InitializeFromManager()
     {
         if (npcData == null) return;
+        if (NPC_Manager.instance == null) return;
 
         NPCStatus savedStatus = NPC_Manager.instance.GetNPCStatus(npcData.NPCID, npcData);
 
-        System.Array.Copy(savedStatus.currentStats, baseStats, savedStatus.currentStats.Length);
-
-        System.Array.Clear(equipmentStats, 0, equipmentStats.Length);
-
-        currentHP = maxHP;
-        currentMP = maxMP;
-
-        Debug.Log($"{npcData.NPCName} 배치 완료. Lv.{savedStatus.level} (HP: {currentHP}, ATK: {attackPower})");
-
-        if (hpBar != null)
+        if (savedStatus != null)
         {
-            hpBar.Setup(this);
+            if (savedStatus.currentStats != null && savedStatus.currentStats.Length == baseStats.Length)
+            {
+                System.Array.Copy(savedStatus.currentStats, baseStats, savedStatus.currentStats.Length);
+            }
+
+            System.Array.Clear(equipmentStats, 0, equipmentStats.Length);
+
+            currentHP = maxHP;
+            currentMP = maxMP;
+
+            Debug.Log($"{npcData.NPCName} 배치 완료. Lv.{savedStatus.level} (HP: {currentHP}, ATK: {attackPower})");
+
+            if (hpBar != null)
+            {
+                hpBar.Setup(this);
+            }
         }
     }
 

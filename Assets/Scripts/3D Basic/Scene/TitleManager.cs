@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.IO;
 
 public class TitleManager : MonoBehaviour
 {
@@ -13,36 +14,49 @@ public class TitleManager : MonoBehaviour
 
     void Start()
     {
-        // 저장된 데이터(이름)가 있는지 확인
-        bool hasSaveData = PlayerPrefs.HasKey("PlayerName");
+        // 1. JSON 저장 파일이 실제로 존재하는지 확인
+        // (GameDataManager가 초기화된 후 경로를 가져옴)
+        string path = Path.Combine(Application.persistentDataPath, "MyGameSave.json");
+        bool hasSaveData = File.Exists(path);
 
-        // 이어하기 버튼 활성화/비활성화
+        // 2. 이어하기 버튼 활성화/비활성화
         btnContinue.interactable = hasSaveData;
 
-        // 버튼 리스너 연결
         btnNewGame.onClick.AddListener(OnClickNewGame);
         btnContinue.onClick.AddListener(OnClickContinue);
     }
 
     void OnClickNewGame()
     {
-        // 기존 데이터 삭제
         PlayerPrefs.DeleteAll();
+        PlayerPrefs.SetInt("IsFirstVisit", 1); // 튜토리얼 다시 보게 설정
 
-        // [핵심] "이 사람은 신입생이다"라는 표식 남기기
-        PlayerPrefs.SetInt("IsFirstVisit", 1);
+        if (GameDataManager.instance != null)
+        {
+            GameDataManager.instance.saveData = new SaveData(); // 텅 빈 새 데이터
 
-        // 기본 재화 설정 (이름은 아직 없음!)
-        PlayerPrefs.SetInt("PlayerLevel", 1);
-        PlayerPrefs.SetInt("PlayerGold", 0);
+            // 기본 지급 아이템이나 초기 골드가 필요하면 여기서 설정
+            // 예: GameDataManager.instance.saveData.playerGold = 1000;
 
-        PlayerPrefs.Save();
+            GameDataManager.instance.SaveGame(); // 초기 상태 덮어쓰기 저장
+        }
 
         SceneManager.LoadScene(lobbySceneName);
     }
 
     void OnClickContinue()
     {
-        SceneManager.LoadScene(lobbySceneName);
+        if (GameDataManager.instance != null)
+        {
+            bool success = GameDataManager.instance.LoadGame();
+            if (success)
+            {
+                SceneManager.LoadScene(lobbySceneName);
+            }
+            else
+            {
+                Debug.LogError("저장된 파일을 불러오는데 실패했습니다.");
+            }
+        }
     }
 }
