@@ -34,7 +34,6 @@ public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (nameTagObj != null) nameTagObj.SetActive(true);
         
         if (linkedPin != null) linkedPin.SetHover(true);
-        Debug.Log("ÇÉ È®ÀÎ");
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -42,7 +41,6 @@ public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (nameTagObj != null) nameTagObj.SetActive(false);
         
         if (linkedPin != null) linkedPin.SetHover(false);
-        Debug.Log("ÇÉ ¾Æ¿ô");
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -60,7 +58,9 @@ public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         {
             if (LobbyManager.instance != null)
             {
-                LobbyManager.instance.OpenDepthPanel(nextPanel);
+                LobbyManager.instance.StartFadeEffect(() => {
+                    LobbyManager.instance.OpenDepthPanel(nextPanel);
+                }, 1.0f);
             }
             else
             {

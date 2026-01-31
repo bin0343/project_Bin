@@ -105,8 +105,7 @@ public class LobbyManager : MonoBehaviour
             if (txtGold != null) txtGold.text = string.Format("{0:n0}G", playerStat.gold);
             if (txtLevel != null) txtLevel.text = "Lv." + playerStat.level;
 
-            // 데이터가 잘 연결되었는지 로그 확인
-            // Debug.Log($"로비 UI 갱신: {playerStat.gold}G");
+            Debug.Log($"로비 UI 갱신: {playerStat.gold}G");
         }
         else
         {
@@ -147,7 +146,6 @@ public class LobbyManager : MonoBehaviour
             return;
         }
 
-        // 이전 패널 끄지 않음 (부모-자식 관계 유지 위해)
         popupStack.Push(nextPanel);
         nextPanel.SetActive(true);
 
@@ -166,7 +164,7 @@ public class LobbyManager : MonoBehaviour
         GameObject current = popupStack.Pop();
         if (current != null)
         {
-            // 뒤로가기는 대기 시간 없이(0f) 바로 전환되도록 합니다.
+            // 뒤로가기는 대기 시간 없이 바로 전환되도록
             StartFadeEffect(() => {
                 current.SetActive(false);
                 if (popupStack.Count > 0)
@@ -269,30 +267,30 @@ public class LobbyManager : MonoBehaviour
     
     public void OnClickSchedule() => OpenPopup(panelSchedule);
 
-    private void StartFadeEffect(System.Action onMidWay, float waitTime)
+    public void StartFadeEffect(System.Action onMidWay, float waitTime)
     {
         if (screenFader == null) return;
 
         screenFader.DOKill();
-        Sequence fadeSeq = DOTween.Sequence();
+        Sequence fadeSeq = DOTween.Sequence().SetUpdate(true);
 
         screenFader.gameObject.SetActive(true);
 
-        // 1. 화면 검게 만들기 (Fade In)
+        // 화면 검게 만들기 (Fade In)
         fadeSeq.Append(screenFader.DOFade(1f, fadeDuration));
 
-        // 2. 전달받은 waitTime만큼 대기 (뒤로가기는 0, 일반 오픈은 1.0)
+        // 전달받은 waitTime만큼 대기 (뒤로가기는 0, 일반 오픈은 1.0)
         if (waitTime > 0)
         {
             fadeSeq.AppendInterval(waitTime);
         }
 
-        // 3. 화면이 검은 상태에서 로직 실행
+        // 화면이 검은 상태에서 로직 실행
         fadeSeq.AppendCallback(() => {
             onMidWay?.Invoke();
         });
 
-        // 4. 화면 다시 밝게 만들기 (Fade Out)
+        // 화면 다시 밝게 만들기 (Fade Out)
         fadeSeq.Append(screenFader.DOFade(0f, fadeDuration));
 
         fadeSeq.OnComplete(() => {

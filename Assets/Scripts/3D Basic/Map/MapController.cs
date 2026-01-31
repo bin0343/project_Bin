@@ -1,10 +1,10 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DG.Tweening;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class MapLocationData
@@ -37,6 +37,7 @@ public class MapController : MonoBehaviour
     [Header("--- 줌/포커스 설정 ---")]
     [SerializeField] private float zoomScale = 1.5f;
     [SerializeField] private float animDuration = 0.5f;
+    [SerializeField] private Ease moveEase = Ease.OutExpo;
 
     [Header("플레이어 위치 표시")]
     [SerializeField] private GameObject playerIcon;
@@ -84,9 +85,6 @@ public class MapController : MonoBehaviour
         if (closeButton) closeButton.onClick.AddListener(CloseMapPanel);
         if (btnEnter) btnEnter.onClick.AddListener(OnEnterLocation);
         if (btnCancel) btnCancel.onClick.AddListener(() => ResetMapAndCloseInfo(false));
-
-        // [중요] Pivot 강제 변경 코드 삭제. 
-        // 에디터에서 Content Pivot을 (0.5, 0.5)로 설정한 것을 그대로 따릅니다.
 
         LoadMapData();
 
@@ -273,7 +271,7 @@ public class MapController : MonoBehaviour
             UpdateInfoPanel(currentTargetData, isRightSide);
 
             // 3. 분할 화면 포커싱 시작
-            StartCoroutine(AnimateFocus(entry.buttonObj.GetComponent<RectTransform>(), isRightSide));
+            FocusMap(entry.buttonObj.GetComponent<RectTransform>(), isRightSide);
         }
         else
         {
@@ -327,38 +325,25 @@ public class MapController : MonoBehaviour
     }
 
     // [수정] 피벗(0.5, 0.5) 기준, 분할 화면 포커싱
-    IEnumerator AnimateFocus(RectTransform targetBtn, bool isButtonOnRight)
+    void FocusMap(RectTransform targetBtn, bool isButtonOnRight)
     {
         isFocused = true;
         mapScrollRect.enabled = false;
 
         float viewportW = mapScrollRect.viewport.rect.width;
-
-        // 버튼의 로컬 위치 (중앙 기준)
         Vector2 btnPos = targetBtn.anchoredPosition;
 
-        // [목표 화면 좌표 계산] (Pivot Center 기준)
-        // 버튼이 오른쪽(isRight) -> 패널 왼쪽 -> 지도는 화면의 오른쪽(0.25지점)에 포커스
-        // 버튼이 왼쪽(!isRight) -> 패널 오른쪽 -> 지도는 화면의 왼쪽(-0.25지점)에 포커스
-        // * 중앙이 0이므로, 오른쪽 1/4 지점은 width * 0.25, 왼쪽은 width * -0.25
         float targetScreenX = isButtonOnRight ? (viewportW * 0.25f) : (viewportW * -0.25f);
-        float targetScreenY = 0f; // Y축은 중앙 유지
+        float targetScreenY = 0f;
 
-        // [Content 목표 위치 계산]
-        // 공식: TargetContentPos = TargetScreenPos - (ButtonPos * ZoomScale)
         float targetContentX = targetScreenX - (btnPos.x * zoomScale);
         float targetContentY = targetScreenY - (btnPos.y * zoomScale);
 
-        // [클램핑 (Clamping)] - Pivot Center 기준
-        // 지도의 절반 크기 (확대된 상태)
         float scaledHalfW = (contentRect.rect.width * zoomScale) / 2f;
         float scaledHalfH = (contentRect.rect.height * zoomScale) / 2f;
-
-        // 뷰포트의 절반 크기
         float viewHalfW = mapScrollRect.viewport.rect.width / 2f;
         float viewHalfH = mapScrollRect.viewport.rect.height / 2f;
 
-        // 이동 가능한 최대 범위 (절댓값) = (확대된 지도 반쪽 - 뷰포트 반쪽)
         float limitX = Mathf.Max(0, scaledHalfW - viewHalfW);
         float limitY = Mathf.Max(0, scaledHalfH - viewHalfH);
 
@@ -367,22 +352,15 @@ public class MapController : MonoBehaviour
             Mathf.Clamp(targetContentY, -limitY, limitY)
         );
 
-        Vector2 startPos = contentRect.anchoredPosition;
-        Vector3 startScale = contentRect.localScale;
+        contentRect.DOKill();
 
-        float time = 0;
-        while (time < animDuration)
-        {
-            time += Time.unscaledDeltaTime;
-            float t = Mathf.SmoothStep(0, 1, time / animDuration);
+        contentRect.DOAnchorPos(endPos, animDuration)
+            .SetEase(moveEase)
+            .SetUpdate(true);
 
-            contentRect.localScale = Vector3.Lerp(startScale, new Vector3(zoomScale, zoomScale, 1), t);
-            contentRect.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
-            yield return null;
-        }
-
-        contentRect.localScale = new Vector3(zoomScale, zoomScale, 1);
-        contentRect.anchoredPosition = endPos;
+        contentRect.DOScale(zoomScale, animDuration)
+            .SetEase(moveEase)
+            .SetUpdate(true);
     }
 
     public void ResetMapAndCloseInfo(bool immediate)
@@ -396,6 +374,8 @@ public class MapController : MonoBehaviour
             LobbyManager.instance.globalBackButton.SetActive(true);
         }
 
+        contentRect.DOKill();
+
         if (immediate)
         {
             contentRect.localScale = Vector3.one;
@@ -403,30 +383,14 @@ public class MapController : MonoBehaviour
         }
         else
         {
-            StartCoroutine(AnimateReset());
+            contentRect.DOAnchorPos(Vector2.zero, animDuration)
+                .SetEase(moveEase)
+                .SetUpdate(true);
+
+            contentRect.DOScale(1f, animDuration)
+                .SetEase(moveEase)
+                .SetUpdate(true);
         }
-    }
-
-    IEnumerator AnimateReset()
-    {
-        Vector2 startPos = contentRect.anchoredPosition;
-        Vector3 startScale = contentRect.localScale;
-
-        Vector2 targetPos = Vector2.zero;
-        Vector3 targetScale = Vector3.one;
-
-        float time = 0;
-        while (time < animDuration)
-        {
-            time += Time.unscaledDeltaTime;
-            float t = Mathf.SmoothStep(0, 1, time / animDuration);
-
-            contentRect.localScale = Vector3.Lerp(startScale, targetScale, t);
-            contentRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, t);
-            yield return null;
-        }
-        contentRect.localScale = Vector3.one;
-        contentRect.anchoredPosition = Vector2.zero;
     }
 
     void OnEnterLocation()

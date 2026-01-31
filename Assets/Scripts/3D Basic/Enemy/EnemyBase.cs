@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using DG.Tweening;
 
 public enum ENEMYSTATE
 {
@@ -450,7 +451,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 StartCoroutine(ShieldCoroutine());
                 break;
             case BattleAction.Avoiding:
-                StartCoroutine(AvoidCoroutine());
+                AvoidAction();
                 break;
             case BattleAction.Waiting:
                 break;
@@ -460,85 +461,44 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     IEnumerator AttackCoroutine()
     {
         isPerformingAction = true;
-
         animator.SetTrigger("IsAttack");
         lastAttackTime = Time.time;
-
         yield return new WaitForSeconds(2.2f);
-
-        /*if (target != null)
-        {
-            if (target.CompareTag("Player"))
-            {
-                var pStat = target.GetComponent<Player_Stat>();
-                if (pStat != null) pStat.TakeDamage(stat.attackPower);
-            }
-            else if (target.CompareTag("Companion"))
-            {
-                var nStat = target.GetComponent<NPC_Stat>();
-                if (nStat != null)
-                {
-                    nStat.TakeDamage(stat.attackPower, transform);
-                }
-            }
-        }*/
-
         isPerformingAction = false;
     }
 
     IEnumerator ShieldCoroutine()
     {
         isPerformingAction = true;
-
         animator.SetTrigger("IsShield");
-
         yield return new WaitForSeconds(2.0f);  //방패 들고 있을 시간.
-        
         isPerformingAction = false;
     }
 
-    IEnumerator AvoidCoroutine()
+    void AvoidAction()
     {
         isPerformingAction = true;
-
         animator.SetTrigger("IsAvoiding");
 
-        float avoidDuration = 0.8f; // 전체 점프 시간
-        float avoidDistance = 5.0f; // 점프 거리
-        float jumpHeight = 0.6f;    // 점프의 최대 높이
+        float avoidDuration = 0.8f;
+        float avoidDistance = 5.0f;
+        float jumpHeight = 0.6f;
 
-        Vector3 startPos = transform.position;
-        Vector3 endPos = transform.position + (transform.position - target.position).normalized * avoidDistance;
+        Vector3 dir = (transform.position - target.position).normalized;
+        Vector3 endPos = transform.position + dir * avoidDistance;
 
-        float elapsed = 0f;
+        if (navAgent.enabled) navAgent.enabled = false;
 
-        if (navAgent.enabled)
-        {
-            navAgent.enabled = false;
-        }
-
-        while (elapsed < avoidDuration)
-        {
-            float progress = elapsed / avoidDuration;
-
-            Vector3 horizontalPosition = Vector3.Lerp(startPos, endPos, progress);
-
-            float verticalPosition = jumpHeight * Mathf.Sin(progress * Mathf.PI);
-
-            transform.position = horizontalPosition + new Vector3(0, verticalPosition, 0);
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        transform.position = new Vector3(endPos.x, startPos.y, endPos.z);
-
-        if (!navAgent.enabled)
-        {
-            navAgent.enabled = true;
-        }
-
-        isPerformingAction = false;
+        transform.DOJump(endPos, jumpHeight, 1, avoidDuration)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() => {
+                if (!isDead && navAgent != null)
+                {
+                    navAgent.enabled = true;
+                    navAgent.velocity = Vector3.zero;
+                }
+                isPerformingAction = false;
+            });
     }
     #endregion
 
@@ -546,6 +506,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     public void Dead()
     {
         if (isDead) return;
+
+        transform.DOKill();
 
         isDead = true;
         if (mySpawner != null)
@@ -634,6 +596,8 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             Debug.Log("스턴 갱신!");
             return;
         }
+
+        transform.DOKill();
 
         currentState = ENEMYSTATE.STUN;
         stunDuration = duration;
@@ -808,28 +772,26 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         }
     }
 
-    public IEnumerator ApplyKnockback()
+    public void ApplyKnockback()
     {
-        Vector3 knockDir = (transform.position - target.position).normalized; // 플레이어 반대 방향
-        float knockForce = 10f;
+        if (target == null) return;
+
+        Vector3 knockDir = (transform.position - target.position).normalized;
+        float knockDistance = 3.0f; // 기존 힘(10) * 시간(0.3) 대략 계산
         float knockTime = 0.3f;
-        float elapsed = 0f;
 
         if (Shared.MainCamera != null)
         {
-            yield return null;
             Shared.MainCamera.Shake(0.15f, knockTime, 3);
         }
 
-        while (elapsed < knockTime)
-        {
-            navAgent.enabled = false;
-            transform.position += knockDir * knockForce * Time.deltaTime;
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
+        if (navAgent.enabled) navAgent.enabled = false;
 
-        navAgent.enabled = true;
+        transform.DOMove(transform.position + knockDir * knockDistance, knockTime)
+            .SetEase(Ease.OutCubic) // 부드러운 감속 효과
+            .OnComplete(() => {
+                if (!isDead && navAgent != null) navAgent.enabled = true;
+            });
     }
 
     public void OnDamageTaken(Transform attacker)

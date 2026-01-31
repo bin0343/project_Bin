@@ -85,7 +85,7 @@ public class Enemy_Stat : MonoBehaviour
                 break;
             case AttackType.Knockback:
                 enemyBase.EnterStunState(1.5f);
-                StartCoroutine(enemyBase.ApplyKnockback());
+                enemyBase.ApplyKnockback();
                 break;
                 // AttackType.None 이나 default는 아무 효과 없음
         }

@@ -44,7 +44,7 @@ public class UI_Loot : MonoBehaviour
 
         if (!lootPanel.activeSelf)
         {
-            UI_Manager.Instance.OpenUI(lootPanel);
+            UI_Manager.instance.OpenUI(lootPanel);
         }
     }
 
@@ -52,7 +52,7 @@ public class UI_Loot : MonoBehaviour
     {
         if (lootPanel.activeSelf)
         {
-            UI_Manager.Instance.CloseSpecificUI(lootPanel);
+            UI_Manager.instance.CloseSpecificUI(lootPanel);
         }
     }
 

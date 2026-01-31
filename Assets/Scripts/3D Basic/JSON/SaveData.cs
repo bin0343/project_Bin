@@ -24,6 +24,9 @@ public class SaveData
 
     //NPC 상태
     public List<NPCSaveData> npcList = new List<NPCSaveData>();
+
+    //퀘스트
+    public List<QuestSaveData> questList = new List<QuestSaveData>();
 }
 
 //보조 데이터 구조체들
@@ -51,4 +54,20 @@ public class NPCSaveData
     public int level;        // 레벨
     public int currentExp;   // 경험치
     public float[] npcStats;
+}
+
+[System.Serializable]
+public class QuestSaveData
+{
+    public string questID;
+    public int status;
+
+    public List<QuestObjectiveSaveData> progressList = new List<QuestObjectiveSaveData>();
+}
+
+[System.Serializable]
+public class QuestObjectiveSaveData
+{
+    public string targetID;
+    public int count;
 }

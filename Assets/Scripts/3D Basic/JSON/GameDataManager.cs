@@ -129,6 +129,12 @@ public class GameDataManager : MonoBehaviour
         {
             saveData.npcList = NPC_Manager.instance.GetSaveData();
         }
+
+        //퀘스트 저장
+        if (QuestManager.instance != null)
+        {
+            saveData.questList = QuestManager.instance.GetQuestSaveData();
+        }
         // (나중에 장비, NPC, 퀘스트 등 추가)
     }
 
@@ -192,6 +198,11 @@ public class GameDataManager : MonoBehaviour
         if (NPC_Manager.instance != null)
         {
             NPC_Manager.instance.LoadFromSaveData(saveData.npcList);
+        }
+        //퀘스트 로드
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.LoadQuestSaveData(saveData.questList);
         }
     }
 }

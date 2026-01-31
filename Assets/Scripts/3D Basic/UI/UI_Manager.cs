@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class UI_Manager : MonoBehaviour
 {
-    public static UI_Manager Instance;
+    public static UI_Manager instance;
 
-    public GameObject StatusPanel;
+    public GameObject statusPanel;
     public UI_Status UI_Status;
     public UI_StatusBar UI_StatusBar;
-    public Enemy_HpBar Enemy_HpBar;
-    public Player_Stat PlayerStat;
-    public GameObject InventoryPanel;
+    public Enemy_HpBar enemy_HpBar;
+    public Player_Stat playerStat;
+    public GameObject inventoryPanel;
     public UI_Inventory UI_Inventory;
-    public GameObject MessagePanel;
-    public Text MessageText;
-    public GameObject LootPanel;
+    public GameObject messagePanel;
+    public Text messageText;
+    public GameObject lootPanel;
     public UI_Loot UI_Loot;
     public GameObject localMapPanel;
+    public GameObject questPanel;
+    public UI_QuestPanel UI_QuestPanel;
+
     public bool isBattleMode { get; set; } = false;
 
     [Header("메시지 설정")]
@@ -35,9 +39,13 @@ public class UI_Manager : MonoBehaviour
     private void Start()
     {
         FindLocalPlayerStat();
-        if (UI_Loot == null && LootPanel != null)
+        if (UI_Loot == null && lootPanel != null)
         {
-            UI_Loot = LootPanel.GetComponent<UI_Loot>();
+            UI_Loot = lootPanel.GetComponent<UI_Loot>();
+        }
+        if (UI_QuestPanel == null && questPanel != null)
+        {
+            UI_QuestPanel = questPanel.GetComponent<UI_QuestPanel>();
         }
 
         //UpdateCursorState();
@@ -45,12 +53,12 @@ public class UI_Manager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (instance != null && instance != this)
         {
             Destroy(gameObject);
             return;
         }
-        Instance = this;
+        instance = this;
     }
 
     private void Update()
@@ -60,17 +68,21 @@ public class UI_Manager : MonoBehaviour
             UpdateCursorState();
         }
 
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            ToggleQuestPanel();
+        }
 
         if (Input.GetKeyDown(KeyCode.U))
         {
-            if (StatusPanel.activeSelf)
+            if (statusPanel.activeSelf)
             {
-                CloseSpecificUI(StatusPanel);
+                CloseSpecificUI(statusPanel);
             }
             else
             {
                 UpdatePlayerStatus();
-                OpenUI(StatusPanel);
+                OpenUI(statusPanel);
             }
         }
 
@@ -89,10 +101,10 @@ public class UI_Manager : MonoBehaviour
                 }
                 else
                 {
-                    // 1. UI 매니저 스택에 추가 및 활성화
+                    // UI 매니저 스택에 추가 및 활성화
                     OpenUI(localMapPanel);
 
-                    // 2. 맵 컨트롤러의 열기 로직 실행 (시간 정지, 버튼 포커스 등)
+                    // 맵 컨트롤러의 열기 로직 실행 (시간 정지, 버튼 포커스 등)
                     LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
                     if (controller != null)
                     {
@@ -104,19 +116,24 @@ public class UI_Manager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            if (InventoryPanel.activeSelf)
+            if (inventoryPanel.activeSelf)
             {
-                CloseSpecificUI(InventoryPanel);
+                CloseSpecificUI(inventoryPanel);
             }
             else
             {
                 UI_Inventory.RefreshUI();
-                OpenUI(InventoryPanel);
+                OpenUI(inventoryPanel);
             }
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (UIStack.Count > 0)
+            {
+                CloseTopUI();
+            }
+
             if (UIStack.Count > 0 && UIStack.Peek() == localMapPanel)
             {
                 LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
@@ -124,13 +141,12 @@ public class UI_Manager : MonoBehaviour
             }
             CloseTopUI();
         }
-        UI_StatusBar.UpdateStatus(PlayerStat);
+        UI_StatusBar.UpdateStatus(playerStat);
         //Enemy_HpBar.UpdateStatus(EnemyStat);
     }
 
     private void FindLocalPlayerStat()
     {
-        // 씬에 있는 모든 Player_Stat을 다 뒤짐
         Player_Stat[] allStats = FindObjectsOfType<Player_Stat>();
 
         foreach (var stat in allStats)
@@ -138,7 +154,7 @@ public class UI_Manager : MonoBehaviour
             // Global 데이터(매니저)가 아닌 녀석을 발견하면 그게 진짜 캐릭터임
             if (!stat.isGlobalData)
             {
-                PlayerStat = stat;
+                playerStat = stat;
                 break; // 찾았으면 반복 종료
             }
         }
@@ -146,23 +162,20 @@ public class UI_Manager : MonoBehaviour
 
     public void UpdatePlayerStatus(Player_Stat stat = null)
     {
-        // 1. 외부에서 직접 찔러준 경우 (가장 확실함)
         if (stat != null && !stat.isGlobalData)
         {
-            PlayerStat = stat;
+            playerStat = stat;
         }
 
-        // 2. 아직도 누군지 모르거나, 알고 있는 애가 Global 놈이라면? -> 다시 찾아!
-        if (PlayerStat == null || PlayerStat.isGlobalData)
+        if (playerStat == null || playerStat.isGlobalData)
         {
             FindLocalPlayerStat();
         }
 
-        // 3. 찾은 진짜 캐릭터로 UI 갱신
-        if (PlayerStat != null && !PlayerStat.isGlobalData)
+        if (playerStat != null && !playerStat.isGlobalData)
         {
-            if (UI_Status != null) UI_Status.UpdateStatus(PlayerStat);
-            if (UI_StatusBar != null) UI_StatusBar.UpdateStatus(PlayerStat);
+            if (UI_Status != null) UI_Status.UpdateStatus(playerStat);
+            if (UI_StatusBar != null) UI_StatusBar.UpdateStatus(playerStat);
         }
     }
 
@@ -173,7 +186,21 @@ public class UI_Manager : MonoBehaviour
             panel.SetActive(true);
             panel.transform.SetAsLastSibling();
             UIStack.Push(panel);
+            Time.timeScale = 0f;
             UpdateCursorState();
+
+            RectTransform rect = panel.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.DOKill();
+
+                Vector2 targetPos = rect.anchoredPosition;
+                rect.anchoredPosition = targetPos + new Vector2(0, -200f);
+                rect.localScale = Vector3.zero; // 크기 0에서 시작
+
+                rect.DOAnchorPos(targetPos, 0.4f).SetEase(Ease.OutBack).SetUpdate(true);
+                rect.DOScale(1f, 0.4f).SetEase(Ease.OutBack).SetUpdate(true);
+            }
         }
     }
 
@@ -182,13 +209,16 @@ public class UI_Manager : MonoBehaviour
         if (UIStack.Count > 0)
         {
             GameObject topUI = UIStack.Pop();
+            topUI.transform.DOKill();
             topUI.SetActive(false);
+            CheckTimeScale();
             UpdateCursorState();
         }
     }
 
     public void CloseSpecificUI(GameObject panel)
     {
+        panel.transform.DOKill();
         panel.SetActive(false); // 일단 끈다.
 
         if (UIStack.Contains(panel))
@@ -206,20 +236,39 @@ public class UI_Manager : MonoBehaviour
                 UIStack.Push(tempStack.Pop());
             }
 
+            CheckTimeScale();
             UpdateCursorState();
+        }
+    }
+
+    public void ToggleQuestPanel()
+    {
+        if (questPanel == null) return;
+
+        bool isActive = questPanel.activeSelf;
+
+        if (isActive)
+        {
+            // 켜져있으면 -> 닫기
+            CloseSpecificUI(questPanel);
+        }
+        else
+        {
+            // 꺼져있으면 -> 열기
+            OpenUI(questPanel);
         }
     }
 
     public void ShowMessage(string msg)
     {
-        if (MessagePanel != null)
+        if (messagePanel != null)
         {
-            if (hideMessageCoroutine != null)   //다른 메시지 코루틴 진행중이면 그 코루틴 중지
+            if (hideMessageCoroutine != null)
             {
                 StopCoroutine(hideMessageCoroutine);
             }
-            MessagePanel.SetActive(true);
-            MessageText.text = msg;
+            messagePanel.SetActive(true);
+            messageText.text = msg;
 
             hideMessageCoroutine = StartCoroutine(HideMessageRoutine(messageDisplayTime));
         }
@@ -235,9 +284,21 @@ public class UI_Manager : MonoBehaviour
 
     public void HideMessage()
     {
-        if (MessagePanel != null)
+        if (messagePanel != null)
         {
-            MessagePanel.SetActive(false);
+            messagePanel.SetActive(false);
+        }
+    }
+
+    private void CheckTimeScale()
+    {
+        if (UIStack.Count == 0)
+        {
+            Time.timeScale = 1f;
+        }
+        else
+        {
+            Time.timeScale = 0f;
         }
     }
 

@@ -244,4 +244,73 @@ public class QuestManager : MonoBehaviour
         // TODO: UI 갱신
         OnQuestRewardClaimed?.Invoke(quest);
     }
+
+    public List<QuestSaveData> GetQuestSaveData()
+    {
+        List<QuestSaveData> saveList = new List<QuestSaveData>();
+
+        foreach (var kvp in questLog)
+        {
+            PlayerQuestStatus status = kvp.Value;
+            QuestSaveData data = new QuestSaveData();
+
+            data.questID = status.questID;
+            data.status = (int)status.status; // Enum -> int 변환
+
+            // 목표 진행도(Dictionary)를 리스트로 변환
+            data.progressList = new List<QuestObjectiveSaveData>();
+            foreach (var progressKvp in status.objectiveProgress)
+            {
+                QuestObjectiveSaveData objData = new QuestObjectiveSaveData();
+                objData.targetID = progressKvp.Key;
+                objData.count = progressKvp.Value;
+                data.progressList.Add(objData);
+            }
+
+            saveList.Add(data);
+        }
+        return saveList;
+    }
+
+    // [추가] 데이터 불러오기 (List -> Dictionary)
+    public void LoadQuestSaveData(List<QuestSaveData> savedList)
+    {
+        if (savedList == null) return;
+
+        questLog.Clear(); // 기존 퀘스트 로그 초기화
+
+        foreach (var data in savedList)
+        {
+            // 퀘스트 원본 데이터 찾기 (ScriptableObject)
+            if (questDatabase.ContainsKey(data.questID))
+            {
+                Quest originalQuest = questDatabase[data.questID];
+
+                // 플레이어 퀘스트 상태 복구
+                PlayerQuestStatus newStatus = new PlayerQuestStatus(originalQuest);
+                newStatus.status = (QuestStatus)data.status; // int -> Enum 복구
+
+                // 진행도 복구
+                foreach (var objData in data.progressList)
+                {
+                    if (newStatus.objectiveProgress.ContainsKey(objData.targetID))
+                    {
+                        newStatus.objectiveProgress[objData.targetID] = objData.count;
+                    }
+                }
+
+                // 로그에 추가
+                questLog.Add(data.questID, newStatus);
+            }
+            else
+            {
+                Debug.LogError($"[QuestManager] 로드 실패! ID '{data.questID}'를 DB에서 찾을 수 없습니다. Resources/Data/Quests 폴더와 ScriptableObject의 QuestID를 확인하세요.");
+            }
+        }
+
+        Debug.Log($"퀘스트 로드 완료: {questLog.Count}개");
+
+        // (선택사항) 로드 후 UI 추적기가 있다면 갱신하라고 알리기
+        // OnQuestProgressChanged?.Invoke(...) 등을 호출하거나 UI_QuestTracker에서 Refresh
+    }
 }

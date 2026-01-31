@@ -48,6 +48,8 @@ public class DialogueManager : MonoBehaviour
 
     private void Update()
     {
+        if (dialogueRoot == null) return;
+
         if (!dialogueRoot.activeSelf) return;
 
         // 마우스 클릭 (타이핑 스킵 or 선택지 표시 or 대화 종료)

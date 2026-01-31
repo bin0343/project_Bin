@@ -4759,6 +4759,7 @@ GameObject:
   - component: {fileID: 1853514906}
   - component: {fileID: 1853514908}
   - component: {fileID: 1853514909}
+  - component: {fileID: 1853514910}
   m_Layer: 0
   m_Name: GameDataManager
   m_TagString: Untagged
@@ -4791,6 +4792,7 @@ MonoBehaviour:
     quickSlotList: []
     equipmentList: []
     npcList: []
+    questList: []
   allGameItems:
   - {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
   - {fileID: 11400000, guid: 04522cde152a0a347b3b6317cbd8e235, type: 2}
@@ -4931,6 +4933,19 @@ MonoBehaviour:
     Quantity: 0
   - ItemData: {fileID: 0}
     Quantity: 0
+--- !u!114 &1853514910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853514905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c746697b929ff0549b17556196a407f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug_QuestLogList: []
 --- !u!1 &1905266462
 GameObject:
   m_ObjectHideFlags: 0

@@ -42,6 +42,15 @@ public class Weapon_Player : MonoBehaviour
         if (slashTrail != null) slashTrail.emitting = false;
     }
 
+    public void ForceStopTrail() //피격시
+    {
+        if (slashTrail != null)
+        {
+            slashTrail.emitting = false;
+            slashTrail.Clear();
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!attackCollider.enabled || hasHit) return;
@@ -61,7 +70,7 @@ public class Weapon_Player : MonoBehaviour
                 {
                     // 2. 넉백과 함께 스턴 상태로 만듦
                     //enemyBase.EnterStunState(1.5f);
-                    enemyBase.StartCoroutine(enemyBase.ApplyKnockback());
+                    enemyBase.ApplyKnockback();
                 }
             }
             else

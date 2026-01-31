@@ -69,9 +69,9 @@ public abstract class Interactable : MonoBehaviour
         }
 
         //Time.timeScale = 0f; //게임 일시정지(향후 게임시간은 두고 플레이어 조작만 막기)
-        if (UI_Manager.Instance!= null)
+        if (UI_Manager.instance != null)
         {
-            UI_Manager.Instance.OpenUI(currentOpenMenu);
+            UI_Manager.instance.OpenUI(currentOpenMenu);
         }
         else
         {
@@ -90,9 +90,9 @@ public abstract class Interactable : MonoBehaviour
         //currentOpenMenu = null;
 
         //Time.timeScale = 1f;
-        if (UI_Manager.Instance != null)
+        if (UI_Manager.instance != null)
         {
-            UI_Manager.Instance.CloseSpecificUI(currentOpenMenu);
+            UI_Manager.instance.CloseSpecificUI(currentOpenMenu);
         }
         else
         {

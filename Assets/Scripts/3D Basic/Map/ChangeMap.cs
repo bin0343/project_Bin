@@ -13,7 +13,7 @@ public class ChangeMap : MonoBehaviour
 
         if (canvas != null)
         {
-            Transform panelTrans = canvas.transform.Find("MapWindow");
+            Transform panelTrans = canvas.transform.Find("WorldMapPanel");
 
             if (panelTrans != null)
             {

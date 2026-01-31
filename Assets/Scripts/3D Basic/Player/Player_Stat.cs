@@ -91,9 +91,9 @@ public class Player_Stat : MonoBehaviour
         myCanvas = GetComponentInChildren<Canvas>(true);
         action = GetComponent<Player_Action>();
 
-        if (!isGlobalData && UI_Manager.Instance != null)
+        if (!isGlobalData && UI_Manager.instance != null)
         {
-            UI_Manager.Instance.UpdatePlayerStatus(this);
+            UI_Manager.instance.UpdatePlayerStatus(this);
         }
     }
 
@@ -113,27 +113,27 @@ public class Player_Stat : MonoBehaviour
             DamageTextSpawner.instance.SpawnDamageText(damage, spawnPosition, textRotation, myCanvas);
         }
 
-        if (UI_Manager.Instance != null)
+        if (UI_Manager.instance != null)
         {
-            UI_Manager.Instance.UpdatePlayerStatus(this);
+            UI_Manager.instance.UpdatePlayerStatus(this);
         }
     }
 
     public void Heal(int amount)
     {
         currentHP = Mathf.Clamp(currentHP + amount, 0, maxHP);
-        if (!isGlobalData && UI_Manager.Instance != null)
+        if (!isGlobalData && UI_Manager.instance != null)
         {
-            UI_Manager.Instance.UpdatePlayerStatus(this);
+            UI_Manager.instance.UpdatePlayerStatus(this);
         }
     }
 
     public void RecoverMp(int amount)
     {
         currentMP = Mathf.Clamp(currentMP + amount, 0, maxMP);
-        if (!isGlobalData && UI_Manager.Instance != null)
+        if (!isGlobalData && UI_Manager.instance != null)
         {
-            UI_Manager.Instance.UpdatePlayerStatus(this);
+            UI_Manager.instance.UpdatePlayerStatus(this);
         }
     }
 
@@ -168,9 +168,9 @@ public class Player_Stat : MonoBehaviour
             // 내가 Global이라면 그냥 저장
             // (필요하다면 PlayerPrefs 저장 로직 추가)
         }
-        if (!isGlobalData && UI_Manager.Instance != null)
+        if (!isGlobalData && UI_Manager.instance != null)
         {
-            UI_Manager.Instance.UpdatePlayerStatus(this);
+            UI_Manager.instance.UpdatePlayerStatus(this);
         }
     }
 
@@ -216,9 +216,9 @@ public class Player_Stat : MonoBehaviour
         }
 
         // UI가 있다면 갱신
-        if (UI_Manager.Instance != null)
+        if (UI_Manager.instance != null)
         {
-            UI_Manager.Instance.UpdatePlayerStatus(this);
+            UI_Manager.instance.UpdatePlayerStatus(this);
         }
     }
 }

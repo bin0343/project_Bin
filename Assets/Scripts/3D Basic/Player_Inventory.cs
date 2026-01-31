@@ -257,7 +257,12 @@ public class Player_Inventory : MonoBehaviour
 
     public void RefreshAllUI()
     {
-        UI_Manager.Instance.UI_Inventory.RefreshUI();
+        if (UI_Manager.instance != null && UI_Manager.instance.UI_Inventory != null)
+        {
+            UI_Manager.instance.UI_Inventory.RefreshUI();
+        }
+
+        // 퀵슬롯 UI도 마찬가지로 체크
         if (UI_ItemManager.Instance != null)
         {
             UI_ItemManager.Instance.SetupItemSlots(quickSlots);

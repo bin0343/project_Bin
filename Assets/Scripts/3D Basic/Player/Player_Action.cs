@@ -142,6 +142,12 @@ public class Player_Action : MonoBehaviour
 
     public void ChangeState(IPlayerState newstate)
     {
+        if (newstate is PlayerHitState || newstate is PlayerIdleState || newstate is PlayerDeadState)
+        {
+            currentWeapon?.StopTrail();
+            currentWeapon?.DisableHitbox();
+            IsAttacking = false;
+        }
         currentState?.Exit(this);
         currentState = newstate;
         currentState.Enter(this);
@@ -334,6 +340,10 @@ public class Player_Action : MonoBehaviour
     {
         if (!IsDead)
         {
+            currentWeapon?.ForceStopTrail();
+            currentWeapon?.DisableHitbox();
+            IsAttacking = false;
+
             ChangeState(new PlayerHitState());
         }
     }
@@ -341,14 +351,14 @@ public class Player_Action : MonoBehaviour
     public void OnLootableCorpseEnter(ItemDrop itemDropper)
     {
         lootableCorpse = itemDropper;
-        UI_Manager.Instance.ShowMessage("G : 시체확인");
+        UI_Manager.instance.ShowMessage("G : 시체확인");
     }
 
     // 시체 범위에서 벗어났을 때 호출될 함수
     public void OnLootableCorpseExit()
     {
         lootableCorpse = null;
-        UI_Manager.Instance.HideMessage();
+        UI_Manager.instance.HideMessage();
         // 만약 아이템창이 열려있다면 닫아주는 처리
         if (UI_Loot.Instance.lootPanel.activeSelf)
         {

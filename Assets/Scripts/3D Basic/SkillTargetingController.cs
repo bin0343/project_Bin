@@ -53,8 +53,8 @@ public class SkillTargetingController : MonoBehaviour
             targetAreaIndicatorInstance.transform.localScale = new Vector3(attackDiameter, 0.01f, attackDiameter);
         }
 
-        UI_Manager.Instance.IsInTargetingMode = true;
-        UI_Manager.Instance.UpdateCursorState();
+        UI_Manager.instance.IsInTargetingMode = true;
+        UI_Manager.instance.UpdateCursorState();
     }
 
     void Update()
@@ -153,7 +153,7 @@ public class SkillTargetingController : MonoBehaviour
         if (rangeIndicatorInstance != null) Destroy(rangeIndicatorInstance);
         if (targetAreaIndicatorInstance != null) Destroy(targetAreaIndicatorInstance);
 
-        UI_Manager.Instance.IsInTargetingMode = false;
+        UI_Manager.instance.IsInTargetingMode = false;
 
         // [수정된 부분] 카메라가 플레이어 안에 있는지 확인하여 뷰 모드 판별
         // 백뷰(TPS): 카메라는 플레이어의 자식임 -> 커서 잠금(기존 로직)
@@ -176,7 +176,7 @@ public class SkillTargetingController : MonoBehaviour
         else
         {
             // 백뷰라면 UI_Manager의 기본 설정(보통 커서 숨김/잠금)을 따름
-            UI_Manager.Instance.UpdateCursorState();
+            UI_Manager.instance.UpdateCursorState();
         }
     }
 }

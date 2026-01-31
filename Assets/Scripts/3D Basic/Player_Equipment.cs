@@ -162,9 +162,9 @@ public class Player_Equipment : MonoBehaviour
 
     private void RefreshUI()
     {
-        if (UI_Manager.Instance?.UI_Status?.uiEquipmentPanel != null)
+        if (UI_Manager.instance?.UI_Status?.uiEquipmentPanel != null)
         {
-            UI_Manager.Instance.UI_Status.uiEquipmentPanel.RefreshUI();
+            UI_Manager.instance.UI_Status.uiEquipmentPanel.RefreshUI();
         }
     }
 

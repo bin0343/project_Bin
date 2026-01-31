@@ -145,10 +145,10 @@ public class LocalMapController : MonoBehaviour
     public void CloseLocalMap()
     {
         //Time.timeScale = 1f; // 시간 재개
-        if (UI_Manager.Instance != null)
+        if (UI_Manager.instance != null)
         {
             // UI 매니저가 스택에서 빼고, SetActive(false)도 해줍니다.
-            UI_Manager.Instance.CloseSpecificUI(this.gameObject);
+            UI_Manager.instance.CloseSpecificUI(this.gameObject);
         }
         else
         {
