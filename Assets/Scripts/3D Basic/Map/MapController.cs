@@ -77,28 +77,44 @@ public class MapController : MonoBehaviour
         public string targetSpawnName;
     }
 
-    private void Start()
+    private void Awake()
     {
         string currentScene = SceneManager.GetActiveScene().name;
         if (currentScene == "Main Menu" || currentScene == "Lobby") isLobbyMode = true;
-
-        if (closeButton) closeButton.onClick.AddListener(CloseMapPanel);
-        if (btnEnter) btnEnter.onClick.AddListener(OnEnterLocation);
-        if (btnCancel) btnCancel.onClick.AddListener(() => ResetMapAndCloseInfo(false));
 
         LoadMapData();
 
         if (infoPanel) infoPanel.SetActive(false);
     }
 
+    private void Start()
+    {
+        if (closeButton) closeButton.onClick.AddListener(CloseMapPanel);
+        if (btnEnter) btnEnter.onClick.AddListener(OnEnterLocation);
+        if (btnCancel) btnCancel.onClick.AddListener(() => ResetMapAndCloseInfo(false));
+
+        UpdateCloseButtonState();
+    }
+
     private void OnEnable()
     {
         InitializeMap();
+
+        UpdateCloseButtonState();
     }
 
     private void Update()
     {
         UpdateIndicators();
+    }
+
+    private void UpdateCloseButtonState()
+    {
+        if (closeButton != null)
+        {
+            // 로비 모드면 닫기 버튼 숨김 (전역 뒤로가기 사용), 아니면 보임
+            closeButton.gameObject.SetActive(!isLobbyMode);
+        }
     }
 
     void LoadMapData()
@@ -406,7 +422,21 @@ public class MapController : MonoBehaviour
     {
         Time.timeScale = 1f;
         ResetMapAndCloseInfo(true);
-        if (isLobbyMode && LobbyManager.instance != null) LobbyManager.instance.OnClickBack();
-        else gameObject.SetActive(false);
+        if (isLobbyMode)
+        {
+            // [로비 모드] LobbyManager에게 뒤로가기 위임
+            if (LobbyManager.instance != null)
+                LobbyManager.instance.OnClickBack();
+            else
+                gameObject.SetActive(false);
+        }
+        else
+        {
+            // [3D 인게임 모드] UI_Manager를 통해 닫기 (DOTween 스택 관리 포함)
+            if (UI_Manager.instance != null)
+                UI_Manager.instance.CloseSpecificUI(gameObject);
+            else
+                gameObject.SetActive(false);
+        }
     }
 }

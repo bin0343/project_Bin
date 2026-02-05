@@ -21,6 +21,7 @@ public class UI_Manager : MonoBehaviour
     public GameObject lootPanel;
     public UI_Loot UI_Loot;
     public GameObject localMapPanel;
+    public GameObject worldMapPanel;
     public GameObject questPanel;
     public UI_QuestPanel UI_QuestPanel;
 
@@ -131,18 +132,42 @@ public class UI_Manager : MonoBehaviour
         {
             if (UIStack.Count > 0)
             {
+                GameObject topUI = UIStack.Peek();
+
+                // [중요] 맨 위에 있는 UI가 '월드 맵'이라면 ESC로 닫지 않음 (함수 종료)
+                if (topUI == worldMapPanel)
+                {
+                    return;
+                }
+
+                // 로컬 맵인 경우 추가 정리 로직
+                if (topUI == localMapPanel)
+                {
+                    LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
+                    if (controller != null) controller.CloseLocalMap();
+                }
+
                 CloseTopUI();
             }
-
-            if (UIStack.Count > 0 && UIStack.Peek() == localMapPanel)
-            {
-                LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
-                if (controller != null) controller.CloseLocalMap();
-            }
-            CloseTopUI();
         }
         UI_StatusBar.UpdateStatus(playerStat);
         //Enemy_HpBar.UpdateStatus(EnemyStat);
+    }
+
+    public void OpenWorldMap()
+    {
+        if (worldMapPanel != null)
+        {
+            // 이미 열려있지 않을 때만 열기
+            if (!worldMapPanel.activeSelf)
+            {
+                OpenUI(worldMapPanel);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("UI_Manager에 World Map Panel이 연결되지 않았습니다.");
+        }
     }
 
     private void FindLocalPlayerStat()

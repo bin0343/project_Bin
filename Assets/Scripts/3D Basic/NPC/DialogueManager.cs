@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -41,9 +42,103 @@ public class DialogueManager : MonoBehaviour
 
     private void Awake()
     {
+        if (instance != null && instance != this)
+        {
+            Debug.LogWarning($"[DialogueManager] 중복 생성된 매니저를 파괴합니다. (기존: {instance.name}, 신규: {gameObject.name})");
+            Destroy(this);
+            return;
+        }
         instance = this;
         dialogueRoot.SetActive(false);
         ParseCSV(); // CSV 데이터 미리 로드
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Time.timeScale = 1f;
+        if (scene.name == "Main Menu" || scene.name == "Lobby") 
+        {
+            RefreshUIReferences();
+        }
+    }
+
+    void RefreshUIReferences()
+    {
+        if (dialogueRoot == null)
+        {
+            GameObject obj = GameObject.Find("Dialogue_Panel");
+
+            if (obj == null)
+            {
+                Scene currentScene = SceneManager.GetActiveScene();
+                GameObject[] rootObjects = currentScene.GetRootGameObjects();
+
+                foreach (GameObject root in rootObjects)
+                {
+                    Transform result = FindDeepChild(root.transform, "Dialogue_Panel");
+                    if (result != null)
+                    {
+                        obj = result.gameObject;
+                        break;
+                    }
+                }
+            }
+
+            if (obj != null) dialogueRoot = obj;
+        }
+
+        if (dialogueRoot != null)
+        {
+            if (standingCG == null)
+                standingCG = FindChildComponent<Image>(dialogueRoot, "Standing_CG");
+
+            if (txtName == null)
+                txtName = FindChildComponent<Text>(dialogueRoot, "NPC_Name");
+
+            if (txtDialogue == null)
+                txtDialogue = FindChildComponent<Text>(dialogueRoot, "Dialogue_Text");
+
+            if (choiceGroup == null)
+            {
+                Transform groupTF = FindDeepChild(dialogueRoot.transform, "Choice_Group");
+                if (groupTF != null) choiceGroup = groupTF;
+            }
+
+            Debug.Log($"[DialogueManager] UI 재연결 성공! Root: {dialogueRoot.name}");
+        }
+        else
+        {
+            Debug.LogError("[DialogueManager] 'Dialogue_Panel'을 찾을 수 없습니다! 하이어라키에서 이름이 정확한지 확인하세요.");
+        }
+    }
+
+    Transform FindDeepChild(Transform parent, string childName)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == childName) return child;
+
+            Transform result = FindDeepChild(child, childName);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
+    T FindChildComponent<T>(GameObject parent, string childName) where T : Component
+    {
+        Transform t = FindDeepChild(parent.transform, childName);
+        if (t != null) return t.GetComponent<T>();
+        return null;
     }
 
     private void Update()
@@ -79,6 +174,11 @@ public class DialogueManager : MonoBehaviour
     // CSV 기반 대화 (일상 대화)
     public void StartDialogue(int startID, NPC_Data npcData)
     {
+        Debug.Log($"[DialogueManager] 대화 시작 요청됨. ID: {startID}, NPC: {npcData?.NPCName}");
+
+        // 안전장치 (UI 재연결)
+        if (dialogueRoot == null) RefreshUIReferences();
+
         isQuestMode = false; // CSV 모드
         currentConversation = null;
         currentTargetNPC = npcData;
@@ -89,11 +189,26 @@ public class DialogueManager : MonoBehaviour
 
     void ShowCSVStep(int id)
     {
-        if (!dialogueDic.ContainsKey(id))
+        if (dialogueDic == null || dialogueDic.Count == 0)
         {
+            Debug.LogError($"[DialogueManager] 대화 데이터(Dictionary)가 비어있습니다! ParseCSV가 실패했거나 CSV 파일이 연결되지 않았습니다.");
             EndDialogue();
             return;
         }
+
+        // [로그 3] ID 존재 여부 확인
+        if (!dialogueDic.ContainsKey(id))
+        {
+            Debug.LogError($"[DialogueManager] ID '{id}'를 대화 데이터에서 찾을 수 없습니다. (총 데이터 수: {dialogueDic.Count})");
+            EndDialogue();
+            return;
+        }
+
+        /*if (!dialogueDic.ContainsKey(id))
+        {
+            EndDialogue();
+            return;
+        }*/
 
         foreach (Transform child in choiceGroup) Destroy(child.gameObject);
         choiceGroup.gameObject.SetActive(false);

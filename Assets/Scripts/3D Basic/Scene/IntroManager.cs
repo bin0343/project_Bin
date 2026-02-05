@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -15,6 +15,8 @@ public class IntroData
 
 public class IntroManager : MonoBehaviour
 {
+    public static IntroManager instance;
+
     [Header("--- 데이터 파일 ---")]
     public TextAsset tutorialCsv;
 
@@ -47,34 +49,100 @@ public class IntroManager : MonoBehaviour
 
     private bool isMapTutorialActive = false;
 
-    void Start()
+    private void Awake()
     {
-        ParseCSV();
+        if (instance == null) instance = this;
+    }
 
-        if (PlayerPrefs.GetInt("IsFirstVisit", 0) == 1)
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"[IntroManager] 씬 로드됨: {scene.name}");
+
+        RefreshReferences();
+
+        CheckTutorialStatus();
+    }
+
+    void RefreshReferences()
+    {
+        if (lobbyManager == null) lobbyManager = FindObjectOfType<LobbyManager>();
+
+        if (originDialogueManager == null) originDialogueManager = FindObjectOfType<DialogueManager>();
+
+        if (introNextButton == null)
         {
-            StartIntro();
+            GameObject btnObj = GameObject.Find("IntroNextButton");
+            if (btnObj != null) introNextButton = btnObj.GetComponent<Button>();
+        }
+
+        if (dialoguePanel == null)
+        {
+            GameObject panelObj = GameObject.Find("DialoguePanel");
+            if (panelObj != null) dialoguePanel = panelObj;
+        }
+
+        if (btnConfirm != null)
+        {
+            btnConfirm.onClick.RemoveAllListeners();
+            btnConfirm.onClick.AddListener(OnClickConfirmName);
+        }
+        if (introNextButton != null)
+        {
+            introNextButton.onClick.RemoveAllListeners();
+            introNextButton.onClick.AddListener(OnClickNextDialogue);
+        }
+    }
+
+    void CheckTutorialStatus()
+    {
+        if (introDataList.Count == 0) ParseCSV();
+
+        bool isFinished = false;
+        if (GameDataManager.instance != null)
+        {
+            isFinished = GameDataManager.instance.saveData.isTutorialFinished;
+        }
+
+        Debug.Log($"[IntroManager] 튜토리얼 완료 여부: {isFinished}");
+
+        if (isFinished)
+        {
+            DisableAllIntroUI();
         }
         else
         {
-            if (nameInputPanel) nameInputPanel.SetActive(false);
-            if (introNextButton) introNextButton.gameObject.SetActive(false);
-            gameObject.SetActive(false);
-        }
-
-        if (btnConfirm) btnConfirm.onClick.AddListener(OnClickConfirmName);
-        if (introNextButton) introNextButton.onClick.AddListener(OnClickNextDialogue);
-    }
-
-    void Update()
-    {
-        if (isMapTutorialActive && lobbyManager != null && lobbyManager.globalBackButton != null)
-        {
-            if (lobbyManager.globalBackButton.activeSelf)
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName == "Main Menu" || sceneName == "Lobby")
             {
-                lobbyManager.globalBackButton.SetActive(false);
+                if (currentIndex == 0 && !dialoguePanel.activeSelf)
+                {
+                    StartIntro();
+                }
+            }
+            else
+            {
+                DisableAllIntroUI();
             }
         }
+    }
+
+    public void DisableAllIntroUI()
+    {
+        if (introNextButton != null) introNextButton.gameObject.SetActive(false);
+        if (dialoguePanel != null) dialoguePanel.SetActive(false);
+        if (standingCG != null) standingCG.gameObject.SetActive(false);
+
+        if (originDialogueManager != null) originDialogueManager.enabled = true;
     }
 
     void ParseCSV()
