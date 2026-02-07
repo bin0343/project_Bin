@@ -35,6 +35,10 @@ public class Player_Action : MonoBehaviour
     public float pickupRadius = 3.0f;
     public LayerMask itemLayer;
 
+    [Header("땅 감지(점프)")]
+    public Transform groundCheckPos; // 발바닥 위치 (Inspector에서 할당 필요, 없으면 transform.position 사용)
+    public float groundCheckDistance = 0.2f;
+
 
     [HideInInspector] public bool IsGuarding { get; private set; } = false;
     [HideInInspector] public bool IsGrounded = true;
@@ -138,6 +142,10 @@ public class Player_Action : MonoBehaviour
             return;
         //HandleGuardInput();
         currentState?.Execute(this);
+
+        CheckGroundStatus();
+        animator.SetBool("IsGrounded", IsGrounded);
+        animator.SetFloat("VerticalVelocity", rigidbody.velocity.y);
     }
 
     public void ChangeState(IPlayerState newstate)
@@ -152,7 +160,31 @@ public class Player_Action : MonoBehaviour
         currentState = newstate;
         currentState.Enter(this);
     }
-    
+
+    private void CheckGroundStatus()
+    {
+        // 점프 시작 직후(Y속도가 양수)에는 땅 체크를 잠시 무시해야 "점프하자마자 착지"하는 버그를 막을 수 있음
+        if (rigidbody.velocity.y > 0.1f)
+        {
+            IsGrounded = false;
+            return;
+        }
+
+        Vector3 origin = groundCheckPos != null ? groundCheckPos.position : transform.position + Vector3.up * 0.1f;
+
+        // 아래로 레이를 쏴서 Ground 레이어에 닿으면 땅에 있는 것임
+        // *주의: Player_Move의 groundLayer 설정을 활용하거나 직접 레이어 마스크 지정 필요
+        // 여기서는 일단 모든 레이어 검사 혹은 move 스크립트의 groundLayer 참조 권장
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, groundCheckDistance))
+        {
+            IsGrounded = true;
+        }
+        else
+        {
+            IsGrounded = false;
+        }
+    }
+
     #region Input Handlers
     // 모든 상태 클래스가 호출할 스킬 처리 전용 함수
     public void HandleSkillInput(int slotIndex)

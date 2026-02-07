@@ -22,9 +22,6 @@ public class PlayerMoveState : PlayerBaseState
         bool jumpInput = Input.GetButtonDown("Jump");
         bool attackInput = Input.GetMouseButtonDown(0) && !player.IsPointerOverUI();
 
-        // --- 2. 상태 전환 우선순위 결정 ---
-
-        // 최우선 순위: 이동을 멈췄는가?
         if (!isMoving)
         {
             exitTimer += Time.deltaTime;
@@ -36,15 +33,15 @@ public class PlayerMoveState : PlayerBaseState
             }
             
         }
-        // 이동 중일 때만 다른 입력들을 확인
         else
         {
             exitTimer = 0f;
             // 1순위: 점프
-            /*if (jumpInput && player.IsGrounded)
+            if (jumpInput && player.IsGrounded)
             {
                 player.ChangeState(new PlayerJumpState());
-            }*/
+                return;
+            }
             // 2순위: 공격 입력이 있었는가?
             if (attackInput)
             {

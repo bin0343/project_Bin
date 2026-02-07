@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerJumpState : PlayerBaseState
 {
-    private float jumpForce = 5f;
+    private float jumpForce = 6f;
     private float jumpSpeed;
     private bool wasRunning;
 
@@ -13,16 +13,16 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void Enter(Player_Action player)
     {
-        this.wasRunning = Input.GetKey(KeyCode.LeftShift);
-
         Debug.Log("상태 진입 : Jump");
         base.Enter(player);
+
+        player.IsGrounded = false;
 
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         this.jumpSpeed = player.move.GetAdjustedSpeed(moveInput);
 
+        player.rigidbody.velocity = new Vector3(player.rigidbody.velocity.x, 0, player.rigidbody.velocity.z);
         player.rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        player.IsGrounded = false;
     }
 
     public override void Execute(Player_Action player)
@@ -32,8 +32,9 @@ public class PlayerJumpState : PlayerBaseState
         player.move.HandleMovement(moveInput, jumpSpeed);
         player.move.HandleRotation();
 
-        if (player.IsGrounded)
+        if (player.IsGrounded && player.rigidbody.velocity.y <= 0.1f)
         {
+            // 움직임 입력이 있으면 Move, 없으면 Idle로 복귀
             if (moveInput.magnitude > 0.01f)
             {
                 player.ChangeState(new PlayerMoveState());

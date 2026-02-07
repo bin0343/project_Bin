@@ -21,6 +21,12 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void Execute(Player_Action player)
     {
+        if (Input.GetButtonDown("Jump") && player.IsGrounded && !player.IsPointerOverUI())
+        {
+            player.ChangeState(new PlayerJumpState());
+            return;
+        }
+
         //공격 상태 전환
         if (Input.GetMouseButtonDown(0) && player.IsGrounded && !player.IsPointerOverUI())
         {

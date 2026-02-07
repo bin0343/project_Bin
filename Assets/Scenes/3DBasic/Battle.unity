@@ -1757,6 +1757,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character
       objectReference: {fileID: 0}
+    - target: {fileID: 6854339425477246251, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
+      propertyPath: groundCheckDistance
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7824089770105362860, guid: 67bce0727c347ef44af09971f14f7546, type: 3}
       propertyPath: m_LocalPosition.x
       value: -15.2
@@ -1959,7 +1963,7 @@ GameObject:
   - component: {fileID: 916133727}
   - component: {fileID: 916133726}
   - component: {fileID: 916133725}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Plane
   m_TagString: Ground
   m_Icon: {fileID: 0}
