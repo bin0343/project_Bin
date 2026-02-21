@@ -21,6 +21,19 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void Execute(Player_Action player)
     {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsGrounded && !player.IsPointerOverUI())
+        {
+            if (player.stat.TryUseStamina(player.stat.rollStaminaCost))
+            {
+                player.ChangeState(new PlayerRollState());
+            }
+            else
+            {
+                Debug.Log("스태미나가 부족해서 구를 수 없습니다!");
+            }
+            return;
+        }
+
         if (Input.GetButtonDown("Jump") && player.IsGrounded && !player.IsPointerOverUI())
         {
             player.ChangeState(new PlayerJumpState());

@@ -48,6 +48,7 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public bool IsBuff = false;
     [HideInInspector] public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
     [HideInInspector] public bool CanRotate = true;
+    [HideInInspector] public bool IsInvincible = false; //무적상태(구르기)
 
     public static event Action<Sprite, float> OnRunningAttackUsed;
     public IPlayerState currentState;
@@ -370,6 +371,8 @@ public class Player_Action : MonoBehaviour
 
     public void OnDamageTaken()
     {
+        if (IsInvincible) return;
+
         if (!IsDead)
         {
             currentWeapon?.ForceStopTrail();

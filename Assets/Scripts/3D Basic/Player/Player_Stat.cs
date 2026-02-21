@@ -42,6 +42,12 @@ public class Player_Stat : MonoBehaviour
     public int currentAP = 100;
     public int maxAP = 100;
 
+    [Header("스태미나")]
+    public float maxStamina = 100f;
+    public float currentStamina = 100f;
+    public float staminaRegenRate = 3f;    //초당 스태미나 회복량
+    public float rollStaminaCost = 20f;     //구르기 스태미나
+
     private Canvas myCanvas;
 
     public Vector3 damageTextOffset = new Vector3(0, 2.5f, 0);
@@ -97,8 +103,33 @@ public class Player_Stat : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (currentStamina < maxStamina)
+        {
+            currentStamina += staminaRegenRate * Time.deltaTime;
+            if (currentStamina > maxStamina)
+            {
+                currentStamina = maxStamina;
+            }
+
+            // UI 업데이트 함수가 있다면 여기서 호출 (예: UpdateStaminaUI();)
+        }
+    }
+
+    public bool TryUseStamina(float amount)
+    {
+        if (currentStamina >= amount)
+        {
+            currentStamina -= amount;
+            return true;
+        }
+        return false; // 스태미나 부족
+    }
+
     public void TakeDamage(int damage)
     {
+        if (action.IsInvincible) return;
         if (isGlobalData) return;
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0);

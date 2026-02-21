@@ -20,6 +20,7 @@ public class PlayerMoveState : PlayerBaseState
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         bool isMoving = moveInput.magnitude > 0;
         bool jumpInput = Input.GetButtonDown("Jump");
+        bool rollInput = Input.GetKeyDown(KeyCode.LeftShift);
         bool attackInput = Input.GetMouseButtonDown(0) && !player.IsPointerOverUI();
 
         if (!isMoving)
@@ -36,6 +37,19 @@ public class PlayerMoveState : PlayerBaseState
         else
         {
             exitTimer = 0f;
+
+            if(rollInput && player.IsGrounded)
+            {
+                if (player.stat.TryUseStamina(player.stat.rollStaminaCost))
+                {
+                    player.ChangeState(new PlayerRollState());
+                }
+                else
+                {
+                    Debug.Log("스태미나가 부족해서 구를 수 없습니다!");
+                }
+                return;
+            }
             // 1순위: 점프
             if (jumpInput && player.IsGrounded)
             {
