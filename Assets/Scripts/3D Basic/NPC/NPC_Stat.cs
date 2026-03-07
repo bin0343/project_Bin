@@ -11,12 +11,10 @@ public class NPC_Stat : MonoBehaviour
     private float[] equipmentStats = new float[(int)STAT.STAT_COUNT];
 
     public int maxHP { get { return (int)(GetBaseStat(STAT.HP) + equipmentStats[(int)STAT.HP]); } }
-    public int maxMP { get { return (int)(GetBaseStat(STAT.MP) + equipmentStats[(int)STAT.MP]); } }
     public int attackPower { get { return (int)(GetBaseStat(STAT.Attack) + equipmentStats[(int)STAT.Attack]); } }
     public int defensePower { get { return (int)(GetBaseStat(STAT.Defense) + equipmentStats[(int)STAT.Defense]); } }
 
     public int currentHP;
-    public int currentMP;
     private CompanionHpBar hpBar;
 
     // 상태 관리
@@ -55,7 +53,6 @@ public class NPC_Stat : MonoBehaviour
             System.Array.Clear(equipmentStats, 0, equipmentStats.Length);
 
             currentHP = maxHP;
-            currentMP = maxMP;
 
             Debug.Log($"{npcData.NPCName} 배치 완료. Lv.{savedStatus.level} (HP: {currentHP}, ATK: {attackPower})");
 

@@ -5,9 +5,11 @@ using UnityEngine;
 public class PlayerRollState : PlayerBaseState
 {
     private float rollTimer;
-    private float rollDuration = 1.167f; // 구르기 애니메이션 길이에 맞게 설정하세요.
+    private float rollDuration = 1.167f;
     private float rollSpeed = 7f;      // 구르기 이동 속도 (수치 조절 필요)
     private Vector3 rollDirection;
+
+    private bool isAttackBuffered = false; //선입력
 
     protected override PlayerAnimState GetAnimState() => PlayerAnimState.Roll;
 
@@ -16,8 +18,12 @@ public class PlayerRollState : PlayerBaseState
         Debug.Log("상태 진입 : Roll");
         base.Enter(player);
 
+        PlayerAttackState.ResetCombo();
+
         player.IsInvincible = true;
         rollTimer = 0f;
+
+        isAttackBuffered = false;
 
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         if (moveInput.magnitude > 0.01f)
@@ -42,6 +48,11 @@ public class PlayerRollState : PlayerBaseState
     {
         rollTimer += Time.deltaTime;
 
+        if (Input.GetMouseButtonDown(0) && !player.IsPointerOverUI())
+        {
+            isAttackBuffered = true;
+        }
+
         player.rigidbody.velocity = new Vector3(
             rollDirection.x * rollSpeed,
             player.rigidbody.velocity.y, // Y축(중력/낙하)은 자연스럽게 유지
@@ -52,6 +63,12 @@ public class PlayerRollState : PlayerBaseState
         {
             // 구르기 종료 시 미끄러짐 방지를 위해 x, z 속도를 0으로 잡아줍니다.
             player.rigidbody.velocity = new Vector3(0, player.rigidbody.velocity.y, 0);
+
+            if (isAttackBuffered)
+            {
+                player.ChangeState(new PlayerAttackState());
+                return;
+            }
 
             Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 

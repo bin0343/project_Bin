@@ -240,7 +240,7 @@ public class NPCBase : MonoBehaviour
         foreach (var holder in skillHolders)
         {
             // MP와 쿨타임 조건 확인
-            if (holder.CanUse(myStat.currentMP))
+            if (holder.CanUse())
             {
                 // *추가 고려사항: 스킬별 사거리 데이터가 Skill_Data에 있다면 여기서 거리 체크 가능
                 // 지금은 일단 사용 가능한 첫 번째 스킬을 반환

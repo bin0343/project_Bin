@@ -1460,6 +1460,9 @@ MonoBehaviour:
   attackDelay: 2
   arrowPrefab: {fileID: 8306682097776994552, guid: dafd086b004447e438503a6e03b44158, type: 3}
   firePoint: {fileID: 7687616653496530595}
+  drawDuration: 1.017
+  shotTimeOffset: 0.2
+  recoveryTime: 1
 --- !u!114 &8365885554445606496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1475,11 +1478,9 @@ MonoBehaviour:
   npcData: {fileID: 11400000, guid: 8ebae2cb216e81a4b98369c02b5889e6, type: 2}
   baseStats:
   - 100
-  - 100
   - 10
   - 5
   currentHP: 10
-  currentMP: 100
   isDead: 0
 --- !u!136 &8613853646470948454
 CapsuleCollider:

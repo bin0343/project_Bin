@@ -2004,17 +2004,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStats:
   - 100
-  - 100
   - 10
   - 5
   level: 1
   exp: 0
   levelUpExp: 100
   currentHP: 100
-  currentMP: 100
   gold: 0
   currentAP: 100
   maxAP: 100
+  maxStamina: 100
+  currentStamina: 100
+  staminaRegenRate: 10
+  rollStaminaCost: 25
+  isExhausted: 0
   damageTextOffset: {x: 0, y: 2.5, z: 0}
   isGlobalData: 0
 --- !u!114 &6854339425477246251
@@ -2047,6 +2050,8 @@ MonoBehaviour:
     m_Bits: 0
   groundCheckPos: {fileID: 7874555900556845774}
   groundCheckDistance: 0.5
+  fallMultiplier: 2.5
+  lowJumpMultiplier: 2
   IsGrounded: 1
   IsDead: 0
   IsKick: 0
@@ -2054,6 +2059,7 @@ MonoBehaviour:
   IsBuff: 0
   canReceiveInput: 1
   CanRotate: 1
+  IsInvincible: 0
 --- !u!114 &6675883505787172727
 MonoBehaviour:
   m_ObjectHideFlags: 0

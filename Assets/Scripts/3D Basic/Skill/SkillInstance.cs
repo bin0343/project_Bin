@@ -12,22 +12,20 @@ public class SkillInstance : MonoBehaviour
         data = skillData;
     }
 
-    public bool CanUse(float currentMP)
+    public bool CanUse()
     {
-        return Time.time >= lastUseTime + data.cooldownTime && currentMP >= data.mpCost;
+        return Time.time >= lastUseTime + data.cooldownTime;
     }
 
     public void Use(GameObject user)
     {
-        var stat = user.GetComponent<Player_Stat>();
-        if (!CanUse(stat.currentMP))
+        if (!CanUse())
         {
-            Debug.Log($"[{data.skillName}] 스킬 사용 불가 (쿨타임 or MP 부족)");
+            Debug.Log($"[{data.skillName}] 스킬 사용 불가 (쿨타임)");
             return;
         }
 
         lastUseTime = Time.time;
-        stat.currentMP -= (int)data.mpCost;
 
         Animator anim = user.GetComponentInChildren<Animator>();
         if (anim != null && !string.IsNullOrEmpty(data.animTriggerName))

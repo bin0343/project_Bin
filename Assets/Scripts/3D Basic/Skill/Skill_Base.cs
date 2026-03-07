@@ -12,7 +12,6 @@ public abstract class Skill_Base : ScriptableObject
 
     [Header("Skill Properties")]
     public float cooldownTime;
-    public float mpCost;
     public float duration;
 
     [Header("Casting")]
@@ -20,20 +19,6 @@ public abstract class Skill_Base : ScriptableObject
 
     public void ApplySkillEffects(GameObject user)
     {
-        var playerStat = user.GetComponent<Player_Stat>();
-        var npcStat = user.GetComponent <NPC_Stat>();
-
-        if (playerStat != null)
-        {
-            if (playerStat.currentMP < mpCost) return;
-            playerStat.currentMP -= (int)mpCost;
-        }
-        else if (npcStat != null)
-        {
-            if (npcStat.currentMP < mpCost) return;
-            npcStat.currentMP -= (int)mpCost;
-        }
-
         Animator anim = user.GetComponentInChildren<Animator>();
         if (anim != null && !string.IsNullOrEmpty(animTriggerName))
         {

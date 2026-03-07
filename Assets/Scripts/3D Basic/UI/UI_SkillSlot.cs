@@ -31,7 +31,7 @@ public class UI_SkillSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         assignedSkillHolder = skillHolder;
         SkillIcon.sprite = skillHolder.SkillData.skillIcon;
         SkillIcon.enabled = true;
-        MpCostText.text = $"{skillHolder.SkillData.mpCost}";
+        //MpCostText.text = $"{skillHolder.SkillData.mpCost}";
         MpCostText.enabled = true;
         // 초기 쿨타임 UI 업데이트
         UpdateCooldownUI();

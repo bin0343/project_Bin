@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerJumpState : PlayerBaseState
 {
-    private float jumpForce = 6f;
+    private float jumpForce = 9f;
     private float jumpSpeed;
     private bool wasRunning;
 

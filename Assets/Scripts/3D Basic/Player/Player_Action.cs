@@ -38,6 +38,8 @@ public class Player_Action : MonoBehaviour
     [Header("땅 감지(점프)")]
     public Transform groundCheckPos; // 발바닥 위치 (Inspector에서 할당 필요, 없으면 transform.position 사용)
     public float groundCheckDistance = 0.2f;
+    public float fallMultiplier = 2.5f;     // 떨어질 때 가속도
+    public float lowJumpMultiplier = 2.0f;  // 스페이스바를 짧게 눌렀을 때의 가속도
 
 
     [HideInInspector] public bool IsGuarding { get; private set; } = false;
@@ -149,9 +151,25 @@ public class Player_Action : MonoBehaviour
         animator.SetFloat("VerticalVelocity", rigidbody.velocity.y);
     }
 
+    private void FixedUpdate()
+    {
+        if (IsDead) return;
+
+        if (rigidbody.velocity.y < 0)
+        {
+            // 떨어질 때 중력을 강하게
+            rigidbody.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+        }
+        else if (rigidbody.velocity.y > 0 && !Input.GetButton("Jump"))
+        {
+            // 올라가는 중인데 점프 키를 뗐다면 (소점프)
+            rigidbody.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+        }
+    }
+
     public void ChangeState(IPlayerState newstate)
     {
-        if (newstate is PlayerHitState || newstate is PlayerIdleState || newstate is PlayerDeadState)
+        if (newstate is PlayerHitState || newstate is PlayerIdleState || newstate is PlayerDeadState || newstate is PlayerRollState)
         {
             currentWeapon?.StopTrail();
             currentWeapon?.DisableHitbox();
@@ -195,7 +213,7 @@ public class Player_Action : MonoBehaviour
 
         SkillHolder skillToUse = playerSkills[slotIndex];
 
-        if (skillToUse == null || !skillToUse.CanUse(stat.currentMP)) return;
+        if (skillToUse == null || !skillToUse.CanUse()) return;
 
         if (skillToUse.SkillData is Skill_AreaAttack areaSkill)
         {
@@ -349,7 +367,7 @@ public class Player_Action : MonoBehaviour
     public bool CanUseRunningAttack()
     {
         if (runningAttackHolder == null) return false;
-        return runningAttackHolder.CanUse(0);
+        return runningAttackHolder.CanUse();
     }
 
     public void SetComboStep(int step)

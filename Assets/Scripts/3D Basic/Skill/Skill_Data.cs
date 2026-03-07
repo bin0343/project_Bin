@@ -13,7 +13,6 @@ public class Skill_Data : ScriptableObject
 
     [Header("Skill Properties")]
     public float cooldownTime;
-    public float mpCost;
     public float duration;          // 버프/지속 효과용
     public int attackIncreaseAmount; // 버프 스킬용
 

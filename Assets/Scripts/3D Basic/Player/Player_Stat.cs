@@ -29,7 +29,6 @@ public class Player_Stat : MonoBehaviour
     }
 
     public int maxHP { get { return (int)(GetStat(STAT.HP) + equipmentStats[(int)STAT.HP]); } }
-    public int maxMP { get { return (int)(GetStat(STAT.MP) + equipmentStats[(int)STAT.MP]); } }
     public int attackPower { get { return (int)(GetStat(STAT.Attack) + equipmentStats[(int)STAT.Attack]); } }
     public int defensePower { get { return (int)(GetStat(STAT.Defense) + equipmentStats[(int)STAT.Defense]); } }
 
@@ -37,7 +36,6 @@ public class Player_Stat : MonoBehaviour
     public int exp = 0;
     public int levelUpExp = 100;
     public int currentHP = 100;
-    public int currentMP = 100;
     public int gold;
     public int currentAP = 100;
     public int maxAP = 100;
@@ -45,8 +43,11 @@ public class Player_Stat : MonoBehaviour
     [Header("스태미나")]
     public float maxStamina = 100f;
     public float currentStamina = 100f;
-    public float staminaRegenRate = 3f;    //초당 스태미나 회복량
-    public float rollStaminaCost = 20f;     //구르기 스태미나
+    public float staminaRegenRate = 10f;    //초당 스태미나 회복량
+    public float rollStaminaCost = 15f;     //구르기 스태미나
+    [HideInInspector] public bool isExhausted = false;  //탈진(스태미너 0)
+    private float exhaustionTimer = 0f;                 //탈진 타이머
+    private const float exhaustionDuration = 5f;        //탈진 패널티(2초)
 
     private Canvas myCanvas;
 
@@ -57,11 +58,8 @@ public class Player_Stat : MonoBehaviour
 
     private void Awake()
     {
-        // 'Player_Inventory'와 같은 오브젝트에 있다면 -> Global Data
         if (GetComponent<Player_Inventory>() != null)
         {
-            // 이미 전역 데이터(globalInstance)가 살아있다면
-            // 씬 이동으로 인해 생긴 '임시 중복 오브젝트'이므로 연결하지 않고 무시
             if (globalInstance != null && globalInstance != this)
             {
                 return;
@@ -79,17 +77,14 @@ public class Player_Stat : MonoBehaviour
 
     void Start()
     {
-        //만약 나는 캐릭터(Local)인데, Global 데이터가 있다면? -> 동기화
         if (!isGlobalData && globalInstance != null)
         {
-            // Global에서 데이터 가져오기 (로드)
             this.level = globalInstance.level;
             this.gold = globalInstance.gold;
             this.exp = globalInstance.exp;
             this.baseStats = (float[])globalInstance.baseStats.Clone();
 
             currentHP = maxHP;
-            currentMP = maxMP;
 
             Debug.Log("캐릭터가 생성되어 Global 데이터를 불러왔습니다.");
         }
@@ -105,7 +100,17 @@ public class Player_Stat : MonoBehaviour
 
     private void Update()
     {
-        if (currentStamina < maxStamina)
+        if (isExhausted)
+        {
+            exhaustionTimer += Time.deltaTime;
+            if (exhaustionTimer >= exhaustionDuration)
+            {
+                //2초 지나면 탈진 해제, 회복 시작
+                isExhausted = false;
+                exhaustionTimer = 0f;
+            }
+        }
+        else if (currentStamina < maxStamina)
         {
             currentStamina += staminaRegenRate * Time.deltaTime;
             if (currentStamina > maxStamina)
@@ -115,16 +120,26 @@ public class Player_Stat : MonoBehaviour
 
             // UI 업데이트 함수가 있다면 여기서 호출 (예: UpdateStaminaUI();)
         }
+        
     }
 
     public bool TryUseStamina(float amount)
     {
-        if (currentStamina >= amount)
+        if (isExhausted || currentStamina <= 0)
+            return false;
+
+        currentStamina -= amount;
+
+        // 남은 스태미나가 0 이하가 되었다면 탈진 상태로 진입
+        if (currentStamina <= 0)
         {
-            currentStamina -= amount;
-            return true;
+            currentStamina = 0;
+            isExhausted = true;
+            exhaustionTimer = 0f;
+            Debug.Log("스태미나 탈진! 2초간 회복 불가!");
         }
-        return false; // 스태미나 부족
+
+        return true; // 구르기 성공
     }
 
     public void TakeDamage(int damage)
@@ -153,15 +168,6 @@ public class Player_Stat : MonoBehaviour
     public void Heal(int amount)
     {
         currentHP = Mathf.Clamp(currentHP + amount, 0, maxHP);
-        if (!isGlobalData && UI_Manager.instance != null)
-        {
-            UI_Manager.instance.UpdatePlayerStatus(this);
-        }
-    }
-
-    public void RecoverMp(int amount)
-    {
-        currentMP = Mathf.Clamp(currentMP + amount, 0, maxMP);
         if (!isGlobalData && UI_Manager.instance != null)
         {
             UI_Manager.instance.UpdatePlayerStatus(this);
@@ -211,9 +217,7 @@ public class Player_Stat : MonoBehaviour
         levelUpExp *= 2;
 
         SetStat(STAT.HP, GetStat(STAT.HP) + 10);
-        SetStat(STAT.MP, GetStat(STAT.MP) + 5);
         currentHP = maxHP;
-        currentMP = maxMP;
 
         //StatPoints += 3;
     }

@@ -13,10 +13,10 @@ public class SkillHolder
         lastUseTime = float.NegativeInfinity; // 생성 시 바로 사용 가능하도록 초기화
     }
 
-    public bool CanUse(float currentMP)
+    public bool CanUse()
     {
-        // 쿨타임과 MP 조건을 확인
-        return Time.time >= lastUseTime + SkillData.cooldownTime && currentMP >= SkillData.mpCost;
+        // 쿨타임 확인
+        return Time.time >= lastUseTime + SkillData.cooldownTime;
     }
 
     public void Use(GameObject user)

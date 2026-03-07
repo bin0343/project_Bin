@@ -22,13 +22,6 @@ public class Item_Consumable : Item_Base
             itemUsed = true;
         }
 
-        if (recoverMpAmount > 0 && stat.currentMP < stat.maxMP)
-        {
-            stat.currentMP = Mathf.Min(stat.currentMP + recoverMpAmount, stat.maxMP);
-            Debug.Log($"{itemName}을(를) 사용하여 마나를 {recoverMpAmount} 회복했습니다.");
-            itemUsed = true;
-        }
-
         if (!itemUsed)
         {
             Debug.Log($"{itemName}을(를) 사용했지만 아무 효과가 없었습니다.");

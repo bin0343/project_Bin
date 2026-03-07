@@ -44,7 +44,18 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public override void Execute(Player_Action player)
     {
-        //player.move.HandleRotation();
+        if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsGrounded && !player.IsPointerOverUI())
+        {
+            if (player.stat.TryUseStamina(player.stat.rollStaminaCost))
+            {
+                player.ChangeState(new PlayerRollState());
+                return; // 상태 전환 후 아래 로직 실행 안 함
+            }
+            else
+            {
+                Debug.Log("스태미나가 부족해서 구를 수 없습니다!");
+            }
+        }
 
         if (!isTransitionFinished)
         {
