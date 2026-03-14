@@ -10,6 +10,7 @@ public class NPC_Data : ScriptableObject
     public string NPCID; 
     public string NPCName;
     public Sprite NPCImage;
+    public Sprite NPCPortrait;
     public GameObject npcPrefab;
 
     [Header("소속 정보")]

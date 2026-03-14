@@ -19,6 +19,7 @@ public class IntroManager : MonoBehaviour
 
     [Header("--- 데이터 파일 ---")]
     public TextAsset tutorialCsv;
+    public Player_Data playerData;
 
     [Header("--- UI 연결 ---")]
     public GameObject dialoguePanel;
@@ -242,6 +243,16 @@ public class IntroManager : MonoBehaviour
         PlayerPrefs.SetString("PlayerName", playerName);
         PlayerPrefs.SetInt("IsFirstVisit", 0);
         PlayerPrefs.Save();
+
+        if (GameDataManager.instance != null)
+        {
+            GameDataManager.instance.saveData.playerName = playerName;
+        }
+
+        if (playerData != null)
+        {
+            playerData.characterName = playerName;
+        }
 
         nameInputPanel.SetActive(false);
         currentIndex++;

@@ -24,6 +24,7 @@ public class UI_Manager : MonoBehaviour
     public GameObject worldMapPanel;
     public GameObject questPanel;
     public UI_QuestPanel UI_QuestPanel;
+    public GameObject OptionPanel;
 
     public bool isBattleMode { get; set; } = false;
 
@@ -134,7 +135,7 @@ public class UI_Manager : MonoBehaviour
             {
                 GameObject topUI = UIStack.Peek();
 
-                // [중요] 맨 위에 있는 UI가 '월드 맵'이라면 ESC로 닫지 않음 (함수 종료)
+                // [중요] 맨 위에 있는 UI가 '월드 맵'이라면 ESC로 닫지 않음
                 if (topUI == worldMapPanel)
                 {
                     return;
@@ -149,8 +150,17 @@ public class UI_Manager : MonoBehaviour
 
                 CloseTopUI();
             }
+            else
+            {
+                OpenUI(OptionPanel);
+            }
         }
-        UI_StatusBar.UpdateStatus(playerStat);
+
+        if (playerStat != null)
+        {
+            if (UI_StatusBar != null) UI_StatusBar.UpdateStatus(playerStat);
+        }
+        
         //Enemy_HpBar.UpdateStatus(EnemyStat);
     }
 

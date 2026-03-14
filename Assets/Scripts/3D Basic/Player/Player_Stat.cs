@@ -6,6 +6,7 @@ using UnityEngine;
 public class Player_Stat : MonoBehaviour
 {
     public static Player_Stat globalInstance;
+    public Player_Data playerData;
 
     public float[] baseStats = new float[(int)STAT.STAT_COUNT];
     private float[] equipmentStats = new float[(int)STAT.STAT_COUNT];

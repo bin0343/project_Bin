@@ -7,6 +7,7 @@ public class GameDataManager : MonoBehaviour
     public static GameDataManager instance;
 
     public SaveData saveData = new SaveData();
+    public Player_Data playerData;
     private string saveFilePath;
 
     [Header("게임의 모든 아이템")]
@@ -141,6 +142,11 @@ public class GameDataManager : MonoBehaviour
     // --- [데이터 적용 (SaveData -> Game)] ---
     void ApplyGameData()
     {
+        if (playerData != null)
+        {
+            playerData.characterName = saveData.playerName;
+        }
+
         // 1. 플레이어 스탯 복구
         if (Player_Stat.globalInstance != null)
         {
@@ -160,17 +166,6 @@ public class GameDataManager : MonoBehaviour
         {
             // 기존 인벤토리 싹 비우기 (중복 방지)
             Player_Inventory.instance.inventorySlots.Clear();
-
-            // 빈 슬롯들 미리 채우기 (기존 인벤토리 크기만큼, 예: 20칸)
-            // Player_Inventory에 슬롯 초기화 로직이 없다면 여기서 임의로 채움
-            // 보통 Start에서 초기화하므로, 여기서는 Clear 후 AddItem으로 넣거나 직접 할당
-
-            // 여기서는 리스트를 새로 만드는 방식 사용
-            // (주의: Player_Inventory 구조에 따라 다를 수 있음. 일단 AddItem 방식 추천)
-
-            // [방식 A] 인벤토리 초기화 후 AddItem으로 하나씩 넣기
-            // Player_Inventory의 구조상 inventorySlots가 고정 크기인지 가변 리스트인지 확인 필요.
-            // 보내주신 코드를 보니 List<ItemHolder> inventorySlots = new List<ItemHolder>(); 네요.
 
             Player_Inventory.instance.inventorySlots.Clear();
             // 기본 슬롯 30개 생성 (빈 칸)
