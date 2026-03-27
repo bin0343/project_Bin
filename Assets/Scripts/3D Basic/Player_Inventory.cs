@@ -196,7 +196,7 @@ public class Player_Inventory : MonoBehaviour
 
     public void HandleSlotDrop(SlotType sourceType, int sourceIndex, SlotType destType, int destIndex, UI_Inventory.InventoryTabType currentTab)
     {
-        // Case 1: 아이템 장착 시도 (인벤토리/퀵슬롯 -> 장비 슬롯)
+        //아이템 장착 시도 (인벤토리/퀵슬롯 -> 장비 슬롯)
         if (destType == SlotType.EQUIPMENT)
         {
             // 장비창에서 장비창으로 이동하는 것은 막음
@@ -212,22 +212,20 @@ public class Player_Inventory : MonoBehaviour
             }
         }
 
-        // Case 2: 아이템 장착 해제 시도 (장비 슬롯 -> 인벤토리/퀵슬롯)
+        // 아이템 장착 해제
         if (sourceType == SlotType.EQUIPMENT)
         {
-            // ... (추후 구현) ...
             return;
         }
-        // ------------------------------------
 
 
-        // Case 3: 필터링된 탭에서 인벤토리 내부로 드롭하는 것 방지
+        //필터링된 탭에서 인벤토리 내부로 드롭 방지
         if (currentTab != UI_Inventory.InventoryTabType.ALL && destType == SlotType.INVENTORY)
         {
             return;
         }
 
-        // Case 4: 인벤토리/퀵슬롯 간의 일반적인 이동 (겹치기 또는 교환)
+        //인벤토리/퀵슬롯 간의 일반적인 이동
         ItemHolder sourceItemGeneral = GetItemHolderAt(sourceType, sourceIndex);
         ItemHolder destItemGeneral = GetItemHolderAt(destType, destIndex);
 

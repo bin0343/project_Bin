@@ -26,6 +26,12 @@ public class UI_Manager : MonoBehaviour
     public UI_QuestPanel UI_QuestPanel;
     public GameObject OptionPanel;
 
+    [Header("Main HUD Elements")]
+    public GameObject characterIconPanel;
+    public GameObject skillSlotPanel;
+    public GameObject minimapPanel;
+    public GameObject questTracker;
+
     public bool isBattleMode { get; set; } = false;
 
     [Header("메시지 설정")]
@@ -135,7 +141,7 @@ public class UI_Manager : MonoBehaviour
             {
                 GameObject topUI = UIStack.Peek();
 
-                // [중요] 맨 위에 있는 UI가 '월드 맵'이라면 ESC로 닫지 않음
+                // 맨 위에 있는 UI가 '월드 맵'이라면 ESC로 닫지 않음
                 if (topUI == worldMapPanel)
                 {
                     return;
@@ -152,7 +158,11 @@ public class UI_Manager : MonoBehaviour
             }
             else
             {
-                OpenUI(OptionPanel);
+                if (OptionPanel != null)
+                {
+                    ToggleMainHUD(false); // 옵션창 열 때 메인 HUD 끄기
+                    OpenUI(OptionPanel);
+                }
             }
         }
 
@@ -162,6 +172,16 @@ public class UI_Manager : MonoBehaviour
         }
         
         //Enemy_HpBar.UpdateStatus(EnemyStat);
+    }
+
+    //메인 HUD끄고 켜기
+    public void ToggleMainHUD(bool show)
+    {
+        if (UI_StatusBar != null) UI_StatusBar.gameObject.SetActive(show);
+        if (characterIconPanel != null) characterIconPanel.SetActive(show);
+        if (skillSlotPanel != null) skillSlotPanel.SetActive(show);
+        if (minimapPanel != null) minimapPanel.SetActive(show);
+        if (questTracker != null) questTracker.SetActive(show);
     }
 
     public void OpenWorldMap()
@@ -248,6 +268,11 @@ public class UI_Manager : MonoBehaviour
             topUI.SetActive(false);
             CheckTimeScale();
             UpdateCursorState();
+
+            if (topUI == OptionPanel)
+            {
+                ToggleMainHUD(true);
+            }
         }
     }
 
@@ -274,15 +299,16 @@ public class UI_Manager : MonoBehaviour
             CheckTimeScale();
             UpdateCursorState();
         }
+
+        if (panel == OptionPanel)
+        {
+            ToggleMainHUD(true);
+        }
     }
 
     public void ToggleQuestPanel()
     {
-        if (questPanel == null) return;
-
-        bool isActive = questPanel.activeSelf;
-
-        if (isActive)
+        if (questPanel.activeSelf)
         {
             // 켜져있으면 -> 닫기
             CloseSpecificUI(questPanel);
@@ -291,6 +317,19 @@ public class UI_Manager : MonoBehaviour
         {
             // 꺼져있으면 -> 열기
             OpenUI(questPanel);
+        }
+    }
+
+    public void ToggleInventoryPanel()
+    {
+        if (inventoryPanel.activeSelf)
+        {
+            CloseSpecificUI(inventoryPanel);
+        }
+        else
+        {
+            UI_Inventory.RefreshUI();
+            OpenUI(inventoryPanel);
         }
     }
 
