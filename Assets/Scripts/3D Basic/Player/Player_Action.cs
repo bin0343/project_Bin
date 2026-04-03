@@ -189,12 +189,19 @@ public class Player_Action : MonoBehaviour
             return;
         }
 
-        Vector3 origin = groundCheckPos != null ? groundCheckPos.position : transform.position + Vector3.up * 0.1f;
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        if (groundCheckPos != null)
+        {
+            origin = groundCheckPos.position + Vector3.up * 0.5f;
+        }
+
+        float checkDist = groundCheckDistance + 0.5f;
+        float sphereRadius = 0.2f;
 
         // 아래로 레이를 쏴서 Ground 레이어에 닿으면 땅에 있는 것임
         // *주의: Player_Move의 groundLayer 설정을 활용하거나 직접 레이어 마스크 지정 필요
         // 여기서는 일단 모든 레이어 검사 혹은 move 스크립트의 groundLayer 참조 권장
-        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, groundCheckDistance))
+        if (Physics.SphereCast(origin, sphereRadius, Vector3.down, out RaycastHit hit, checkDist))
         {
             IsGrounded = true;
         }
