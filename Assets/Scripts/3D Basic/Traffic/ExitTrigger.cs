@@ -21,13 +21,21 @@ public class ExitTrigger : MonoBehaviour
 
     IEnumerator WaitAndSwap(SplineAnimate carAnim, SplineContainer nextPath)
     {
-        // 교차로 끝까지 대기
+        float lastTime = carAnim.NormalizedTime;
+
+        //교차로 끝까지 대기
         while (carAnim.NormalizedTime < 0.995f)
         {
+            if (carAnim.NormalizedTime < lastTime)
+            {
+                break;
+            }
+
+            lastTime = carAnim.NormalizedTime;
             yield return null;
         }
 
-        // 곡선 끝에 도달시, 탈출로로 변경
+        // 끝에 도달 시 탈출로로 변경
         carAnim.Container = nextPath;
         carAnim.Restart(true);
     }

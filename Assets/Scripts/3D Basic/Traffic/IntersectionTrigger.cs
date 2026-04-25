@@ -40,9 +40,16 @@ public class IntersectionTrigger : MonoBehaviour
 
     IEnumerator WaitAndSwap(SplineAnimate carAnim, SplineContainer nextPath)
     {
-        // 스플라인 끝까지 대기
+        float lastTime = carAnim.NormalizedTime;
+
         while (carAnim.NormalizedTime < 0.995f)
         {
+            if (carAnim.NormalizedTime < lastTime)
+            {
+                break;
+            }
+
+            lastTime = carAnim.NormalizedTime;
             yield return null;
         }
 
