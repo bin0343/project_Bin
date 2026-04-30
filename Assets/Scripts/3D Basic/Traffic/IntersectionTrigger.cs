@@ -17,7 +17,16 @@ public class IntersectionTrigger : MonoBehaviour
             SplineAnimate carAnim = other.GetComponentInParent<SplineAnimate>();
             if (carAnim == null) return;
 
-            Transform carMesh = other.transform.Find("Car_Model");
+            Transform carMesh = null;
+            if (other.gameObject.name == "Car_Model")
+            {
+                carMesh = other.transform;
+            }
+            else
+            {
+                carMesh = other.transform.Find("Car_Model");
+            }
+
             if (carMesh == null) return;
 
             float offsetX = carMesh.localPosition.x;
@@ -44,7 +53,7 @@ public class IntersectionTrigger : MonoBehaviour
 
         while (carAnim.NormalizedTime < 0.995f)
         {
-            if (carAnim.NormalizedTime < lastTime)
+            if (lastTime - carAnim.NormalizedTime > 0.5f)
             {
                 break;
             }
@@ -56,5 +65,9 @@ public class IntersectionTrigger : MonoBehaviour
         // 끝에 도달 시 탈출로로 변경
         carAnim.Container = nextPath;
         carAnim.Restart(true);
+
+        //교차로 진입, 신호등 무시
+        CarSensor sensor = carAnim.GetComponent<CarSensor>();
+        if (sensor != null) sensor.isInsideIntersection = true;
     }
 }

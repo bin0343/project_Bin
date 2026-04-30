@@ -5,19 +5,25 @@ using UnityEngine.AI;
 
 public class TrafficLightController : MonoBehaviour
 {
-    public enum LightState { Green, Red }
+    public enum LightState { Green, Yellow, Red }
     [Header("현재 차량 신호")]
     public LightState currentState = LightState.Green;
 
     [Header("신호 유지 시간")]
     public float greenDuration = 40f;
+    public float yellowDuration = 3f;
     public float redDuration = 10f;
 
     [Header("보행자 통제용")]
-    public NavMeshObstacle[] pedestrianBarriers;
+    public GameObject pedestrianBarrierParent;
+    private NavMeshObstacle[] pedestrianBarriers;
 
     private void Start()
     {
+        if (pedestrianBarrierParent != null)
+        {
+            pedestrianBarriers = pedestrianBarrierParent.GetComponentsInChildren<NavMeshObstacle>();
+        }
         StartCoroutine(LightCycleRoutine());
     }
 
@@ -29,6 +35,11 @@ public class TrafficLightController : MonoBehaviour
             currentState = LightState.Green;
             SetPedestrianBarriers(true); // 보행자 길막 켜기
             yield return new WaitForSeconds(greenDuration);
+
+            //[차량 노란불] : 차 정지, 사람 대기
+            currentState = LightState.Yellow;
+            SetPedestrianBarriers(true);
+            yield return new WaitForSeconds(yellowDuration);
 
             //[차량 빨간불] : 차는 멈추고 사람은 건넘
             currentState = LightState.Red;

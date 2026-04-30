@@ -26,7 +26,7 @@ public class ExitTrigger : MonoBehaviour
         //교차로 끝까지 대기
         while (carAnim.NormalizedTime < 0.995f)
         {
-            if (carAnim.NormalizedTime < lastTime)
+            if (lastTime - carAnim.NormalizedTime > 0.5f)
             {
                 break;
             }
@@ -38,5 +38,9 @@ public class ExitTrigger : MonoBehaviour
         // 끝에 도달 시 탈출로로 변경
         carAnim.Container = nextPath;
         carAnim.Restart(true);
+
+        //교차로 탈출, 신호등 인식
+        CarSensor sensor = carAnim.GetComponent<CarSensor>();
+        if (sensor != null) sensor.isInsideIntersection = false;
     }
 }

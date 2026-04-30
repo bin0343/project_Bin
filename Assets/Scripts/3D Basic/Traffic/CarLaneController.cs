@@ -19,10 +19,14 @@ public class CarLaneController : MonoBehaviour
     // 현재 예약된 차선 변경을 기억해둘 변수
     private Coroutine currentLaneChangeCoroutine;
 
+    private CarSensor carSensor;
+
     void Start()
     {
         carMesh = transform.Find("Car_Model");
         carAnim = GetComponent<SplineAnimate>();
+
+        carSensor = GetComponent<CarSensor>();
 
         if (carMesh.localPosition.x < -0.1f) currentLane = 1;
         else if (carMesh.localPosition.x > 0.1f) currentLane = 2;
@@ -80,6 +84,10 @@ public class CarLaneController : MonoBehaviour
 
         if (carAnim.Container == currentRoad && carAnim.Container.gameObject.CompareTag("TwoLaneRoad"))
         {
+            if (carSensor != null && (carSensor.isBraking || carSensor.currentSpeed < 0.5f))
+            {
+                yield break;
+            }
             bool shouldChangeLane = Random.value > 0.5f;
 
             if (shouldChangeLane)
@@ -87,10 +95,46 @@ public class CarLaneController : MonoBehaviour
                 if (currentLane == 1 || currentLane == 2)
                 {
                     int targetLane = (currentLane == 1) ? 2 : 1;
-                    ChangeLane(targetLane);
+                    if (IsTargetLaneSafe(targetLane))
+                    {
+                        ChangeLane(targetLane);
+                    }
                 }
             }
         }
+    }
+
+    //옆 차선 확인
+    bool IsTargetLaneSafe(int targetLane)
+    {
+        if (carSensor == null) return true;
+
+        Vector3 checkDirection = (targetLane == 1) ? -transform.right : transform.right;
+
+        Vector3 origin = carMesh.position + Vector3.up * 0.5f;
+
+        float checkDistance = 2.0f;
+        float checkRadius = 1.5f;
+
+        LayerMask combinedMask = carSensor.obstacleLayer | carSensor.playerLayer;
+
+        RaycastHit hit;
+        if (Physics.SphereCast(origin, checkRadius, checkDirection, out hit, checkDistance, combinedMask))
+        {
+            if (hit.collider.CompareTag("Car"))
+            {
+                CarSensor sideCar = hit.collider.GetComponentInParent<CarSensor>();
+                if (sideCar != null && sideCar != this.carSensor)
+                {
+                    return false; 
+                }
+            }
+            else if (hit.collider.CompareTag("Player"))
+            {
+                return false;
+            }
+        }
+        return true; 
     }
 
     public void ChangeLane(int targetLane)
