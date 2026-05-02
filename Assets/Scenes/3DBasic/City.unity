@@ -10176,13 +10176,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 85653744}
+  - component: {fileID: 85653749}
   - component: {fileID: 85653748}
   - component: {fileID: 85653747}
   - component: {fileID: 85653746}
   - component: {fileID: 85653745}
   m_Layer: 0
   m_Name: StopCube6
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -10233,12 +10234,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.4816885}
+  m_Center: {x: 9.313139e-16, y: 0, z: 1.2408432}
 --- !u!23 &85653747
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10289,6 +10290,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 85653743}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &85653749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 85653743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1935113578}
 --- !u!1 &87494571 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2865286275339943301, guid: 6757f292accaf4645a20a11f84be58fe, type: 3}
@@ -14156,7 +14170,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -18114,13 +18128,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 149883665}
+  - component: {fileID: 149883670}
   - component: {fileID: 149883669}
   - component: {fileID: 149883668}
   - component: {fileID: 149883667}
   - component: {fileID: 149883666}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -18171,12 +18186,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.5748615}
+  m_Center: {x: 0, y: 0, z: 1.2874304}
 --- !u!23 &149883668
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -18227,6 +18242,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 149883664}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &149883670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149883664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 2141235979}
 --- !u!1001 &150103645
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20218,6 +20246,54 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0.5, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &165709159
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 165709160}
+  - component: {fileID: 165709161}
+  m_Layer: 0
+  m_Name: Fence_Volume (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &165709160
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165709159}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.46037737, z: -0, w: 0.8877233}
+  m_LocalPosition: {x: -2.92, y: 0.34, z: 40.87}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: -54.823, z: 0}
+--- !u!114 &165709161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165709159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.092389, y: 3, z: 0.6755795}
+  m_Center: {x: 2.4532456, y: 1, z: -0.14078036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &166775527 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6116942935671264743, guid: e3cdcd01b3ecc3b4da788a3ff03a9e28, type: 3}
@@ -21028,13 +21104,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 175380210}
+  - component: {fileID: 175380215}
   - component: {fileID: 175380214}
   - component: {fileID: 175380213}
   - component: {fileID: 175380212}
   - component: {fileID: 175380211}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -21085,12 +21162,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.7417731}
+  m_Center: {x: 0, y: 0, z: 1.3708872}
 --- !u!23 &175380213
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -21141,6 +21218,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 175380209}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &175380215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 175380209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1594016993}
 --- !u!1001 &175613750
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23537,13 +23627,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 191801868}
+  - component: {fileID: 191801873}
   - component: {fileID: 191801872}
   - component: {fileID: 191801871}
   - component: {fileID: 191801870}
   - component: {fileID: 191801869}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -23594,12 +23685,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.9172502}
+  m_Center: {x: 0, y: 0, z: -1.4586252}
 --- !u!23 &191801871
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -23650,6 +23741,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 191801867}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &191801873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 191801867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1024075624}
 --- !u!1 &191898358
 GameObject:
   m_ObjectHideFlags: 0
@@ -25349,6 +25453,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7747779765286423926, guid: 2428e7e466b559e43a0e4202eae899ff, type: 3}
   m_PrefabInstance: {fileID: 204210522}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &204417155
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 204417156}
+  - component: {fileID: 204417157}
+  m_Layer: 0
+  m_Name: Fence_Volume (26)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &204417156
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204417155}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9968887, z: -0, w: 0.07882286}
+  m_LocalPosition: {x: -185.04, y: 3.56, z: 18.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 170.958, z: 0}
+--- !u!114 &204417157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204417155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &204592225
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26920,6 +27072,177 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6116942935671264743, guid: e3cdcd01b3ecc3b4da788a3ff03a9e28, type: 3}
   m_PrefabInstance: {fileID: 407620332}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &219373505
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 219373506}
+  - component: {fileID: 219373512}
+  - component: {fileID: 219373511}
+  - component: {fileID: 219373510}
+  - component: {fileID: 219373509}
+  - component: {fileID: 219373508}
+  - component: {fileID: 219373507}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &219373506
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219373505}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 17.797087, y: 1.4593765, z: 45.62998}
+  m_LocalScale: {x: 0.3297608, y: 1, z: 0.45799}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1853696759}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!195 &219373507
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219373505}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.4
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 1
+  m_BaseOffset: 0.5
+  m_WalkableMask: 48
+  m_ObstacleAvoidanceType: 4
+--- !u!54 &219373508
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219373505}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &219373509
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219373505}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &219373510
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219373505}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &219373511
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219373505}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &219373512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219373505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dd6e2a65f297e64f962ce791ca71ccf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkDistance: 30
+  isInteracting: 0
 --- !u!1 &220871973 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1639334405547853094, guid: adce9d3aecc806e4291b160d931e27a8, type: 3}
@@ -27358,6 +27681,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6744948774040422585, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
   m_PrefabInstance: {fileID: 224778307}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &225073148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 225073149}
+  - component: {fileID: 225073150}
+  m_Layer: 0
+  m_Name: Fence_Volume (32)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &225073149
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225073148}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.99997777, z: -0, w: 0.0066683595}
+  m_LocalPosition: {x: -239.68, y: 4.76, z: 13.91}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 179.236, z: 0}
+--- !u!114 &225073150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225073148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 15.144188, y: 3, z: 0.75287}
+  m_Center: {x: 5.8498697, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &226270259 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6404866587023484956, guid: 7961d5d64350968438e53e5349630794, type: 3}
@@ -31894,6 +32265,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2129012232027234204, guid: adce9d3aecc806e4291b160d931e27a8, type: 3}
   m_PrefabInstance: {fileID: 271344637}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &271614787
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 271614788}
+  - component: {fileID: 271614789}
+  m_Layer: 0
+  m_Name: Fence_Volume (7)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &271614788
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 271614787}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.02385244, z: -0, w: 0.9997155}
+  m_LocalPosition: {x: 126.13, y: 2.01, z: 33.88}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 2.734, z: 0}
+--- !u!114 &271614789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 271614787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 21.689806, y: 3, z: 0.87096614}
+  m_Center: {x: 9.024234, y: 1, z: -0.19305661}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &272713207 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6255798403621622275, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
@@ -34820,13 +35239,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 297802092}
+  - component: {fileID: 297802097}
   - component: {fileID: 297802096}
   - component: {fileID: 297802095}
   - component: {fileID: 297802094}
   - component: {fileID: 297802093}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -34877,12 +35297,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.5270824}
+  m_Center: {x: 9.757827e-16, y: 0, z: 1.263541}
 --- !u!23 &297802095
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -34933,6 +35353,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 297802091}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &297802097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297802091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1977357805}
 --- !u!1001 &298577727
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -35769,6 +36202,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6892881947420594013, guid: e3cdcd01b3ecc3b4da788a3ff03a9e28, type: 3}
   m_PrefabInstance: {fileID: 306335897}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &306926866
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 306926867}
+  - component: {fileID: 306926868}
+  m_Layer: 0
+  m_Name: Fence_Volume (19)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &306926867
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306926866}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9925683, z: -0, w: 0.12168863}
+  m_LocalPosition: {x: -123.47, y: 1.58, z: 32.44}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 166.021, z: 0}
+--- !u!114 &306926868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 306926866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &307556847
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40384,13 +40865,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 339146759}
+  - component: {fileID: 339146764}
   - component: {fileID: 339146763}
   - component: {fileID: 339146762}
   - component: {fileID: 339146761}
   - component: {fileID: 339146760}
   m_Layer: 0
   m_Name: StopCube5
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -40441,12 +40923,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.8535628}
+  m_Center: {x: 2.0410148e-16, y: 0, z: -1.4267819}
 --- !u!23 &339146762
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -40497,6 +40979,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 339146758}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &339146764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339146758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1918469544}
 --- !u!1001 &339179532
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40813,6 +41308,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7747779765286423926, guid: 2428e7e466b559e43a0e4202eae899ff, type: 3}
   m_PrefabInstance: {fileID: 341982948}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &342536643
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 342536644}
+  - component: {fileID: 342536645}
+  m_Layer: 0
+  m_Name: Fence_Volume (16)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &342536644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342536643}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9981319, z: -0, w: 0.061096426}
+  m_LocalPosition: {x: -94.43, y: 0.34, z: 37.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 172.994, z: 0}
+--- !u!114 &342536645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342536643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &343622341
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42589,13 +43132,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 359510736}
+  - component: {fileID: 359510741}
   - component: {fileID: 359510740}
   - component: {fileID: 359510739}
   - component: {fileID: 359510738}
   - component: {fileID: 359510737}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -42646,12 +43190,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.9158702}
+  m_Center: {x: 1.4306704e-16, y: 0, z: -1.4579352}
 --- !u!23 &359510739
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -42702,6 +43246,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 359510735}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &359510741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 359510735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1113878696}
 --- !u!1 &359770629 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5560222464922251033, guid: f32221640a64f4e469c3209b74f1792d, type: 3}
@@ -43946,6 +44503,54 @@ MonoBehaviour:
   m_Size: {x: 4.765564, y: 18.32246, z: 10.072096}
   m_Center: {x: 2.7173157, y: 8.66123, z: -23.793652}
   m_Area: 4
+  m_AffectedAgents: ffffffff
+--- !u!1 &369976170
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 369976171}
+  - component: {fileID: 369976172}
+  m_Layer: 0
+  m_Name: Fence_Volume (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &369976171
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369976170}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.014298853, z: -0, w: 0.9998978}
+  m_LocalPosition: {x: 17.43, y: 0.34, z: 52.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 1.639, z: 0}
+--- !u!114 &369976172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369976170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 9.910755, y: 3, z: 0.68739974}
+  m_Center: {x: 3.0326154, y: 1, z: -0.14409775}
+  m_Area: 1
   m_AffectedAgents: ffffffff
 --- !u!1 &370765079 stripped
 GameObject:
@@ -46614,6 +47219,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4885779258949495537, guid: df942187e8f6dcd44a932a9ed41112e3, type: 3}
   m_PrefabInstance: {fileID: 393975030}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &395030370
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 395030371}
+  - component: {fileID: 395030372}
+  m_Layer: 0
+  m_Name: Fence_Volume (4)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &395030371
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395030370}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.48627728, z: -0, w: 0.87380457}
+  m_LocalPosition: {x: 36.78, y: 0.34, z: 50.38}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 58.192, z: 0}
+--- !u!114 &395030372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395030370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 16.006653, y: 3, z: 0.83144}
+  m_Center: {x: 6.1826572, y: 1, z: -0.17329353}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &395184664 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5907735801419773893, guid: 972492e6e936f8a4b8fd9e008339db74, type: 3}
@@ -47635,13 +48288,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 400503585}
+  - component: {fileID: 400503590}
   - component: {fileID: 400503589}
   - component: {fileID: 400503588}
   - component: {fileID: 400503587}
   - component: {fileID: 400503586}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -47692,12 +48346,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.7597127}
+  m_Center: {x: 2.9603653e-16, y: 0, z: -1.3798562}
 --- !u!23 &400503588
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -47748,6 +48402,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 400503584}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &400503590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 400503584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1684597807}
 --- !u!1001 &400719343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -57764,13 +58431,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 478906025}
+  - component: {fileID: 478906030}
   - component: {fileID: 478906029}
   - component: {fileID: 478906028}
   - component: {fileID: 478906027}
   - component: {fileID: 478906026}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -57821,12 +58489,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.4187472}
+  m_Center: {x: -8.696588e-16, y: 0, z: -1.209373}
 --- !u!23 &478906028
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -57877,6 +58545,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 478906024}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &478906030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 478906024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1141763403}
 --- !u!1 &479318599
 GameObject:
   m_ObjectHideFlags: 0
@@ -58617,6 +59298,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4885779258949495537, guid: df942187e8f6dcd44a932a9ed41112e3, type: 3}
   m_PrefabInstance: {fileID: 487568619}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &488498094
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 488498095}
+  - component: {fileID: 488498096}
+  m_Layer: 0
+  m_Name: Fence_Volume (10)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &488498095
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488498094}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.007533547, y: 0.00073797797, z: 0.0013239195, w: 0.9999705}
+  m_LocalPosition: {x: 193.47, y: 3.26, z: 31.52}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0.863, y: 0.086, z: 0.152}
+--- !u!114 &488498096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488498094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 16.841295, y: 4.6099057, z: 0.87096614}
+  m_Center: {x: 6.5999737, y: 1.8049529, z: -0.19305661}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &489514510
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -59574,6 +60303,54 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7717965433495938748, guid: 8dd0dd541acaff5418f32652ee44b2e7, type: 3}
   m_PrefabInstance: {fileID: 946290835}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &495911318
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 495911319}
+  - component: {fileID: 495911320}
+  m_Layer: 0
+  m_Name: Fence_Volume (25)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &495911319
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495911318}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9962739, z: -0, w: 0.08624627}
+  m_LocalPosition: {x: -177.26, y: 3.56, z: 19.46}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 170.105, z: 0}
+--- !u!114 &495911320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495911318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &496393202
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -74864,6 +75641,54 @@ MonoBehaviour:
       m_Data: []
   m_Knots:
     m_KnotsLink: []
+--- !u!1 &621162619
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 621162620}
+  - component: {fileID: 621162621}
+  m_Layer: 0
+  m_Name: Fence_Volume (6)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &621162620
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 621162619}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.025304608, z: 0, w: 0.9996798}
+  m_LocalPosition: {x: 104.69, y: 2.01, z: 34.97}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 2.9, z: 0}
+--- !u!114 &621162621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 621162619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 21.689806, y: 3, z: 0.87096614}
+  m_Center: {x: 9.024234, y: 1, z: -0.19305661}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &621608813 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6255798403621622275, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
@@ -75361,13 +76186,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 624417694}
+  - component: {fileID: 624417699}
   - component: {fileID: 624417698}
   - component: {fileID: 624417697}
   - component: {fileID: 624417696}
   - component: {fileID: 624417695}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -75418,12 +76244,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.6723154}
+  m_Center: {x: 0, y: 0, z: 1.3361574}
 --- !u!23 &624417697
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -75474,6 +76300,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 624417693}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &624417699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 624417693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1572138559}
 --- !u!1 &626232811 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5907735801419773893, guid: 972492e6e936f8a4b8fd9e008339db74, type: 3}
@@ -78583,13 +79422,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 650170546}
+  - component: {fileID: 650170551}
   - component: {fileID: 650170550}
   - component: {fileID: 650170549}
   - component: {fileID: 650170548}
   - component: {fileID: 650170547}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -78640,12 +79480,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.9851525}
+  m_Center: {x: 0, y: 0, z: -1.4925764}
 --- !u!23 &650170549
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -78696,6 +79536,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 650170545}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &650170551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650170545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 2058640719}
 --- !u!1 &651270706 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3714153454503554256, guid: 192942cee9759494aa27cca32255320c, type: 3}
@@ -79499,6 +80352,54 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4577471897536009247, guid: 39c69faa46b3e834da2678ed3102aeda, type: 3}
+--- !u!1 &656036363
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 656036364}
+  - component: {fileID: 656036365}
+  m_Layer: 0
+  m_Name: Fence_Volume (23)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &656036364
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656036363}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9931921, z: -0, w: 0.11648811}
+  m_LocalPosition: {x: -161.97, y: 3.56, z: 22.89}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 166.621, z: 0}
+--- !u!114 &656036365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656036363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &656681320 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7717965433495938748, guid: 8dd0dd541acaff5418f32652ee44b2e7, type: 3}
@@ -82875,6 +83776,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2129012232027234204, guid: adce9d3aecc806e4291b160d931e27a8, type: 3}
   m_PrefabInstance: {fileID: 688765175}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &688821258
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 688821259}
+  - component: {fileID: 688821260}
+  m_Layer: 0
+  m_Name: Fence_Volume (9)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &688821259
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 688821258}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.007516651, y: 0.013067796, z: 0.0014167093, w: 0.9998854}
+  m_LocalPosition: {x: 163.49, y: 3.17, z: 32.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0.859, y: 1.499, z: 0.174}
+--- !u!114 &688821260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 688821258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 30.542542, y: 4.6099057, z: 0.87096614}
+  m_Center: {x: 13.450596, y: 1.8049529, z: -0.19305661}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &689155418
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -93581,7 +94530,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -96092,13 +97041,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 795977979}
+  - component: {fileID: 795977984}
   - component: {fileID: 795977983}
   - component: {fileID: 795977982}
   - component: {fileID: 795977981}
   - component: {fileID: 795977980}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96149,12 +97099,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.7340422}
+  m_Center: {x: 3.2118452e-16, y: 0, z: -1.3670201}
 --- !u!23 &795977982
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -96205,6 +97155,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 795977978}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &795977984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795977978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1081629659}
 --- !u!1001 &796924322
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -97278,13 +98241,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 806591826}
+  - component: {fileID: 806591831}
   - component: {fileID: 806591829}
   - component: {fileID: 806591828}
   - component: {fileID: 806591827}
   - component: {fileID: 806591830}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -97319,12 +98283,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.0094385}
+  m_Center: {x: 0, y: 0, z: -1.504719}
 --- !u!23 &806591828
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -97391,6 +98355,19 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
+--- !u!114 &806591831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 806591825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1046077152}
 --- !u!1001 &806682293
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -100803,6 +101780,54 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6404866587023484956, guid: 7961d5d64350968438e53e5349630794, type: 3}
   m_PrefabInstance: {fileID: 1372598713}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &828010082
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 828010083}
+  - component: {fileID: 828010084}
+  m_Layer: 0
+  m_Name: Fence_Volume (33)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &828010083
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828010082}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.99999166, z: -0, w: 0.004081865}
+  m_LocalPosition: {x: -261.9, y: 4.76, z: 13.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 179.532, z: 0}
+--- !u!114 &828010084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828010082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 15.144188, y: 6.4725914, z: 0.75287}
+  m_Center: {x: 5.8498697, y: 2.7362957, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &829327954
 GameObject:
   m_ObjectHideFlags: 0
@@ -102136,7 +103161,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -107466,13 +108491,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 858097208}
+  - component: {fileID: 858097213}
   - component: {fileID: 858097212}
   - component: {fileID: 858097211}
   - component: {fileID: 858097210}
   - component: {fileID: 858097209}
   m_Layer: 0
   m_Name: StopCube6
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -107523,12 +108549,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.3742213}
+  m_Center: {x: 0, y: 0, z: 1.6871104}
 --- !u!23 &858097211
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -107579,6 +108605,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 858097207}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &858097213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 858097207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1531707973}
 --- !u!1 &858314943 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6116942935671264743, guid: e3cdcd01b3ecc3b4da788a3ff03a9e28, type: 3}
@@ -108062,7 +109101,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -111623,6 +112662,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1593548135502345956, guid: 3c1eaf8bcf1439a43b6ebc70231210db, type: 3}
   m_PrefabInstance: {fileID: 892428604}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &892545323
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 892545324}
+  - component: {fileID: 892545325}
+  m_Layer: 0
+  m_Name: Fence_Volume (28)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &892545324
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 892545323}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.99943125, z: -0, w: 0.033722296}
+  m_LocalPosition: {x: -208.26, y: 3.92, z: 15.35}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 176.135, z: 0}
+--- !u!114 &892545325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 892545323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &893276645
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -111853,13 +112940,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 896101339}
+  - component: {fileID: 896101344}
   - component: {fileID: 896101343}
   - component: {fileID: 896101342}
   - component: {fileID: 896101341}
   - component: {fileID: 896101340}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -111910,12 +112998,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.1963787}
+  m_Center: {x: -1.7903626e-10, y: 0, z: -1.5981886}
 --- !u!23 &896101342
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -111966,6 +113054,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 896101338}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &896101344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 896101338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1061763065}
 --- !u!1001 &896219920
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -113191,13 +114292,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 903866442}
+  - component: {fileID: 903866447}
   - component: {fileID: 903866446}
   - component: {fileID: 903866445}
   - component: {fileID: 903866444}
   - component: {fileID: 903866443}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -113248,12 +114350,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.2945433}
+  m_Center: {x: 0, y: 0, z: 1.1472713}
 --- !u!23 &903866445
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -113304,6 +114406,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 903866441}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &903866447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903866441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1666224238}
 --- !u!1001 &904269580
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -122798,13 +123913,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 972815954}
+  - component: {fileID: 972815959}
   - component: {fileID: 972815958}
   - component: {fileID: 972815957}
   - component: {fileID: 972815956}
   - component: {fileID: 972815955}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -122855,12 +123971,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.4339104}
+  m_Center: {x: 0, y: 0, z: -1.2169548}
 --- !u!23 &972815957
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -122911,6 +124027,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 972815953}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &972815959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 972815953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1802813009}
 --- !u!1 &972983173 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 112945275596704255, guid: 44f78b98bb705704a86127ce68d48b4e, type: 3}
@@ -124620,7 +125749,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -124777,13 +125906,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 987254438}
+  - component: {fileID: 987254443}
   - component: {fileID: 987254442}
   - component: {fileID: 987254441}
   - component: {fileID: 987254440}
   - component: {fileID: 987254439}
   m_Layer: 0
   m_Name: StopCube5
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -124834,12 +125964,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.9323585}
+  m_Center: {x: 0, y: 0, z: -1.4661789}
 --- !u!23 &987254441
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -124890,6 +126020,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 987254437}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &987254443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 987254437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1142461704}
 --- !u!1001 &987270568
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -125295,13 +126438,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 991462256}
+  - component: {fileID: 991462261}
   - component: {fileID: 991462260}
   - component: {fileID: 991462259}
   - component: {fileID: 991462258}
   - component: {fileID: 991462257}
   m_Layer: 0
   m_Name: StopCube5
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125352,12 +126496,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.8855956}
+  m_Center: {x: 0, y: 0, z: 1.442798}
 --- !u!23 &991462259
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -125408,6 +126552,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 991462255}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &991462261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991462255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1476022297}
 --- !u!1001 &991568178
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -128732,13 +129889,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1024075624}
+  - component: {fileID: 1024075629}
   - component: {fileID: 1024075628}
   - component: {fileID: 1024075627}
   - component: {fileID: 1024075626}
   - component: {fileID: 1024075625}
   m_Layer: 0
   m_Name: StopCube6
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -128789,12 +129947,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.902525}
+  m_Center: {x: -5.815363e-10, y: 0, z: 1.4512628}
 --- !u!23 &1024075627
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -128845,6 +130003,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1024075623}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1024075629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1024075623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 191801868}
 --- !u!1001 &1024101039
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -130468,6 +131639,54 @@ Transform:
   - {fileID: 400867525}
   m_Father: {fileID: 1213806975}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1031247077
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1031247078}
+  - component: {fileID: 1031247079}
+  m_Layer: 0
+  m_Name: Fence_Volume (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1031247078
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1031247077}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.44089806, z: -0, w: 0.8975572}
+  m_LocalPosition: {x: 1.87, y: 0.34, z: 47.65}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: -52.322, z: 0}
+--- !u!114 &1031247079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1031247077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.375677, y: 3, z: 0.65583}
+  m_Center: {x: 2.3671725, y: 1, z: -0.2195822}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1031675023 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6404866587023484956, guid: 7961d5d64350968438e53e5349630794, type: 3}
@@ -131806,13 +133025,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1042659812}
+  - component: {fileID: 1042659817}
   - component: {fileID: 1042659816}
   - component: {fileID: 1042659815}
   - component: {fileID: 1042659814}
   - component: {fileID: 1042659813}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -131863,12 +133083,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.815568}
+  m_Center: {x: 2.9911074e-11, y: 0, z: -1.4077843}
 --- !u!23 &1042659815
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -131919,6 +133139,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1042659811}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1042659817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042659811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 2130440903}
 --- !u!1 &1043042176 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5560222464922251033, guid: f32221640a64f4e469c3209b74f1792d, type: 3}
@@ -132070,13 +133303,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1046077152}
+  - component: {fileID: 1046077157}
   - component: {fileID: 1046077156}
   - component: {fileID: 1046077155}
   - component: {fileID: 1046077154}
   - component: {fileID: 1046077153}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -132127,12 +133361,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.7805467}
+  m_Center: {x: 0, y: 0, z: 1.3902731}
 --- !u!23 &1046077155
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -132183,6 +133417,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1046077151}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1046077157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046077151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 806591826}
 --- !u!1001 &1046486124
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -133868,13 +135115,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1061763065}
+  - component: {fileID: 1061763070}
   - component: {fileID: 1061763069}
   - component: {fileID: 1061763068}
   - component: {fileID: 1061763067}
   - component: {fileID: 1061763066}
   m_Layer: 0
   m_Name: StopCube6
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -133925,12 +135173,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.6750226}
+  m_Center: {x: 0, y: 0, z: 1.837511}
 --- !u!23 &1061763068
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -133981,6 +135229,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1061763064}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1061763070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1061763064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 896101339}
 --- !u!1 &1062360568 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6255798403621622275, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
@@ -136946,13 +138207,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1081629659}
+  - component: {fileID: 1081629664}
   - component: {fileID: 1081629663}
   - component: {fileID: 1081629662}
   - component: {fileID: 1081629661}
   - component: {fileID: 1081629660}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -137003,12 +138265,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.9796233}
+  m_Center: {x: -8.0615725e-17, y: 0, z: 1.4898118}
 --- !u!23 &1081629662
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -137059,6 +138321,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1081629658}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1081629664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081629658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 795977979}
 --- !u!1001 &1081926358
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -138557,6 +139832,22 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -640224474233629188, guid: f99be3dce881b214a9a0d83c6b2d0fda, type: 3}
+--- !u!208 &1095310534
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095310528}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 23.051, y: 0.689, z: 6.794}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -8.1970005, y: -0.142, z: -5.9810004}
+  m_TimeToStationary: 0.5
 --- !u!1001 &1096036000
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -139384,6 +140675,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2602402774935899176, guid: 5abd6f97766ead84397268c287892e4f, type: 3}
   m_PrefabInstance: {fileID: 1098959985}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1099137435
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1099137436}
+  - component: {fileID: 1099137437}
+  m_Layer: 0
+  m_Name: Fence_Volume (27)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1099137436
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1099137435}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.99871135, z: -0, w: 0.0507504}
+  m_LocalPosition: {x: -192.27, y: 3.92, z: 16.98}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 174.182, z: 0}
+--- !u!114 &1099137437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1099137435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &1099916281
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -141246,13 +142585,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1113878696}
+  - component: {fileID: 1113878701}
   - component: {fileID: 1113878700}
   - component: {fileID: 1113878699}
   - component: {fileID: 1113878698}
   - component: {fileID: 1113878697}
   m_Layer: 0
   m_Name: StopCube5
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -141303,12 +142643,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.5809553}
+  m_Center: {x: -1.1428658e-10, y: 0, z: 1.2904793}
 --- !u!23 &1113878699
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -141359,6 +142699,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1113878695}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1113878701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113878695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 359510736}
 --- !u!1001 &1114200401
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -141450,13 +142803,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1114715522}
+  - component: {fileID: 1114715527}
   - component: {fileID: 1114715526}
   - component: {fileID: 1114715525}
   - component: {fileID: 1114715524}
   - component: {fileID: 1114715523}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -141507,12 +142861,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.972595}
+  m_Center: {x: 0.0000000012972009, y: 0, z: -1.486294}
 --- !u!23 &1114715525
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -141563,6 +142917,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1114715521}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1114715527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1114715521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 2094598932}
 --- !u!1001 &1114876023
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -144661,13 +146028,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1141763403}
+  - component: {fileID: 1141763408}
   - component: {fileID: 1141763407}
   - component: {fileID: 1141763406}
   - component: {fileID: 1141763405}
   - component: {fileID: 1141763404}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -144718,12 +146086,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.430663}
+  m_Center: {x: 3.6121297e-16, y: 0, z: 1.715331}
 --- !u!23 &1141763406
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -144774,6 +146142,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1141763402}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1141763408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141763402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 478906025}
 --- !u!1 &1141858350
 GameObject:
   m_ObjectHideFlags: 0
@@ -144985,13 +146366,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1142461704}
+  - component: {fileID: 1142461709}
   - component: {fileID: 1142461708}
   - component: {fileID: 1142461707}
   - component: {fileID: 1142461706}
   - component: {fileID: 1142461705}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -145042,12 +146424,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.5984635}
+  m_Center: {x: 0, y: 0, z: 1.299232}
 --- !u!23 &1142461707
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -145098,6 +146480,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1142461703}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1142461709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1142461703}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 987254438}
 --- !u!1001 &1142503543
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -149950,6 +151345,71 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1935267317939204625, guid: e46b02998d4b44f4eaaf9a29daca8f13, type: 3}
+--- !u!1 &1174613450
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1174613451}
+  m_Layer: 0
+  m_Name: Fence_Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1174613451
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1174613450}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1217004833}
+  - {fileID: 165709160}
+  - {fileID: 1031247078}
+  - {fileID: 369976171}
+  - {fileID: 395030371}
+  - {fileID: 1307103039}
+  - {fileID: 621162620}
+  - {fileID: 271614788}
+  - {fileID: 1361105960}
+  - {fileID: 688821259}
+  - {fileID: 488498095}
+  - {fileID: 1585862644}
+  - {fileID: 1295634647}
+  - {fileID: 1522363326}
+  - {fileID: 1243192655}
+  - {fileID: 1964747773}
+  - {fileID: 342536644}
+  - {fileID: 1430822745}
+  - {fileID: 1501128662}
+  - {fileID: 306926867}
+  - {fileID: 1530756591}
+  - {fileID: 1777802014}
+  - {fileID: 1358127448}
+  - {fileID: 656036364}
+  - {fileID: 2059967377}
+  - {fileID: 495911319}
+  - {fileID: 204417156}
+  - {fileID: 1099137436}
+  - {fileID: 892545324}
+  - {fileID: 1270089358}
+  - {fileID: 1488764839}
+  - {fileID: 1990528112}
+  - {fileID: 225073149}
+  - {fileID: 828010083}
+  m_Father: {fileID: 2103412053}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1177700861
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -154403,6 +155863,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6892881947420594013, guid: e3cdcd01b3ecc3b4da788a3ff03a9e28, type: 3}
   m_PrefabInstance: {fileID: 1216947163}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1217004832
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1217004833}
+  - component: {fileID: 1217004834}
+  m_Layer: 0
+  m_Name: Fence_Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1217004833
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1217004832}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.972988, y: 0.34, z: 39.739075}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1217004834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1217004832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.131921, y: 3, z: 0.6044464}
+  m_Center: {x: 2.4334798, y: 1, z: -0.15839767}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1217126982 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6116942935671264743, guid: e3cdcd01b3ecc3b4da788a3ff03a9e28, type: 3}
@@ -157091,6 +158599,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1593548135502345956, guid: 3c1eaf8bcf1439a43b6ebc70231210db, type: 3}
   m_PrefabInstance: {fileID: 1242522164}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1243192654
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1243192655}
+  - component: {fileID: 1243192656}
+  m_Layer: 0
+  m_Name: Fence_Volume (14)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1243192655
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1243192654}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.03231667, z: -0, w: 0.9994777}
+  m_LocalPosition: {x: -83.45, y: 0.34, z: 38.85}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: -3.704, z: 0}
+--- !u!114 &1243192656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1243192654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &1243704572
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -160681,6 +162237,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1675668054}
+--- !u!1 &1270089357
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1270089358}
+  - component: {fileID: 1270089359}
+  m_Layer: 0
+  m_Name: Fence_Volume (29)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1270089358
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1270089357}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9997347, z: -0, w: 0.023033733}
+  m_LocalPosition: {x: -216.25, y: 3.92, z: 14.81}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 177.36, z: 0}
+--- !u!114 &1270089359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1270089357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &1270574880
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -162830,7 +164434,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -165233,6 +166837,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6028482159235166886, guid: 7961d5d64350968438e53e5349630794, type: 3}
   m_PrefabInstance: {fileID: 1295156113}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1295634646
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1295634647}
+  - component: {fileID: 1295634648}
+  m_Layer: 0
+  m_Name: Fence_Volume (12)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1295634647
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1295634646}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -26.97, y: 0.34, z: 39.739075}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1295634648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1295634646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 32.190502, y: 3, z: 0.7100334}
+  m_Center: {x: -9.59581, y: 1, z: -0.12961769}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &1296052368
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -166747,6 +168399,54 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &1307103038
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1307103039}
+  - component: {fileID: 1307103040}
+  m_Layer: 0
+  m_Name: Fence_Volume (5)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1307103039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307103038}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.029650979, z: -0, w: 0.99956036}
+  m_LocalPosition: {x: 45.56, y: 1.11, z: 38.51}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 3.398, z: 0}
+--- !u!114 &1307103040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307103038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 49.484818, y: 3, z: 0.83144}
+  m_Center: {x: 22.921738, y: 1, z: -0.17329353}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!4 &1307145711 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9131274906012724414, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
@@ -166898,7 +168598,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -172086,13 +173786,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1345976655}
+  - component: {fileID: 1345976660}
   - component: {fileID: 1345976659}
   - component: {fileID: 1345976658}
   - component: {fileID: 1345976657}
   - component: {fileID: 1345976656}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -172143,12 +173844,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.7497773}
+  m_Center: {x: 3.0576936e-16, y: 0, z: -1.3748884}
 --- !u!23 &1345976658
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -172199,6 +173900,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1345976654}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1345976660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1345976654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1533110470}
 --- !u!1001 &1346080337
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -173713,6 +175427,54 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!1 &1358127447
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1358127448}
+  - component: {fileID: 1358127449}
+  m_Layer: 0
+  m_Name: Fence_Volume (22)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1358127448
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358127447}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9924389, z: -0, w: 0.12273972}
+  m_LocalPosition: {x: -146.65, y: 2.5, z: 26.56}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 165.9, z: 0}
+--- !u!114 &1358127449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358127447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1358574542 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3570602305267760207, guid: 140035e2fe065134aba228ec10fd96ac, type: 3}
@@ -174191,6 +175953,54 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1.9650002, z: -0.029000001}
   m_TimeToStationary: 0.5
+--- !u!1 &1361105959
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1361105960}
+  - component: {fileID: 1361105961}
+  m_Layer: 0
+  m_Name: Fence_Volume (8)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1361105960
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361105959}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.02385244, z: -0, w: 0.9997155}
+  m_LocalPosition: {x: 147.46, y: 2.01, z: 32.86}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 2.734, z: 0}
+--- !u!114 &1361105961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361105959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 6.495701, y: 3, z: 0.87096614}
+  m_Center: {x: 1.4271793, y: 1, z: -0.19305661}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &1361503851
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -184539,6 +186349,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6744948774040422585, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
   m_PrefabInstance: {fileID: 1430400935}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1430822744
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1430822745}
+  - component: {fileID: 1430822746}
+  m_Layer: 0
+  m_Name: Fence_Volume (17)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1430822745
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430822744}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9981319, z: -0, w: 0.061096426}
+  m_LocalPosition: {x: -99.68, y: 0.87, z: 36.86}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 172.994, z: 0}
+--- !u!114 &1430822746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430822744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1431364027 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3966566436265223383, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
@@ -189942,13 +191800,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1476022297}
+  - component: {fileID: 1476022302}
   - component: {fileID: 1476022301}
   - component: {fileID: 1476022300}
   - component: {fileID: 1476022299}
   - component: {fileID: 1476022298}
   m_Layer: 0
   m_Name: StopCube6
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -189999,12 +191858,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.3525834}
+  m_Center: {x: 0, y: 0, z: -1.6762915}
 --- !u!23 &1476022300
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -190055,6 +191914,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1476022296}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1476022302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1476022296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 991462256}
 --- !u!1001 &1477060114
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -191255,6 +193127,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 890490738}
   m_LocalEulerAnglesHint: {x: 0, y: -90.418, z: 0}
+--- !u!1 &1488764838
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1488764839}
+  - component: {fileID: 1488764840}
+  m_Layer: 0
+  m_Name: Fence_Volume (30)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1488764839
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488764838}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9998281, z: -0, w: 0.018543806}
+  m_LocalPosition: {x: -224.2, y: 3.92, z: 14.44}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 177.875, z: 0}
+--- !u!114 &1488764840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488764838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1489286845 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6255798403621622275, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
@@ -192699,6 +194619,54 @@ MonoBehaviour:
   m_Size: {x: 9.998855, y: 20, z: 7.224967}
   m_Center: {x: 2.9994268, y: 0, z: -1.2979649}
   m_Area: 4
+  m_AffectedAgents: ffffffff
+--- !u!1 &1501128661
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1501128662}
+  - component: {fileID: 1501128663}
+  m_Layer: 0
+  m_Name: Fence_Volume (18)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1501128662
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1501128661}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9925683, z: -0, w: 0.12168863}
+  m_LocalPosition: {x: -115.91, y: 1.58, z: 34.32}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 166.021, z: 0}
+--- !u!114 &1501128663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1501128661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
   m_AffectedAgents: ffffffff
 --- !u!1001 &1501601480
 PrefabInstance:
@@ -195456,6 +197424,54 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &1522363325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1522363326}
+  - component: {fileID: 1522363327}
+  m_Layer: 0
+  m_Name: Fence_Volume (13)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1522363326
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522363325}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.021370178, z: -0, w: 0.99977165}
+  m_LocalPosition: {x: -68.2, y: 0.34, z: 39.56}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: -2.449, z: 0}
+--- !u!114 &1522363327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522363325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 15.487648, y: 3, z: 0.7100334}
+  m_Center: {x: -1.24438, y: 1, z: -0.12961769}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1523056356 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2865286275339943301, guid: 6757f292accaf4645a20a11f84be58fe, type: 3}
@@ -195951,13 +197967,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1526614840}
+  - component: {fileID: 1526614845}
   - component: {fileID: 1526614844}
   - component: {fileID: 1526614843}
   - component: {fileID: 1526614842}
   - component: {fileID: 1526614841}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -196008,12 +198025,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.6854792}
+  m_Center: {x: -1.1309456e-15, y: 0, z: -1.3427396}
 --- !u!23 &1526614843
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -196064,6 +198081,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1526614839}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1526614845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1526614839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1888946251}
 --- !u!1 &1526900385 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6404866587023484956, guid: 7961d5d64350968438e53e5349630794, type: 3}
@@ -196614,6 +198644,54 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6255798403621622275, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
   m_PrefabInstance: {fileID: 2125862721}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1530756590
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1530756591}
+  - component: {fileID: 1530756592}
+  m_Layer: 0
+  m_Name: Fence_Volume (20)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1530756591
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1530756590}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9918768, z: -0, w: 0.12720236}
+  m_LocalPosition: {x: -131.35, y: 2.51, z: 30.44}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 165.384, z: 0}
+--- !u!114 &1530756592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1530756590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &1531517448
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -196705,13 +198783,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1531707973}
+  - component: {fileID: 1531707978}
   - component: {fileID: 1531707977}
   - component: {fileID: 1531707976}
   - component: {fileID: 1531707975}
   - component: {fileID: 1531707974}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -196762,12 +198841,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.310856}
+  m_Center: {x: -1.1877135e-10, y: 0, z: -1.6554276}
 --- !u!23 &1531707976
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -196818,6 +198897,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1531707972}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1531707978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1531707972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 858097208}
 --- !u!1001 &1531838781
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -197345,13 +199437,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1533110470}
+  - component: {fileID: 1533110475}
   - component: {fileID: 1533110474}
   - component: {fileID: 1533110473}
   - component: {fileID: 1533110472}
   - component: {fileID: 1533110471}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -197402,12 +199495,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.748804}
+  m_Center: {x: -3.0672312e-16, y: 0, z: 1.3744016}
 --- !u!23 &1533110473
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -197458,6 +199551,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1533110469}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1533110475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1533110469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1345976655}
 --- !u!1 &1534316559 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6255798403621622275, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
@@ -199413,13 +201519,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1548485398}
+  - component: {fileID: 1548485403}
   - component: {fileID: 1548485402}
   - component: {fileID: 1548485401}
   - component: {fileID: 1548485400}
   - component: {fileID: 1548485399}
   m_Layer: 0
   m_Name: StopCube6
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -199470,12 +201577,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.104336}
+  m_Center: {x: 4.154633e-17, y: 0, z: 1.552166}
 --- !u!23 &1548485401
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -199526,6 +201633,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1548485397}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1548485403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1548485397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1841520506}
 --- !u!1001 &1549197953
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -202672,13 +204792,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1572138559}
+  - component: {fileID: 1572138564}
   - component: {fileID: 1572138563}
   - component: {fileID: 1572138562}
   - component: {fileID: 1572138561}
   - component: {fileID: 1572138560}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -202729,12 +204850,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.9986281}
+  m_Center: {x: 0, y: 0, z: -1.4993138}
 --- !u!23 &1572138562
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -202785,6 +204906,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1572138558}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1572138564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1572138558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 624417694}
 --- !u!1 &1572355011 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3410991995110020754, guid: 5abd6f97766ead84397268c287892e4f, type: 3}
@@ -204811,6 +206945,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1192615573}
+--- !u!1 &1585862643
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1585862644}
+  - component: {fileID: 1585862645}
+  m_Layer: 0
+  m_Name: Fence_Volume (11)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1585862644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1585862643}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.007533547, y: 0.00073797797, z: 0.0013239195, w: 0.9999705}
+  m_LocalPosition: {x: 217.93, y: 3.33, z: 31.48}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0.863, y: 0.086, z: 0.152}
+--- !u!114 &1585862645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1585862643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 53.196487, y: 4.6099057, z: 0.87096614}
+  m_Center: {x: 24.777569, y: 1.8049529, z: -0.19305661}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1586850895
 GameObject:
   m_ObjectHideFlags: 0
@@ -206034,13 +208216,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1594016993}
+  - component: {fileID: 1594016998}
   - component: {fileID: 1594016997}
   - component: {fileID: 1594016996}
   - component: {fileID: 1594016995}
   - component: {fileID: 1594016994}
   m_Layer: 0
   m_Name: StopCube5
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -206091,12 +208274,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.7421978}
+  m_Center: {x: 0, y: 0, z: -1.3710986}
 --- !u!23 &1594016996
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -206147,6 +208330,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1594016992}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1594016998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1594016992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 175380210}
 --- !u!1 &1594186199 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6975640455810324428, guid: 2428e7e466b559e43a0e4202eae899ff, type: 3}
@@ -207888,6 +210084,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 243241432029816640, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1366536034}
+    - targetCorrespondingSourceObject: {fileID: 243241432029816640, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1174613451}
     - targetCorrespondingSourceObject: {fileID: 1309119469762831257, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 815389764}
@@ -208258,6 +210457,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6797329000024956853, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1095310530}
+    - targetCorrespondingSourceObject: {fileID: 6797329000024956853, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1095310534}
     - targetCorrespondingSourceObject: {fileID: 6532787075219321079, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1125861148}
@@ -217731,13 +219933,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1666224238}
+  - component: {fileID: 1666224243}
   - component: {fileID: 1666224242}
   - component: {fileID: 1666224241}
   - component: {fileID: 1666224240}
   - component: {fileID: 1666224239}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -217788,12 +219991,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.626435}
+  m_Center: {x: 0, y: 0, z: -1.3132172}
 --- !u!23 &1666224241
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -217844,6 +220047,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1666224237}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1666224243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1666224237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 903866442}
 --- !u!1 &1667035648 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 810111663977157541, guid: b0f4bfab0bbc4714d90f5a03e7be3225, type: 3}
@@ -221131,13 +223347,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1684597807}
+  - component: {fileID: 1684597812}
   - component: {fileID: 1684597811}
   - component: {fileID: 1684597810}
   - component: {fileID: 1684597809}
   - component: {fileID: 1684597808}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -221188,12 +223405,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.3901668}
+  m_Center: {x: 3.215424e-16, y: 0, z: 1.6950822}
 --- !u!23 &1684597810
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -221244,6 +223461,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1684597806}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1684597812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1684597806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 400503585}
 --- !u!1001 &1684678128
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -225032,7 +227262,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -232993,6 +235223,54 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &1777802013
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1777802014}
+  - component: {fileID: 1777802015}
+  m_Layer: 0
+  m_Name: Fence_Volume (21)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1777802014
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777802013}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9924389, z: -0, w: 0.12273972}
+  m_LocalPosition: {x: -139.18, y: 2.51, z: 28.44}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 165.9, z: 0}
+--- !u!114 &1777802015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777802013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1778233202 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3714153454503554256, guid: 192942cee9759494aa27cca32255320c, type: 3}
@@ -236353,13 +238631,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1802813009}
+  - component: {fileID: 1802813014}
   - component: {fileID: 1802813013}
   - component: {fileID: 1802813012}
   - component: {fileID: 1802813011}
   - component: {fileID: 1802813010}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -236410,12 +238689,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.565903}
+  m_Center: {x: 0, y: 0, z: 1.2829516}
 --- !u!23 &1802813012
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -236466,6 +238745,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1802813008}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1802813014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802813008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 972815954}
 --- !u!1001 &1803140977
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -239426,13 +241718,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1824592026}
+  - component: {fileID: 1824592031}
   - component: {fileID: 1824592030}
   - component: {fileID: 1824592029}
   - component: {fileID: 1824592028}
   - component: {fileID: 1824592027}
   m_Layer: 0
   m_Name: StopCube5
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -239483,12 +241776,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.0883484}
+  m_Center: {x: 0, y: 0, z: 1.5441738}
 --- !u!23 &1824592029
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -239539,6 +241832,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1824592025}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1824592031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1824592025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1955748878}
 --- !u!1 &1824623622 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6116942935671264743, guid: e3cdcd01b3ecc3b4da788a3ff03a9e28, type: 3}
@@ -240871,13 +243177,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1841520506}
+  - component: {fileID: 1841520511}
   - component: {fileID: 1841520510}
   - component: {fileID: 1841520509}
   - component: {fileID: 1841520508}
   - component: {fileID: 1841520507}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -240928,12 +243235,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.555675}
+  m_Center: {x: -1.0037915e-15, y: 0, z: -1.2778373}
 --- !u!23 &1841520509
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -240984,6 +243291,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1841520505}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1841520511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841520505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1548485398}
 --- !u!1 &1841602065 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 112945275596704255, guid: 44f78b98bb705704a86127ce68d48b4e, type: 3}
@@ -242636,6 +244956,38 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &1853696758
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1853696759}
+  m_Layer: 0
+  m_Name: NPC
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1853696759
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853696758}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 219373506}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1854878238 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6116942935671264743, guid: e3cdcd01b3ecc3b4da788a3ff03a9e28, type: 3}
@@ -247428,13 +249780,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1888946251}
+  - component: {fileID: 1888946256}
   - component: {fileID: 1888946255}
   - component: {fileID: 1888946254}
   - component: {fileID: 1888946253}
   - component: {fileID: 1888946252}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -247485,12 +249838,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.6245024}
+  m_Center: {x: 1.0712141e-15, y: 0, z: 1.3122513}
 --- !u!23 &1888946254
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -247541,6 +249894,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1888946250}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1888946256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1888946250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1526614840}
 --- !u!1001 &1889291195
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -250321,13 +252687,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1911404729}
+  - component: {fileID: 1911404734}
   - component: {fileID: 1911404733}
   - component: {fileID: 1911404732}
   - component: {fileID: 1911404731}
   - component: {fileID: 1911404730}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -250378,12 +252745,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.466869}
+  m_Center: {x: 0.0000000012526228, y: 0, z: -1.7334334}
 --- !u!23 &1911404732
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -250434,6 +252801,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1911404728}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1911404734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911404728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 2088053440}
 --- !u!1001 &1912274035
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -251761,13 +254141,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1918469544}
+  - component: {fileID: 1918469549}
   - component: {fileID: 1918469548}
   - component: {fileID: 1918469547}
   - component: {fileID: 1918469546}
   - component: {fileID: 1918469545}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -251818,12 +254199,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.058741}
+  m_Center: {x: -3.116446e-18, y: 0, z: 1.5293691}
 --- !u!23 &1918469547
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -251874,6 +254255,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1918469543}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1918469549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1918469543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 339146759}
 --- !u!1 &1918513485
 GameObject:
   m_ObjectHideFlags: 0
@@ -254165,13 +256559,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1935113578}
+  - component: {fileID: 1935113583}
   - component: {fileID: 1935113582}
   - component: {fileID: 1935113581}
   - component: {fileID: 1935113580}
   - component: {fileID: 1935113579}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -254222,12 +256617,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.609454}
+  m_Center: {x: -1.0564711e-15, y: 0, z: -1.3047261}
 --- !u!23 &1935113581
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -254278,6 +256673,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1935113577}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1935113583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935113577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 85653744}
 --- !u!1 &1935130678 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6404866587023484956, guid: 7961d5d64350968438e53e5349630794, type: 3}
@@ -257117,13 +259525,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1955748878}
+  - component: {fileID: 1955748883}
   - component: {fileID: 1955748882}
   - component: {fileID: 1955748881}
   - component: {fileID: 1955748880}
   - component: {fileID: 1955748879}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -257174,12 +259583,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.2879734}
+  m_Center: {x: 0, y: 0, z: -1.6439868}
 --- !u!23 &1955748881
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -257230,6 +259639,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1955748877}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1955748883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1955748877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1824592026}
 --- !u!1001 &1955999825
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -258034,7 +260456,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 8
-  safeDistance: 6
+  safeDistance: 10
   accelDuration: 1.5
   isBraking: 0
   isAccelerating: 0
@@ -259186,6 +261608,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1593548135502345956, guid: 3c1eaf8bcf1439a43b6ebc70231210db, type: 3}
   m_PrefabInstance: {fileID: 1963658030}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1964747772
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1964747773}
+  - component: {fileID: 1964747774}
+  m_Layer: 0
+  m_Name: Fence_Volume (15)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1964747773
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964747772}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9987043, z: -0, w: 0.050890528}
+  m_LocalPosition: {x: -86.56, y: 0.34, z: 38.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 174.166, z: 0}
+--- !u!114 &1964747774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964747772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &1965579088
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -260710,13 +263180,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1977357805}
+  - component: {fileID: 1977357810}
   - component: {fileID: 1977357809}
   - component: {fileID: 1977357808}
   - component: {fileID: 1977357807}
   - component: {fileID: 1977357806}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -260767,12 +263238,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.414335}
+  m_Center: {x: -8.65337e-16, y: 0, z: -1.207167}
 --- !u!23 &1977357808
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -260823,6 +263294,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1977357804}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1977357810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1977357804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 297802092}
 --- !u!1001 &1977826575
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -262864,6 +265348,54 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0.541, z: -0.1}
   m_TimeToStationary: 0.5
+--- !u!1 &1990528111
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1990528112}
+  - component: {fileID: 1990528113}
+  m_Layer: 0
+  m_Name: Fence_Volume (31)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1990528112
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1990528111}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9998841, z: -0, w: 0.015225492}
+  m_LocalPosition: {x: -231.87, y: 4.76, z: 14.15}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 178.255, z: 0}
+--- !u!114 &1990528113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1990528111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!4 &1990646443 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7108631834486046061, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
@@ -273135,13 +275667,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2058640719}
+  - component: {fileID: 2058640724}
   - component: {fileID: 2058640723}
   - component: {fileID: 2058640722}
   - component: {fileID: 2058640721}
   - component: {fileID: 2058640720}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -273192,12 +275725,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.623971}
+  m_Center: {x: 0, y: 0, z: 1.8119853}
 --- !u!23 &2058640722
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -273248,6 +275781,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2058640718}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2058640724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058640718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 650170546}
 --- !u!1001 &2058796472
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -273511,6 +276057,54 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &2059967376
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2059967377}
+  - component: {fileID: 2059967378}
+  m_Layer: 0
+  m_Name: Fence_Volume (24)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2059967377
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2059967376}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.9945628, z: -0, w: 0.10413885}
+  m_LocalPosition: {x: -169.46, y: 3.56, z: 21.11}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1174613451}
+  m_LocalEulerAnglesHint: {x: 0, y: 168.045, z: 0}
+--- !u!114 &2059967378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2059967376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Size: {x: 8.221668, y: 3, z: 0.75287}
+  m_Center: {x: 2.38861, y: 1, z: -0.151036}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &2061249717
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -277876,13 +280470,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2088053440}
+  - component: {fileID: 2088053445}
   - component: {fileID: 2088053444}
   - component: {fileID: 2088053443}
   - component: {fileID: 2088053442}
   - component: {fileID: 2088053441}
   m_Layer: 0
   m_Name: StopCube3
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -277933,12 +280528,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.7692237}
+  m_Center: {x: -3.5539216e-10, y: 0, z: 1.3846124}
 --- !u!23 &2088053443
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -277989,6 +280584,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2088053439}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2088053445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088053439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1911404729}
 --- !u!1 &2088385270 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1639334405547853094, guid: adce9d3aecc806e4291b160d931e27a8, type: 3}
@@ -279544,13 +282152,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2094598932}
+  - component: {fileID: 2094598937}
   - component: {fileID: 2094598936}
   - component: {fileID: 2094598935}
   - component: {fileID: 2094598934}
   - component: {fileID: 2094598933}
   m_Layer: 0
   m_Name: StopCube1
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -279601,12 +282210,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.7716794}
+  m_Center: {x: -1.8145846e-11, y: 0, z: 1.38584}
 --- !u!23 &2094598935
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -279657,6 +282266,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2094598931}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2094598937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094598931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1114715522}
 --- !u!1 &2095654649 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3742126601497551302, guid: b64e7a25ece19a147b10b35a23680ac3, type: 3}
@@ -284349,13 +286971,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2130440903}
+  - component: {fileID: 2130440908}
   - component: {fileID: 2130440907}
   - component: {fileID: 2130440906}
   - component: {fileID: 2130440905}
   - component: {fileID: 2130440904}
   m_Layer: 0
   m_Name: StopCube2
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -284406,12 +287029,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 3.536236}
+  m_Center: {x: 4.9736812e-11, y: 0, z: 1.2681171}
 --- !u!23 &2130440906
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -284462,6 +287085,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2130440902}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2130440908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130440902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 1042659812}
 --- !u!1001 &2132040320
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -285808,13 +288444,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2141235979}
+  - component: {fileID: 2141235984}
   - component: {fileID: 2141235983}
   - component: {fileID: 2141235982}
   - component: {fileID: 2141235981}
   - component: {fileID: 2141235980}
   m_Layer: 0
   m_Name: StopCube4
-  m_TagString: Untagged
+  m_TagString: CrosswalkEntry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -285865,12 +288502,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 4.133077}
+  m_Center: {x: 0, y: 0, z: -1.5665382}
 --- !u!23 &2141235982
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -285921,6 +288558,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2141235978}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2141235984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2141235978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a15dd6c4de99e614fb54b78234411c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oppositePoint: {fileID: 149883665}
 --- !u!1 &2141556058 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1639334405547853094, guid: adce9d3aecc806e4291b160d931e27a8, type: 3}
@@ -286833,3 +289483,4 @@ SceneRoots:
   - {fileID: 37298394}
   - {fileID: 1091672246}
   - {fileID: 1065176217}
+  - {fileID: 1853696759}

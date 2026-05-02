@@ -54,16 +54,14 @@ public class CarSensor : MonoBehaviour
         bool shouldBrakeForCar = false;
         float carBrakeDistance = 0f;
 
-        //플레이어 감지
         bool shouldBrakeForPlayer = false;
         float playerBrakeDistance = 0f;
 
-        //양보 센서(병목, 교차로 충돌 방지)
         bool shouldYield = false;
         float yieldDistance = 0f;
 
         Vector3 yieldSensorPos = carMesh.position + (transform.forward * 1.5f) + (Vector3.up * 0.5f);
-        // 반경 1.8m의 구체를 생성하여 주변 차를 감지 (정상 차간 거리인 3m 밖의 옆 차는 무시)
+        // 주변 차를 감지
         Collider[] nearbyCars = Physics.OverlapSphere(yieldSensorPos, 1.8f, combinedMask);
 
         foreach (var col in nearbyCars)
