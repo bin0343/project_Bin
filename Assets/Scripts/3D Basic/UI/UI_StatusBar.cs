@@ -26,89 +26,81 @@ public class UI_StatusBar : MonoBehaviour
 
     public void UpdateStatus(Player_Stat stat)
     {
-        levelText.text = $"Lv.{stat.level}";
-        hpbar.DOFillAmount((float)stat.currentHP / stat.maxHP, 0.3f);
-        expbar.DOFillAmount((float)stat.exp / stat.levelUpExp, 0.3f);
-        staminabar.DOFillAmount(stat.currentStamina / stat.maxStamina, 0.3f);
+        // 1. 레벨 텍스트 업데이트
+        if (levelText != null)
+            levelText.text = $"Lv.{stat.level}";
+
+        // 2. HP 바 및 텍스트 (DOTween 활용)
+        float hpRatio = (float)stat.currentHP / stat.maxHP;
+        hpbar.DOFillAmount(hpRatio, 0.3f).SetUpdate(true);
 
         if (targetHP != stat.currentHP)
         {
-            // 게임 시작 직후 초기화 처리
-            if (targetHP == -1)
-            {
-                displayedHP = stat.currentHP;
-                hpText.text = $"{displayedHP} / {stat.maxHP}";
-            }
-
+            if (targetHP == -1) displayedHP = stat.currentHP;
             targetHP = stat.currentHP;
 
-            DOTween.Kill(hpText); // 기존에 진행 중이던 텍스트 애니메이션 중지
-
-            DOTween.To(() => displayedHP, x =>
-            {
+            DOTween.Kill(hpText);
+            DOTween.To(() => displayedHP, x => {
                 displayedHP = x;
                 hpText.text = $"{displayedHP} / {stat.maxHP}";
-            }, targetHP, 0.3f).SetTarget(hpText);
+            }, targetHP, 0.3f).SetTarget(hpText).SetUpdate(true);
+        }
+        else
+        {
+            // 타겟이 같더라도 maxHP가 변했을 수 있으므로 텍스트 유지
+            hpText.text = $"{stat.currentHP} / {stat.maxHP}";
         }
 
-        expbar.DOFillAmount((float)stat.exp / stat.levelUpExp, 0.3f);
+        // 3. 경험치 바 및 텍스트
+        float expRatio = (float)stat.exp / stat.levelUpExp;
+        expbar.DOFillAmount(expRatio, 0.3f).SetUpdate(true);
+
         if (targetExp != stat.exp)
         {
-            // 게임 시작 직후 초기화 처리
-            if (targetExp == -1)
-            {
-                displayedExp = stat.exp;
-                expText.text = $"{displayedExp} / {stat.levelUpExp}";
-            }
-
+            if (targetExp == -1) displayedExp = stat.exp;
             targetExp = stat.exp;
-            DOTween.Kill(expText); // 기존에 진행 중이던 텍스트 애니메이션 중지
 
-            DOTween.To(() => displayedExp, x =>
-            {
+            DOTween.Kill(expText);
+            DOTween.To(() => displayedExp, x => {
                 displayedExp = x;
                 expText.text = $"{displayedExp} / {stat.levelUpExp}";
-            }, targetExp, 0.3f).SetTarget(expText);
+            }, targetExp, 0.3f).SetTarget(expText).SetUpdate(true);
         }
 
+        // 4. 스태미나 바 로직
         float staminaRatio = stat.currentStamina / stat.maxStamina;
-        staminabar.DOFillAmount(staminaRatio, 0.3f);
+        staminabar.fillAmount = staminaRatio; // 즉각적인 반응을 위해 직접 대입 권장
 
-        // 스태미나 바 표시/숨김
         if (staminaRatio < 1f)
         {
-            // 스태미나가 소모 중일 때: 숨기기 타이머를 취소하고 즉시 나타남
             if (hideStaminaRoutine != null)
             {
                 StopCoroutine(hideStaminaRoutine);
                 hideStaminaRoutine = null;
             }
 
-            // 알파값이 1이 아니라면 DOTween으로 0.2초 동안 부드럽게 나타나게 함
             if (staminaCanvasGroup.alpha < 1f)
             {
-                staminaCanvasGroup.DOFade(1f, 0.2f);
+                staminaCanvasGroup.DOKill();
+                staminaCanvasGroup.DOFade(1f, 0.2f).SetUpdate(true);
             }
         }
-        else if (staminaRatio >= 1f)
+        else if (staminaRatio >= 1f && staminaCanvasGroup.alpha > 0f && hideStaminaRoutine == null)
         {
-            // 스태미나가 100% 꽉 차고, 화면에 보이고 있으며, 타이머가 안 돌고 있을 때만 타이머 시작
-            if (hideStaminaRoutine == null && staminaCanvasGroup.alpha > 0f)
-            {
-                hideStaminaRoutine = StartCoroutine(HideStamina(2f));
-            }
+            hideStaminaRoutine = StartCoroutine(HideStamina(2f));
         }
 
+        // 5. 탈진 효과 (빨간색 깜빡임)
         if (stat.isExhausted && !isFlashing)
         {
             isFlashing = true;
-            staminaBackgroundImage.DOColor(Color.red, 0.2f).SetLoops(-1, LoopType.Yoyo);
+            staminaBackgroundImage.DOColor(Color.red, 0.2f).SetLoops(-1, LoopType.Yoyo).SetUpdate(true);
         }
         else if (!stat.isExhausted && isFlashing)
         {
             isFlashing = false;
             staminaBackgroundImage.DOKill();
-            staminaBackgroundImage.color = Color.white;
+            staminaBackgroundImage.DOColor(Color.white, 0.2f).SetUpdate(true);
         }
     }
 

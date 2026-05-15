@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public abstract class Interactable : MonoBehaviour
 {
     [Header("상호작용 설정")]
-    public KeyCode interactionKey = KeyCode.E;
+    public KeyCode interactionKey = KeyCode.F;
 
     protected bool isPlayerInRange = false;   //플레이어가 범위 안에 있는지 확인
     protected bool isMenuOpen = false;
@@ -14,7 +14,7 @@ public abstract class Interactable : MonoBehaviour
     public GameObject interactionPromptUI;  //상호작용 가능한지 알리는 UI (예 : "E"키 아이콘)
     public Text interactionText;
 
-    void Update()
+    protected virtual void Update()
     {
         if (isPlayerInRange && !isMenuOpen && Input.GetKeyDown(interactionKey))
         {
@@ -27,7 +27,7 @@ public abstract class Interactable : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape)) isMenuOpen = false;
     }
 
-    private void OnTriggerEnter(Collider other)
+    protected virtual void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {

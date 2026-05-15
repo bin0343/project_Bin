@@ -9,20 +9,23 @@ public class Quest : ScriptableObject
     public string questTitle;
 
     [Header("퀘스트 내용")]
-    [TextArea(3, 5)]
-    public string description;      //퀘스트 설명
+    [TextArea(3, 5)] public string description;      //퀘스트 설명
     public string shortDescription;
 
-    [Header("퀘스트 전용 대화")]
-    public int startDialogueID;    // 퀘스트 시작 시 보여줄 CSV ID (예: 2001)
-    public int completeDialogueID; // 퀘스트 완료 시 보여줄 CSV ID (예: 2005)
+    [Header("수락/거절 선택지 설정")]
+    public string acceptButtonText = "수락한다";
+    public string declineButtonText = "거절한다";
+
+    [Header("선택 후 출력 대사 (단일)")]
+    [TextArea(2, 4)] public string acceptedDialogue;
+    [TextArea(2, 4)] public string declinedDialogue;
+
+    [Header("퀘스트 전용 대화 (단일 대화형)")]
+    [TextArea(2, 4)] public string[] startDialogue;         // 퀘스트 수락 시
+    [TextArea(2, 4)] public string[] inProgressDialogue;    // 진행 중일 때
+    [TextArea(2, 4)] public string[] completeDialogue;      // 완료 및 보상 수령 시
+    [TextArea(2, 4)] public string[] afterCompleteDialogue; // 보상을 다 받은 후 일상 대화
 
     public List<QuestObjective> objectives;     //이 퀘스트의 목표
     public QuestReward rewards;     //완료 보상
-
-    [Header("기간 제한 설정")]
-    public bool hasTimeLimit = false; // 기간 제한이 있는 퀘스트인가?
-    public int dueYear = 1;           // 마감 연도 (보통 1년차 게임이면 1로 고정해도 됨)
-    public int dueMonth = 1;          // 마감 월
-    public int dueDay = 1;
 }

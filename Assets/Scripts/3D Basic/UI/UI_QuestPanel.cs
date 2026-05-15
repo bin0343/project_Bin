@@ -167,18 +167,6 @@ public class UI_QuestPanel : MonoBehaviour
 
         // 보상 표시
         txtReward.text = $"골드: {questData.rewards.gold} G\n경험치: {questData.rewards.experience} Exp";
-
-        // 기간 표시
-        if (questData.hasTimeLimit)
-        {
-            txtTimeLimit.text = $"마감: {questData.dueYear}년 {questData.dueMonth}월 {questData.dueDay}일까지";
-            txtTimeLimit.color = Color.red;
-        }
-        else
-        {
-            txtTimeLimit.text = "기간 제한 없음";
-            txtTimeLimit.color = Color.black;
-        }
     }
 
     void ClearDetails()

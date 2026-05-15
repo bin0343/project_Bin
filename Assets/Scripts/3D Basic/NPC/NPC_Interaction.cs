@@ -77,7 +77,7 @@ public class NPC_Interaction : MonoBehaviour
             if (DialogueManager.instance != null)
             {
                 // StartConversation 대신 StartDialogue 사용 (ID 넘김)
-                DialogueManager.instance.StartDialogue(pendingDialogueID, npcData);
+                //DialogueManager.instance.StartDialogue(pendingDialogueID, npcData);
             }
         }
     }
@@ -88,7 +88,7 @@ public class NPC_Interaction : MonoBehaviour
         if (DialogueManager.instance != null)
         {
             // 일상 대화 시작
-            DialogueManager.instance.StartDialogue(csvDialogueID, npcData);
+            //DialogueManager.instance.StartDialogue(csvDialogueID, npcData);
         }
     }
 
@@ -107,35 +107,6 @@ public class NPC_Interaction : MonoBehaviour
         pendingDialogueID = 0; // 초기화 (0은 대화 없음 의미)
         bool showQuestButton = false;
         string btnText = "";
-
-        // 완료 가능한 퀘스트 찾기
-        foreach (var quest in npcData.availableQuests)
-        {
-            if (QuestManager.instance.GetQuestStatus(quest.questID) == QuestStatus.COMPLETED)
-            {
-                // Quest ScriptableObject에 'completeDialogueID' 변수가 있어야 함
-                pendingDialogueID = quest.completeDialogueID;
-                btnText = "보상 받기";
-                showQuestButton = true;
-                break;
-            }
-        }
-
-        // 시작 가능한 퀘스트 찾기
-        if (!showQuestButton)
-        {
-            foreach (var quest in npcData.availableQuests)
-            {
-                if (QuestManager.instance.GetQuestStatus(quest.questID) == QuestStatus.NOT_STARTED)
-                {
-                    // Quest ScriptableObject에 'startDialogueID' 변수가 있어야 함
-                    pendingDialogueID = quest.startDialogueID;
-                    btnText = "의뢰 확인";
-                    showQuestButton = true;
-                    break;
-                }
-            }
-        }
 
         questButton.gameObject.SetActive(showQuestButton);
         if (showQuestButton && questButtonText != null)

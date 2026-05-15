@@ -66,13 +66,13 @@ public class Player_Stat : MonoBehaviour
                 return;
             }
 
-            isGlobalData = true;
+            isGlobalData = false;  
             globalInstance = this;
             DontDestroyOnLoad(gameObject);
         }
         else
         {
-            isGlobalData = false;
+            isGlobalData = true;
         }
     }
 
@@ -121,7 +121,12 @@ public class Player_Stat : MonoBehaviour
 
             // UI 업데이트 함수가 있다면 여기서 호출 (예: UpdateStaminaUI();)
         }
-        
+
+        if (UI_Manager.instance != null)
+        {
+            // GlobalData여도 현재 씬에서 플레이어가 직접 조종 중인 객체라면 UI를 갱신해야 합니다.
+            UI_Manager.instance.UpdatePlayerStatus(this);
+        }
     }
 
     public bool TryUseStamina(float amount)

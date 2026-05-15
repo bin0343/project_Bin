@@ -16,15 +16,6 @@ public class QuestManager : MonoBehaviour
     public event Action<PlayerQuestStatus, Quest> OnQuestCompleted;
     public event Action<Quest> OnQuestRewardClaimed;
 
-    private void Start()
-    {
-        // 1. TimeManager의 날짜 변경 이벤트 구독
-        if (TimeManager.instance != null)
-        {
-            TimeManager.instance.OnDayChanged += CheckQuestDeadlines;
-        }
-    }
-
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -56,15 +47,6 @@ public class QuestManager : MonoBehaviour
         if (Application.isEditor)
         {
             debug_QuestLogList = questLog.Values.ToList();
-        }
-    }
-
-    private void OnDestroy()
-    {
-        // 이벤트 구독 해제 (중복 방지)
-        if (TimeManager.instance != null)
-        {
-            TimeManager.instance.OnDayChanged -= CheckQuestDeadlines;
         }
     }
 
@@ -129,48 +111,6 @@ public class QuestManager : MonoBehaviour
                 // 이 퀘스트의 모든 목표가 달성되었는지 확인
                 CheckQuestCompletion(questStatus, originalQuest);
             }
-        }
-    }
-
-    // 날짜가 바뀔 때마다 마감일 체크
-    public void CheckQuestDeadlines(int year, int month, int day)
-    {
-        List<string> failedQuestIDs = new List<string>();
-
-        // 현재 날짜를 DateTime으로 변환
-        DateTime currentDate = new DateTime(year, month, day);
-
-        foreach (var questID in questLog.Keys)
-        {
-            PlayerQuestStatus status = questLog[questID];
-            if (status.status != QuestStatus.IN_PROGRESS) continue;
-            if (!questDatabase.ContainsKey(questID)) continue;
-
-            Quest questData = questDatabase[questID];
-
-            if (questData.hasTimeLimit)
-            {
-                // 퀘스트의 마감일을 DateTime으로 변환
-                try
-                {
-                    DateTime dueDate = new DateTime(questData.dueYear, questData.dueMonth, questData.dueDay);
-
-                    // 날짜 비교 (현재 날짜가 마감일보다 미래라면 실패)
-                    if (currentDate > dueDate)
-                    {
-                        failedQuestIDs.Add(questID);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"퀘스트 '{questData.questTitle}' 날짜 데이터 오류: {e.Message}");
-                }
-            }
-        }
-
-        foreach (string id in failedQuestIDs)
-        {
-            FailQuest(id);
         }
     }
 
