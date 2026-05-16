@@ -5,7 +5,7 @@ using UnityEngine;
 public class Quest : ScriptableObject
 {
     [Header("퀘스트 고유 정보")]
-    public string questID;      //csv연동용 ID (ex: "Q_001_RatHunter")
+    public string questID;      //(ex: "Q_001_RatHunter")
     public string questTitle;
 
     [Header("퀘스트 내용")]
@@ -26,6 +26,7 @@ public class Quest : ScriptableObject
     [TextArea(2, 4)] public string[] completeDialogue;      // 완료 및 보상 수령 시
     [TextArea(2, 4)] public string[] afterCompleteDialogue; // 보상을 다 받은 후 일상 대화
 
+    [Header("퀘스트 목표, 보상")]
     public List<QuestObjective> objectives;     //이 퀘스트의 목표
     public QuestReward rewards;     //완료 보상
 }

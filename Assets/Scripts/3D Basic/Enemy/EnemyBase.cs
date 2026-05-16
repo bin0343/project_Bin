@@ -510,10 +510,10 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         transform.DOKill();
 
         isDead = true;
-        if (mySpawner != null)
+        /*if (mySpawner != null)
         {
             mySpawner.OnMonsterDead(this.gameObject);
-        }
+        }*/
         currentState = ENEMYSTATE.DEAD; // 상태를 DEAD로 전환
         animator.SetTrigger("IsDie");   // 사망 애니메이션 재생
 

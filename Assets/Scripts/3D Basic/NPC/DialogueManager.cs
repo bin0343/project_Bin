@@ -99,6 +99,8 @@ public class DialogueManager : MonoBehaviour
 
     private void NextLine()
     {
+        if (currentLines == null) return;
+
         currentLineIndex++;
         if (currentLineIndex < currentLines.Length)
         {
@@ -153,6 +155,10 @@ public class DialogueManager : MonoBehaviour
         isDialogueActive = false;
         dialogueRoot.SetActive(false);
         choiceGroup.SetActive(false);
+
+        if (btnNext != null) btnNext.gameObject.SetActive(false);
+
+        currentLines = null;
 
         if (mainHUDCanvas != null)
         {

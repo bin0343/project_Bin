@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d57bf5d08d60b0c4cad1ad147d183569, type: 3}
+  m_Name: QuestTest 1
+  m_EditorClassIdentifier: 
+  questID: Q_1001
+  questTitle: "\uC0B0\uC801 \uCC98\uCE58"
+  description: "\uACE0\uC591\uC774 \uCC3E\uAE30"
+  shortDescription: "\uACE0\uC591\uC774 \uCC3E\uAE30"
+  acceptButtonText: "\uC88B\uC544, \uB0B4\uAC00 \uCC3E\uC544\uC904\uAC8C."
+  declineButtonText: "\uC544, \uC9C0\uAE08\uC740 \uC880 \uBC14\uBE60\uC11C.."
+  acceptedDialogue: "\uACE0\uB9C8\uC6CC\uC694!"
+  declinedDialogue: "\uB124.. \uC5B4\uCA54 \uC218 \uC5C6\uC8E0.."
+  startDialogue:
+  - "\uD751\uD751.. \uB098\uBE44.. \uB098\uBE44\uAC00.."
+  - "\uC81C \uACE0\uC591\uC774 \uB098\uBE44\uAC00 \uAC11\uC790\uAE30 \uB3C4\uB9DD\uAC00\uC11C
+    \uC548\uBCF4\uC5EC\uC694.."
+  - "\uC81C \uACE0\uC591\uC774 \uC880 \uCC3E\uC544\uC8FC\uC138\uC694..."
+  inProgressDialogue:
+  - "\uC544\uC9C1 \uBABB\uCC3E\uC558\uB098\uC694..?"
+  completeDialogue:
+  - "\uAC10\uC0AC\uD569\uB2C8\uB2E4!!"
+  afterCompleteDialogue:
+  - "\uB098\uBE44\uC57C.. \uB2E4\uD589\uC774\uB2E4"
+  objectives:
+  - type: 2
+    targetID: Cat_01
+    requiredAmount: 1
+  rewards:
+    gold: 10
+    experience: 100

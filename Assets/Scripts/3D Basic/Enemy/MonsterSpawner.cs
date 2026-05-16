@@ -5,97 +5,86 @@ using UnityEngine;
 public class MonsterSpawner : MonoBehaviour
 {
     [Header("스폰 설정")]
-    public GameObject monsterPrefab;    //스폰 몬스터 프리팹
-    public int maxCount = 5;    //최대 스폰 수
-    public float spawnRadius = 10f; //스폰 반경
-    public float respawnTime = 5f;  //리스폰까지 걸리는 시간
+    public GameObject monsterPrefab;
+    public Transform[] spawnPoints;
 
-    private List<GameObject> spawnedMonsters = new List<GameObject>();
+    [Header("스폰 시작 옵션")]
+    public bool spawnOnStart = false;   //이벤트 용인지 체크(시작 시 스폰이면 체크)
+
+    [Header("스폰 방식")]
+    public bool isInfiniteSpawn = false;    //무한 스폰
+    public int totalMaxSpawn = 10;      //총 스폰 몬스터 수 
+
+    [Header("웨이브 설정")]
+    public int maxAliveAtOnce = 5;      //필드 동시 존재 최대 마리
+    public float spawnDelay = 2f;       //몬스터 등장 간격
+
+    private int currentTotalSpawned = 0;
+    private List<GameObject> activeMonsters = new List<GameObject>();
+    private bool isSpawningActive = false;
 
     private void Start()
     {
-        for (int i = 0; i < maxCount; i++)
+        if (spawnOnStart)
         {
-            SpawnMonster();
+            StartSpawning();
         }
     }
 
-    public void SpawnMonster()
+    public void StartSpawning()
     {
-        if (monsterPrefab == null) return;
+        if (isSpawningActive) return;
 
-        Vector3 spawnPos = GetRandomPointOnNavMesh();
-
-        GameObject newMonster = Instantiate(monsterPrefab, spawnPos, Quaternion.identity);
-
-        spawnedMonsters.Add(newMonster);
-
-        EnemyBase enemyScript = newMonster.GetComponent<EnemyBase>();
-        enemyScript.SetSpawner(this);
-        if (enemyScript != null )
-        {
-            StartCoroutine(CheckMonsterStatus(newMonster));
-        }
+        isSpawningActive = true;
+        StartCoroutine(SpawnRoutine());
+        Debug.Log("몬스터 스폰 이벤트가 시작되었습니다!");
     }
 
-    public void OnMonsterDead(GameObject deadMonster)
+    public void StopSpawning()
     {
-        if (spawnedMonsters.Contains(deadMonster))
-        {
-            spawnedMonsters.Remove(deadMonster);
-            StartCoroutine(RespawnRoutine());
-        }
+        isSpawningActive = false;
+        StopAllCoroutines();
     }
 
-    IEnumerator RespawnRoutine()
+    private IEnumerator SpawnRoutine()
     {
-        yield return new WaitForSeconds(respawnTime);
-        // 현재 마릿수가 최대치보다 적을 때만 스폰 (혹시 모르니 체크)
-        if (spawnedMonsters.Count < maxCount)
+        while (isSpawningActive)
         {
-            SpawnMonster();
-        }
-    }
+            activeMonsters.RemoveAll(monster => monster == null);
 
-    IEnumerator CheckMonsterStatus(GameObject monster)
-    {
-        while (monster != null)
-        {
-            // 몬스터가 비활성화되거나 EnemyBase의 isDead가 true인지 확인
-            var enemyBase = monster.GetComponent<EnemyBase>();
-            if (enemyBase != null && enemyBase.isDead)
+            if (!isInfiniteSpawn && currentTotalSpawned >= totalMaxSpawn)
             {
-                // 죽음 처리 후 루프 종료
-                OnMonsterDead(monster);
-                yield break;
+                if (activeMonsters.Count == 0)
+                {
+                    Debug.Log("모든 몬스터 웨이브 처치 완료!");
+                    StopSpawning();
+                }
+
+                yield return null;
+                continue; 
             }
-            yield return new WaitForSeconds(1f); // 1초마다 확인
-        }
-        // 몬스터 오브젝트가 파괴되었다면(null) 죽은 것으로 간주
-        OnMonsterDead(null);
-    }
 
-    Vector3 GetRandomPointOnNavMesh()
-    {
-        for (int i = 0; i < 30; i++) // 최대 30번 시도
-        {
-            Vector3 randomPos = Random.insideUnitSphere * spawnRadius;
-            randomPos += transform.position;
-
-            UnityEngine.AI.NavMeshHit hit;
-            if (UnityEngine.AI.NavMesh.SamplePosition(randomPos, out hit, 1.0f, UnityEngine.AI.NavMesh.AllAreas))
+            if (activeMonsters.Count < maxAliveAtOnce)
             {
-                return hit.position;
+                SpawnMonster();
+                yield return new WaitForSeconds(spawnDelay);
+            }
+            else
+            {
+                yield return new WaitForSeconds(1f);
             }
         }
-        return transform.position; // 실패하면 스포너 위치 리턴
     }
 
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
+    private void SpawnMonster()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, spawnRadius);
+        if (monsterPrefab == null || spawnPoints.Length == 0) return;
+
+        Transform randomPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+
+        GameObject newMonster = Instantiate(monsterPrefab, randomPoint.position, randomPoint.rotation);
+        activeMonsters.Add(newMonster);
+
+        currentTotalSpawned++;
     }
-#endif
 }
