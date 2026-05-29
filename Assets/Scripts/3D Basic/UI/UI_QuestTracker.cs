@@ -1,109 +1,89 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UI_QuestTracker : MonoBehaviour
 {
-    [Tooltip("개별 퀘스트 UI 항목 프리팹")]
     public GameObject questItemPrefab;
-
-    [Tooltip("프리팹이 생성될 부모 Transform")]
     public Transform questListContainer;
 
-    private Dictionary<string, UI_QuestTrackerItem> activeQuestUIs = new Dictionary<string, UI_QuestTrackerItem>();
+    private GameObject currentTrackedGO;
+    private UI_QuestTrackerItem currentTrackedUI;
 
     void Start()
     {
-        if (QuestManager.instance == null)
-        {
-            Debug.LogError("QuestManager 인스턴스를 찾을 수 없습니다!");
-            return;
-        }
+        if (QuestManager.instance == null) return;
 
-        QuestManager.instance.OnQuestAccepted += HandleQuestAccepted;
+        QuestManager.instance.OnQuestTrackedChanged += HandleQuestTrackedChanged;
         QuestManager.instance.OnQuestProgressChanged += HandleQuestProgressChanged;
         QuestManager.instance.OnQuestCompleted += HandleQuestCompleted;
         QuestManager.instance.OnQuestRewardClaimed += HandleQuestRewardClaimed;
 
-        PopulateInitialQuests();    //게임 시작 시 진행 중 퀘스트 목록 불러오기
+        // 게임 시작 시 이미 추적 중인 퀘스트가 있다면 띄우기
+        if (!string.IsNullOrEmpty(QuestManager.instance.currentTrackedQuestID))
+        {
+            Quest q = QuestManager.instance.GetQuestByID(QuestManager.instance.currentTrackedQuestID);
+            HandleQuestTrackedChanged(q);
+        }
     }
 
     private void OnDestroy()
     {
-        // 메모리 누수 방지를 위해 이벤트 구독 해제
         if (QuestManager.instance != null)
         {
-            QuestManager.instance.OnQuestAccepted -= HandleQuestAccepted;
+            QuestManager.instance.OnQuestTrackedChanged -= HandleQuestTrackedChanged;
             QuestManager.instance.OnQuestProgressChanged -= HandleQuestProgressChanged;
             QuestManager.instance.OnQuestCompleted -= HandleQuestCompleted;
             QuestManager.instance.OnQuestRewardClaimed -= HandleQuestRewardClaimed;
         }
     }
 
-    private void PopulateInitialQuests()
+    private void HandleQuestTrackedChanged(Quest quest)
     {
-        foreach (var kvp in QuestManager.instance.questLog)
+        // 1. 기존에 떠 있던 UI 삭제
+        if (currentTrackedGO != null)
         {
-            PlayerQuestStatus status = kvp.Value;
-            if (status.status == QuestStatus.IN_PROGRESS || status.status == QuestStatus.COMPLETED)
-            {
-                Quest quest = QuestManager.instance.GetQuestByID(status.questID);
-                if (quest != null)
-                {
-                    AddQuestUI(quest, status);
-                }
-            }
+            Destroy(currentTrackedGO);
+            currentTrackedUI = null;
         }
-    }
 
-    private void HandleQuestAccepted(Quest quest)
-    {
+        // 2. 추적 취소(null) 상태면 그냥 종료
+        if (quest == null) return;
+
+        // 3. 새 퀘스트 UI 생성
         PlayerQuestStatus status = QuestManager.instance.questLog[quest.questID];
-        AddQuestUI(quest, status);
-    }
+        currentTrackedGO = Instantiate(questItemPrefab, questListContainer);
+        currentTrackedUI = currentTrackedGO.GetComponent<UI_QuestTrackerItem>();
+        currentTrackedUI.Setup(quest, status);
 
-    private void AddQuestUI(Quest quest, PlayerQuestStatus status)
-    {
-        if (activeQuestUIs.ContainsKey(quest.questID)) return;
-
-        GameObject questItemGO = Instantiate(questItemPrefab, questListContainer);
-
-        //새 퀘스트를 목록 최상단(0번 인덱스)으로 이동
-        questItemGO.transform.SetAsFirstSibling();
-
-        UI_QuestTrackerItem uiItem = questItemGO.GetComponent<UI_QuestTrackerItem>();
-        uiItem.Setup(quest, status);    //UI 내용 설정
-
-        if (status.status == QuestStatus.COMPLETED)     //불러온 퀘스트가 이미 완료 상태라면
+        if (status.status == QuestStatus.COMPLETED)
         {
-            uiItem.SetCompletedVisuals();
+            currentTrackedUI.SetCompletedVisuals();
         }
-
-        activeQuestUIs[quest.questID] = uiItem;
     }
-    
+
     private void HandleQuestProgressChanged(PlayerQuestStatus status, Quest quest)
     {
-        if (activeQuestUIs.TryGetValue(status.questID, out UI_QuestTrackerItem uiItem))
+        // 업데이트된 퀘스트가 "현재 내가 추적 중인 퀘스트"일 때만 UI 갱신
+        if (QuestManager.instance.currentTrackedQuestID == status.questID && currentTrackedUI != null)
         {
-            uiItem.UpdateProgress(status, quest);
+            currentTrackedUI.UpdateProgress(status, quest);
         }
     }
 
     private void HandleQuestCompleted(PlayerQuestStatus status, Quest quest)
     {
-        if (activeQuestUIs.TryGetValue(status.questID, out UI_QuestTrackerItem uiItem))
+        if (QuestManager.instance.currentTrackedQuestID == status.questID && currentTrackedUI != null)
         {
-            uiItem.SetCompletedVisuals(); // UI 완료 상태로 변경 (예: "(완료)" 표시)
+            currentTrackedUI.SetCompletedVisuals();
         }
     }
 
     private void HandleQuestRewardClaimed(Quest quest)
     {
-        if (activeQuestUIs.TryGetValue(quest.questID, out UI_QuestTrackerItem uiItem))
+        // 보상을 받은 게 내가 추적하던 퀘스트라면, 삭제(Track 취소는 QuestManager가 알아서 던져줌)
+        if (QuestManager.instance.currentTrackedQuestID == quest.questID && currentTrackedGO != null)
         {
-            Destroy(uiItem.gameObject); // UI 항목 제거
-            activeQuestUIs.Remove(quest.questID); // 딕셔너리에서 제거
+            Destroy(currentTrackedGO);
+            currentTrackedUI = null;
         }
     }
 }

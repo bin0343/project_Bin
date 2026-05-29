@@ -30,12 +30,19 @@ public class UI_QuestPanel : MonoBehaviour
     public Text txtReward;
     public Text txtTimeLimit;
 
+    [Header("--- 하단: 추적 버튼 ---")]
+    public Button btnTrack;
+    public Text txtBtnTrack;
+
     private QuestTab currentTab = QuestTab.InProgress;
     private List<UI_QuestSlot> createdSlots = new List<UI_QuestSlot>();
 
+    // 현재 오른쪽 패널에 띄워둔 퀘스트 ID 기억용
+    private string selectedQuestID = "";
+
     private void OnEnable()
     {
-        // 1. 켜질 때 강제로 '진행 중' 상태로 초기화
+        // 켜질 때 강제로 '진행 중' 상태로 초기화
         currentTab = QuestTab.InProgress;
 
         // 토글 상태 강제 설정 (이벤트 발생 방지를 위해 리스너 잠깐 끄거나, 그냥 호출 후 UI 갱신)
@@ -48,10 +55,16 @@ public class UI_QuestPanel : MonoBehaviour
             toggleCompleted.SetIsOnWithoutNotify(false);
         }
 
-        // 2. UI 및 리스트 즉시 갱신
+        // UI 및 리스트 즉시 갱신
         UpdateTabVisuals();
         RefreshList();
         ClearDetails();
+
+        if (btnTrack != null)
+        {
+            btnTrack.onClick.RemoveAllListeners();
+            btnTrack.onClick.AddListener(OnTrackButtonClicked);
+        }
     }
 
     // --- 탭 버튼(Toggle) 이벤트 연결 ---
@@ -149,6 +162,7 @@ public class UI_QuestPanel : MonoBehaviour
         PlayerQuestStatus userStatus = QuestManager.instance.questLog[questID];
         if (questData == null) return;
 
+        selectedQuestID = questID;
         detailsGroup.SetActive(true);
 
         txtTitle.text = questData.questTitle;
@@ -167,6 +181,51 @@ public class UI_QuestPanel : MonoBehaviour
 
         // 보상 표시
         txtReward.text = $"골드: {questData.rewards.gold} G\n경험치: {questData.rewards.experience} Exp";
+
+        UpdateTrackButtonUI();
+    }
+
+    private void OnTrackButtonClicked()
+    {
+        if (string.IsNullOrEmpty(selectedQuestID)) return;
+
+        // 이미 추적 중인 것을 누르면 추적 해제, 아니면 새 퀘스트 추적
+        if (QuestManager.instance.currentTrackedQuestID == selectedQuestID)
+        {
+            QuestManager.instance.SetTrackedQuest(""); // 추적 취소
+        }
+        else
+        {
+            QuestManager.instance.SetTrackedQuest(selectedQuestID); // 추적 시작
+        }
+
+        UpdateTrackButtonUI(); // 버튼 글자 새로고침
+    }
+
+    private void UpdateTrackButtonUI()
+    {
+        if (btnTrack == null || txtBtnTrack == null) return;
+
+        // 완료된(보상수령 완료) 퀘스트는 아예 버튼 숨기기
+        PlayerQuestStatus status = QuestManager.instance.questLog[selectedQuestID];
+        if (status.status == QuestStatus.REWARD_CLAIMED || status.status == QuestStatus.FAILED)
+        {
+            btnTrack.gameObject.SetActive(false);
+            return;
+        }
+
+        btnTrack.gameObject.SetActive(true);
+
+        if (QuestManager.instance.currentTrackedQuestID == selectedQuestID)
+        {
+            txtBtnTrack.text = "추적 중";
+            txtBtnTrack.color = Color.yellow; // 추적 중일 땐 눈에 띄게
+        }
+        else
+        {
+            txtBtnTrack.text = "추적하기";
+            txtBtnTrack.color = Color.white;
+        }
     }
 
     void ClearDetails()

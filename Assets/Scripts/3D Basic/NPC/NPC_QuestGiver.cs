@@ -54,8 +54,27 @@ public class NPC_QuestGiver : Interactable
         {
             case QuestStatus.NOT_STARTED:
                 // 시작 대화 + 선택지 모드
-                DialogueManager.instance.StartQuestSequence(npcName, questToGive, () => {
+                DialogueManager.instance.StartQuestSequence(npcName, questToGive, () => 
+                {
                     QuestManager.instance.AcceptQuest(questToGive);
+
+                    if (questToGive.objectives.Count > 0)
+                    {
+                        string targetID = questToGive.objectives[0].targetID;
+
+                        // 명부에서 해당 ID를 가진 오브젝트를 찾음
+                        Transform autoDestination = QuestTargetMarker.GetTarget(targetID);
+
+                        if (autoDestination != null && QuestMarkerUI.instance != null)
+                        {
+                            QuestMarkerUI.instance.SetTarget(autoDestination);
+                            Debug.Log($"[{targetID}] 자동 마커 연결 성공!");
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"씬에 '{targetID}' ID를 가진 QuestTargetMarker가 없습니다.");
+                        }
+                    }
                 });
                 break;
 

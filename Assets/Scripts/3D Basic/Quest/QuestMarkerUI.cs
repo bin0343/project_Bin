@@ -4,22 +4,32 @@ using DG.Tweening;
 
 public class QuestMarkerUI : MonoBehaviour
 {
-    public static QuestMarkerUI Instance;
+    public static QuestMarkerUI instance;
 
-    [Header("UI 컴포넌트")]
+    [Header("UI 컴포넌트 연결")]
     public RectTransform markerRect;
     public Image markerIcon;
     public Text distanceText;
 
-    [Header("추적 대상")]
-    public Transform player;    //플레이어와의 거리 계산
-    public float heightOffset = 2.0f;   //머리위 높이
+    [Header("추적 대상 설정")]
+    public Transform player;
+    public float heightOffset = 2.0f;
+    public float screenPadding = 80f; // 화면 테두리 여백 (테두리에서 얼마나 떨어질지)
+
+    [Header("원근감(3D 일체감) 설정")]
+    public float maxScaleDistance = 5f;
+    public float minScaleDistance = 50f;
+    public float maxScale = 1.0f;
+    public float minScale = 0.5f;
 
     private Transform currentTarget;
+    private Camera mainCam;
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (instance == null) instance = this;
+        mainCam = Camera.main;
+        HideMarker();
     }
 
     private void Update()
@@ -30,31 +40,96 @@ public class QuestMarkerUI : MonoBehaviour
             return;
         }
 
-        // 1. 타겟의 3D 월드 좌표에 높이 오프셋을 더함
+        // 1. 3D 월드 좌표 계산 (상하 둥둥 효과 포함)
         Vector3 worldPos = currentTarget.position + (Vector3.up * heightOffset);
 
-        // 2. 3D 좌표를 2D 스크린 좌표로 변환
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+        // 2. 월드 좌표 -> 스크린 2D 좌표 변환
+        Vector3 screenPos = mainCam.WorldToScreenPoint(worldPos);
 
-        // 3. 타겟이 카메라 앞쪽(z > 0)에 있을 때만 UI를 표시
-        if (screenPos.z > 0)
+        // 3. 화면 밖으로 나갔는지(오프스크린) 판별
+        bool isOffScreen = screenPos.z < 0 ||
+                           screenPos.x < 0 || screenPos.x > Screen.width ||
+                           screenPos.y < 0 || screenPos.y > Screen.height;
+
+        if (!markerRect.gameObject.activeSelf) ShowMarker();
+
+        float distanceToCamera = Vector3.Distance(mainCam.transform.position, worldPos);
+        float currentScale = maxScale;
+
+        if (isOffScreen)
         {
-            if (!markerRect.gameObject.activeSelf) ShowMarker();
+            // 오프스크린 인디케이터 로직
 
-            // UI 위치 업데이트
-            markerRect.position = screenPos;
-
-            // 플레이어와의 거리 계산 및 텍스트 갱신
-            if (player != null && distanceText != null)
+            // 타겟이 카메라 뒤통수에 있으면 방향을 반전시킵니다.
+            if (screenPos.z < 0)
             {
-                float distance = Vector3.Distance(player.position, currentTarget.position);
-                distanceText.text = $"{Mathf.FloorToInt(distance)}m";
+                screenPos *= -1;
             }
+
+            // 화면 중심점을 기준으로 방향 벡터 계산
+            Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
+            Vector3 dir = screenPos - screenCenter;
+            dir.z = 0; // Z축 무시
+
+            // 벡터가 0이 되는 예외 상황 방지
+            if (dir == Vector3.zero) dir = Vector3.up;
+
+            // 기울기(가로/세로 비율)를 이용해 테두리 교차점 계산
+            float slope = dir.y / dir.x;
+
+            // 패딩(여백)을 적용한 실제 한계치
+            float minX = screenPadding;
+            float maxX = Screen.width - screenPadding;
+            float minY = screenPadding;
+            float maxY = Screen.height - screenPadding;
+
+            Vector3 clampedPos = screenCenter;
+
+            // X축 경계 기준 교차점 찾기
+            if (dir.x > 0)
+            {
+                clampedPos.x = maxX;
+                clampedPos.y = screenCenter.y + (maxX - screenCenter.x) * slope;
+            }
+            else
+            {
+                clampedPos.x = minX;
+                clampedPos.y = screenCenter.y + (minX - screenCenter.x) * slope;
+            }
+
+            // Y축 경계를 벗어난다면 Y축 기준으로 다시 교차점 잡기
+            if (clampedPos.y > maxY)
+            {
+                clampedPos.y = maxY;
+                clampedPos.x = screenCenter.x + (maxY - screenCenter.y) / slope;
+            }
+            else if (clampedPos.y < minY)
+            {
+                clampedPos.y = minY;
+                clampedPos.x = screenCenter.x + (minY - screenCenter.y) / slope;
+            }
+
+            screenPos = clampedPos;
+
+            // 화면 가장자리에 붙을 때는 UI가 거슬리지 않도록 최소 크기로 고정합니다.
+            currentScale = minScale;
         }
         else
         {
-            // 타겟이 카메라 뒤로 넘어가면 마커 숨기기
-            if (markerRect.gameObject.activeSelf) markerRect.gameObject.SetActive(false);
+            // 온스크린(시야 안) 로직: 원근감 적용
+            float scaleRatio = Mathf.InverseLerp(minScaleDistance, maxScaleDistance, distanceToCamera);
+            currentScale = Mathf.Lerp(minScale, maxScale, scaleRatio);
+        }
+
+        // 최종 위치 및 크기 적용
+        markerRect.position = screenPos;
+        markerRect.localScale = new Vector3(currentScale, currentScale, 1f);
+
+        // 플레이어와의 거리 텍스트 업데이트
+        if (player != null && distanceText != null)
+        {
+            float distanceToPlayer = Vector3.Distance(player.position, currentTarget.position);
+            distanceText.text = $"{Mathf.FloorToInt(distanceToPlayer)}m";
         }
     }
 
@@ -73,13 +148,8 @@ public class QuestMarkerUI : MonoBehaviour
     private void ShowMarker()
     {
         markerRect.gameObject.SetActive(true);
-
         markerRect.localScale = Vector3.zero;
-        markerRect.DOScale(Vector3.one, 0.4f).SetEase(Ease.OutBack);
-
-        markerRect.DOAnchorPosY(markerRect.anchoredPosition.y + 15f, 1f)
-                  .SetLoops(-1, LoopType.Yoyo)
-                  .SetEase(Ease.InOutSine);
+        markerRect.DOScale(maxScale, 0.4f).SetEase(Ease.OutBack);
     }
 
     private void HideMarker()

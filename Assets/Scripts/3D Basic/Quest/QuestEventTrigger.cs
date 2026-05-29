@@ -40,7 +40,7 @@ public class QuestEventTrigger : Interactable
 
         if (status == QuestStatus.IN_PROGRESS)
         {
-            QuestManager.instance.AdvanceQuestProgress(targetQuestID, 1);
+            QuestManager.instance.AdvanceQuestProgress(targetObjectiveID, 1);
 
             if (DialogueManager.instance != null && !string.IsNullOrEmpty(successDialogue))
             {
@@ -48,6 +48,9 @@ public class QuestEventTrigger : Interactable
             }
 
             onQuestEventTriggered?.Invoke();
+
+            // 퀘스트 대상를 찾았으므로 UI 마커 추적을 종료
+            if (QuestMarkerUI.instance != null) QuestMarkerUI.instance.ClearTarget();
 
             gameObject.SetActive(false);
         }

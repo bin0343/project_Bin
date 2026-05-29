@@ -11,10 +11,15 @@ public class QuestManager : MonoBehaviour
     private Dictionary<string, Quest> questDatabase;
     public List<PlayerQuestStatus> debug_QuestLogList = new List<PlayerQuestStatus>();
 
+    // 현재 추적 중인 퀘스트 ID
+    public string currentTrackedQuestID = "";
+
     public event Action<Quest> OnQuestAccepted;
     public event Action<PlayerQuestStatus, Quest> OnQuestProgressChanged;
     public event Action<PlayerQuestStatus, Quest> OnQuestCompleted;
     public event Action<Quest> OnQuestRewardClaimed;
+    // 퀘스트 추적 대상이 바뀌었을 때 호출되는 이벤트
+    public event Action<Quest> OnQuestTrackedChanged;
 
     private void Awake()
     {
@@ -32,14 +37,9 @@ public class QuestManager : MonoBehaviour
 
         foreach (Quest quest in allQuests)
         {
-            if (questDatabase.ContainsKey(quest.questID))
-            {
-                Debug.LogWarning($"중복된 퀘스트 ID가 있습니다: {quest.questID}");
-                continue;
-            }
+            if (questDatabase.ContainsKey(quest.questID)) continue;
             questDatabase.Add(quest.questID, quest);
         }
-        Debug.Log($"퀘스트 {allQuests.Length}개를 데이터베이스에 로드했습니다.");
     }
 
     private void Update()
@@ -69,6 +69,21 @@ public class QuestManager : MonoBehaviour
         return QuestStatus.NOT_STARTED;
     }
 
+    // 특정 퀘스트를 추적하도록 설정하는 함수
+    public void SetTrackedQuest(string questID)
+    {
+        if (string.IsNullOrEmpty(questID) || !questLog.ContainsKey(questID))
+        {
+            currentTrackedQuestID = "";
+            OnQuestTrackedChanged?.Invoke(null); // 추적 해제
+            return;
+        }
+
+        currentTrackedQuestID = questID;
+        OnQuestTrackedChanged?.Invoke(GetQuestByID(questID));
+        Debug.Log($"[{questID}] 퀘스트 추적 시작!");
+    }
+
     public void AcceptQuest(Quest quest)
     {
         if (quest == null || questLog.ContainsKey(quest.questID)) return;
@@ -78,6 +93,9 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"퀘스트 수락: {quest.questTitle}");
 
         OnQuestAccepted?.Invoke(quest);
+
+        // 편의성 기능: 퀘스트를 새로 받으면 자동으로 그것을 추적
+        SetTrackedQuest(quest.questID);
     }
 
     public void AdvanceQuestProgress(string targetID, int amount)
@@ -183,6 +201,12 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"퀘스트 완료 및 보상 수령: {quest.questTitle}");
         // TODO: UI 갱신
         OnQuestRewardClaimed?.Invoke(quest);
+
+        // 보상을 받은 퀘스트가 현재 추적 중인 퀘스트였다면 추적 해제
+        if (currentTrackedQuestID == quest.questID)
+        {
+            SetTrackedQuest("");
+        }
     }
 
     public List<QuestSaveData> GetQuestSaveData()
