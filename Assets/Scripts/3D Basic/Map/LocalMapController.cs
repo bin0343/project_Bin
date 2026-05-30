@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 
 public class LocalMapController : MonoBehaviour
 {
+    public static LocalMapController instance;
+
     [System.Serializable]
     public struct LocalLocationEntry
     {
@@ -31,7 +33,9 @@ public class LocalMapController : MonoBehaviour
     [SerializeField] private float initialZoom = 1.0f;
     [SerializeField] private float minZoom = 0.5f;     // 최소 축소 비율
     [SerializeField] private float maxZoom = 2.0f;     // 최대 확대 비율
-    
+
+    [Header("줌 슬라이더 UI")]
+    [SerializeField] private Slider zoomSlider;
 
     [Header("3D 월드 공간 매핑 설정")]
     [Tooltip("3D 월드 맵의 중심점 좌표 (보통 0, 0, 0)")]
@@ -46,6 +50,11 @@ public class LocalMapController : MonoBehaviour
 
     private int pendingTargetIndex = -1;
     private GameObject lastSelectedMapButton;
+
+    private void Awake()
+    {
+        if (instance == null) instance = this;
+    }
 
     private void Start()
     {
@@ -65,6 +74,11 @@ public class LocalMapController : MonoBehaviour
                 playerRotationTarget = playerObj.transform;
             }
         }
+
+        if (zoomSlider != null)
+        {
+            zoomSlider.onValueChanged.AddListener(OnSliderZoomChanged);
+        }
     }
 
     private void Update()
@@ -79,30 +93,39 @@ public class LocalMapController : MonoBehaviour
 
     private void HandleMapZoom()
     {
+        if (mapViewport != null && mapContent != null)
+        {
+            float minScaleX = mapViewport.rect.width / mapContent.rect.width;
+            float minScaleY = mapViewport.rect.height / mapContent.rect.height;
+            float calculatedMinZoom = Mathf.Max(minScaleX, minScaleY);
+            if (minZoom < calculatedMinZoom) minZoom = calculatedMinZoom;
+        }
+
+        if (zoomSlider != null)
+        {
+            zoomSlider.minValue = minZoom;
+            zoomSlider.maxValue = maxZoom;
+        }
+
         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(scrollWheel) > 0.01f)
         {
             float currentScale = mapContent.localScale.x;
-
-            if (mapViewport != null && mapContent != null)
-            {
-                float minScaleX = mapViewport.rect.width / mapContent.rect.width;
-                float minScaleY = mapViewport.rect.height / mapContent.rect.height;
-
-                // 가로/세로 중 화면을 꽉 채울 수 있는 '더 큰 비율'을 진짜 최저 한계선으로 잡습니다.
-                float calculatedMinZoom = Mathf.Max(minScaleX, minScaleY);
-
-                // 인스펙터에 적어둔 minZoom이 너무 낮다면 계산된 안전한 배율로 덮어씌웁니다.
-                if (minZoom < calculatedMinZoom)
-                {
-                    minZoom = calculatedMinZoom;
-                }
-            }
-
-            // 안전장치가 적용된 minZoom과 maxZoom 사이로 스케일 제어
             float newScale = Mathf.Clamp(currentScale + (scrollWheel * zoomSpeed), minZoom, maxZoom);
             mapContent.localScale = new Vector3(newScale, newScale, 1f);
+
+            if (zoomSlider != null)
+            {
+                zoomSlider.SetValueWithoutNotify(newScale);
+            }
         }
+    }
+
+    private void OnSliderZoomChanged(float value)
+    {
+        if (mapContent == null) return;
+        float newScale = Mathf.Clamp(value, minZoom, maxZoom);
+        mapContent.localScale = new Vector3(newScale, newScale, 1f);
     }
 
     private void UpdatePlayerIcon()
@@ -148,6 +171,13 @@ public class LocalMapController : MonoBehaviour
         if (mapContent != null)
         {
             mapContent.localScale = new Vector3(initialZoom, initialZoom, 1f);
+
+            if (zoomSlider != null)
+            {
+                zoomSlider.minValue = minZoom;
+                zoomSlider.maxValue = maxZoom;
+                zoomSlider.SetValueWithoutNotify(initialZoom);
+            }
 
             if (playerPositionTarget != null)
             {
@@ -257,5 +287,19 @@ public class LocalMapController : MonoBehaviour
         {
             titleText.text = locations[index].locationName;
         }
+    }
+
+    //맵UI에서 실제 맵으로 역산
+    public Vector3 GetWorldPosition(Vector2 mapPos)
+    {
+        if (mapContent == null) return Vector3.zero;
+
+        float pctX = (mapPos.x / mapContent.rect.width) + 0.5f;
+        float pctZ = (mapPos.y / mapContent.rect.height) + 0.5f;
+
+        float relativeX = (pctX - 0.5f) * worldSize.x;
+        float relativeZ = (pctZ - 0.5f) * worldSize.y;
+
+        return new Vector3(worldCenter.x + relativeX, 0f, worldCenter.z + relativeZ);
     }
 }

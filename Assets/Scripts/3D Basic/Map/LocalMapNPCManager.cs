@@ -49,17 +49,15 @@ public class LocalMapNPCManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // M키를 눌러 전체 맵이 켜지는 순간 마커를 싹 새로고침 합니다 (시작하자마자 있는 퀘스트 고려)
         RefreshNPCMarkers();
     }
 
-    // 이벤트 구독용 델리게이트 래퍼 함수들
     private void HandleQuestEvent(Quest quest) => RefreshNPCMarkers();
     private void HandleQuestEventWithStatus(PlayerQuestStatus status, Quest quest) => RefreshNPCMarkers();
 
     public void RefreshNPCMarkers()
     {
-        // 1. 기존에 지도 위에 생성되어 있던 마커들을 싹 청소(삭제)합니다.
+        // 기존에 지도 위에 생성되어 있던 마커 정리
         foreach (GameObject marker in activeMarkers)
         {
             if (marker != null) Destroy(marker);
@@ -68,14 +66,14 @@ public class LocalMapNPCManager : MonoBehaviour
 
         if (mapController == null || mapContent == null || npcMarkerPrefab == null) return;
 
-        // 2. 현재 씬에 배치되어 있는 모든 NPC_QuestGiver를 찾아냅니다.
+        // 현재 씬에 배치되어 있는 모든 NPC_QuestGiver를 찾아냄
         NPC_QuestGiver[] allNPCs = FindObjectsOfType<NPC_QuestGiver>();
 
         foreach (NPC_QuestGiver npc in allNPCs)
         {
             if (npc.questToGive == null) continue;
 
-            // 3. NPC가 가진 퀘스트의 현재 상태를 체크합니다.
+            // NPC가 가진 퀘스트의 현재 상태를 체크
             QuestStatus status = QuestManager.instance.GetQuestStatus(npc.questToGive.questID);
             Sprite targetSprite = null;
 
@@ -90,32 +88,34 @@ public class LocalMapNPCManager : MonoBehaviour
                 targetSprite = iconComplete;
             }
 
-            // 4. 표시할 마커가 결정되었다면 동적으로 지도 위에 생성합니다.
+            // 표시할 마커가 결정되면 동적으로 지도에 생성
             if (targetSprite != null)
             {
-                // Content(지도 도화지)의 자식으로 마커 프리팹 생성
                 GameObject newMarker = Instantiate(npcMarkerPrefab, mapContent);
                 activeMarkers.Add(newMarker);
 
-                // 마커의 이미지 컴포넌트를 찾아서 (!) 또는 (?) 스프라이트로 교체
                 Image markerImage = newMarker.GetComponent<Image>();
-                if (markerImage != null)
-                {
-                    markerImage.sprite = targetSprite;
-                }
+                if (markerImage != null) markerImage.sprite = targetSprite;
 
-                // 5. 완벽한 영점 조절 공식 연동: 3D NPC 위치를 2D 맵 좌표로 변환
                 RectTransform markerRect = newMarker.GetComponent<RectTransform>();
                 if (markerRect != null)
                 {
-                    // 앵커와 피벗 강제 초기화 (오차 방지)
                     markerRect.anchorMin = new Vector2(0.5f, 0.5f);
                     markerRect.anchorMax = new Vector2(0.5f, 0.5f);
                     markerRect.pivot = new Vector2(0.5f, 0.5f);
 
-                    // 위치 대입
                     Vector2 mapPos = mapController.GetMapPosition(npc.transform.position);
                     markerRect.anchoredPosition = mapPos;
+
+                    UIMapInteractiveIcon interactScript = newMarker.GetComponent<UIMapInteractiveIcon>();
+                    if (interactScript == null) interactScript = newMarker.AddComponent<UIMapInteractiveIcon>();
+
+                    // 퀘스트 상태에 따라 텍스트 설명 다르게 세팅
+                    string descText = (status == QuestStatus.NOT_STARTED) ?
+                        $"[{npc.gameObject.name}]\n새로운 퀘스트가 있습니다." :
+                        $"[{npc.gameObject.name}]\n퀘스트 완료 보고 가능!";
+
+                    interactScript.Setup(descText, mapPos);
                 }
             }
         }

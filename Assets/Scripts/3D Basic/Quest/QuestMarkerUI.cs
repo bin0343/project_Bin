@@ -6,6 +6,8 @@ public class QuestMarkerUI : MonoBehaviour
 {
     public static QuestMarkerUI instance;
 
+    public Transform CurrentTarget => currentTarget;
+
     [Header("UI 컴포넌트 연결")]
     public RectTransform markerRect;
     public Image markerIcon;
@@ -22,14 +24,29 @@ public class QuestMarkerUI : MonoBehaviour
     public float maxScale = 1.0f;
     public float minScale = 0.5f;
 
+    [Header("추적 종료 설정")]
+    public float arriveDistance = 1.0f; // 도착으로 인정할 거리 (1m)
+    private Transform playerTransform;
+
     private Transform currentTarget;
     private Camera mainCam;
+    private Sprite defaultIcon;
 
     private void Awake()
     {
         if (instance == null) instance = this;
         mainCam = Camera.main;
+        if (markerIcon != null) defaultIcon = markerIcon.sprite;
         HideMarker();
+    }
+
+    private void Start()
+    {
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            playerTransform = playerObj.transform;
+        }
     }
 
     private void Update()
@@ -38,6 +55,23 @@ public class QuestMarkerUI : MonoBehaviour
         {
             if (markerRect.gameObject.activeSelf) HideMarker();
             return;
+        }
+
+        if (playerTransform != null)
+        {
+            Vector3 playerPos = playerTransform.position;
+            Vector3 targetPos = currentTarget.position;
+
+            playerPos.y = 0f;
+            targetPos.y = 0f;
+
+            float distance = Vector3.Distance(playerPos, targetPos);
+
+            if (distance <= arriveDistance)
+            {
+                ClearTarget(); // 추적 종료 함수 호출
+                return;        // 이번 프레임은 여기서 중단
+            }
         }
 
         // 1. 3D 월드 좌표 계산 (상하 둥둥 효과 포함)
@@ -156,5 +190,17 @@ public class QuestMarkerUI : MonoBehaviour
     {
         markerRect.DOKill();
         markerRect.gameObject.SetActive(false);
+    }
+
+    public void SetTarget(Transform newTarget, Sprite overrideIcon = null)
+    {
+        currentTarget = newTarget;
+
+        if (markerIcon != null)
+        {
+            markerIcon.sprite = (overrideIcon != null) ? overrideIcon : defaultIcon;
+        }
+
+        ShowMarker();
     }
 }
