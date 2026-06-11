@@ -241,30 +241,54 @@ public class LocalMapController : MonoBehaviour
         }
     }
 
-    private void TeleportPlayer(Transform targetTr)
+    public void TeleportPlayer(Transform targetTr)
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
+        if (player == null) return;
+
+        Vector3 finalPos = targetTr.position;
+        Quaternion finalRot = targetTr.rotation;
+
+        if (targetTr.GetComponent<TeleportPoint3D>() != null)
         {
-            UnityEngine.AI.NavMeshAgent agent = player.GetComponent<UnityEngine.AI.NavMeshAgent>();
-            if (agent != null) agent.enabled = false;
-
-            player.transform.position = targetTr.position;
-            player.transform.rotation = targetTr.rotation;
-
-            Transform cameraArm = player.transform.Find("CameraArm");
-            if (cameraArm == null)
-            {
-                var camScript = player.GetComponentInChildren<CameraArm>();
-                if (camScript != null) cameraArm = camScript.transform;
-            }
-            if (cameraArm != null) cameraArm.rotation = targetTr.transform.rotation;
-
-            if (agent != null) agent.enabled = true;
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            finalPos = targetTr.position - (targetTr.forward * 2.0f);
+            finalRot = Quaternion.LookRotation(-targetTr.forward);
         }
+
+        UnityEngine.AI.NavMeshAgent agent = player.GetComponent<UnityEngine.AI.NavMeshAgent>();
+        if (agent != null)
+        {
+            agent.enabled = false; // 에이전트를 기절시킵니다.
+        }
+
+        player.transform.position = finalPos;
+        player.transform.rotation = finalRot;
+
+        if (agent != null)
+        {
+            agent.enabled = true; // 새로운 방향을 인식한 상태로 다시 깨웁니다.
+        }
+
+        Transform realModel = player.transform.Find("Player"); 
+        if (realModel != null)
+        {
+            realModel.localRotation = Quaternion.identity;
+        }
+
+        Transform cameraArm = player.transform.Find("CameraArm");
+        if (cameraArm == null)
+        {
+            var camScript = player.GetComponentInChildren<CameraArm>();
+            if (camScript != null) cameraArm = camScript.transform;
+        }
+
+        if (cameraArm != null)
+        {
+            cameraArm.rotation = finalRot * Quaternion.Euler(0, 180f, 0);
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 
         CloseLocalMap();
     }

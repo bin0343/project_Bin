@@ -534,12 +534,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         Collider col = GetComponent<Collider>();
         if (col != null)
         {
-            col.isTrigger = true;
-
-            if (itemDropper != null && itemDropper.lootMethod == LootMethod.DropOnGround)
-            {
-                col.enabled = false;
-            }
+            col.isTrigger = false;
         }
 
         if (hpBarObject != null)
@@ -703,42 +698,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
                 target = null;
                 currentState = ENEMYSTATE.IDLE;
                 Debug.Log("플레이어를 놓쳤다.");
-            }
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-
-        if (!isDead && other.gameObject.CompareTag("Player_Foot"))
-        {
-            EnterStunState(1.5f);
-            Debug.Log("공격당함");
-            return;
-        }
-
-        if (isDead && other.CompareTag("Player"))
-        {
-            if (itemDropper != null && itemDropper.lootMethod == LootMethod.DropOnGround)
-            {
-                return;
-            }
-            Player_Action playerAction = other.GetComponent<Player_Action>();
-            if (playerAction != null)
-            {
-                playerAction.OnLootableCorpseEnter(itemDropper);
-            }
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (isDead && other.CompareTag("Player"))
-        {
-            Player_Action playerAction = other.GetComponent<Player_Action>();
-            if (playerAction != null)
-            {
-                playerAction.OnLootableCorpseExit();
             }
         }
     }

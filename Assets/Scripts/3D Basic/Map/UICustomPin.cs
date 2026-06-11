@@ -22,8 +22,7 @@ public class UICustomPin : MonoBehaviour, IPointerClickHandler
     {
         if (!eventData.dragging && MapPinManager.instance != null)
         {
-            // Manager에게 내 설명, 내 아이콘 이미지, 내 좌표를 넘기면서 열어달라고 요청!
-            MapPinManager.instance.OpenDetailsPanel(description, iconImage.sprite, mapPos, this);
+            MapPinManager.instance.OpenDetailsPanel(description, iconImage.sprite, mapPos, MapPinManager.IconGroupType.CustomPin, "", this);
         }
     }
 

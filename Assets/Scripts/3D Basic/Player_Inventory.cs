@@ -44,7 +44,6 @@ public class Player_Inventory : MonoBehaviour
     #region Add Item
     public bool AddItem(Item_Base item, int quantity = 1)
     {
-        // --- 비겹침 아이템 처리 로직 추가 ---
         if (!item.isStackable)
         {
             for (int i = 0; i < quantity; i++)
@@ -54,20 +53,21 @@ public class Player_Inventory : MonoBehaviour
                 if (emptySlotIndex != -1)
                 {
                     inventorySlots[emptySlotIndex] = new ItemHolder(item, 1);
+
+                    if (UI_ItemToastManager.instance != null)
+                        UI_ItemToastManager.instance.ShowToast(item, 1);
                 }
                 else
                 {
                     Debug.Log("인벤토리가 가득 찼습니다.");
                     RefreshAllUI();
-                    return false; // 하나라도 추가 못하면 실패
+                    return false; 
                 }
             }
             RefreshAllUI();
             return true;
         }
-        // ------------------------------------
 
-        // --- 겹침 아이템 처리 로직 (더욱 정교하게 수정) ---
         int remainingQuantity = quantity;
 
         // 1. 기존 스택에 최대한 채우기
@@ -82,6 +82,9 @@ public class Player_Inventory : MonoBehaviour
             stack.AddQuantity(amountToAdd);
             remainingQuantity -= amountToAdd;
 
+            if (amountToAdd > 0 && UI_ItemToastManager.instance != null)
+                UI_ItemToastManager.instance.ShowToast(item, amountToAdd);
+
             if (remainingQuantity <= 0)
             {
                 RefreshAllUI();
@@ -89,7 +92,6 @@ public class Player_Inventory : MonoBehaviour
             }
         }
 
-        // 2. 남은 아이템을 새 슬롯에 채우기
         while (remainingQuantity > 0)
         {
             int emptySlotIndex = inventorySlots.FindIndex(slot => slot == null || slot.ItemData == null);
@@ -99,6 +101,9 @@ public class Player_Inventory : MonoBehaviour
                 int amountForNewStack = Mathf.Min(item.maxStackSize, remainingQuantity);
                 inventorySlots[emptySlotIndex] = new ItemHolder(item, amountForNewStack);
                 remainingQuantity -= amountForNewStack;
+
+                if (amountForNewStack > 0 && UI_ItemToastManager.instance != null)
+                    UI_ItemToastManager.instance.ShowToast(item, amountForNewStack);
             }
             else
             {

@@ -3,8 +3,8 @@ using UnityEngine;
 
 public enum LootMethod
 {
-    DropOnGround,           //바닥에 떨어짐(잡몹)
-    InteractionWindow       //시체 상호작용(보스)
+    AutoAcquire,         // 잡몹: 처치 시 인벤토리로 자동 획득
+    BossRewardObject     // 보스: 처치 시 보상 상자/꽃 생성 (F 상호작용)
 }
 
 [System.Serializable]
@@ -20,54 +20,24 @@ public class LootItem
 public class ItemDrop : MonoBehaviour
 {
     [Header("루팅 방식")]
-    public LootMethod lootMethod = LootMethod.DropOnGround;
+    public LootMethod lootMethod = LootMethod.AutoAcquire;
 
     [Header("드랍 테이블")]
     public List<LootItem> dropTable = new List<LootItem>();
 
-    // 생성된 아이템을 보관할 리스트(interaction용)
-    private List<Item_Base> generatedLoot = new List<Item_Base>();
+    [Header("보스 보상 설정 (BossRewardObject 선택 시)")]
+    public GameObject bossRewardPrefab; // 생성될 보상 오브젝트 (꽃, 보물상자 등)
+    public Transform dropSpawnPoint;    // 생성 위치 (비워두면 몬스터 위치)
+
     private bool isLootGenerated = false;
 
-    [Header("필드 아이템 프리팹")]
-    public GameObject fieldItemPrefab;
-    public Transform dropSpawnPoint;
-
-    /// <summary>
-    /// 몬스터가 죽을 때 '한 번만' 호출되어 드랍될 아이템을 결정하고 보관합니다.
-    /// </summary>
     public void GenerateLoot()
     {
-        if (isLootGenerated) return; // 중복 생성을 방지
+        if (isLootGenerated) return;
 
-        List<Item_Base> tempLoot = new List<Item_Base>();
+        List<Item_Base> generatedLoot = new List<Item_Base>();
 
-        foreach (var loot in dropTable)
-        {
-            float randomValue = Random.Range(0f, 100f);
-            if (randomValue <= loot.dropChance)
-            {
-                int amount = Random.Range(loot.minAmount, loot.maxAmount + 1);
-                for (int i = 0; i < amount; i++)
-                {
-                    tempLoot.Add(loot.itemData);
-                }
-            }
-        }
-
-        if (lootMethod == LootMethod.DropOnGround)
-        {
-            SpawnFieldItems(tempLoot);
-            generatedLoot.Clear();
-        }
-        else if (lootMethod == LootMethod.InteractionWindow)
-        {
-            generatedLoot = tempLoot;
-        }
-
-        isLootGenerated = true;
-        /*generatedLoot = new List<Item_Base>();
-
+        // 1. 드랍 확률에 따라 아이템 리스트 생성
         foreach (var loot in dropTable)
         {
             float randomValue = Random.Range(0f, 100f);
@@ -80,58 +50,59 @@ public class ItemDrop : MonoBehaviour
                 }
             }
         }
+
+        // 2. 루팅 방식에 따른 분기 처리
+        if (lootMethod == LootMethod.AutoAcquire)
+        {
+            AutoAcquireItems(generatedLoot);
+        }
+        else if (lootMethod == LootMethod.BossRewardObject)
+        {
+            SpawnBossRewardObject(generatedLoot);
+        }
+
         isLootGenerated = true;
-        Debug.Log(generatedLoot.Count + "개의 아이템 드랍 생성 완료.");*/
     }
 
-    private void SpawnFieldItems(List<Item_Base> itemsToDrop)
+    private void AutoAcquireItems(List<Item_Base> lootList)
     {
-        Vector3 spawnPos = dropSpawnPoint != null ? dropSpawnPoint.position : transform.position;
+        if (lootList.Count == 0) return;
 
-        foreach (var item in itemsToDrop)
+        foreach (var item in lootList)
         {
-            if (fieldItemPrefab == null) continue;
-
-            Vector3 randomOffset = new Vector3(Random.Range(-0.5f, 0.5f), 0.5f, Random.Range(-0.5f, 0.5f));
-            GameObject go = Instantiate(fieldItemPrefab, spawnPos + randomOffset, Quaternion.identity);
-
-            FieldItem fieldItem = go.GetComponent<FieldItem>();
-            if (fieldItem != null)
+            if (Player_Inventory.instance != null)
             {
-                fieldItem.Setup(item);
+                Player_Inventory.instance.AddItem(item, 1);
             }
         }
-    }
 
+        Debug.Log($"잡몹 처치! {lootList.Count}개의 아이템이 인벤토리로 자동 획득되었습니다.");
 
-    /// <summary>
-    /// 다른 스크립트가 보관된 아이템 목록을 요청할 때 사용합니다.
-    /// </summary>
-    public List<Item_Base> GetLoot()
-    {
-        // 아직 아이템이 생성되지 않았다면 빈 리스트를 반환
-        if (!isLootGenerated)
+        // 화면 중앙에 시스템 메시지 띄우기
+        if (UI_Manager.instance != null)
         {
-            return new List<Item_Base>();
-        }
-        return generatedLoot;
-    }
-
-    public void RemoveLootedItem(Item_Base item)
-    {
-        /*if (generatedLoot != null)
-        {
-            generatedLoot.Remove(item);
-        }*/
-
-        if (generatedLoot.Contains(item))
-        {
-            generatedLoot.Remove(item);
+            UI_Manager.instance.ShowMessage($"아이템 {lootList.Count}개 획득!");
         }
     }
 
-    public bool HasLoot()
+    private void SpawnBossRewardObject(List<Item_Base> lootList)
     {
-        return generatedLoot != null && generatedLoot.Count > 0;
+        if (bossRewardPrefab == null)
+        {
+            Debug.LogError("보상 오브젝트 프리팹이 설정되지 않았습니다!");
+            return;
+        }
+
+        Vector3 spawnPos = dropSpawnPoint != null ? dropSpawnPoint.position : transform.position;
+
+        // 보상 오브젝트 생성 (바닥에 살짝 띄우기)
+        GameObject rewardObj = Instantiate(bossRewardPrefab, spawnPos + Vector3.up * 0.5f, Quaternion.identity);
+
+        // 보상 오브젝트 안에 있는 스크립트에 아이템 정보 전달
+        BossRewardInteractable rewardScript = rewardObj.GetComponent<BossRewardInteractable>();
+        if (rewardScript != null)
+        {
+            rewardScript.SetupReward(lootList);
+        }
     }
 }

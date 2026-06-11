@@ -1,11 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class UI_PartyManager : MonoBehaviour
 {
     public UI_MiniPortrait[] partySlots = new UI_MiniPortrait[3];
-    
+
     void Update()
     {
         UpdatePartyUI();
@@ -13,44 +12,45 @@ public class UI_PartyManager : MonoBehaviour
 
     public void UpdatePartyUI()
     {
-        Player_Stat localPlayer = null;
-        if (UI_Manager.instance != null)
+        if (partySlots == null || partySlots.Length == 0) return;
+
+        for (int i = 0; i < partySlots.Length; i++)
         {
-            localPlayer = UI_Manager.instance.playerStat;
+            if (partySlots[i] != null)
+            {
+                partySlots[i].gameObject.SetActive(false);
+            }
         }
 
-        if (localPlayer != null && partySlots.Length > 0 && partySlots[0] != null)
+        Player_Stat localPlayer = UI_Manager.instance != null ? UI_Manager.instance.playerStat : null;
+        if (localPlayer != null && partySlots[0] != null)
         {
             Sprite pIcon = localPlayer.playerData != null ? localPlayer.playerData.characterIcon : null;
-
-            partySlots[0].gameObject.SetActive(true);
+            partySlots[0].gameObject.SetActive(true); // 활성화
             partySlots[0].UpdatePortrait(pIcon, localPlayer.currentHP, localPlayer.maxHP);
         }
 
-        if (NPC_Manager.instance != null)
+        if (NPC_Manager.instance != null && NPC_Manager.instance.currentPartyData != null)
         {
             List<NPC_Data> partyData = NPC_Manager.instance.currentPartyData;
+            int currentSlotIndex = 1; // NPC는 1번 슬롯부터 들어감
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < partyData.Count; i++)
             {
-                int slotIndex = i + 1;
-                if (slotIndex >= partySlots.Length) break;
+                if (currentSlotIndex >= partySlots.Length) break;
 
-                if (i < partyData.Count && partyData[i] != null)
+                NPC_Data npcData = partyData[i];
+
+                if (npcData != null && partySlots[currentSlotIndex] != null)
                 {
-                    NPC_Data npcData = partyData[i];
-                    partySlots[slotIndex].gameObject.SetActive (true);
+                    partySlots[currentSlotIndex].gameObject.SetActive(true); // 활성화
 
                     float currentHp = GetNpcCurrentHp(npcData.NPCID);
                     float maxHp = GetNpcMaxHp(npcData.NPCID);
 
-                    partySlots[slotIndex].UpdatePortrait(npcData.NPCPortrait, currentHp, maxHp);
-                }
-                else
-                {
-                    // 해당 자리에 파티원이 없으면 UI를 숨김
-                    if (partySlots[slotIndex] != null)
-                        partySlots[slotIndex].gameObject.SetActive(false);
+                    partySlots[currentSlotIndex].UpdatePortrait(npcData.NPCPortrait, currentHp, maxHp);
+
+                    currentSlotIndex++; // 다음 슬롯으로 넘어감
                 }
             }
         }
@@ -66,7 +66,6 @@ public class UI_PartyManager : MonoBehaviour
                 return npc.currentHP;
             }
         }
-
         return GetNpcMaxHp(npcID);
     }
 

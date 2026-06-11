@@ -6,6 +6,8 @@ public class MapPinManager : MonoBehaviour
 {
     public static MapPinManager instance;
 
+    public enum IconGroupType { CustomPin, Teleport, General }
+
     [Header("핀 생성 패널 (Create)")]
     public GameObject createPanel;
     public InputField descInput;
@@ -24,6 +26,8 @@ public class MapPinManager : MonoBehaviour
     [Header("상세 제어 UI")]
     public GameObject deleteButton;   // 삭제 버튼 오브젝트
     public Text trackButtonText;
+    public GameObject trackButtonObj;
+    public GameObject teleportButton;
 
     [Header("핀 프리팹 및 아이콘 데이터")]
     public GameObject pinPrefab; // Content 자식으로 생성될 UI 핀
@@ -41,6 +45,7 @@ public class MapPinManager : MonoBehaviour
     private Vector2 currentTargetMapPos;
     private Sprite currentTargetSprite;
 
+    private string currentTeleportTargetName = "";
     private UICustomPin currentSelectedPin;
 
     private void Awake() { instance = this; }
@@ -96,22 +101,35 @@ public class MapPinManager : MonoBehaviour
         createPanel.SetActive(false); 
     }
 
-    public void OpenDetailsPanel(string desc, Sprite icon, Vector2 pos, UICustomPin customPin = null)
+    public void OpenDetailsPanel(string desc, Sprite icon, Vector2 pos, IconGroupType groupType, string teleportTarget = "", UICustomPin customPin = null)
     {
         currentSelectedPin = customPin;
         currentTargetMapPos = pos;
         currentTargetSprite = icon;
+        currentTeleportTargetName = teleportTarget;
 
         detailsDescText.text = desc;
         detailsIconPreview.sprite = icon;
 
-        // 1. 내가 직접 생성한 핀일 때만 [삭제] 버튼을 활성화시킵니다.
-        if (deleteButton != null)
+        if (groupType == IconGroupType.CustomPin)
         {
-            deleteButton.SetActive(customPin != null);
+            if (deleteButton != null) deleteButton.SetActive(true);
+            if (trackButtonObj != null) trackButtonObj.SetActive(true);
+            if (teleportButton != null) teleportButton.SetActive(false);
+        }
+        else if (groupType == IconGroupType.Teleport)
+        {
+            if (deleteButton != null) deleteButton.SetActive(false);
+            if (trackButtonObj != null) trackButtonObj.SetActive(false); // 텔레포트는 추적 버튼 숨김
+            if (teleportButton != null) teleportButton.SetActive(true);  // 텔레포트 버튼만 켜기
+        }
+        else // IconGroupType.General (퀘스트 및 기타 고정 마커)
+        {
+            if (deleteButton != null) deleteButton.SetActive(false);
+            if (trackButtonObj != null) trackButtonObj.SetActive(true);
+            if (teleportButton != null) teleportButton.SetActive(false);
         }
 
-        // 2. 현재 이 핀이 추적 중인지 체크하여 버튼 글자 실시간 업데이트
         UpdateTrackButtonText();
 
         createPanel.SetActive(false);
@@ -119,6 +137,18 @@ public class MapPinManager : MonoBehaviour
     }
 
     public void CloseDetailsPanel() { detailsPanel.SetActive(false); }
+
+    public void ExecutePinTeleport()
+    {
+        if (string.IsNullOrEmpty(currentTeleportTargetName)) return;
+
+        GameObject targetObj = GameObject.Find(currentTeleportTargetName);
+        if (targetObj != null && LocalMapController.instance != null)
+        {
+            LocalMapController.instance.TeleportPlayer(targetObj.transform);
+        }
+        detailsPanel.SetActive(false);
+    }
 
     public void UpdateTrackButtonText()
     {

@@ -18,8 +18,6 @@ public class UI_Manager : MonoBehaviour
     public UI_Inventory UI_Inventory;
     public GameObject messagePanel;
     public Text messageText;
-    public GameObject lootPanel;
-    public UI_Loot UI_Loot;
     public GameObject localMapPanel;
     public GameObject worldMapPanel;
     public GameObject questPanel;
@@ -47,10 +45,7 @@ public class UI_Manager : MonoBehaviour
     private void Start()
     {
         FindLocalPlayerStat();
-        if (UI_Loot == null && lootPanel != null)
-        {
-            UI_Loot = lootPanel.GetComponent<UI_Loot>();
-        }
+        
         if (UI_QuestPanel == null && questPanel != null)
         {
             UI_QuestPanel = questPanel.GetComponent<UI_QuestPanel>();
