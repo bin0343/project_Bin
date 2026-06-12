@@ -156,6 +156,11 @@ public class Player_Stat : MonoBehaviour
         currentHP = Mathf.Max(currentHP, 0);
         action?.OnDamageTaken();
         Debug.Log("플레이어가 피해를 입음. 남은 체력: " + currentHP);
+        
+        if (Player_Equipment.instance != null)
+        {
+            Player_Equipment.instance.EnterCombatState();
+        }
 
         if (DamageTextSpawner.instance != null)
         {

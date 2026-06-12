@@ -76,7 +76,7 @@ public class UI_Manager : MonoBehaviour
             ToggleQuestPanel();
         }
 
-        if (Input.GetKeyDown(KeyCode.U))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             if (statusPanel.activeSelf)
             {

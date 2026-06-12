@@ -42,7 +42,6 @@ public class UI_Inventory : MonoBehaviour
     void Start()
     {
         playerInventory = Player_Inventory.instance;
-        InitializeSlots();
 
         allTabButton.onClick.AddListener(() => ChangeTab(InventoryTabType.ALL));
         equipmentTabButton.onClick.AddListener(() => ChangeTab(InventoryTabType.EQUIPMENT));
@@ -55,33 +54,18 @@ public class UI_Inventory : MonoBehaviour
         }
 
         ChangeTab(InventoryTabType.ALL);
-        //gameObject.SetActive(false);
     }
 
     private void OnEnable()
     {
-        // 상세 정보창 끄기 (초기화)
         if (detailPanel != null)
         {
             detailPanel.SetActive(false);
         }
 
-        // 인벤토리 목록 새로고침 (데이터 동기화)
         if (playerInventory != null)
         {
             RefreshUI();
-        }
-    }
-
-    // 처음에 인벤토리 크기만큼 슬롯을 미리 생성하고 리스트에 담아둠
-    private void InitializeSlots()
-    {
-        for (int i = 0; i < playerInventory.inventorySlots.Count; i++)
-        {
-            GameObject slotGO = Instantiate(slotPrefab, slotGridParent);
-            UI_ItemSlot slot = slotGO.GetComponent<UI_ItemSlot>();
-            slot.Initialize(SlotType.INVENTORY, i);
-            slots.Add(slot);
         }
     }
 
@@ -93,72 +77,55 @@ public class UI_Inventory : MonoBehaviour
 
     public void RefreshUI()
     {
-        if (currentTab == InventoryTabType.ALL)
+        if (playerInventory == null) return;
+
+        List<ItemHolder> filteredItems = new List<ItemHolder>();
+        List<int> originalIndices = new List<int>();
+
+        for (int i = 0; i < playerInventory.inventorySlots.Count; i++)
         {
-            for (int i = 0; i < slots.Count; i++)
+            ItemHolder item = playerInventory.inventorySlots[i];
+            bool shouldShow = currentTab == InventoryTabType.ALL;
+
+            if (!shouldShow && item.ItemData != null)
             {
-                slots[i].gameObject.SetActive(true);
-                slots[i].SetDraggable(enableDrag);
-
-                ItemHolder item = playerInventory.inventorySlots[i];
-                slots[i].Initialize(SlotType.INVENTORY, i);
-
-                if (item != null)
+                switch (currentTab)
                 {
-                    slots[i].Setup(item);
+                    case InventoryTabType.EQUIPMENT: if (item.ItemData.itemType == ITEMTYPE.Equipment) shouldShow = true; break;
+                    case InventoryTabType.CONSUMABLE: if (item.ItemData.itemType == ITEMTYPE.Consumable) shouldShow = true; break;
+                    case InventoryTabType.ETC: if (item.ItemData.itemType == ITEMTYPE.ETC) shouldShow = true; break;
                 }
-                else
-                {
-                    slots[i].Clear();
-                }
+            }
+
+            if (shouldShow)
+            {
+                filteredItems.Add(item);
+                originalIndices.Add(i); // 드래그 앤 드롭을 위해 원본 위치 기억
             }
         }
-        // '장비', '소비' 등 필터링된 탭일 경우
-        else
+
+        //슬롯 부족하면 부족한만큼 생성
+        while (slots.Count < filteredItems.Count)
         {
-            List<ItemHolder> filteredItems = new List<ItemHolder>();
-            List<int> originalIndices = new List<int>();
+            GameObject slotGO = Instantiate(slotPrefab, slotGridParent);
+            UI_ItemSlot slot = slotGO.GetComponent<UI_ItemSlot>();
+            slots.Add(slot);
+        }
 
-            for (int i = 0; i < playerInventory.inventorySlots.Count; i++)
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (i < filteredItems.Count)
             {
-                ItemHolder item = playerInventory.inventorySlots[i];
-                if (item != null && item.ItemData != null)
-                {
-                    bool shouldShow = false;
-                    switch (currentTab)
-                    {
-                        case InventoryTabType.EQUIPMENT:
-                            if (item.ItemData.itemType == ITEMTYPE.Equipment) shouldShow = true;
-                            break;
-                        case InventoryTabType.CONSUMABLE:
-                            if (item.ItemData.itemType == ITEMTYPE.Consumable) shouldShow = true;
-                            break;
-                    }
-                    if (shouldShow)
-                    {
-                        filteredItems.Add(item);
-                        originalIndices.Add(i);
-                    }
-                }
-            }
-
-            for (int i = 0; i < slots.Count; i++)
-            {
+                // 가지고 있는 아이템이면 슬롯을 켜고 데이터를 넣음
                 slots[i].gameObject.SetActive(true);
                 slots[i].SetDraggable(enableDrag);
-
-                // 표시할 필터링된 아이템이 있다면
-                if (i < filteredItems.Count)
-                {
-                    slots[i].Initialize(SlotType.INVENTORY, originalIndices[i]);
-                    slots[i].Setup(filteredItems[i]);
-                }
-                // 표시할 아이템이 없다면, 나머지 슬롯은 모두 빈 칸으로 처리
-                else
-                {
-                    slots[i].Initialize(SlotType.INVENTORY, -1);
-                    slots[i].Clear();
-                }
+                slots[i].Initialize(SlotType.INVENTORY, originalIndices[i]);
+                slots[i].Setup(filteredItems[i]);
+            }
+            else
+            {
+                // 안 쓰는 빈 슬롯은 화면에서 끔
+                slots[i].gameObject.SetActive(false);
             }
         }
     }

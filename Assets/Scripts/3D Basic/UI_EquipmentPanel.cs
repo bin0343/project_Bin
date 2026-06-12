@@ -4,19 +4,15 @@ using UnityEngine;
 
 public class UI_EquipmentPanel : MonoBehaviour
 {
-    public UI_ItemSlot leftHandSlot;
-    public UI_ItemSlot rightHandSlot;
-    public UI_ItemSlot armorSlot;
+    public UI_ItemSlot weaponSlot;
 
     private UI_ItemSlot[] equipmentSlotsUI;
 
     private void Start()
     {
-        equipmentSlotsUI = new UI_ItemSlot[] { leftHandSlot, rightHandSlot, armorSlot };
+        equipmentSlotsUI = new UI_ItemSlot[] { weaponSlot };
 
-        leftHandSlot.Initialize(SlotType.EQUIPMENT, (int)EquipmentType.LeftHand);
-        rightHandSlot.Initialize(SlotType.EQUIPMENT, (int)EquipmentType.RightHand);
-        armorSlot.Initialize(SlotType.EQUIPMENT, (int)EquipmentType.Armor);
+        weaponSlot.Initialize(SlotType.EQUIPMENT, (int)EquipmentType.Weapon);
 
         RefreshUI();
     }
@@ -24,6 +20,8 @@ public class UI_EquipmentPanel : MonoBehaviour
     public void RefreshUI()
     {
         if (Player_Equipment.instance == null) return;
+
+        if (equipmentSlotsUI == null) return;
 
         for (int i = 0; i < equipmentSlotsUI.Length; i++)
         {

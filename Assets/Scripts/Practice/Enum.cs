@@ -54,5 +54,6 @@ public enum ITEMTYPE
     Equipment,
     Consumable,
     Material,
-    Quest
+    Quest,
+    ETC
 }

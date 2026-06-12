@@ -20,12 +20,6 @@ public class ItemHolder
         Quantity += amount;
     }
 
-    // 아이템 사용 로직은 이제 Player_Action에서 직접 처리하므로 이 메서드는 제거해도 무방합니다.
-    // public void RemoveQuantity(int amount)
-    // {
-    //     Quantity -= amount;
-    // }
-
     // 아이템 사용
     // CHANGED: 반환 타입을 bool로 변경하고, 내부의 수량 감소 로직을 제거
     public bool Use(GameObject user)
@@ -38,7 +32,6 @@ public class ItemHolder
 
     public float GetRemainingCooldown()
     {
-        // ... (이 부분은 아이템 쿨타임 기능이 필요할 때 구현) ...
         return 0f;
     }
 }

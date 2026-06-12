@@ -20,6 +20,11 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public override void Enter(Player_Action player)
     {
+        if (Player_Equipment.instance != null)
+        {
+            Player_Equipment.instance.EnterCombatState();
+        }
+
         player.CanRotate = false;
         if (Cursor.visible || Cursor.lockState == CursorLockMode.None)
         {

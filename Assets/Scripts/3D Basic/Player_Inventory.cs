@@ -3,11 +3,13 @@ using UnityEngine;
 using System.Linq;
 
 public enum SlotType { INVENTORY, QUICKSLOT, EQUIPMENT }
-public enum ItemSortMethod
+public enum ItemSortMethod { NAME, TYPE, QUANTITY }
+
+[System.Serializable]
+public class StartingItem
 {
-    NAME,
-    TYPE,
-    QUANTITY
+    public Item_Base itemData;
+    public int quantity = 1;
 }
 
 public class Player_Inventory : MonoBehaviour
@@ -16,6 +18,9 @@ public class Player_Inventory : MonoBehaviour
 
     public List<ItemHolder> inventorySlots = new List<ItemHolder>();
     public ItemHolder[] quickSlots = new ItemHolder[4];
+
+    [Header("최초 시작 시 지급할 기본 아이템 목록")]
+    public List<StartingItem> startingItems = new List<StartingItem>();
 
     private void Awake()
     {
@@ -35,6 +40,16 @@ public class Player_Inventory : MonoBehaviour
 
     private void Start()
     {
+        if (inventorySlots.Count == 0 && startingItems.Count > 0)
+        {
+            foreach (var defaultItem in startingItems)
+            {
+                if (defaultItem.itemData != null && defaultItem.quantity > 0)
+                {
+                    AddItem(defaultItem.itemData, defaultItem.quantity, false); 
+                }
+            }
+        }
         if (UI_ItemManager.Instance != null)
         {
             UI_ItemManager.Instance.SetupItemSlots(quickSlots);
@@ -42,27 +57,15 @@ public class Player_Inventory : MonoBehaviour
     }
 
     #region Add Item
-    public bool AddItem(Item_Base item, int quantity = 1)
+    public bool AddItem(Item_Base item, int quantity = 1, bool showToast = true)
     {
         if (!item.isStackable)
         {
             for (int i = 0; i < quantity; i++)
             {
-                // 빈 슬롯을 찾아서 아이템을 1개씩 추가
-                int emptySlotIndex = inventorySlots.FindIndex(slot => slot == null || slot.ItemData == null);
-                if (emptySlotIndex != -1)
-                {
-                    inventorySlots[emptySlotIndex] = new ItemHolder(item, 1);
-
-                    if (UI_ItemToastManager.instance != null)
-                        UI_ItemToastManager.instance.ShowToast(item, 1);
-                }
-                else
-                {
-                    Debug.Log("인벤토리가 가득 찼습니다.");
-                    RefreshAllUI();
-                    return false; 
-                }
+                inventorySlots.Add(new ItemHolder(item, 1));
+                if (showToast && UI_ItemToastManager.instance != null)
+                    UI_ItemToastManager.instance.ShowToast(item, 1);
             }
             RefreshAllUI();
             return true;
@@ -70,7 +73,6 @@ public class Player_Inventory : MonoBehaviour
 
         int remainingQuantity = quantity;
 
-        // 1. 기존 스택에 최대한 채우기
         List<ItemHolder> existingStacks = inventorySlots.Where(slot =>
             slot != null && slot.ItemData == item && slot.Quantity < item.maxStackSize).ToList();
 
@@ -82,7 +84,7 @@ public class Player_Inventory : MonoBehaviour
             stack.AddQuantity(amountToAdd);
             remainingQuantity -= amountToAdd;
 
-            if (amountToAdd > 0 && UI_ItemToastManager.instance != null)
+            if (amountToAdd > 0 && showToast && UI_ItemToastManager.instance != null)
                 UI_ItemToastManager.instance.ShowToast(item, amountToAdd);
 
             if (remainingQuantity <= 0)
@@ -94,23 +96,17 @@ public class Player_Inventory : MonoBehaviour
 
         while (remainingQuantity > 0)
         {
-            int emptySlotIndex = inventorySlots.FindIndex(slot => slot == null || slot.ItemData == null);
+            int amountForNewStack = Mathf.Min(item.maxStackSize, remainingQuantity);
+            inventorySlots.Add(new ItemHolder(item, amountForNewStack));
+            remainingQuantity -= amountForNewStack;
 
-            if (emptySlotIndex != -1)
+            if (amountForNewStack > 0 && showToast && UI_ItemToastManager.instance != null)
             {
-                int amountForNewStack = Mathf.Min(item.maxStackSize, remainingQuantity);
-                inventorySlots[emptySlotIndex] = new ItemHolder(item, amountForNewStack);
-                remainingQuantity -= amountForNewStack;
+                UI_ItemToastManager.instance.ShowToast(item, amountForNewStack);
+            }
 
-                if (amountForNewStack > 0 && UI_ItemToastManager.instance != null)
-                    UI_ItemToastManager.instance.ShowToast(item, amountForNewStack);
-            }
-            else
-            {
-                Debug.Log("인벤토리가 가득 찼습니다.");
-                RefreshAllUI();
-                return false; // 남은 아이템을 추가하지 못하고 실패
-            }
+            RefreshAllUI();
+            return true;
         }
 
         RefreshAllUI();
@@ -121,21 +117,8 @@ public class Player_Inventory : MonoBehaviour
     #region Remove Item
     public bool RemoveItem(Item_Base item, int quantityToRemove)
     {
-        int totalOwned = 0;
-
-        if (!item.isStackable)
-        {
-            totalOwned = inventorySlots.Count(slot => slot != null && slot.ItemData == item);
-        }
-        else
-        {
-            totalOwned = inventorySlots.Where(slot => slot != null && slot.ItemData == item).Sum(slot => slot.Quantity);
-        }
-
-        if (totalOwned < quantityToRemove)
-        {
-            return false;
-        }
+        int totalOwned = inventorySlots.Where(slot => slot.ItemData == item).Sum(slot => slot.Quantity);
+        if (totalOwned < quantityToRemove) return false;
 
         int remainingToRemove = quantityToRemove;
 
@@ -144,30 +127,23 @@ public class Player_Inventory : MonoBehaviour
             ItemHolder slot = inventorySlots[i];
             if (slot == null || slot.ItemData != item) continue;
 
-            if (!item.isStackable)
-            {
-                inventorySlots[i] = null;
-                remainingToRemove--;
-            }
-            else
-            {
-                int amountToRemoveFromSlot = Mathf.Min(remainingToRemove, slot.Quantity);
-                slot.Quantity -= amountToRemoveFromSlot;
-                remainingToRemove -= amountToRemoveFromSlot;
-
-                if (slot.Quantity <= 0)
-                {
-                    inventorySlots[i] = null;
-                }
-            }
+            int amountToRemoveFromSlot = Mathf.Min(remainingToRemove, slot.Quantity);
+            slot.Quantity -= amountToRemoveFromSlot;
+            remainingToRemove -= amountToRemoveFromSlot;
 
             if (remainingToRemove <= 0) break;
         }
 
+        CleanUpInventory(); 
         RefreshAllUI();
         return true;
     }
     #endregion
+
+    public void CleanUpInventory()
+    {
+        inventorySlots.RemoveAll(slot => slot == null || slot.ItemData == null || slot.Quantity <= 0);
+    }
 
     #region New Helper Methods
     private ItemHolder GetItemHolderAt(SlotType type, int index)
@@ -201,31 +177,19 @@ public class Player_Inventory : MonoBehaviour
 
     public void HandleSlotDrop(SlotType sourceType, int sourceIndex, SlotType destType, int destIndex, UI_Inventory.InventoryTabType currentTab)
     {
-        //아이템 장착 시도 (인벤토리/퀵슬롯 -> 장비 슬롯)
         if (destType == SlotType.EQUIPMENT)
         {
-            // 장비창에서 장비창으로 이동하는 것은 막음
             if (sourceType == SlotType.EQUIPMENT) return;
 
             ItemHolder sourceItem = GetItemHolderAt(sourceType, sourceIndex);
             if (sourceItem != null)
             {
-                // 장착 시도
                 Player_Equipment.instance.Equip(sourceItem, sourceType, sourceIndex);
-                // Equip 함수가 모든 데이터 처리와 UI갱신을 하므로 여기서 종료
                 return;
             }
         }
 
-        // 아이템 장착 해제
-        if (sourceType == SlotType.EQUIPMENT)
-        {
-            return;
-        }
-
-
-        //필터링된 탭에서 인벤토리 내부로 드롭 방지
-        if (currentTab != UI_Inventory.InventoryTabType.ALL && destType == SlotType.INVENTORY)
+        if (sourceType == SlotType.EQUIPMENT || (currentTab != UI_Inventory.InventoryTabType.ALL && destType == SlotType.INVENTORY))
         {
             return;
         }
@@ -242,11 +206,6 @@ public class Player_Inventory : MonoBehaviour
 
             destItemGeneral.AddQuantity(amountToMove);
             sourceItemGeneral.Quantity -= amountToMove;
-
-            if (sourceItemGeneral.Quantity <= 0)
-            {
-                SetItemHolderAt(sourceType, sourceIndex, null);
-            }
         }
         // 교환 로직
         else
@@ -255,6 +214,7 @@ public class Player_Inventory : MonoBehaviour
             SetItemHolderAt(sourceType, sourceIndex, destItemGeneral);
         }
 
+        CleanUpInventory();
         RefreshAllUI();
     }
 
@@ -275,27 +235,13 @@ public class Player_Inventory : MonoBehaviour
     #region Sorting
     public void SortItems(ItemSortMethod method)
     {
-        List<ItemHolder> itemsToSort = inventorySlots.Where(slot => slot != null && slot.ItemData != null).ToList();
-
+        CleanUpInventory();
         switch (method)
         {
             case ItemSortMethod.NAME:
-                itemsToSort = itemsToSort.OrderBy(holder => holder.ItemData.itemName).ToList();
+                inventorySlots = inventorySlots.OrderBy(holder => holder.ItemData.itemName).ToList();
                 break;
         }
-
-        for (int i = 0; i < inventorySlots.Count; i++)
-        {
-            if (i < itemsToSort.Count)
-            {
-                inventorySlots[i] = itemsToSort[i];
-            }
-            else
-            {
-                inventorySlots[i] = null;
-            }
-        }
-
         RefreshAllUI();
     }
     #endregion

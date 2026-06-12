@@ -201,6 +201,11 @@ public class Player_Action : MonoBehaviour
     // 모든 상태 클래스가 호출할 스킬 처리 전용 함수
     public void HandleSkillInput(int slotIndex)
     {
+        if (Player_Equipment.instance != null)
+        {
+            Player_Equipment.instance.EnterCombatState();
+        }
+
         if (isTargetingSkill) return;
         if (slotIndex < 0 || slotIndex >= playerSkills.Length) return;
 

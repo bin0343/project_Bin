@@ -54,9 +54,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7fe8dcd95174349a07b7daa877bc8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftHandSlot: {fileID: 838211392422486851}
-  rightHandSlot: {fileID: 5707858388242174997}
-  armorSlot: {fileID: 8676586239366135212}
+  weaponSlot: {fileID: 0}
 --- !u!114 &7057223737288063451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,9 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hpSlider: {fileID: 2298510595199024078}
-  mpSlider: {fileID: 9102028412481755204}
   hpText: {fileID: 2466459487345266049}
-  mpText: {fileID: 8327788368254725676}
   uiEquipmentPanel: {fileID: 1591706030122450905}
 --- !u!222 &627147829615054872
 CanvasRenderer:
@@ -3225,15 +3221,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
+    m_Left: 20
+    m_Right: 20
+    m_Top: 20
+    m_Bottom: 20
+  m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 120, y: 120}
-  m_Spacing: {x: 30, y: 80}
+  m_Spacing: {x: 30, y: 30}
   m_Constraint: 1
   m_ConstraintCount: 5
 --- !u!114 &1081327891794057634

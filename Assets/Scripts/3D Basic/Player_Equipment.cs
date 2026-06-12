@@ -6,12 +6,22 @@ public class Player_Equipment : MonoBehaviour
 {
     public static Player_Equipment instance;
     private Player_Action playerAction;
-    private Animator animator;
-    private RuntimeAnimatorController defaultAnimatorController;
+
+    [Header("캐릭터 무기")]
+    public WeaponCategory usableWeaponCategory = WeaponCategory.OneHandedSword; //캐릭터 전용 무기 종류
 
     [Header("Equipment Setup")]
     [SerializeField] private Transform weaponMountPoint;
     private GameObject currentWeaponObject;
+
+    [Header("전투 (무기 표시) 설정")]
+    public float combatCooldown = 5f; // 마지막 공격/피격 후 무기가 사라지기까지의 시간
+    public bool isInCombat = false;
+    private float combatTimer = 0f;
+
+    //무기 사라짐 효과
+    private Coroutine weaponFadeCoroutine;
+    private Vector3 originalWeaponScale = Vector3.one;
 
     public ItemHolder[] equipmentSlots = new ItemHolder[System.Enum.GetValues(typeof(EquipmentType)).Length];
 
@@ -20,16 +30,23 @@ public class Player_Equipment : MonoBehaviour
         if (instance != null && instance != this) Destroy(gameObject);
         instance = this;
         playerAction = GetComponent<Player_Action>();
-        animator = GetComponentInChildren<Animator>();
-        if (animator != null)
-        {
-            defaultAnimatorController = animator.runtimeAnimatorController;
-        }
     }
 
     private void Start()
     {
         InitializeEquipment();
+    }
+
+    private void Update()
+    {
+        if (isInCombat)
+        {
+            combatTimer -= Time.deltaTime;
+            if (combatTimer <= 0f)
+            {
+                ExitCombatState();
+            }
+        }
     }
 
     private void InitializeEquipment()
@@ -44,30 +61,57 @@ public class Player_Equipment : MonoBehaviour
                 Item_Equipment equipmentData = equipmentSlots[i].ItemData as Item_Equipment;
                 if (equipmentData == null) continue;
 
-                // 1. 무기 프리팹 생성 (무기 슬롯인 경우 혹은 무기 프리팹이 있는 경우)
+                // 무기 프리팹 생성 (무기 슬롯인 경우 혹은 무기 프리팹이 있는 경우)
                 if (equipmentData.weaponPrefab != null)
                 {
                     // 기존 무기가 있다면 제거 (혹시 모를 중복 방지)
                     if (currentWeaponObject != null) Destroy(currentWeaponObject);
 
                     currentWeaponObject = Instantiate(equipmentData.weaponPrefab, weaponMountPoint);
+                    originalWeaponScale = currentWeaponObject.transform.localScale;
                     Weapon_Player newWeaponController = currentWeaponObject.GetComponentInChildren<Weapon_Player>();
                     playerAction.SetCurrentWeapon(newWeaponController);
+
+                    currentWeaponObject.SetActive(isInCombat);
                 }
 
-                // 2. 애니메이션 오버라이드 적용
-                if (equipmentData.animationOverrides != null)
-                {
-                    animator.runtimeAnimatorController = equipmentData.animationOverrides;
-                }
-
-                // 3. 스탯 적용
+                // 스탯 적용
                 if (stat != null)
                 {
                     stat.AddEquipmentStat(STAT.Attack, equipmentData.attackBonus);
-                    stat.AddEquipmentStat(STAT.Defense, equipmentData.defenseBonus);
                 }
             }
+        }
+    }
+
+    public void EnterCombatState()
+    {
+        isInCombat = true;
+        combatTimer = combatCooldown;
+
+        if (currentWeaponObject != null)
+        {
+            // 사라지고 있던 중이었다면 멈춤
+            if (weaponFadeCoroutine != null)
+            {
+                StopCoroutine(weaponFadeCoroutine);
+                weaponFadeCoroutine = null;
+            }
+
+            currentWeaponObject.SetActive(true);
+
+            currentWeaponObject.transform.localScale = originalWeaponScale;
+        }
+    }
+
+    public void ExitCombatState()
+    {
+        isInCombat = false;
+
+        if (currentWeaponObject != null && currentWeaponObject.activeInHierarchy)
+        {
+            if (weaponFadeCoroutine != null) StopCoroutine(weaponFadeCoroutine);
+            weaponFadeCoroutine = StartCoroutine(FadeOutWeaponCoroutine());
         }
     }
 
@@ -78,8 +122,19 @@ public class Player_Equipment : MonoBehaviour
         Item_Equipment equipmentData = itemToEquip.ItemData as Item_Equipment;
         if (equipmentData == null) return;
 
-        ItemHolder previouslyEquipped = UnEquip(equipmentData.equipmentType);
-        int slotIndex = (int)equipmentData.equipmentType;
+        if (equipmentData.weaponCategory != usableWeaponCategory)
+        {
+            Debug.LogWarning($"장착 실패: 이 캐릭터는 [{usableWeaponCategory}] 전용입니다. ({equipmentData.weaponCategory} 장착 불가)");
+
+            if (UI_Manager.instance != null)
+            {
+                UI_Manager.instance.ShowMessage("이 캐릭터가 장착할 수 없는 무기 종류입니다.");
+            }
+            return; 
+        }
+
+        ItemHolder previouslyEquipped = UnEquip(EquipmentType.Weapon);
+        int slotIndex = 0;
 
         equipmentSlots[slotIndex] = itemToEquip;
 
@@ -101,19 +156,9 @@ public class Player_Equipment : MonoBehaviour
             playerAction.SetCurrentWeapon(newWeaponController);
         }
 
-        if (equipmentData.animationOverrides != null)
-        {
-            animator.runtimeAnimatorController = equipmentData.animationOverrides;
-        }
-        else
-        {
-            animator.runtimeAnimatorController = defaultAnimatorController;
-        }
-
         // 스탯 적용
         Player_Stat stat = GetComponent<Player_Stat>();
         stat.AddEquipmentStat(STAT.Attack, equipmentData.attackBonus);
-        stat.AddEquipmentStat(STAT.Defense, equipmentData.defenseBonus);
         Debug.Log($"{equipmentData.itemName}을(를) 장착했습니다.");
 
         RefreshUI();
@@ -129,7 +174,7 @@ public class Player_Equipment : MonoBehaviour
             return null;
         }
 
-        int slotIndex = (int)slotToUnEquip;
+        int slotIndex = 0;
         ItemHolder itemToUnEquip = equipmentSlots[slotIndex];
 
         if (itemToUnEquip != null)
@@ -139,7 +184,6 @@ public class Player_Equipment : MonoBehaviour
             {
                 // 스탯 해제
                 stat.RemoveEquipmentStat(STAT.Attack, equipmentData.attackBonus);
-                stat.RemoveEquipmentStat(STAT.Defense, equipmentData.defenseBonus);
             }
 
             equipmentSlots[slotIndex] = null;
@@ -152,11 +196,7 @@ public class Player_Equipment : MonoBehaviour
         }
 
         playerAction.SetCurrentWeapon(null);
-
-        if (animator != null)
-        {
-            animator.runtimeAnimatorController = defaultAnimatorController;
-        }
+        
         return itemToUnEquip;
     }
 
@@ -166,6 +206,28 @@ public class Player_Equipment : MonoBehaviour
         {
             UI_Manager.instance.UI_Status.uiEquipmentPanel.RefreshUI();
         }
+        UI_WeaponTab weaponTab = FindObjectOfType<UI_WeaponTab>();
+        if (weaponTab != null && weaponTab.gameObject.activeInHierarchy)
+        {
+            weaponTab.RefreshTab();
+        }
     }
 
+    private IEnumerator FadeOutWeaponCoroutine()
+    {
+        float duration = 0.2f; // 0.2초 동안 아주 빠르게 스르륵! (원하는 속도로 조절하세요)
+        float elapsed = 0f;
+        Vector3 startScale = currentWeaponObject.transform.localScale;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            // 시작 크기에서 Vector3.zero(크기 0)으로 부드럽게 변환
+            currentWeaponObject.transform.localScale = Vector3.Lerp(startScale, Vector3.zero, elapsed / duration);
+            yield return null; // 다음 프레임까지 대기
+        }
+
+        currentWeaponObject.SetActive(false);
+        currentWeaponObject.transform.localScale = originalWeaponScale;
+    }
 }

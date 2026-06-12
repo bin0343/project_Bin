@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum EquipmentType { LeftHand, RightHand, Armor }
+public enum EquipmentType { Weapon }
 
 [CreateAssetMenu(fileName = "NewItemData", menuName = "Item/Item Data")]
 public abstract class Item_Base : ScriptableObject
