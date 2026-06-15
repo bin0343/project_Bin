@@ -96,7 +96,21 @@ public class UI_WeaponTab : MonoBehaviour
 
     public void OnClickEnhanceWeapon()
     {
-        //강화 버튼
+        if (Player_Equipment.instance == null) return;
+
+        ItemHolder currentWeapon = Player_Equipment.instance.equipmentSlots[0];
+
+        if (currentWeapon != null && currentWeapon.ItemData != null)
+        {
+            if (UI_WeaponEnhancement.instance != null)
+            {
+                UI_WeaponEnhancement.instance.OpenEnhancementScreen(currentWeapon);
+            }
+            else
+            {
+                Debug.LogError("UI_WeaponEnhancement.instance가 씬에 없습니다! 패널이 비활성화 되어 있어도 Awake가 실행되게 하려면 최상위 캔버스를 껐다 켜보세요.");
+            }
+        }
     }
 
     public void OnClickChangeWeapon()

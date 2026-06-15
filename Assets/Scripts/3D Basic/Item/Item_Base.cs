@@ -22,5 +22,11 @@ public abstract class Item_Base : ScriptableObject
     public bool isStackable = true; // 겹치는게 가능한가?
     public int maxStackSize = 99;   // 최대겹치기 갯수
 
+    [Header("강화 재료 설정")]
+    [Tooltip("아이템의 등급 (예: 1~5성) - 일괄 추가 필터링에 사용됩니다.")] 
+    public int rarity = 1;
+    [Tooltip("이 아이템을 무기 강화 재료로 먹였을 때 오르는 경험치 양")]
+    public int expValue = 0;
+
     public abstract bool Use(GameObject user);
 }

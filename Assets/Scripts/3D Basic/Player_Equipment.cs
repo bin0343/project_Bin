@@ -78,7 +78,7 @@ public class Player_Equipment : MonoBehaviour
                 // 스탯 적용
                 if (stat != null)
                 {
-                    stat.AddEquipmentStat(STAT.Attack, equipmentData.attackBonus);
+                    stat.AddEquipmentStat(STAT.Attack, equipmentSlots[i].GetTotalWeaponAttack());
                 }
             }
         }
@@ -158,7 +158,7 @@ public class Player_Equipment : MonoBehaviour
 
         // 스탯 적용
         Player_Stat stat = GetComponent<Player_Stat>();
-        stat.AddEquipmentStat(STAT.Attack, equipmentData.attackBonus);
+        stat.AddEquipmentStat(STAT.Attack, itemToEquip.GetTotalWeaponAttack());
         Debug.Log($"{equipmentData.itemName}을(를) 장착했습니다.");
 
         RefreshUI();
@@ -183,7 +183,7 @@ public class Player_Equipment : MonoBehaviour
             if (equipmentData != null)
             {
                 // 스탯 해제
-                stat.RemoveEquipmentStat(STAT.Attack, equipmentData.attackBonus);
+                stat.RemoveEquipmentStat(STAT.Attack, itemToUnEquip.GetTotalWeaponAttack());
             }
 
             equipmentSlots[slotIndex] = null;
