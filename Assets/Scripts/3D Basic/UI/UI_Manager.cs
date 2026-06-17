@@ -10,7 +10,7 @@ public class UI_Manager : MonoBehaviour
     public static UI_Manager instance;
 
     public GameObject statusPanel;
-    public UI_Status UI_Status;
+    [HideInInspector]public UI_Status UI_Status;
     public UI_StatusBar UI_StatusBar;
     public Enemy_HpBar enemy_HpBar;
     public Player_Stat playerStat;
@@ -19,7 +19,6 @@ public class UI_Manager : MonoBehaviour
     public GameObject messagePanel;
     public Text messageText;
     public GameObject localMapPanel;
-    public GameObject worldMapPanel;
     public GameObject questPanel;
     public UI_QuestPanel UI_QuestPanel;
     public GameObject OptionPanel;
@@ -78,56 +77,17 @@ public class UI_Manager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            if (statusPanel.activeSelf)
-            {
-                CloseSpecificUI(statusPanel);
-            }
-            else
-            {
-                UpdatePlayerStatus();
-                OpenUI(statusPanel);
-            }
+            ToggleCharacterInfoPanel();
         }
 
         if (Input.GetKeyDown(KeyCode.M))
         {
-            if (localMapPanel != null)
-            {
-                if (localMapPanel.activeSelf)
-                {
-                    CloseSpecificUI(localMapPanel);
-                    LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
-                    if (controller != null)
-                    {
-                        controller.CloseLocalMap();
-                    }
-                }
-                else
-                {
-                    // UI 매니저 스택에 추가 및 활성화
-                    OpenUI(localMapPanel);
-
-                    // 맵 컨트롤러의 열기 로직 실행 (시간 정지, 버튼 포커스 등)
-                    LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
-                    if (controller != null)
-                    {
-                        controller.OpenLocalMap();
-                    }
-                }
-            }
+            ToggleLocalMapPanel();
         }
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            if (inventoryPanel.activeSelf)
-            {
-                CloseSpecificUI(inventoryPanel);
-            }
-            else
-            {
-                UI_Inventory.RefreshUI();
-                OpenUI(inventoryPanel);
-            }
+            ToggleInventoryPanel();
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -135,12 +95,6 @@ public class UI_Manager : MonoBehaviour
             if (UIStack.Count > 0)
             {
                 GameObject topUI = UIStack.Peek();
-
-                // 맨 위에 있는 UI가 '월드 맵'이라면 ESC로 닫지 않음
-                if (topUI == worldMapPanel)
-                {
-                    return;
-                }
 
                 // 로컬 맵인 경우 추가 정리 로직
                 if (topUI == localMapPanel)
@@ -179,22 +133,6 @@ public class UI_Manager : MonoBehaviour
         if (questTracker != null) questTracker.SetActive(show);
     }
 
-    public void OpenWorldMap()
-    {
-        if (worldMapPanel != null)
-        {
-            // 이미 열려있지 않을 때만 열기
-            if (!worldMapPanel.activeSelf)
-            {
-                OpenUI(worldMapPanel);
-            }
-        }
-        else
-        {
-            Debug.LogWarning("UI_Manager에 World Map Panel이 연결되지 않았습니다.");
-        }
-    }
-
     private void FindLocalPlayerStat()
     {
         Player_Stat[] allStats = FindObjectsOfType<Player_Stat>();
@@ -224,7 +162,6 @@ public class UI_Manager : MonoBehaviour
 
         if (playerStat != null && !playerStat.isGlobalData)
         {
-            if (UI_Status != null) UI_Status.UpdateStatus(playerStat);
             if (UI_StatusBar != null) UI_StatusBar.UpdateStatus(playerStat);
         }
     }
@@ -308,7 +245,7 @@ public class UI_Manager : MonoBehaviour
             // 켜져있으면 -> 닫기
             CloseSpecificUI(questPanel);
         }
-        else
+        else if (!IsUIOpen)
         {
             // 꺼져있으면 -> 열기
             OpenUI(questPanel);
@@ -321,10 +258,49 @@ public class UI_Manager : MonoBehaviour
         {
             CloseSpecificUI(inventoryPanel);
         }
-        else
+        else if (!IsUIOpen)
         {
             UI_Inventory.RefreshUI();
             OpenUI(inventoryPanel);
+        }
+    }
+
+    public void ToggleCharacterInfoPanel()
+    {
+        if (statusPanel.activeSelf)
+        {
+            CloseSpecificUI(statusPanel);
+        }
+        else if (!IsUIOpen)
+        {
+            UpdatePlayerStatus();
+            OpenUI(statusPanel);
+        }
+    }
+
+    public void ToggleLocalMapPanel()
+    {
+        if (localMapPanel != null)
+        {
+            if (localMapPanel.activeSelf)
+            {
+                CloseSpecificUI(localMapPanel);
+                LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
+                if (controller != null)
+                {
+                    controller.CloseLocalMap();
+                }
+            }
+            else if (!IsUIOpen)
+            {
+                OpenUI(localMapPanel);
+
+                LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
+                if (controller != null)
+                {
+                    controller.OpenLocalMap();
+                }
+            }
         }
     }
 

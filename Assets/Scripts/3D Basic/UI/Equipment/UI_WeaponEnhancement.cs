@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.PlayerLoop;
 
 public class UI_WeaponEnhancement : MonoBehaviour
 {
@@ -54,8 +55,11 @@ public class UI_WeaponEnhancement : MonoBehaviour
 
     private ItemHolder targetWeaponHolder;
 
+    private GameObject spawnedWeaponModel;  //3d모델 추적
+
     private List<ItemHolder> selectedMaterials = new List<ItemHolder>();
     private List<UI_EnhancementMaterialSlot> inputSlots = new List<UI_EnhancementMaterialSlot>();
+    private List<UI_EnhancementMaterialSlot> myInventorySlots = new List<UI_EnhancementMaterialSlot>();
 
     private int previewLevel;
     private int previewExp;
@@ -93,6 +97,30 @@ public class UI_WeaponEnhancement : MonoBehaviour
         InitializeInputSlots();
         SwitchSubTab(true);
         RefreshEnhancementUI();
+
+        SpawnWeaponModel(weapon);
+    }
+
+    private void SpawnWeaponModel(ItemHolder weapon)
+    {
+        if (spawnedWeaponModel != null)
+        {
+            Destroy(spawnedWeaponModel);
+        }
+
+        if (weapon == null || weapon.ItemData == null) return;
+
+        Item_Equipment eqData = weapon.ItemData as Item_Equipment;
+        if (eqData == null) return;
+
+        if (eqData.weaponPrefab != null && uiWeaponMountPoint != null)
+        {
+            spawnedWeaponModel = Instantiate(eqData.weaponPrefab, uiWeaponMountPoint);
+
+            spawnedWeaponModel.transform.localPosition = Vector3.zero;
+            spawnedWeaponModel.transform.localRotation = Quaternion.identity;
+            spawnedWeaponModel.transform.localScale = Vector3.one;
+        } 
     }
 
     private void InitializeInputSlots()
@@ -117,6 +145,18 @@ public class UI_WeaponEnhancement : MonoBehaviour
         enhancementSubPanel.SetActive(isEnhance);
         refinementSubPanel.SetActive(!isEnhance);
         myMaterialInventoryPanel.SetActive(false);
+
+        if (isEnhance)
+        {
+            RefreshEnhancementUI();
+        }
+        else
+        {
+            if (UI_WeaponRefinement.instance != null && targetWeaponHolder != null)
+            {
+                UI_WeaponRefinement.instance.OpenRefinementScreen(targetWeaponHolder);
+            }
+        }
     }
 
     // 재료가 들어올 때마다 가상으로 레벨과 스탯 상승치를 실시간 계산
@@ -228,6 +268,11 @@ public class UI_WeaponEnhancement : MonoBehaviour
 
         // 투입구 UI 동기화
         RefreshInputSlotsUI();
+
+        if (myMaterialInventoryPanel.activeSelf)
+        {
+            UpdateInventorySlotsUI();
+        }
     }
 
     private void RefreshInputSlotsUI()
@@ -235,7 +280,7 @@ public class UI_WeaponEnhancement : MonoBehaviour
         for (int i = 0; i < inputSlots.Count; i++)
         {
             if (i < selectedMaterials.Count)
-                inputSlots[i].Setup(selectedMaterials[i]);
+                inputSlots[i].Setup(selectedMaterials[i], 0);
             else
                 inputSlots[i].Clear();
         }
@@ -266,10 +311,11 @@ public class UI_WeaponEnhancement : MonoBehaviour
         var availableMaterials = Player_Inventory.instance.inventorySlots
             .Where(slot => slot != null
                         && slot.ItemData != null
-                        && slot.ItemData != targetWeaponHolder.ItemData
+                        && slot != targetWeaponHolder
                         && slot.ItemData.rarity <= maxRarityFilter
                         && (slot.ItemData is Item_Material || slot.ItemData is Item_Equipment))
-            .OrderBy(slot => slot.ItemData.expValue)
+            .OrderBy(slot => slot.ItemData is Item_Equipment ? 1 : 0)
+            .ThenBy(slot => slot.ItemData.expValue)
             .ToList();
 
         int currentAccumulatedExp = 0;
@@ -366,6 +412,9 @@ public class UI_WeaponEnhancement : MonoBehaviour
         {
             RefreshMyInventoryUI();
         }
+
+        UI_WeaponTab weaponTab = FindObjectOfType<UI_WeaponTab>();
+        if (weaponTab != null) weaponTab.RefreshTab();
     }
 
     public void OpenMyMaterialInventory()
@@ -374,33 +423,78 @@ public class UI_WeaponEnhancement : MonoBehaviour
         RefreshMyInventoryUI();
     }
 
+    private void UpdateInventorySlotsUI()
+    {
+        foreach (var slot in myInventorySlots)
+        {
+            ItemHolder invItem = slot.GetAssignedItem();
+            if (invItem != null)
+            {
+                int placed = 0;
+                if (invItem.ItemData.itemType == ITEMTYPE.Equipment)
+                {
+                    placed = selectedMaterials.Contains(invItem) ? 1 : 0;
+                }
+                else
+                {
+                    ItemHolder basketItem = selectedMaterials.Find(m => m.ItemData == invItem.ItemData);
+                    if (basketItem != null) placed = basketItem.Quantity;
+                }
+
+                slot.Setup(invItem, placed);
+            }
+        }
+    }
+
     private void RefreshMyInventoryUI()
     {
         foreach (Transform child in myMaterialGridParent) Destroy(child.gameObject);
+        myInventorySlots.Clear();
 
         if (Player_Inventory.instance == null) return;
 
         var materials = Player_Inventory.instance.inventorySlots
             .Where(slot => slot != null
                         && slot.ItemData != null
-                        && slot.ItemData != targetWeaponHolder.ItemData
-                        && (slot.ItemData is Item_Material || slot.ItemData is Item_Equipment));
+                        && slot != targetWeaponHolder
+                        && (slot.ItemData is Item_Material || slot.ItemData is Item_Equipment))
+            .OrderBy(slot => slot.ItemData is Item_Equipment ? 1 : 0)
+            .ThenBy(slot => slot.ItemData.rarity);
 
         foreach (var mat in materials)
         {
             GameObject go = Instantiate(myMaterialSlotPrefab, myMaterialGridParent);
             UI_EnhancementMaterialSlot slot = go.GetComponent<UI_EnhancementMaterialSlot>();
-            slot.Initialize(-1, false); 
+            slot.Initialize(-1, false);
+
+            //무기일때는 주소비교, 광석일 때는 설계도 비교
+            int placed = 0;
+            if (mat.ItemData.itemType == ITEMTYPE.Equipment)
+            {
+                placed = selectedMaterials.Contains(mat) ? 1 : 0;
+            }
+            else
+            {
+                ItemHolder baseketItem = selectedMaterials.Find(m => m.ItemData == mat.ItemData);
+                if (baseketItem != null) placed = baseketItem.Quantity;
+            }
+
             slot.Setup(mat);
+            myInventorySlots.Add(slot);
         }
     }
 
     public void AddMaterialFromInventory(ItemHolder clickedItem)
     {
-        if (selectedMaterials.Count >= 20) return;
+        if (targetWeaponHolder != null && previewLevel >= targetWeaponHolder.GetMaxLevel())
+        {
+            return;
+        }
 
         if (clickedItem.ItemData.itemType == ITEMTYPE.Equipment)
         {
+            if (selectedMaterials.Count >= 20) return;
+
             if (!selectedMaterials.Contains(clickedItem))
             {
                 selectedMaterials.Add(clickedItem);
@@ -411,10 +505,13 @@ public class UI_WeaponEnhancement : MonoBehaviour
             ItemHolder existing = selectedMaterials.Find(m => m.ItemData == clickedItem.ItemData);
             if (existing != null)
             {
-                existing.Quantity++;
+                if (existing.Quantity < clickedItem.Quantity)
+                    existing.Quantity++;
             }
             else
             {
+                if (selectedMaterials.Count >= 20) return;
+
                 selectedMaterials.Add(new ItemHolder(clickedItem.ItemData, 1));
             }
         }

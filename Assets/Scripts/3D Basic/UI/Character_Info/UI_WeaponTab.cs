@@ -47,9 +47,11 @@ public class UI_WeaponTab : MonoBehaviour
             {
                 weaponIcon.sprite = weaponData.itemIcon;
                 weaponIcon.gameObject.SetActive(true);
-                weaponNameText.text = weaponData.itemName;
-                currentAttackText.text = $"공격력: {weaponData.attackBonus}";
-                nextAttackText.text = $"->  {weaponData.attackBonus + 15}";
+                string refineText = targetHolder.refinementStage > 1 ? $" <color=yellow>+{targetHolder.refinementStage - 1}</color>" : "";
+                weaponNameText.text = $"Lv.{targetHolder.weaponLevel} {weaponData.itemName}{refineText}";
+                int finalAttack = targetHolder.GetTotalWeaponAttack();
+                currentAttackText.text = $"공격력: {finalAttack}";
+                if (nextAttackText != null) nextAttackText.gameObject.SetActive(false);
                 descriptionText.text = weaponData.itemDescription;
 
                 Update3DModel(weaponData.weaponPrefab);
@@ -111,6 +113,7 @@ public class UI_WeaponTab : MonoBehaviour
                 Debug.LogError("UI_WeaponEnhancement.instance가 씬에 없습니다! 패널이 비활성화 되어 있어도 Awake가 실행되게 하려면 최상위 캔버스를 껐다 켜보세요.");
             }
         }
+        CloseSelectionPanel();
     }
 
     public void OnClickChangeWeapon()

@@ -21,8 +21,11 @@ public class UI_Inventory : MonoBehaviour
     [Header("아이템 상세 정보(UI패널)")]
     public GameObject detailPanel;
     public Image itemIcon;
+    public Image itemCountImage;
     public Text itemName;
     public Text itemCount;
+    public Text itemStatText;
+    public Text itemTypeText;
     public Text itemDescription;
 
     [Header("설정")]
@@ -163,7 +166,56 @@ public class UI_Inventory : MonoBehaviour
         {
             if (itemIcon != null) { itemIcon.sprite = itemHolder.ItemData.itemIcon; itemIcon.gameObject.SetActive(true); }
             if (itemName != null) itemName.text = itemHolder.ItemData.itemName;
-            if (itemCount != null) itemCount.text = $"보유 수량\n <b><color=blue>×{itemHolder.Quantity}</color></b>";
+
+            if (itemCount != null && itemCountImage != null)
+            {
+                if (itemHolder.ItemData.itemType == ITEMTYPE.Equipment)
+                {
+                    itemCount.gameObject.SetActive(false);
+                    itemCountImage.gameObject.SetActive(false);
+                }
+                else
+                {
+                    itemCount.gameObject.SetActive(true);
+                    itemCountImage.gameObject.SetActive(true);
+                    itemCount.text = $"<b><color=white>×{itemHolder.Quantity}</color></b>";
+                }
+            }
+
+            if (itemTypeText != null)
+            {
+                switch (itemHolder.ItemData.itemType)
+                {
+                    case ITEMTYPE.Equipment: itemTypeText.text = "장비"; break;
+                    case ITEMTYPE.Consumable: itemTypeText.text = "소비품"; break;
+                    case ITEMTYPE.Material: itemTypeText.text = "재료"; break;
+                    case ITEMTYPE.Quest: itemTypeText.text = "퀘스트 아이템"; break;
+                    case ITEMTYPE.ETC: itemTypeText.text = "기타"; break;
+                    default: itemTypeText.text = "아이템"; break;
+                }
+            }
+
+            if (itemHolder.ItemData.itemType == ITEMTYPE.Equipment)
+            {
+                if (itemStatText != null)
+                {
+                    itemStatText.gameObject.SetActive(true);
+
+                    string statString = "";
+
+                    int attack = itemHolder.GetTotalWeaponAttack();
+                    if (attack > 0) statString += $"공격력 : {attack}\n";
+                    // int defense = itemHolder.GetTotalWeaponDefense();
+                    // if (defense > 0) statString += $"방어력 : {defense}\n";
+                    // if (critical > 0) statString += $"치명타 : {critical}%\n";
+                    itemStatText.text = statString.TrimEnd();
+                }
+            }
+            else
+            {
+                if (itemStatText != null) itemStatText.gameObject.SetActive(false);
+            }
+
             if (itemDescription != null) itemDescription.text = itemHolder.ItemData.itemDescription;
         }
 

@@ -11,7 +11,7 @@ public class MapInteractionTrigger : MonoBehaviour
             if (UI_Manager.instance != null)
             {
                 // 메시지 출력 없이 즉시 지도 열기
-                UI_Manager.instance.OpenWorldMap();
+                //UI_Manager.instance.OpenWorldMap();
             }
         }
     }
