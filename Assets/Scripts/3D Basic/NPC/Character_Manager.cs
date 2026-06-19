@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class NPCStatus
+public class CharacterStatus
 {
-    public string npcID;
+    public string characterID;
     public int currentAffinity;
 
     public int level;
@@ -14,9 +14,9 @@ public class NPCStatus
 
     public bool isStatInitialized = false;
 
-    public NPCStatus(string id)
+    public CharacterStatus(string id)
     {
-        npcID = id;
+        characterID = id;
         currentAffinity = 10;
         level = 1;
         currentExp = 0;
@@ -24,7 +24,7 @@ public class NPCStatus
         isStatInitialized = false;
     }
 
-    public void InitializeStats(NPC_Data data)
+    public void InitializeStats(Character_Data data)
     {
         if (isStatInitialized || data == null) return;
         System.Array.Copy(data.baseStats, currentStats, data.baseStats.Length);
@@ -32,19 +32,19 @@ public class NPCStatus
     }
 }
 
-public class NPC_Manager : MonoBehaviour
+public class Character_Manager : MonoBehaviour
 {
-    public static NPC_Manager instance;
+    public static Character_Manager instance;
 
-    public List<NPCStatus> npcStatusList = new List<NPCStatus>();
+    public List<CharacterStatus> characterStatusList = new List<CharacterStatus>();
 
-    public Dictionary<string, NPCStatus> npcStatusDictionary = new Dictionary<string, NPCStatus>();
+    public Dictionary<string, CharacterStatus> characterStatusDictionary = new Dictionary<string, CharacterStatus>();
 
     public List<string> currentPartyIDs = new List<string>();
 
-    public List<NPC_Data> currentPartyData = new List<NPC_Data>();
+    public List<Character_Data> currentPartyData = new List<Character_Data>();
 
-    public List<NPC_Data> allNPCDataList;   //모든 npc
+    public List<Character_Data> allcharacterDataList;   //모든 npc
 
     private void Awake()
     {
@@ -64,42 +64,42 @@ public class NPC_Manager : MonoBehaviour
     //모든 npc 등록
     public void InitializeAllNPCs()
     {
-        if (allNPCDataList == null) return;
+        if (allcharacterDataList == null) return;
 
-        foreach (var data in allNPCDataList)
+        foreach (var data in allcharacterDataList)
         {
             if (data == null) continue;
 
             // 아직 딕셔너리에 없다면 추가
-            if (!npcStatusDictionary.ContainsKey(data.NPCID))
+            if (!characterStatusDictionary.ContainsKey(data.characterID))
             {
-                NPCStatus newStatus = new NPCStatus(data.NPCID);
+                CharacterStatus newStatus = new CharacterStatus(data.characterID);
                 newStatus.InitializeStats(data); // 기본 스탯으로 초기화
 
-                npcStatusDictionary.Add(data.NPCID, newStatus);
+                characterStatusDictionary.Add(data.characterID, newStatus);
             }
         }
-        Debug.Log($"NPC 매니저 초기화 완료: 총 {npcStatusDictionary.Count}명 등록됨.");
+        Debug.Log($"NPC 매니저 초기화 완료: 총 {characterStatusDictionary.Count}명 등록됨.");
     }
 
-    public void SaveParty(List<string> newPartyIDs, List<NPC_Data> newPartyData)
+    public void SaveParty(List<string> newPartyIDs, List<Character_Data> newPartyData)
     {
         currentPartyIDs = new List<string>(newPartyIDs);
-        currentPartyData = new List<NPC_Data>(newPartyData); 
+        currentPartyData = new List<Character_Data>(newPartyData); 
     }
 
-    public NPCStatus GetNPCStatus(string npcID, NPC_Data data = null)
+    public CharacterStatus GetCharacterStatus(string npcID, Character_Data data = null)
     {
-        if (!npcStatusDictionary.ContainsKey(npcID))
+        if (!characterStatusDictionary.ContainsKey(npcID))
         {
-            NPCStatus newStatus = new NPCStatus(npcID);
+            CharacterStatus newStatus = new CharacterStatus(npcID);
 
-            npcStatusDictionary[npcID] = newStatus;
+            characterStatusDictionary[npcID] = newStatus;
 
-            npcStatusList.Add(newStatus);
+            characterStatusList.Add(newStatus);
         }
 
-        NPCStatus status = npcStatusDictionary[npcID];
+        CharacterStatus status = characterStatusDictionary[npcID];
 
         if (data != null && !status.isStatInitialized)
         {
@@ -111,9 +111,28 @@ public class NPC_Manager : MonoBehaviour
 
     public bool IsRecruited(string npcID)
     {
-        if (!npcStatusDictionary.ContainsKey(npcID)) return false;
+        if (!characterStatusDictionary.ContainsKey(npcID)) return false;
 
-        return npcStatusDictionary[npcID].currentAffinity >= 10;
+        return characterStatusDictionary[npcID].currentAffinity >= 10;
+    }
+
+    // 내가 보유 중인 모든 캐릭터 리스트를 반환
+    public List<Character_Data> GetOwnedCharacters()
+    {
+        List<Character_Data> ownedList = new List<Character_Data>();
+
+        if (allcharacterDataList != null)
+        {
+            foreach (var data in allcharacterDataList)
+            {
+                if (data != null && IsRecruited(data.characterID))
+                {
+                    ownedList.Add(data);
+                }
+            }
+        }
+
+        return ownedList;
     }
 
     public void SaveParty(List<string> newPartyIDs)
@@ -121,9 +140,9 @@ public class NPC_Manager : MonoBehaviour
         currentPartyIDs = new List<string>(newPartyIDs);
     }
 
-    public void AddExperience(string npcID, int amount, NPC_Data data)
+    public void AddExperience(string npcID, int amount, Character_Data data)
     {
-        NPCStatus status = GetNPCStatus(npcID, data);
+        CharacterStatus status = GetCharacterStatus(npcID, data);
         if (status == null) return;
 
         status.currentExp += amount;
@@ -134,24 +153,20 @@ public class NPC_Manager : MonoBehaviour
         }
     }
 
-    private void LevelUp(NPCStatus status, NPC_Data data)
+    private void LevelUp(CharacterStatus status, Character_Data data)
     {
         status.level++;
-        Debug.Log($"<b>{data.NPCName}</b> 레벨 업! (Lv.{status.level})");
+        status.maxExp *= 2;
 
         for (int i = 0; i < (int)STAT.STAT_COUNT; i++)
         {
-            int roll = Random.Range(0, 100);
-            if (roll < data.growthRates[i])
-            {
-                status.currentStats[i] += 1;
-            }
+            status.currentStats[i] += data.levelUpStatGains[i];
         }
     }
 
     public int GetAffinity(string npcID)
     {
-        NPCStatus status = GetNPCStatus(npcID, null);
+        CharacterStatus status = GetCharacterStatus(npcID, null);
         return status.currentAffinity;
     }
 
@@ -159,22 +174,20 @@ public class NPC_Manager : MonoBehaviour
     {
         if (amount == 0) return;
 
-        NPCStatus status = GetNPCStatus(npcID, null);
+        CharacterStatus status = GetCharacterStatus(npcID, null);
         status.currentAffinity += amount;
-
-        Debug.Log($"[{npcID}] 친밀도 변경: {status.currentAffinity - amount} -> {status.currentAffinity}");
     }
 
     public List<NPCSaveData> GetSaveData()
     {
         List<NPCSaveData> saveList = new List<NPCSaveData>();
 
-        foreach (var kvp in npcStatusDictionary)
+        foreach (var kvp in characterStatusDictionary)
         {
-            NPCStatus status = kvp.Value;
+            CharacterStatus status = kvp.Value;
             NPCSaveData data = new NPCSaveData();
 
-            data.npcID = status.npcID;
+            data.npcID = status.characterID;
             data.affinity = status.currentAffinity;
             data.level = status.level;
             data.currentExp = status.currentExp;
@@ -196,9 +209,9 @@ public class NPC_Manager : MonoBehaviour
         foreach (var data in savedList)
         {
             // 이미 딕셔너리에 있는 NPC라면 값만 갱신
-            if (npcStatusDictionary.ContainsKey(data.npcID))
+            if (characterStatusDictionary.ContainsKey(data.npcID))
             {
-                NPCStatus status = npcStatusDictionary[data.npcID];
+                CharacterStatus status = characterStatusDictionary[data.npcID];
                 status.currentAffinity = data.affinity;
                 status.level = data.level;
                 status.currentExp = data.currentExp;

@@ -170,7 +170,7 @@ public class UI_WeaponRefinement : MonoBehaviour
 
         if (Player_Equipment.instance != null && Player_Equipment.instance.equipmentSlots[0] == targetWeaponHolder)
         {
-            Player_Stat stat = Player_Equipment.instance.GetComponent<Player_Stat>();
+            Character_Stat stat = Player_Equipment.instance.GetComponent<Character_Stat>();
             if (stat != null)
             {
                 stat.RemoveEquipmentStat(STAT.Attack, oldAttack);

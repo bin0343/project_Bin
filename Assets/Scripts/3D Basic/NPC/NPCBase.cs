@@ -46,8 +46,8 @@ public class NPCBase : MonoBehaviour
 
     private NavMeshAgent navAgent;
     protected Animator animator;
-    private NPC_Stat myStat;
-    private NPC_Data myData;
+    private Character_Stat myStat;
+    private Character_Data myData;
     private Player_Action playerAction;
 
     private bool isDead = false;
@@ -56,7 +56,7 @@ public class NPCBase : MonoBehaviour
     {
         navAgent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
-        myStat = GetComponent<NPC_Stat>();
+        myStat = GetComponent<Character_Stat>();
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -65,10 +65,10 @@ public class NPCBase : MonoBehaviour
             playerAction = playerObj.GetComponent<Player_Action>();
         }
 
-        myData = myStat.npcData;
-        if (myData != null && myData.npcSkills != null)
+        myData = myStat.characterData;
+        if (myData != null && myData.characterSkills != null)
         {
-            foreach (var skillData in myData.npcSkills)
+            foreach (var skillData in myData.characterSkills)
             {
                 if (skillData != null)
                     skillHolders.Add(new SkillHolder(skillData));

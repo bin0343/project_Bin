@@ -24,7 +24,7 @@ public class UI_CharacterEnhancement : MonoBehaviour
     public Text autoToggleBtnText;
     public Button enhanceExecuteBtn;
 
-    private Player_Stat targetStat;
+    private Character_Stat targetStat;
     private bool isAutoAdded = false;
 
     private void Awake()
@@ -37,7 +37,7 @@ public class UI_CharacterEnhancement : MonoBehaviour
 
     public void OpenEnhancement()
     {
-        targetStat = Player_Stat.globalInstance != null ? Player_Stat.globalInstance : UI_Manager.instance.playerStat;
+        targetStat = UI_Manager.instance.activeCharacterStat;
         isAutoAdded = false;
 
         RefreshMaterialInventory();
@@ -69,6 +69,8 @@ public class UI_CharacterEnhancement : MonoBehaviour
     {
         if (targetStat == null) return;
 
+        CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(targetStat.characterData.characterID);
+
         int totalAddedExp = 0;
         int currentUsedBooks = 0;
 
@@ -85,33 +87,39 @@ public class UI_CharacterEnhancement : MonoBehaviour
         }
 
         // 가상 레벨업 계산
-        int previewLevel = targetStat.level;
-        int previewExp = targetStat.exp + totalAddedExp;
-        int tempRequiredExp = previewLevel * 100; // Player_Stat의 임시 공식 적용
+        int previewLevel = cStatus.level;
+        int previewExp = cStatus.currentExp + totalAddedExp;
+        int currentRequiredExp = cStatus.maxExp; // Player_Stat의 임시 공식 적용
 
-        while (previewExp >= tempRequiredExp)
+        while (previewExp >= currentRequiredExp)
         {
-            previewExp -= tempRequiredExp;
+            previewExp -= currentRequiredExp;
             previewLevel++;
-            tempRequiredExp = previewLevel * 100;
+            currentRequiredExp *= 2;
         }
 
         // 텍스트 출력
         if (totalAddedExp == 0)
         {
-            previewLevelText.text = $"Lv. {targetStat.level}";
-            previewExpText.text = $"{targetStat.exp} / {targetStat.level * 100}";
+            previewLevelText.text = previewLevel > cStatus.level ? $"Lv. {cStatus.level}  ->  <color=green>{previewLevel}</color>" : $"Lv. {cStatus.level}";
+            previewExpText.text = previewExp + " / " + currentRequiredExp;
         }
         else
         {
-            previewLevelText.text = $"Lv. {targetStat.level}  ->  <color=green>{previewLevel}</color>";
-            previewExpText.text = $"<color=green>+{totalAddedExp} EXP</color>";
+            previewLevelText.text = $"Lv. {cStatus.level}  ->  <color=green>{previewLevel}</color>";
+            previewExpText.text = $"{cStatus.currentExp} <color=green>+{totalAddedExp}</color> / {cStatus.maxExp}";
         }
 
-        int hpGain = (previewLevel - targetStat.level) * 10; // 레벨업당 체력 10 증가 공식 (Player_Stat 기준)
+        int leveledCount = previewLevel - cStatus.level;
+
+        Character_Data data = targetStat.characterData;
+        int hpGain = leveledCount * (int)data.levelUpStatGains[(int)STAT.HP];
+        int attackGain = leveledCount * (int)data.levelUpStatGains[(int)STAT.Attack];
+        int defenseGain = leveledCount * (int)data.levelUpStatGains[(int)STAT.Defense];
+
         RenderStatSlot(0, "HP", targetStat.maxHP, targetStat.maxHP + hpGain, totalAddedExp > 0);
-        RenderStatSlot(1, "공격력", targetStat.attackPower, targetStat.attackPower, totalAddedExp > 0);
-        RenderStatSlot(2, "방어력", targetStat.defensePower, targetStat.defensePower, totalAddedExp > 0);
+        RenderStatSlot(1, "공격력", targetStat.attackPower, targetStat.attackPower + attackGain, totalAddedExp > 0);
+        RenderStatSlot(2, "방어력", targetStat.defensePower, targetStat.defensePower + defenseGain, totalAddedExp > 0);
 
         enhanceExecuteBtn.interactable = totalAddedExp > 0;
     }
@@ -164,8 +172,15 @@ public class UI_CharacterEnhancement : MonoBehaviour
         {
             targetStat.GainExp(totalAddedExp);
 
+            targetStat.RefreshStatsFromManager();
+
             Player_Inventory.instance.CleanUpInventory();
             Player_Inventory.instance.RefreshAllUI();
+
+            if (UI_Manager.instance != null)
+            {
+                UI_Manager.instance.UpdatePlayerStatus(targetStat);
+            }
 
             UI_Manager.instance.ShowMessage("캐릭터 레벨업 완료!");
 

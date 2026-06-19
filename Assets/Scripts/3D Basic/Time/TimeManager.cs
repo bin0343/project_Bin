@@ -105,12 +105,12 @@ public class TimeManager : MonoBehaviour
     // 행동력 회복 로직
     void RecoverAP()
     {
-        if (Player_Stat.globalInstance != null)
+        /*if (Player_Stat.globalInstance != null)
         {
             // 예: 최대 AP로 회복 (Player_Stat에 maxAP 변수 필요)
             // Player_Stat.globalInstance.currentAP = Player_Stat.globalInstance.maxAP;
             Debug.Log("새로운 하루가 시작되어 행동력이 회복되었습니다.");
-        }
+        }*/
     }
 
     // UI 갱신 요청

@@ -24,13 +24,12 @@ public class UI_StatusBar : MonoBehaviour
     private int targetExp = -1;
     private int displayedExp = 0;
 
-    public void UpdateStatus(Player_Stat stat)
+    public void UpdateStatus(Character_Stat stat)
     {
-        // 1. 레벨 텍스트 업데이트
-        if (levelText != null)
-            levelText.text = $"Lv.{stat.level}";
+        CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
+        
+        if (levelText != null) levelText.text = $"Lv.{cStatus.level}";
 
-        // 2. HP 바 및 텍스트 (DOTween 활용)
         float hpRatio = (float)stat.currentHP / stat.maxHP;
         hpbar.DOFillAmount(hpRatio, 0.3f).SetUpdate(true);
 
@@ -52,24 +51,25 @@ public class UI_StatusBar : MonoBehaviour
         }
 
         // 3. 경험치 바 및 텍스트
-        float expRatio = (float)stat.exp / stat.levelUpExp;
+        float expRatio = (float)cStatus.currentExp / cStatus.maxExp;
         expbar.DOFillAmount(expRatio, 0.3f).SetUpdate(true);
 
-        if (targetExp != stat.exp)
+        if (targetExp != cStatus.currentExp)
         {
-            if (targetExp == -1) displayedExp = stat.exp;
-            targetExp = stat.exp;
+            if (targetExp == -1) displayedExp = cStatus.currentExp;
+            targetExp = cStatus.currentExp;
 
             DOTween.Kill(expText);
             DOTween.To(() => displayedExp, x => {
                 displayedExp = x;
-                expText.text = $"{displayedExp} / {stat.levelUpExp}";
+                expText.text = $"{displayedExp} / {cStatus.maxExp}";
             }, targetExp, 0.3f).SetTarget(expText).SetUpdate(true);
         }
 
         // 4. 스태미나 바 로직
-        float staminaRatio = stat.currentStamina / stat.maxStamina;
-        staminabar.fillAmount = staminaRatio; // 즉각적인 반응을 위해 직접 대입 권장
+        Account_Manager acc = Account_Manager.instance;
+        float staminaRatio = acc.currentStamina / acc.maxStamina;
+        staminabar.fillAmount = staminaRatio;
 
         if (staminaRatio < 1f)
         {
@@ -91,12 +91,12 @@ public class UI_StatusBar : MonoBehaviour
         }
 
         // 5. 탈진 효과 (빨간색 깜빡임)
-        if (stat.isExhausted && !isFlashing)
+        if (acc.isExhausted && !isFlashing)
         {
             isFlashing = true;
             staminaBackgroundImage.DOColor(Color.red, 0.2f).SetLoops(-1, LoopType.Yoyo).SetUpdate(true);
         }
-        else if (!stat.isExhausted && isFlashing)
+        else if (!acc.isExhausted && isFlashing)
         {
             isFlashing = false;
             staminaBackgroundImage.DOKill();

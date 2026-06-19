@@ -10,7 +10,7 @@ public class UI_Status : MonoBehaviour
 
     public UI_EquipmentPanel uiEquipmentPanel;
 
-    public void UpdateStatus(Player_Stat stat)
+    public void UpdateStatus(Character_Stat stat)
     {
         hpSlider.value = (float)stat.currentHP / stat.maxHP;
 

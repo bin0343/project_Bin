@@ -18,9 +18,9 @@ public class BattleManager : MonoBehaviour
 
     void SpawnPartyMembers()
     {
-        if (NPC_Manager.instance == null) return;
+        if (Character_Manager.instance == null) return;
 
-        List<NPC_Data> partyData = NPC_Manager.instance.currentPartyData;
+        List<Character_Data> partyData = Character_Manager.instance.currentPartyData;
 
         if (partyData == null || partyData.Count == 0)
         {
@@ -40,17 +40,17 @@ public class BattleManager : MonoBehaviour
         {
             if (i >= spawnOffsets.Length) break;
 
-            NPC_Data data = partyData[i];
+            Character_Data data = partyData[i];
 
-            if (data != null && data.npcPrefab != null)
+            if (data != null && data.characterPrefab != null)
             {
                 Vector3 spawnPos = playerTr.TransformPoint(spawnOffsets[i]);
 
                 spawnPos.y = playerTr.position.y;
 
-                GameObject npcObj = Instantiate(data.npcPrefab, spawnPos, playerTr.rotation);
+                GameObject npcObj = Instantiate(data.characterPrefab, spawnPos, playerTr.rotation);
 
-                var stat = npcObj.GetComponent<NPC_Stat>();
+                var stat = npcObj.GetComponent<Character_Stat>();
                 if (stat != null)
                 {
                     stat.SetCharacter(data);

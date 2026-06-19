@@ -22,7 +22,7 @@ public class KickHitbox : MonoBehaviour
             HasHit = true;
 
             Enemy_Stat EnemyStat = other.GetComponent<Enemy_Stat>();
-            Player_Stat PlayerStat = GetComponentInParent<Player_Stat>();
+            Character_Stat PlayerStat = GetComponentInParent<Character_Stat>();
 
             if (EnemyStat != null && PlayerStat != null)
             {

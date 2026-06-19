@@ -36,14 +36,12 @@ public class SkillInstance : MonoBehaviour
 
     private void ApplyEffect(GameObject user)
     {
-        var stat = user.GetComponent<Player_Stat>();
+        var stat = user.GetComponent<Character_Stat>();
 
         switch (data.skillType)
         {
             case SKILLTYPE.Buff:
-                float currentAttack = stat.GetStat(STAT.Attack);
-                float newAttack = currentAttack + data.attackIncreaseAmount;
-                stat.SetStat(STAT.Attack, newAttack);
+                stat.AddEquipmentStat(STAT.Attack, data.attackIncreaseAmount);
                 user.GetComponent<MonoBehaviour>().StartCoroutine(RemoveBuffAfterDuration(stat, data.attackIncreaseAmount, data.duration));
                 break;
 
@@ -55,11 +53,9 @@ public class SkillInstance : MonoBehaviour
         }
     }
 
-    private IEnumerator RemoveBuffAfterDuration(Player_Stat stat, int amount, float duration)
+    private IEnumerator RemoveBuffAfterDuration(Character_Stat stat, int amount, float duration)
     {
         yield return new WaitForSeconds(duration);
-        float currentAttack = stat.GetStat(STAT.Attack);
-        float originalAttack = currentAttack - amount;
-        stat.SetStat(STAT.Attack, originalAttack);
+        stat.RemoveEquipmentStat(STAT.Attack, amount);
     }
 }

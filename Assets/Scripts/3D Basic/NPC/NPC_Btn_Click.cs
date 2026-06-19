@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class NPC_Btn_Click : MonoBehaviour
 {
     [Header("NPC 설정")]
-    public NPC_Data npcData;  // 이 버튼이 어떤 NPC인지
+    public Character_Data npcData;  // 이 버튼이 어떤 NPC인지
     public int startDialogueID; // 시작할 대화 ID (CSV의 첫번째 ID)
 
     private Button btn;

@@ -51,7 +51,7 @@ public class Player_Equipment : MonoBehaviour
 
     private void InitializeEquipment()
     {
-        Player_Stat stat = GetComponent<Player_Stat>();
+        Character_Stat stat = GetComponent<Character_Stat>();
 
         for (int i = 0; i < equipmentSlots.Length; i++)
         {
@@ -157,7 +157,7 @@ public class Player_Equipment : MonoBehaviour
         }
 
         // 스탯 적용
-        Player_Stat stat = GetComponent<Player_Stat>();
+        Character_Stat stat = GetComponent<Character_Stat>();
         stat.AddEquipmentStat(STAT.Attack, itemToEquip.GetTotalWeaponAttack());
         Debug.Log($"{equipmentData.itemName}을(를) 장착했습니다.");
 
@@ -167,7 +167,7 @@ public class Player_Equipment : MonoBehaviour
     public ItemHolder UnEquip(EquipmentType slotToUnEquip)
     {
         // CHANGED: 함수가 호출될 때마다 Player_Stat을 직접 찾아옵니다.
-        Player_Stat stat = GetComponent<Player_Stat>();
+        Character_Stat stat = GetComponent<Character_Stat>();
         if (stat == null)
         {
             Debug.LogError("UnEquip 실패: Player_Stat 컴포넌트를 찾을 수 없습니다!");

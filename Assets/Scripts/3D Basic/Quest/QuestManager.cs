@@ -184,11 +184,10 @@ public class QuestManager : MonoBehaviour
         if (quest == null || !questLog.ContainsKey(quest.questID)) return;
         if (questLog[quest.questID].status != QuestStatus.COMPLETED) return;
 
-        Player_Stat playerStat = Player_Inventory.instance.GetComponent<Player_Stat>();
-        if (playerStat != null)
+        if (Account_Manager.instance != null)
         {
-            playerStat.gold += quest.rewards.gold;
-            playerStat.GainExp(quest.rewards.experience);
+            Account_Manager.instance.GainGold(quest.rewards.gold);
+            Account_Manager.instance.GainAccountExp(quest.rewards.experience); // 계정 레벨업
         }
 
         // 아이템 보상 (확장)

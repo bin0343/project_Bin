@@ -63,7 +63,7 @@ public class NPC_Archer : NPCBase
 
         if (arrowScript != null)
         {
-            int damage = GetComponent<NPC_Stat>().attackPower;
+            int damage = GetComponent<Character_Stat>().attackPower;
             arrowScript.Setup(dir, damage, currentTeam);
         }
     }

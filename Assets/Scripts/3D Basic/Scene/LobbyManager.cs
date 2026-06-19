@@ -93,9 +93,9 @@ public class LobbyManager : MonoBehaviour
     {
         if (txtName != null) txtName.text = PlayerPrefs.GetString("PlayerName", "학생");
 
-        Player_Stat playerStat = Player_Stat.globalInstance;
+        //Character_Stat playerStat = Character_Stat;
 
-        if (playerStat == null && Player_Inventory.instance != null)
+        /*if (playerStat == null && Player_Inventory.instance != null)
         {
             playerStat = Player_Inventory.instance.GetComponent<Player_Stat>();
         }
@@ -111,7 +111,7 @@ public class LobbyManager : MonoBehaviour
         {
             // 데이터가 없을 때 (테스트용)
             if (txtGold != null) txtGold.text = PlayerPrefs.GetInt("PlayerGold", 0).ToString();
-        }
+        }*/
     }
 
     public void OpenPopup(GameObject popup)

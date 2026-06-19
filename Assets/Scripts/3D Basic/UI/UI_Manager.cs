@@ -13,7 +13,7 @@ public class UI_Manager : MonoBehaviour
     [HideInInspector]public UI_Status UI_Status;
     public UI_StatusBar UI_StatusBar;
     public Enemy_HpBar enemy_HpBar;
-    public Player_Stat playerStat;
+    public Character_Stat activeCharacterStat;
     public GameObject inventoryPanel;
     public UI_Inventory UI_Inventory;
     public GameObject messagePanel;
@@ -115,9 +115,9 @@ public class UI_Manager : MonoBehaviour
             }
         }
 
-        if (playerStat != null)
+        if (activeCharacterStat != null)
         {
-            if (UI_StatusBar != null) UI_StatusBar.UpdateStatus(playerStat);
+            if (UI_StatusBar != null) UI_StatusBar.UpdateStatus(activeCharacterStat);
         }
         
         //Enemy_HpBar.UpdateStatus(EnemyStat);
@@ -135,34 +135,28 @@ public class UI_Manager : MonoBehaviour
 
     private void FindLocalPlayerStat()
     {
-        Player_Stat[] allStats = FindObjectsOfType<Player_Stat>();
+        Character_Stat[] allStats = FindObjectsOfType<Character_Stat>();
 
         foreach (var stat in allStats)
         {
-            // Global 데이터(매니저)가 아닌 녀석을 발견하면 그게 진짜 캐릭터임
-            if (!stat.isGlobalData)
+            // 씬에 여러 캐릭터가 소환되어 있어도, 현재 활성화(켜진) 캐릭터만 추적
+            if (stat.gameObject.activeInHierarchy && stat.CompareTag("Player"))
             {
-                playerStat = stat;
-                break; // 찾았으면 반복 종료
+                activeCharacterStat = stat;
+                break;
             }
         }
     }
 
-    public void UpdatePlayerStatus(Player_Stat stat = null)
+    public void UpdatePlayerStatus(Character_Stat stat = null) // 매개변수 타입 변경
     {
-        if (stat != null && !stat.isGlobalData)
-        {
-            playerStat = stat;
-        }
+        if (stat != null) activeCharacterStat = stat;
+        if (activeCharacterStat == null) FindLocalPlayerStat();
 
-        if (playerStat == null || playerStat.isGlobalData)
+        // UI_StatusBar에 정보 갱신 요청
+        if (activeCharacterStat != null && UI_StatusBar != null)
         {
-            FindLocalPlayerStat();
-        }
-
-        if (playerStat != null && !playerStat.isGlobalData)
-        {
-            if (UI_StatusBar != null) UI_StatusBar.UpdateStatus(playerStat);
+            UI_StatusBar.UpdateStatus(activeCharacterStat);
         }
     }
 

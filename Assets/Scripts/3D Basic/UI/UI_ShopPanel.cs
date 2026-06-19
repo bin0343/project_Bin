@@ -157,7 +157,7 @@ public class UI_ShopPanel : MonoBehaviour
         if (currentTab == ShopTab.Buy)
         {
             // 가진 돈으로 살 수 있는 최대치
-            int myGold = Player_Stat.globalInstance != null ? Player_Stat.globalInstance.gold : 0;
+            int myGold = Account_Manager.instance != null ? Account_Manager.instance.gold : 0;
             if (selectedItemPrice > 0) limit = myGold / selectedItemPrice;
             if (limit > 99) limit = 99;
         }
@@ -219,7 +219,7 @@ public class UI_ShopPanel : MonoBehaviour
     void BuyItem()
     {
         int totalCost = selectedItemPrice * currentQuantity;
-        Player_Stat playerStat = Player_Stat.globalInstance;
+        Account_Manager playerStat = Account_Manager.instance;
 
         if (playerStat == null) return;
 
@@ -254,7 +254,7 @@ public class UI_ShopPanel : MonoBehaviour
         if (Player_Inventory.instance.RemoveItem(selectedItem, currentQuantity))
         {
             int totalGain = selectedItemPrice * currentQuantity;
-            Player_Stat.globalInstance.gold += totalGain;
+            Account_Manager.instance.gold += totalGain;
 
             Debug.Log($"판매 성공: {selectedItem.itemName} x{currentQuantity} (+{totalGain} G)");
 

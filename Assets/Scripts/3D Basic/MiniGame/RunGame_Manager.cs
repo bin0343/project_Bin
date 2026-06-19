@@ -32,7 +32,7 @@ public class RunGame_Manager : MonoBehaviour
 
     public void GameOver()
     {
-        if (isGameOver) return;
+        /*if (isGameOver) return;
         isGameOver = true;
 
         // 결과 계산
@@ -46,7 +46,7 @@ public class RunGame_Manager : MonoBehaviour
         else { rank = "C"; goldReward = 10; expReward = 10; }
 
         // 1. Global Stat (Manager)에 즉시 반영 -> 로비 UI 갱신용
-        Player_Stat globalStat = Player_Stat.globalInstance;
+        //Character_Stat globalStat = Character_Stat.globalInstance;
         if (globalStat == null && Player_Inventory.instance != null)
         {
             globalStat = Player_Inventory.instance.GetComponent<Player_Stat>();
@@ -70,7 +70,7 @@ public class RunGame_Manager : MonoBehaviour
         // 결과창 표시
         resultPanel.SetActive(true);
         rankText.text = $"Rank: {rank}";
-        rewardText.text = $"보상: {goldReward} G";
+        rewardText.text = $"보상: {goldReward} G";*/
     }
 
     public void OnClickReturnLobby()

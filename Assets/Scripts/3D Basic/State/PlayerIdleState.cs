@@ -23,7 +23,7 @@ public class PlayerIdleState : PlayerBaseState
     {
         if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsGrounded && !player.IsPointerOverUI())
         {
-            if (player.stat.TryUseStamina(player.stat.rollStaminaCost))
+            if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
             {
                 player.ChangeState(new PlayerRollState());
             }

@@ -8,7 +8,7 @@ public class NPC_Interaction : MonoBehaviour
     public GameObject interactionMenuPanel; // 공용 메뉴판
 
     [Header("NPC 데이터")]
-    public NPC_Data npcData;
+    public Character_Data npcData;
 
     [Header("--- [기능 1] 일상 대화 (CSV) 설정 ---")]
     public int csvDialogueID;

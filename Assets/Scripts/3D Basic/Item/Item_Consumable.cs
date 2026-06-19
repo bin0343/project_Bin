@@ -10,7 +10,7 @@ public class Item_Consumable : Item_Base
 
     public override bool Use(GameObject user)
     {
-        var stat = user.GetComponent<Player_Stat>();
+        var stat = user.GetComponent<Character_Stat>();
         if (stat == null) return false;
 
         bool itemUsed = false; // 아이템이 실제로 효과를 발휘했는지 추적

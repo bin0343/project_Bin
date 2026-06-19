@@ -94,17 +94,12 @@ public class GameDataManager : MonoBehaviour
     void GatherGameData()
     {
         // 1. 플레이어 스탯 저장
-        if (Player_Stat.globalInstance != null)
+        if (Account_Manager.instance != null)
         {
             saveData.playerName = PlayerPrefs.GetString("PlayerName", "플레이어"); // 이름은 PlayerPrefs에서 가져오거나 별도 관리
-            saveData.playerLevel = Player_Stat.globalInstance.level;
-            saveData.playerGold = Player_Stat.globalInstance.gold;
-            saveData.playerExp = Player_Stat.globalInstance.exp;
-
-            if (Player_Stat.globalInstance.baseStats != null)
-            {
-                saveData.baseStats = (float[])Player_Stat.globalInstance.baseStats.Clone();
-            }
+            saveData.playerLevel = Account_Manager.instance.accountLevel;
+            saveData.playerGold = Account_Manager.instance.gold;
+            saveData.playerExp = Account_Manager.instance.accountExp;
         }
 
         // 2. 인벤토리 저장
@@ -126,9 +121,9 @@ public class GameDataManager : MonoBehaviour
         }
 
         //NPC저장
-        if (NPC_Manager.instance != null)
+        if (Character_Manager.instance != null)
         {
-            saveData.npcList = NPC_Manager.instance.GetSaveData();
+            saveData.npcList = Character_Manager.instance.GetSaveData();
         }
 
         //퀘스트 저장
@@ -148,16 +143,12 @@ public class GameDataManager : MonoBehaviour
         }
 
         // 1. 플레이어 스탯 복구
-        if (Player_Stat.globalInstance != null)
+        if (Account_Manager.instance != null)
         {
-            Player_Stat.globalInstance.LoadStatsFromSaveData(
-                saveData.playerLevel,
-                saveData.playerGold,
-                saveData.playerExp,
-                saveData.baseStats
-            );
+            Account_Manager.instance.accountLevel = saveData.playerLevel;
+            Account_Manager.instance.gold = saveData.playerGold;
+            Account_Manager.instance.accountExp = saveData.playerExp;
 
-            // UI 갱신 (로비 매니저가 있다면)
             if (LobbyManager.instance != null) LobbyManager.instance.RefreshUserInfo();
         }
 
@@ -190,9 +181,9 @@ public class GameDataManager : MonoBehaviour
         }
 
         //NPC로드
-        if (NPC_Manager.instance != null)
+        if (Character_Manager.instance != null)
         {
-            NPC_Manager.instance.LoadFromSaveData(saveData.npcList);
+            Character_Manager.instance.LoadFromSaveData(saveData.npcList);
         }
         //퀘스트 로드
         if (QuestManager.instance != null)

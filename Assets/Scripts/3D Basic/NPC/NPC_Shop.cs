@@ -44,8 +44,6 @@ public class NPC_Shop : Interactable
     /*[Tooltip("최종 구매 확인 팝업 패널")]
     public GameObject confirmPopupPanel;*/
 
-    private Player_Stat playerStat;
-
     private List<UI_ShopSlot> createdSlots = new List<UI_ShopSlot>();   //생성 슬롯 관리 리스트
     private List<UI_ShopSlot> createdSellSlots = new List<UI_ShopSlot>();
 
@@ -70,11 +68,6 @@ public class NPC_Shop : Interactable
         InitializeShopUI();
 
         if (quantityPopupPanel != null) quantityPopupPanel.SetActive(false);
-
-        if (Player_Inventory.instance != null)
-        {
-            playerStat = Player_Inventory.instance.GetComponent<Player_Stat>();
-        }
     }
 
     /*void Update()
@@ -291,7 +284,7 @@ public class NPC_Shop : Interactable
             int totalGain = sellPrice * quantityToSell;
 
             // 3. 골드 추가
-            playerStat.gold += totalGain;
+            Account_Manager.instance.gold += totalGain;
             UI_Manager.instance.ShowMessage($"{itemToSell.ItemData.itemName} {quantityToSell}개 판매 완료. (+{totalGain} G)");
             // TODO: 골드 UI 갱신
         }
@@ -350,13 +343,7 @@ public class NPC_Shop : Interactable
 
     private void ShowQuantityPopup(ShopItem item)
     {
-        if (playerStat == null)
-        {
-            Debug.LogError("Player_Stat 참조를 찾을 수 없습니다.");
-            return;
-        }
-
-        int currentGold = playerStat.gold;
+        int currentGold = Account_Manager.instance.gold;
         int maxAffordable = 99;
 
         if (item.price > 0)
@@ -394,17 +381,10 @@ public class NPC_Shop : Interactable
 
     private void FinalPurchase(ShopItem item, int quantity) //구매 확인을 눌렀을 때
     {
-        if (playerStat == null)
-        {
-            Debug.LogError("Player_Stat 참조가 없습니다. 구매 실패.");
-            ReturnToBrowsing();
-            return;
-        }
-
         int totalPrice = item.price * quantity;
 
         // (Initialize에서 이미 검사했지만) 한 번 더 방어적 검사
-        if (playerStat.gold < totalPrice)
+        if (Account_Manager.instance.gold < totalPrice)
         {
             UI_Manager.instance.ShowMessage("골드가 부족합니다.");
             ReturnToBrowsing();
@@ -417,7 +397,7 @@ public class NPC_Shop : Interactable
         // 2. 인벤토리 추가에 성공했을 때만 골드 차감
         if (success)
         {
-            playerStat.gold -= totalPrice; // 골드 차감
+            Account_Manager.instance.gold -= totalPrice; // 골드 차감
             UI_Manager.instance.ShowMessage($"{item.itemData.itemName} {quantity}개 구매 완료.");
             // TODO: 골드 UI 갱신 (예: UI_Manager.Instance.UpdateGoldUI())
         }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class UI_CharacterTab : MonoBehaviour
 {
@@ -17,37 +18,73 @@ public class UI_CharacterTab : MonoBehaviour
     [Tooltip("Render Texture 화면에 배치되어 있는 UI 전용 3D 캐릭터의 Animator를 연결")]
     public Animator uiCharacterAnimator;
 
+    [Header("동적 모델 생성")]
+    public Transform characterSpawnPoint;
+    private GameObject currentSpawnedModel;
+    public UI_CharacterRotation rotationScript;
+
     public Button characterEnhanceButton;
 
     public void RefreshTab()
     {
         mainInfoSubPanel.SetActive(true);
-        enhancementSubPanel.SetActive(false);
+        if (enhancementSubPanel != null) enhancementSubPanel.SetActive(false);
 
         UpdateMainInfo();
 
-        if (uiCharacterAnimator != null)
+        Character_Stat activeStat = UI_Manager.instance.activeCharacterStat;
+        if (activeStat != null && activeStat.characterData != null)
         {
-            // Animator에 "ShowProfile" 이라는 Trigger가 설정되어 있어야 함
-            // 없으면 무난하게 특정 상태를 직접 재생해도 됩니다: uiCharacterAnimator.Play("Pose_Idle");
-            uiCharacterAnimator.SetTrigger("ShowProfile");
+            SpawnAndSetupCharacter(activeStat.characterData);
         }
     }
 
     public void UpdateMainInfo()
     {
-        Player_Stat stat = Player_Stat.globalInstance;
-        if (stat == null && UI_Manager.instance != null)
+        Character_Stat activeStat = UI_Manager.instance.activeCharacterStat;
+
+        if (activeStat != null)
         {
-            stat = UI_Manager.instance.playerStat;
+            CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(activeStat.characterData.characterID);
+
+            levelText.text = $"LV. {cStatus.level}";
+            hpText.text = $"HP: {activeStat.currentHP} / {activeStat.maxHP}";
+            attackText.text = $"공격력: {activeStat.attackPower}";
+            defenseText.text = $"방어력: {activeStat.defensePower}";
+        }
+    }
+
+    public void SpawnAndSetupCharacter(Character_Data characterData)
+    {
+        if (currentSpawnedModel != null)
+        {
+            Destroy(currentSpawnedModel);
         }
 
-        if (stat != null)
+        if (characterData == null || characterData.uiPrefab == null || characterSpawnPoint == null) return;
+
+        currentSpawnedModel = Instantiate(characterData.uiPrefab, characterSpawnPoint.position, characterSpawnPoint.rotation);
+        currentSpawnedModel.transform.SetParent(characterSpawnPoint);
+
+        currentSpawnedModel.transform.localPosition = Vector3.zero;
+        currentSpawnedModel.transform.localScale = Vector3.one;
+
+        uiCharacterAnimator = currentSpawnedModel.GetComponent<Animator>();
+
+        if (uiCharacterAnimator != null)
         {
-            levelText.text = $"LV. {stat.level}";
-            hpText.text = $"HP: {stat.currentHP} / {stat.maxHP}";
-            attackText.text = $"공격력: {stat.attackPower}";
-            defenseText.text = $"방어력: {stat.defensePower}";
+            uiCharacterAnimator.Rebind(); 
+            uiCharacterAnimator.Play("First Idle", 0, 0f);
+        }
+
+        UpdateRotationTarget();
+    }
+
+    private void UpdateRotationTarget()
+    {
+        if (rotationScript != null && currentSpawnedModel != null)
+        {
+            rotationScript.SetTarget(currentSpawnedModel.transform, uiCharacterAnimator);
         }
     }
 
@@ -67,5 +104,12 @@ public class UI_CharacterTab : MonoBehaviour
         enhancementSubPanel.SetActive(false);
         mainInfoSubPanel.SetActive(true);
         UpdateMainInfo();
+    }
+
+    private IEnumerator PlayAppearAnimationDelyaed()
+    {
+        yield return null;
+
+        uiCharacterAnimator.Play("First Idle", -1, 0f);
     }
 }

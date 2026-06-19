@@ -10,13 +10,13 @@ public class CompanionHpBar : MonoBehaviour
     private Camera cam;
     public Image hpBarFront; // 체력바 fill 이미지 (UI에서 할당)
     public Text damageText;
-    private NPC_Stat stat; // 연동할 몬스터 스탯
+    private Character_Stat stat; // 연동할 몬스터 스탯
 
     private Coroutine hpChangeCoroutine;
 
     void Start()
     {
-        stat = GetComponentInParent<NPC_Stat>();
+        stat = GetComponentInParent<Character_Stat>();
         cam = Camera.main;
     }
 
@@ -43,7 +43,7 @@ public class CompanionHpBar : MonoBehaviour
         }
     }
 
-    public void Setup(NPC_Stat newStat)
+    public void Setup(Character_Stat newStat)
     {
         stat = newStat;
         if (stat != null && hpBarFront != null)

@@ -24,8 +24,8 @@ public class Player_Action : MonoBehaviour
     private bool isTargetingSkill = false;
     public SkillHolder skillBeingAimed;
 
-    public Player_Stat stat;
-    
+    public Character_Stat stat;
+
     public UI_SkillManager skillUIManagers;
     public Shield_Player shield;
     public Weapon_Player currentWeapon { get; private set; }
@@ -69,7 +69,7 @@ public class Player_Action : MonoBehaviour
         animator = player.GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody>();
         move = player.GetComponentInParent<Player_Move>();
-        stat = player.GetComponentInParent<Player_Stat>();
+        stat = player.GetComponentInParent<Character_Stat>();
         animEvents = player.GetComponent<Player_AnimationEvents>();
         skillUIManagers = FindObjectOfType<UI_SkillManager>();
         shield = player.GetComponentInChildren<Shield_Player>();

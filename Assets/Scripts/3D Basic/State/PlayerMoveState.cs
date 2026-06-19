@@ -40,7 +40,7 @@ public class PlayerMoveState : PlayerBaseState
 
             if(rollInput && player.IsGrounded)
             {
-                if (player.stat.TryUseStamina(player.stat.rollStaminaCost))
+                if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
                 {
                     player.ChangeState(new PlayerRollState());
                 }

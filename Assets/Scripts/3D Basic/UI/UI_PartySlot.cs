@@ -7,46 +7,33 @@ public class UI_PartySlot : MonoBehaviour
     public Image imgFace;
     public Text txtName; 
     public Text txtLevel;
-    public Text txtClass; 
     public GameObject selectedOverlay;
 
-    [HideInInspector] public NPC_Data data;
-    private bool isSelected = false;
-    private ClubManager manager;
+    [HideInInspector] public Character_Data data;
 
-    public void Setup(NPC_Data npcData, bool selected, ClubManager mgr)
+    public void Setup(Character_Data characterData, bool isSelected = false)
     {
-        data = npcData;
-        manager = mgr;
-        isSelected = selected;
+        data = characterData;
+
+        if (selectedOverlay != null)
+        {
+            selectedOverlay.SetActive(isSelected);
+        }
 
         if (data != null)
         {
-            imgFace.sprite = data.NPCImage;
-            txtName.text = data.NPCName;
-            txtClass.text = data.classType.ToString();
+            imgFace.gameObject.SetActive(true);
+            imgFace.sprite = data.characterPortrait;
+            if (txtName != null) txtName.text = data.characterName;
 
-            int lvl = NPC_Manager.instance.GetNPCStatus(data.NPCID, data).level;
-            txtLevel.text = $"Lv.{lvl}";
+            CharacterStatus status = Character_Manager.instance.GetCharacterStatus(data.characterID);
+            if (txtLevel != null) txtLevel.text = $"Lv.{status.level}";
         }
-
-        UpdateSelectionUI();
-    }
-
-    public void OnClickSlot()
-    {
-        bool success = manager.OnSlotClicked(data.NPCID);
-
-        if (success)
+        else
         {
-            isSelected = !isSelected;
-            UpdateSelectionUI();
+            imgFace.gameObject.SetActive(false);
+            if (txtName != null) txtName.text = "ºó ÀÚ¸®";
+            if (txtLevel != null) txtLevel.text = "";
         }
-    }
-
-    void UpdateSelectionUI()
-    {
-        if (selectedOverlay != null)
-            selectedOverlay.SetActive(isSelected);
     }
 }

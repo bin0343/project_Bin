@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-public class NPC_Stat : MonoBehaviour
+public class Character_Stat : MonoBehaviour
 {
     [Header("연동할 NPC 데이터")]
-    public NPC_Data npcData;
+    public Character_Data characterData;
 
     public float[] baseStats = new float[(int)STAT.STAT_COUNT];
 
@@ -15,22 +15,13 @@ public class NPC_Stat : MonoBehaviour
     public int defensePower { get { return (int)(GetBaseStat(STAT.Defense) + equipmentStats[(int)STAT.Defense]); } }
 
     public int currentHP;
-    private CompanionHpBar hpBar;
 
-    // 상태 관리
     public bool isDead = false;
 
-    private NPCBase npcBase;
 
     private void Start()
     {
-        hpBar = GetComponentInChildren<CompanionHpBar>();
-        if (hpBar != null)
-        {
-            hpBar.Setup(this);
-        }
-        npcBase = GetComponent<NPCBase>();
-        if (npcData != null)
+        if (characterData != null)
         {
             InitializeFromManager();
         }
@@ -38,10 +29,10 @@ public class NPC_Stat : MonoBehaviour
 
     public void InitializeFromManager()
     {
-        if (npcData == null) return;
-        if (NPC_Manager.instance == null) return;
+        if (characterData == null) return;
+        if (Character_Manager.instance == null) return;
 
-        NPCStatus savedStatus = NPC_Manager.instance.GetNPCStatus(npcData.NPCID, npcData);
+        CharacterStatus savedStatus = Character_Manager.instance.GetCharacterStatus(characterData.characterID, characterData);
 
         if (savedStatus != null)
         {
@@ -54,25 +45,14 @@ public class NPC_Stat : MonoBehaviour
 
             currentHP = maxHP;
 
-            Debug.Log($"{npcData.NPCName} 배치 완료. Lv.{savedStatus.level} (HP: {currentHP}, ATK: {attackPower})");
-
-            if (hpBar != null)
-            {
-                hpBar.Setup(this);
-            }
+            Debug.Log($"{characterData.characterName} 배치 완료. Lv.{savedStatus.level} (HP: {currentHP}, ATK: {attackPower})");
         }
     }
 
-    public void SetCharacter(NPC_Data data)
+    public void SetCharacter(Character_Data data)
     {
-        npcData = data;
-
-        if (hpBar == null) hpBar = GetComponentInChildren<CompanionHpBar>();
-        if (npcBase == null) npcBase = GetComponent<NPCBase>();
-
+        characterData = data;
         InitializeFromManager(); // 매니저에서 레벨, 경험치 불러오기
-
-        if (hpBar != null) hpBar.Setup(this);
     }
 
     public float GetBaseStat(STAT type)
@@ -128,37 +108,41 @@ public class NPC_Stat : MonoBehaviour
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0);
 
-        if (hpBar != null)
-        {
-            hpBar.UpdateHpBar();
-        }
-
-        if (attacker != null && currentHP > 0)
-        {
-            GetComponent<NPCBase>()?.OnDamageTaken(attacker);
-        }
-
+        // TODO: 나중에 UI_Manager.instance.UpdatePlayerStatus(this) 등을 호출하여 화면 아래 메인 체력바 깎기
         if (currentHP <= 0)
         {
-            isDead = true;
-            npcBase.OnDeath();
+            Die();
         }
     }
 
     public void GainExp(int amount)
     {
-        if (npcData == null) return;
+        if (characterData == null) return;
 
-        NPC_Manager.instance.AddExperience(npcData.NPCID, amount, npcData);
+        Character_Manager.instance.AddExperience(characterData.characterID, amount, characterData);
 
-        NPCStatus updatedStatus = NPC_Manager.instance.GetNPCStatus(npcData.NPCID, npcData);
+        CharacterStatus updatedStatus = Character_Manager.instance.GetCharacterStatus(characterData.characterID, characterData);
         System.Array.Copy(updatedStatus.currentStats, baseStats, updatedStatus.currentStats.Length);
     }
 
     private void Die()
     {
         isDead = true;
-        Debug.Log($"{npcData.NPCName} 전투 불능!");
-        gameObject.SetActive(false);
+        Debug.Log($"{characterData.characterName} 전투 불능!");
+        // TODO: 캐릭터가 죽으면 다른 파티원으로 강제 태그(교체)되는 로직 추가 예정
+    }
+
+    public void RefreshStatsFromManager()
+    {
+        CharacterStatus status = Character_Manager.instance.GetCharacterStatus(characterData.characterID, characterData);
+
+        if (status.currentStats != null)
+        {
+            System.Array.Copy(status.currentStats, baseStats, status.currentStats.Length);
+        }
+
+        currentHP = maxHP;
+
+        Debug.Log($"{characterData.characterName} 스탯 갱신 완료: Lv.{status.level}");
     }
 }

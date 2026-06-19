@@ -22,57 +22,45 @@ public class UI_PartyManager : MonoBehaviour
             }
         }
 
-        Player_Stat localPlayer = UI_Manager.instance != null ? UI_Manager.instance.playerStat : null;
-        if (localPlayer != null && partySlots[0] != null)
-        {
-            Sprite pIcon = localPlayer.playerData != null ? localPlayer.playerData.characterIcon : null;
-            partySlots[0].gameObject.SetActive(true); // 활성화
-            partySlots[0].UpdatePortrait(pIcon, localPlayer.currentHP, localPlayer.maxHP);
-        }
+        if (Character_Manager.instance == null || Character_Manager.instance.currentPartyData == null) return;
+        
+        List<Character_Data> partyData = Character_Manager.instance.currentPartyData;
 
-        if (NPC_Manager.instance != null && NPC_Manager.instance.currentPartyData != null)
+        for (int i = 0; i < partyData.Count; i++)
         {
-            List<NPC_Data> partyData = NPC_Manager.instance.currentPartyData;
-            int currentSlotIndex = 1; // NPC는 1번 슬롯부터 들어감
+            if (i >= partySlots.Length) break;
 
-            for (int i = 0; i < partyData.Count; i++)
+            Character_Data charData = partyData[i];
+
+            if (charData != null && partySlots[i] != null)
             {
-                if (currentSlotIndex >= partySlots.Length) break;
+                partySlots[i].gameObject.SetActive(true); // 활성화
 
-                NPC_Data npcData = partyData[i];
+                float currentHp = GetCharacterCurrentHp(charData.characterID);
+                float maxHp = GetCharacterCurrentHp(charData.characterID);
 
-                if (npcData != null && partySlots[currentSlotIndex] != null)
-                {
-                    partySlots[currentSlotIndex].gameObject.SetActive(true); // 활성화
-
-                    float currentHp = GetNpcCurrentHp(npcData.NPCID);
-                    float maxHp = GetNpcMaxHp(npcData.NPCID);
-
-                    partySlots[currentSlotIndex].UpdatePortrait(npcData.NPCPortrait, currentHp, maxHp);
-
-                    currentSlotIndex++; // 다음 슬롯으로 넘어감
-                }
+                partySlots[i].UpdatePortrait(charData.characterPortrait, currentHp, maxHp);
             }
         }
     }
 
-    private float GetNpcCurrentHp(string npcID)
+    private float GetCharacterCurrentHp(string charID)
     {
-        NPC_Stat[] allNpcs = FindObjectsOfType<NPC_Stat>();
-        foreach (var npc in allNpcs)
+        if (UI_Manager.instance != null && UI_Manager.instance.activeCharacterStat != null)
         {
-            if (npc.npcData != null && npc.npcData.NPCID == npcID)
+            if (UI_Manager.instance.activeCharacterStat.characterData.characterID == charID)
             {
-                return npc.currentHP;
+                return UI_Manager.instance.activeCharacterStat.currentHP;
             }
         }
-        return GetNpcMaxHp(npcID);
+        
+        return GetCharacterMaxHp(charID);
     }
 
-    private float GetNpcMaxHp(string npcID)
+    private float GetCharacterMaxHp(string charID)
     {
-        NPCStatus status = NPC_Manager.instance.GetNPCStatus(npcID);
-        if (status != null && status.currentStats != null)
+        CharacterStatus status = Character_Manager.instance.GetCharacterStatus(charID);
+        if (status != null && status.currentStats != null && status.currentStats.Length > (int)STAT.HP)
         {
             return status.currentStats[(int)STAT.HP];
         }

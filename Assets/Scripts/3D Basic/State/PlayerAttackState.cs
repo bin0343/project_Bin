@@ -51,7 +51,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
     {
         if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsGrounded && !player.IsPointerOverUI())
         {
-            if (player.stat.TryUseStamina(player.stat.rollStaminaCost))
+            if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
             {
                 player.ChangeState(new PlayerRollState());
                 return; // 상태 전환 후 아래 로직 실행 안 함

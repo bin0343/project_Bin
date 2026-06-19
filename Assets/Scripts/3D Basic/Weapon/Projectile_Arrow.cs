@@ -62,12 +62,11 @@ public class Projectile_Arrow : MonoBehaviour
         }
         else
         {
-            // 플레이어나 아군 NPC 피격 처리는 해당 스크립트(Player_Stat 등)에 맞춰 추가
-            NPC_Stat npcStat = target.GetComponent<NPC_Stat>();
-            if (npcStat != null) npcStat.TakeDamage(damage);
-
-            Player_Stat playerStat = target.GetComponent<Player_Stat>();
-            // if (playerStat != null) playerStat.TakeDamage(damage); 
+            Character_Stat targetStat = target.GetComponent<Character_Stat>();
+            if (targetStat != null)
+            {
+                targetStat.TakeDamage(damage);
+            }
         }
 
         // 이펙트 생성 로직이 있다면 여기에 추가

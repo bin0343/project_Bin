@@ -89,7 +89,7 @@ public class Weapon_Player : MonoBehaviour
 
             //Enemy_Stat enemyStat = other.GetComponent<Enemy_Stat>();
             //EnemyBase enemyBase = other.GetComponent<EnemyBase>();
-            Player_Stat PlayerStat = GetComponentInParent<Player_Stat>();
+            Character_Stat PlayerStat = GetComponentInParent<Character_Stat>();
             Player_Action playerAction = GetComponentInParent<Player_Action>();     //비동기, 유니테스크
 
             if (PlayerStat != null && playerAction != null)

@@ -370,7 +370,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         transform.LookAt(target.position);
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        Player_Stat playerStat = target.GetComponent<Player_Stat>();
+        Character_Stat playerStat = target.GetComponent<Character_Stat>();
         if (playerStat != null && playerStat.currentHP <= 0)
         {
             isAttacking = false;
@@ -397,7 +397,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         }
         else if (targetObj.CompareTag("Companion"))
         {
-            var npcStat = targetObj.GetComponent<NPC_Stat>();
+            var npcStat = targetObj.GetComponent<Character_Stat>();
             return npcStat != null && npcStat.currentHP <= 0;
         }
         return true; // 모르는 대상이면 죽은 취급
@@ -544,7 +544,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
 
         if (target != null)
         {
-            Player_Stat playerStat = target.GetComponent<Player_Stat>();
+            Character_Stat playerStat = target.GetComponent<Character_Stat>();
             if (playerStat != null)
             {
                 playerStat.GainExp(stat.ExpReward);
