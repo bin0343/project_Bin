@@ -21,7 +21,8 @@ public class UI_Manager : MonoBehaviour
     public GameObject localMapPanel;
     public GameObject questPanel;
     public UI_QuestPanel UI_QuestPanel;
-    public GameObject OptionPanel;
+    public GameObject optionPanel;
+    public GameObject partyFormationPanel;
 
     [Header("Main HUD Elements")]
     public GameObject characterIconPanel;
@@ -48,6 +49,11 @@ public class UI_Manager : MonoBehaviour
         if (UI_QuestPanel == null && questPanel != null)
         {
             UI_QuestPanel = questPanel.GetComponent<UI_QuestPanel>();
+        }
+
+        if (partyFormationPanel != null)
+        {
+            partyFormationPanel.SetActive(false);
         }
 
         //UpdateCursorState();
@@ -90,6 +96,11 @@ public class UI_Manager : MonoBehaviour
             ToggleInventoryPanel();
         }
 
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            TogglePartyFormationPanel();
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (UIStack.Count > 0)
@@ -103,14 +114,20 @@ public class UI_Manager : MonoBehaviour
                     if (controller != null) controller.CloseLocalMap();
                 }
 
+                if (topUI == partyFormationPanel)
+                {
+                    UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>();
+                    if (formationScript != null) formationScript.SaveAndClose();
+                }
+
                 CloseTopUI();
             }
             else
             {
-                if (OptionPanel != null)
+                if (optionPanel != null)
                 {
                     ToggleMainHUD(false); // 옵션창 열 때 메인 HUD 끄기
-                    OpenUI(OptionPanel);
+                    OpenUI(optionPanel);
                 }
             }
         }
@@ -195,7 +212,7 @@ public class UI_Manager : MonoBehaviour
             CheckTimeScale();
             UpdateCursorState();
 
-            if (topUI == OptionPanel)
+            if (topUI == optionPanel)
             {
                 ToggleMainHUD(true);
             }
@@ -226,7 +243,7 @@ public class UI_Manager : MonoBehaviour
             UpdateCursorState();
         }
 
-        if (panel == OptionPanel)
+        if (panel == optionPanel)
         {
             ToggleMainHUD(true);
         }
@@ -293,6 +310,31 @@ public class UI_Manager : MonoBehaviour
                 if (controller != null)
                 {
                     controller.OpenLocalMap();
+                }
+            }
+        }
+    }
+
+    public void TogglePartyFormationPanel()
+    {
+        if (partyFormationPanel != null)
+        {
+            if (partyFormationPanel.activeSelf)
+            {
+                UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>();
+                if (formationScript != null)
+                {
+                    formationScript.SaveAndClose();
+                }
+                CloseSpecificUI(partyFormationPanel);
+            }
+            else if (!IsUIOpen)
+            {
+                OpenUI(partyFormationPanel);
+                UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>();
+                if (formationScript != null)
+                {
+                    formationScript.OpenFormationWindow();
                 }
             }
         }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class UI_CharacterTab : MonoBehaviour
 {
@@ -18,6 +19,10 @@ public class UI_CharacterTab : MonoBehaviour
     [Tooltip("Render Texture 화면에 배치되어 있는 UI 전용 3D 캐릭터의 Animator를 연결")]
     public Animator uiCharacterAnimator;
 
+    public GameObject characterStageRoot;
+
+    private Dictionary<string, GameObject> cachedCharacterModels = new Dictionary<string, GameObject>();
+
     [Header("동적 모델 생성")]
     public Transform characterSpawnPoint;
     private GameObject currentSpawnedModel;
@@ -25,8 +30,16 @@ public class UI_CharacterTab : MonoBehaviour
 
     public Button characterEnhanceButton;
 
+    private void OnDisable()
+    {
+        if (currentSpawnedModel != null) currentSpawnedModel.SetActive(false);
+        if (characterStageRoot != null) characterStageRoot.SetActive(false);
+    }
+
     public void RefreshTab()
     {
+        if (characterStageRoot != null) characterStageRoot.SetActive(true);
+
         mainInfoSubPanel.SetActive(true);
         if (enhancementSubPanel != null) enhancementSubPanel.SetActive(false);
 
@@ -56,25 +69,37 @@ public class UI_CharacterTab : MonoBehaviour
 
     public void SpawnAndSetupCharacter(Character_Data characterData)
     {
-        if (currentSpawnedModel != null)
-        {
-            Destroy(currentSpawnedModel);
-        }
-
         if (characterData == null || characterData.uiPrefab == null || characterSpawnPoint == null) return;
 
-        currentSpawnedModel = Instantiate(characterData.uiPrefab, characterSpawnPoint.position, characterSpawnPoint.rotation);
-        currentSpawnedModel.transform.SetParent(characterSpawnPoint);
+        if (currentSpawnedModel != null)
+        {
+            currentSpawnedModel.SetActive(false);
+        }
 
-        currentSpawnedModel.transform.localPosition = Vector3.zero;
-        currentSpawnedModel.transform.localScale = Vector3.one;
+        if (cachedCharacterModels.ContainsKey(characterData.characterID))
+        {
+            currentSpawnedModel = cachedCharacterModels[characterData.characterID];
+            currentSpawnedModel.SetActive(true);
+        }
+        else
+        {
+            currentSpawnedModel = Instantiate(characterData.uiPrefab, characterSpawnPoint.position, characterSpawnPoint.rotation);
+            currentSpawnedModel.transform.SetParent(characterSpawnPoint);
+
+            currentSpawnedModel.transform.localPosition = Vector3.zero;
+            currentSpawnedModel.transform.localScale = Vector3.one;
+
+            cachedCharacterModels.Add(characterData.characterID, currentSpawnedModel);
+        }
 
         uiCharacterAnimator = currentSpawnedModel.GetComponent<Animator>();
+        if (uiCharacterAnimator == null) uiCharacterAnimator = currentSpawnedModel.GetComponentInChildren<Animator>();
 
         if (uiCharacterAnimator != null)
         {
-            uiCharacterAnimator.Rebind(); 
+            uiCharacterAnimator.Rebind();
             uiCharacterAnimator.Play("First Idle", 0, 0f);
+            uiCharacterAnimator.Update(0f);
         }
 
         UpdateRotationTarget();
