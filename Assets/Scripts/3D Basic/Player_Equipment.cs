@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Player_Equipment : MonoBehaviour
 {
-    public static Player_Equipment instance;
     private Player_Action playerAction;
 
     [Header("캐릭터 무기")]
@@ -27,8 +26,6 @@ public class Player_Equipment : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this) Destroy(gameObject);
-        instance = this;
         playerAction = GetComponent<Player_Action>();
     }
 

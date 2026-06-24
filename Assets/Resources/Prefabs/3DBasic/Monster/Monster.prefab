@@ -52,13 +52,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3935379731fb4fa4fb58631904cbd204, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lootMethod: 1
+  lootMethod: 0
   dropTable:
   - itemData: {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
     minAmount: 1
     maxAmount: 2
     dropChance: 54.3
-  fieldItemPrefab: {fileID: 7709485948146272864, guid: 6d2377186a7132e429b5efede9575704, type: 3}
+  bossRewardPrefab: {fileID: 0}
   dropSpawnPoint: {fileID: 79237143088779011}
 --- !u!114 &1462598004550336977
 MonoBehaviour:
@@ -93,8 +93,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31982cfd73082eb458c7fa1379275589, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shieldProbability: 0.8
-  avoidProbability: 0.5
   isAttacking: 0
   isDead: 0
   target: {fileID: 0}
@@ -782,6 +780,10 @@ PrefabInstance:
     - target: {fileID: 2785743284643766459, guid: 84f12b2c44cea14439f45c2bd89a3d36, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2939464317978957026, guid: 84f12b2c44cea14439f45c2bd89a3d36, type: 3}
+      propertyPath: targetLayer.m_Bits
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 2992544746333821217, guid: 84f12b2c44cea14439f45c2bd89a3d36, type: 3}
       propertyPath: m_Layer

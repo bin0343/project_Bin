@@ -16,7 +16,7 @@ public class PlayerJumpState : PlayerBaseState
         Debug.Log("상태 진입 : Jump");
         base.Enter(player);
 
-        player.IsGrounded = false;
+        player.ForceJumpAirborne();
 
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         this.jumpSpeed = player.move.GetAdjustedSpeed(moveInput);

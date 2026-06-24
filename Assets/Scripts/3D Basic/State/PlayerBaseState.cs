@@ -45,11 +45,12 @@ public abstract class PlayerBaseState : IPlayerState
 
     protected virtual void HandleCommonItemInput(Player_Action player)      //아이템 입력 공통
     {
+        KeyCode[] itemKeys = { KeyCode.Z, KeyCode.X, KeyCode.C, KeyCode.V };
+
         for (int i = 0; i < 4; i++) // 퀵슬롯은 4개로 가정
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+            if (Input.GetKeyDown(itemKeys[i]))
             {
-                // Player_Action의 아이템 처리 함수 호출
                 player.HandleItemInput(i);
                 return;
             }

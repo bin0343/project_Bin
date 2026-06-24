@@ -6,30 +6,84 @@ using UnityEngine;
 public class Weapon_Player : MonoBehaviour
 {
     [Header("Weapon Components")]
-    [SerializeField] private Collider attackCollider;
     [SerializeField] private TrailRenderer slashTrail;
 
-    public int weaponAttackPower = 3;   //아마 없애도 될듯?
-    public bool hasHit = false;
+    [Header("히트 박스 설정")]
+    [Tooltip("타격 판정 박스의 크기 (가로, 높이, 깊이)")]
+    [SerializeField] private Vector3 hitboxSize = new Vector3(2f, 2f, 2f);
+
+    [Tooltip("플레이어 위치 기준 판정 박스의 오프셋")]
+    [SerializeField] private Vector3 hitboxOffset = new Vector3(0, 1f, 1.5f);
+
+    [Tooltip("적 감지 레이어 마스크")]
+    [SerializeField] private LayerMask enemyLayer;
+
+    private bool isHitboxActive = false;
+
+    private HashSet<Collider> hitEnemies = new HashSet<Collider>();
+
+    private Player_Action playerAction;
 
     void Awake()
     {
-        if (attackCollider == null) attackCollider = GetComponent<Collider>();
         if (slashTrail == null) slashTrail = GetComponentInChildren<TrailRenderer>();
-        GetComponentInChildren<Collider>().enabled = false;
-        DisableHitbox();
+        Collider attackCollider = GetComponent<Collider>();
+        if (attackCollider != null) attackCollider.enabled = false;
+        playerAction = GetComponentInParent<Player_Action>();
         StopTrail();
+    }
+
+    private void Update()
+    {
+        if (isHitboxActive)
+        {
+            PerformAttackCheck();
+        }
     }
 
     public void EnableHitbox()
     {
-        if (attackCollider != null) attackCollider.enabled = true;
-        hasHit = false;
+        isHitboxActive = true;
+        hitEnemies.Clear();
     }
 
     public void DisableHitbox()
     {
-        if (attackCollider != null) attackCollider.enabled = false;
+        isHitboxActive = false;
+    }
+
+    private void PerformAttackCheck()
+    {
+        if (playerAction == null || playerAction.animator == null) return;
+
+        Transform modelTransform = playerAction.animator.transform;
+
+        // 플레이어의 현재 위치와 바라보는 방향을 기준으로 타격 박스의 중심점 계산
+        Vector3 center = modelTransform.transform.position + modelTransform.transform.TransformDirection(hitboxOffset);
+
+        Collider[] colliders = Physics.OverlapBox(center, hitboxSize / 2f, modelTransform.transform.rotation, enemyLayer);
+
+        foreach (Collider collider in colliders)
+        {
+            if (hitEnemies.Contains(collider)) continue;
+
+            if (collider.TryGetComponent<Enemy_Stat>(out Enemy_Stat enemyStat))
+            {
+                hitEnemies.Add(collider);
+
+                Character_Stat playerStat = playerAction.stat;
+                if (playerStat != null)
+                {
+                    int damage = Mathf.Max(playerStat.attackPower - enemyStat.defensePower, 1);
+
+                    AttackType currentAttackType = (playerAction.currentComboStep == 3)
+                        ? AttackType.Knockback
+                        : AttackType.Normal;
+
+                    enemyStat.TakeDamage(damage, currentAttackType);
+                }
+            }
+        }
     }
 
     public void StartTrail()
@@ -51,73 +105,17 @@ public class Weapon_Player : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnDrawGizmos()
     {
-        if (!attackCollider.enabled || hasHit) return;
-        //if (hasHit) return;
+        if (playerAction != null) playerAction = GetComponentInParent<Player_Action>();
+        if (playerAction == null) return;
 
-        Weapon_EnemyDefense enemyDefense = other.GetComponent<Weapon_EnemyDefense>();
-        if (enemyDefense != null)
-        {
-            hasHit = true;
-            Player_Action playerAction = GetComponentInParent<Player_Action>();
-            bool isGuardBreak = (playerAction.currentState is PlayerRunningAttackState);
+        Transform modelTransform = playerAction.animator.transform;
+        // 공격 판정이 켜져있을 땐 붉은색, 꺼져있을 땐 녹색으로 표시
+        Gizmos.color = isHitboxActive ? new Color(1, 0, 0, 0.5f) : new Color(0, 1, 0, 0.2f);
 
-            if (isGuardBreak)
-            {
-                EnemyBase enemyBase = other.GetComponentInParent<EnemyBase>();
-                if (enemyBase != null)
-                {
-                    // 2. 넉백과 함께 스턴 상태로 만듦
-                    //enemyBase.EnterStunState(1.5f);
-                    enemyBase.ApplyKnockback();
-                }
-            }
-            else
-            {
-                // [일반 공격일 때] -> 그냥 막힘 (기존 로직)
-                Debug.Log("플레이어: 공격이 몬스터의 무기에 막혔다!");
-                playerAction?.OnAttackBlocked();
-                enemyDefense.OnParrySuccess();
-            }
-            return;
-        }
-
-        if (other.TryGetComponent<Enemy_Stat>(out Enemy_Stat enemyStat))
-        {
-            hasHit = true;
-
-            //Enemy_Stat enemyStat = other.GetComponent<Enemy_Stat>();
-            //EnemyBase enemyBase = other.GetComponent<EnemyBase>();
-            Character_Stat PlayerStat = GetComponentInParent<Character_Stat>();
-            Player_Action playerAction = GetComponentInParent<Player_Action>();     //비동기, 유니테스크
-
-            if (PlayerStat != null && playerAction != null)
-            {
-                int damage = Mathf.Max(PlayerStat.attackPower + weaponAttackPower - enemyStat.defensePower, 1);
-                AttackType currentAttackType;
-                if (playerAction.currentState is PlayerRunningAttackState || playerAction.currentComboStep == 3)
-                {
-                    currentAttackType = AttackType.Knockback;
-                }
-                else
-                {
-                    currentAttackType = AttackType.Normal;
-                }
-
-                enemyStat.TakeDamage(damage, currentAttackType);
-
-                /*switch (currentAttackType)
-                {
-                    case AttackType.Normal:
-                        enemyBase.EnterStunState(1.5f);
-                        break;
-                    case AttackType.Knockback:
-                        enemyBase.EnterStunState(1.5f);
-                        StartCoroutine(enemyBase.ApplyKnockback());
-                        break;
-                }*/
-            }
-        }
+        Vector3 center = modelTransform.transform.position + modelTransform.transform.TransformDirection(hitboxOffset);
+        Gizmos.matrix = Matrix4x4.TRS(center, modelTransform.transform.rotation, Vector3.one);
+        Gizmos.DrawCube(Vector3.zero, hitboxSize);
     }
 }

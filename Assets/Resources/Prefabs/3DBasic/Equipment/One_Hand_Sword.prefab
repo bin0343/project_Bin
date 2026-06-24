@@ -184,10 +184,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85b206725dc12004fbed1a6206c14765, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackCollider: {fileID: 4649619312510422192}
-  slashTrail: {fileID: 6825368497200013603}
   weaponAttackPower: 3
-  hasHit: 0
+  slashTrail: {fileID: 6825368497200013603}
+  hitboxSize: {x: 2, y: 2, z: 2}
+  hitboxOffset: {x: 0, y: 1, z: 1.5}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!33 &901982061193887019
 MeshFilter:
   m_ObjectHideFlags: 0

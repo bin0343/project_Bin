@@ -5,12 +5,10 @@ using UnityEngine;
 public class Enemy_AnimationEvent : MonoBehaviour
 {
     private EnemyBase enemy;
-    private Weapon_EnemyDefense defense;
 
     private void Awake()
     {
         enemy = GetComponentInParent<EnemyBase>();
-        defense = GetComponentInParent<EnemyBase>().GetComponentInChildren<Weapon_EnemyDefense>(true);
     }
 
     public void StartAttackTrail()
@@ -33,21 +31,5 @@ public class Enemy_AnimationEvent : MonoBehaviour
     public void EndAttack()
     {
         enemy.isAttacking = false;
-    }
-
-    public void EnableDefenseCollider()
-    {
-        if (defense != null)
-        {
-            defense.SetActiveDefense(true);
-        }
-    }
-
-    public void DisableDefenseCollider()
-    {
-        if (defense != null)
-        {
-            defense.SetActiveDefense(false);
-        }
     }
 }

@@ -1317,7 +1317,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: character
+  m_Name: Character_Ninja
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: AttackBuff
@@ -2026,11 +2026,11 @@ AnimatorStateMachine:
   - {fileID: -4886923929973388579}
   m_EntryTransitions: []
   m_StateMachineTransitions:
+  - first: {fileID: -3572509402338502608}
+    second: []
   - first: {fileID: -2509410796164523161}
     second: []
   - first: {fileID: 9205523810922546841}
-    second: []
-  - first: {fileID: -3572509402338502608}
     second: []
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 50, y: 20, z: 0}
@@ -2366,7 +2366,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 0f15824430f1528489e2a0d3e130ddec, type: 2}
+  m_Motion: {fileID: 7400000, guid: 84d9b972392f6754d8ff431fe8fdbf22, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

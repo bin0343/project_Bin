@@ -27,7 +27,6 @@ public class Player_Action : MonoBehaviour
     public Character_Stat stat;
 
     public UI_SkillManager skillUIManagers;
-    public Shield_Player shield;
     public Weapon_Player currentWeapon { get; private set; }
 
     [Header("아이템 줍기 반경")]
@@ -40,6 +39,14 @@ public class Player_Action : MonoBehaviour
     public float fallMultiplier = 2.5f;     // 떨어질 때 가속도
     public float lowJumpMultiplier = 2.0f;  // 스페이스바를 짧게 눌렀을 때의 가속도
 
+    public LayerMask groundLayer;
+
+    private float coyoteTime = 0.15f;
+    private float coyoteTimer = 0f;
+    private float jumpGraceTimer = 0f;
+
+    private float airborneTimer = 0f;
+    private float fallAnimationDelay = 2f;
 
     [HideInInspector] public bool IsGuarding { get; private set; } = false;
     [HideInInspector] public bool IsGrounded = true;
@@ -64,16 +71,16 @@ public class Player_Action : MonoBehaviour
         return EventSystem.current.IsPointerOverGameObject();
     }
 
-    void Start()
+    private void Awake()
     {
+        DontDestroyOnLoad(gameObject);
+
         animator = player.GetComponent<Animator>();
         rigidbody = GetComponent<Rigidbody>();
         move = player.GetComponentInParent<Player_Move>();
         stat = player.GetComponentInParent<Character_Stat>();
         animEvents = player.GetComponent<Player_AnimationEvents>();
         skillUIManagers = FindObjectOfType<UI_SkillManager>();
-        shield = player.GetComponentInChildren<Shield_Player>();
-        //attackHitbox = GetComponentInChildren<PlayerAttackHitbox>(true);
 
         targetingController = GetComponent<SkillTargetingController>();
         if (targetingController != null)
@@ -101,16 +108,20 @@ public class Player_Action : MonoBehaviour
             runningAttackHolder = new SkillHolder(runningAttackData);
         }
 
+        ChangeState(new PlayerIdleState());
+    }
+
+    void Start()
+    {
         if (UI_SkillManager.Instance != null)
         {
             UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
         }
-        ChangeState(new PlayerIdleState());
-    }
 
-    private void Awake()
-    {
-        DontDestroyOnLoad(gameObject);
+        if (BattleManager.instance != null)
+        {
+            BattleManager.instance.ChangeCameraTarget(transform.root);
+        }
     }
 
     void Update()
@@ -131,9 +142,33 @@ public class Player_Action : MonoBehaviour
             return;
         //HandleGuardInput();
         currentState?.Execute(this);
-
         CheckGroundStatus();
-        animator.SetBool("IsGrounded", IsGrounded);
+
+        if (IsGrounded)
+        {
+            airborneTimer = 0f; // 땅에 닿으면 타이머 초기화
+            animator.SetBool("IsGrounded", true); // 즉시 착지 모션 재생
+        }
+        else
+        {
+            if (rigidbody.velocity.y <= 0.1f)
+            {
+                airborneTimer += Time.deltaTime;
+            }
+            else
+            {
+                if (airborneTimer < 10f)
+                {
+                    airborneTimer = 0f;
+                }
+            }
+
+            if (airborneTimer >= 10f || (airborneTimer > fallAnimationDelay && rigidbody.velocity.y < -0.1f))
+            {
+                animator.SetBool("IsGrounded", false);
+            }
+        }
+
         animator.SetFloat("VerticalVelocity", rigidbody.velocity.y);
     }
 
@@ -166,11 +201,20 @@ public class Player_Action : MonoBehaviour
         currentState.Enter(this);
     }
 
+    public void ForceJumpAirborne()
+    {
+        IsGrounded = false;
+        coyoteTime = 0f;
+        jumpGraceTimer = 0.1f;
+
+        airborneTimer = 10f;
+    }
+
     private void CheckGroundStatus()
     {
-        // 점프 시작 직후(Y속도가 양수)에는 땅 체크를 잠시 무시해야 "점프하자마자 착지"하는 버그를 막을 수 있음
-        if (rigidbody.velocity.y > 0.1f)
+        if (jumpGraceTimer > 0f)
         {
+            jumpGraceTimer -= Time.deltaTime;
             IsGrounded = false;
             return;
         }
@@ -178,22 +222,29 @@ public class Player_Action : MonoBehaviour
         Vector3 origin = transform.position + Vector3.up * 0.5f;
         if (groundCheckPos != null)
         {
-            origin = groundCheckPos.position + Vector3.up * 0.5f;
+            origin = groundCheckPos.position + Vector3.up * 0.3f;
         }
 
-        float checkDist = groundCheckDistance + 0.5f;
-        float sphereRadius = 0.2f;
+        float currentCheckDist = IsGrounded ? (groundCheckDistance + 0.3f) : groundCheckDistance;
+        float checkDist = currentCheckDist + 0.5f;
+        float sphereRadius = 0.25f;
 
-        // 아래로 레이를 쏴서 Ground 레이어에 닿으면 땅에 있는 것임
-        // *주의: Player_Move의 groundLayer 설정을 활용하거나 직접 레이어 마스크 지정 필요
-        // 여기서는 일단 모든 레이어 검사 혹은 move 스크립트의 groundLayer 참조 권장
-        if (Physics.SphereCast(origin, sphereRadius, Vector3.down, out RaycastHit hit, checkDist))
+        if (Physics.SphereCast(origin, sphereRadius, Vector3.down, out RaycastHit hit, checkDist, groundLayer))
         {
             IsGrounded = true;
+            coyoteTimer = coyoteTime;
         }
         else
         {
-            IsGrounded = false;
+            if (coyoteTimer > 0f)
+            {
+                coyoteTimer -= Time.deltaTime;
+                IsGrounded = true;
+            }
+            else
+            {
+                IsGrounded = false;
+            }
         }
     }
 
@@ -201,9 +252,10 @@ public class Player_Action : MonoBehaviour
     // 모든 상태 클래스가 호출할 스킬 처리 전용 함수
     public void HandleSkillInput(int slotIndex)
     {
-        if (Player_Equipment.instance != null)
+        Player_Equipment myEquipment = GetComponent<Player_Equipment>();
+        if (myEquipment != null)
         {
-            Player_Equipment.instance.EnterCombatState();
+            myEquipment.EnterCombatState();
         }
 
         if (isTargetingSkill) return;

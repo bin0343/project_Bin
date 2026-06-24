@@ -63,7 +63,6 @@ public class LocalMapController : MonoBehaviour
         {
             playerPositionTarget = playerObj.transform;
 
-            // 2. 그 자식 중에 진짜 회전하는 녀석을 찾아서 회전 타겟으로 지정
             Transform realModel = playerObj.transform.Find("Player"); // 자식 모델의 실제 이름 입력
             if (realModel != null)
             {
@@ -130,13 +129,18 @@ public class LocalMapController : MonoBehaviour
 
     private void UpdatePlayerIcon()
     {
-        if (playerPositionTarget == null || playerIconRect == null) return;
+        if (BattleManager.instance == null || playerIconRect == null) return;
 
-        // 위치는 최상위 부모(Character)의 좌표를 사용
+        GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+        if (activePlayer == null) return;
+
+        playerPositionTarget = activePlayer.transform;
+        Transform realModel = activePlayer.transform.Find("Player"); 
+        playerRotationTarget = (realModel != null) ? realModel : activePlayer.transform;
+
         Vector2 mapPos = GetMapPosition(playerPositionTarget.position);
         playerIconRect.anchoredPosition = mapPos;
 
-        // 회전은 자식 모델(Player)의 각도를 사용
         if (playerRotationTarget != null)
         {
             float playerRotationY = playerRotationTarget.eulerAngles.y;
@@ -179,11 +183,14 @@ public class LocalMapController : MonoBehaviour
                 zoomSlider.SetValueWithoutNotify(initialZoom);
             }
 
-            if (playerPositionTarget != null)
+            if (BattleManager.instance != null)
             {
-                Vector2 playerMapPos = GetMapPosition(playerPositionTarget.position);
-                // 맵 도화지를 플레이어 위치의 반대 방향으로 밀어주어야 화면 중앙에 플레이어가 오게 됩니다.
-                mapContent.anchoredPosition = -playerMapPos * initialZoom;
+                GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+                if (activePlayer != null)
+                {
+                    Vector2 playerMapPos = GetMapPosition(activePlayer.transform.position);
+                    mapContent.anchoredPosition = -playerMapPos * initialZoom;
+                }
             }
         }
 
@@ -243,7 +250,8 @@ public class LocalMapController : MonoBehaviour
 
     public void TeleportPlayer(Transform targetTr)
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (BattleManager.instance == null) return;
+        GameObject player = BattleManager.instance.GetActiveCharacter();
         if (player == null) return;
 
         Vector3 finalPos = targetTr.position;
@@ -255,36 +263,31 @@ public class LocalMapController : MonoBehaviour
             finalRot = Quaternion.LookRotation(-targetTr.forward);
         }
 
-        UnityEngine.AI.NavMeshAgent agent = player.GetComponent<UnityEngine.AI.NavMeshAgent>();
-        if (agent != null)
+        Rigidbody rb = player.GetComponent<Rigidbody>();
+        if (rb != null)
         {
-            agent.enabled = false; // 에이전트를 기절시킵니다.
+            rb.velocity = Vector3.zero; // 1. 이전 위치에서 남아있던 가속도를 완전히 죽입니다.
+            rb.position = finalPos;     // 2. 물리적 좌표 강제 순간이동
+            rb.rotation = finalRot;     // 3. 물리적 회전 강제 순간이동
+        }
+        else
+        {
+            player.transform.position = finalPos;
+            player.transform.rotation = finalRot;
         }
 
-        player.transform.position = finalPos;
-        player.transform.rotation = finalRot;
-
-        if (agent != null)
-        {
-            agent.enabled = true; // 새로운 방향을 인식한 상태로 다시 깨웁니다.
-        }
-
-        Transform realModel = player.transform.Find("Player"); 
+        Transform realModel = player.transform.Find("Player");
         if (realModel != null)
         {
             realModel.localRotation = Quaternion.identity;
         }
 
-        Transform cameraArm = player.transform.Find("CameraArm");
-        if (cameraArm == null)
+        if (BattleManager.instance.mainFreeLookCamera != null)
         {
-            var camScript = player.GetComponentInChildren<CameraArm>();
-            if (camScript != null) cameraArm = camScript.transform;
-        }
+            BattleManager.instance.mainFreeLookCamera.m_XAxis.Value = finalRot.eulerAngles.y;
+            BattleManager.instance.mainFreeLookCamera.m_YAxis.Value = 0.5f; // 중간 높이(정면) 응시
 
-        if (cameraArm != null)
-        {
-            cameraArm.rotation = finalRot * Quaternion.Euler(0, 180f, 0);
+            BattleManager.instance.mainFreeLookCamera.PreviousStateIsValid = false;
         }
 
         Cursor.lockState = CursorLockMode.Locked;

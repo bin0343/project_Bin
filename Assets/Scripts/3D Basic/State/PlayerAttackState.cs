@@ -20,9 +20,10 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public override void Enter(Player_Action player)
     {
-        if (Player_Equipment.instance != null)
+        Player_Equipment myEquipment = player.GetComponent<Player_Equipment>();
+        if (myEquipment != null)
         {
-            Player_Equipment.instance.EnterCombatState();
+            myEquipment.EnterCombatState();
         }
 
         player.CanRotate = false;

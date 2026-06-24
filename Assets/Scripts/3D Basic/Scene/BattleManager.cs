@@ -1,61 +1,208 @@
 using UnityEngine;
+using Cinemachine;
 using System.Collections.Generic;
 
 public class BattleManager : MonoBehaviour
 {
-    [Header("소환 위치")]
-    public Vector3[] spawnOffsets = new Vector3[]
-    {
-        new Vector3(-2, 0, 1),  // 1번 동료: 왼쪽 뒤
-        new Vector3(-2, 0, -1), // 2번 동료: 오른쪽 뒤
-        new Vector3(-3, 0, 0)   // 3번 동료: 더 뒤쪽
-    };
+    public static BattleManager instance;
 
-    void Start()
+    [Header("카메라 세팅")]
+    public CinemachineFreeLook mainFreeLookCamera;
+
+    [Header("캐릭터 태그")]
+    public Transform startSpawnPoint;
+
+    private GameObject[] spawnedCharacters = new GameObject[3];
+    private int currentActiveIndex = 0;
+
+    private void Awake()
     {
-        SpawnPartyMembers();
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    void SpawnPartyMembers()
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        InitializeParty();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) TryTag(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) TryTag(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) TryTag(2);
+    }
+
+    public void InitializeParty()
     {
         if (Character_Manager.instance == null) return;
 
-        List<Character_Data> partyData = Character_Manager.instance.currentPartyData;
+        List<Character_Data> party = Character_Manager.instance.currentPartyData;
+        Debug.Log($"초기화 시도 - 파티원 수: {party.Count}");
 
-        if (partyData == null || partyData.Count == 0)
+        for (int i = 0; i < 3; i++)
         {
-            Debug.Log("편성된 파티원이 없습니다.");
-            return;
-        }
-
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player == null)
-        {
-            Debug.LogError("씬에 Player 태그가 달린 오브젝트가 없습니다! 먼저 배치해주세요.");
-            return;
-        }
-        Transform playerTr = player.transform;
-
-        for (int i = 0; i < partyData.Count; i++)
-        {
-            if (i >= spawnOffsets.Length) break;
-
-            Character_Data data = partyData[i];
-
-            if (data != null && data.characterPrefab != null)
+            if (i < party.Count && party[i] != null)
             {
-                Vector3 spawnPos = playerTr.TransformPoint(spawnOffsets[i]);
-
-                spawnPos.y = playerTr.position.y;
-
-                GameObject npcObj = Instantiate(data.characterPrefab, spawnPos, playerTr.rotation);
-
-                var stat = npcObj.GetComponent<Character_Stat>();
-                if (stat != null)
+                if (spawnedCharacters[i] == null)
                 {
-                    stat.SetCharacter(data);
+                    Vector3 spawnPos = (startSpawnPoint != null) ? startSpawnPoint.position : Vector3.zero;
+                    GameObject charObj = Instantiate(party[i].characterPrefab, spawnPos, Quaternion.identity);
+                    spawnedCharacters[i] = charObj;
+
+                    if (currentActiveIndex == i || (currentActiveIndex == 0 && i == 0))
+                    {
+                        charObj.SetActive(true);
+                        ChangeCameraTarget(charObj.transform);
+                        UpdateSystemsWithActiveCharacter(charObj);
+                    }
+                    else
+                    {
+                        charObj.SetActive(false);
+                    }
+                }
+            }
+            else
+            {
+                if (spawnedCharacters[i] != null)
+                {
+                    Destroy(spawnedCharacters[i]);
+                    spawnedCharacters[i] = null;
                 }
             }
         }
+    }
+
+    private void TryTag(int targetIndex)
+    {
+        if (targetIndex == currentActiveIndex) return;
+
+        if (spawnedCharacters[targetIndex] == null)
+        {
+            Debug.Log($"슬롯 {targetIndex}에 캐릭터가 없어 소환을 시도합니다.");
+            InitializeParty();
+            if (spawnedCharacters[targetIndex] == null) return;
+        }
+
+        GameObject currentActiveObj = spawnedCharacters[currentActiveIndex];
+        GameObject targetObj = spawnedCharacters[targetIndex];
+
+        Player_Action currentAction = currentActiveObj.GetComponent<Player_Action>();
+
+        if (currentAction != null && !currentAction.IsGrounded)
+        {
+            return;
+        }
+
+        Vector3 currentPos = currentActiveObj.transform.position;
+        Quaternion currentRot = currentActiveObj.transform.rotation;
+
+        Rigidbody currentRb = currentActiveObj.GetComponent<Rigidbody>();
+
+        Vector3 savedVelocity = currentRb != null ? currentRb.velocity : Vector3.zero;
+        bool wasGrounded = currentAction != null ? currentAction.IsGrounded : true;
+
+        int currentAnimHash = 0;
+        float currentAnimTime = 0f;
+        if (currentAction != null && currentAction.animator != null)
+        {
+            AnimatorStateInfo stateInfo = currentAction.animator.GetCurrentAnimatorStateInfo(0);
+            currentAnimHash = stateInfo.fullPathHash;
+            currentAnimTime = stateInfo.normalizedTime;
+        }
+
+        currentActiveObj.SetActive(false);
+
+        targetObj.transform.position = currentPos;
+        targetObj.transform.rotation = currentRot;
+        targetObj.SetActive(true);
+
+        Rigidbody targetRb = targetObj.GetComponent<Rigidbody>();
+        Player_Action targetAction = targetObj.GetComponent<Player_Action>();
+
+        if (targetRb != null)
+        {
+            targetRb.velocity = savedVelocity;
+        }
+
+        if (targetAction != null)
+        {
+            targetAction.IsGrounded = wasGrounded;
+
+            if (wasGrounded)
+            {
+                if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+                {
+                    targetAction.ChangeState(new PlayerMoveState());
+                }
+                else
+                {
+                    targetAction.ChangeState(new PlayerIdleState());
+                }
+            }
+            else
+            {
+                targetAction.ForceJumpAirborne();
+            }
+
+            if (targetAction.animator != null && currentAnimHash != 0)
+            {
+                targetAction.animator.Play(currentAnimHash, 0, currentAnimTime % 1f);
+
+                targetAction.animator.Update(0f);
+            }
+        }
+
+        ChangeCameraTarget(targetObj.transform);
+
+        currentActiveIndex = targetIndex;
+
+        UpdateSystemsWithActiveCharacter(targetObj);
+    }
+
+    //캐릭터 교체마다 불러오는 함수
+    public void ChangeCameraTarget(Transform newCharacterRoot)
+    {
+        if (mainFreeLookCamera == null || newCharacterRoot == null) return;
+
+        Transform targetPoint = newCharacterRoot.Find("Camera_Target");
+
+        if (targetPoint == null)
+        {
+            targetPoint = newCharacterRoot;
+        }
+
+        mainFreeLookCamera.Follow = targetPoint;
+        mainFreeLookCamera.LookAt = targetPoint;
+    }
+
+    private void UpdateSystemsWithActiveCharacter(GameObject activeCharacter)
+    {
+        Character_Stat newStat = activeCharacter.GetComponent<Character_Stat>();
+        if (newStat != null && UI_Manager.instance != null)
+        {
+            UI_Manager.instance.UpdatePlayerStatus(newStat);
+        }
+
+        MiniMapController miniMap = FindObjectOfType<MiniMapController>();
+        if (miniMap != null)
+        {
+            miniMap.SetTarget(activeCharacter.transform);
+        }
+    }
+
+    public GameObject GetActiveCharacter()
+    {
+        return spawnedCharacters[currentActiveIndex];
     }
 }

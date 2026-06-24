@@ -26,7 +26,8 @@ public class UI_WeaponTab : MonoBehaviour
 
     public void RefreshTab()
     {
-        if (Player_Equipment.instance == null) return;
+        Player_Equipment activeEquip = GetActiveEquipment();
+        if (activeEquip == null) return;
 
         ItemHolder targetHolder = null;
 
@@ -37,7 +38,7 @@ public class UI_WeaponTab : MonoBehaviour
         }
         else
         {
-            targetHolder = Player_Equipment.instance.equipmentSlots[0];
+            targetHolder = activeEquip.equipmentSlots[0];
         }
 
         if (targetHolder != null && targetHolder.ItemData != null)
@@ -98,9 +99,10 @@ public class UI_WeaponTab : MonoBehaviour
 
     public void OnClickEnhanceWeapon()
     {
-        if (Player_Equipment.instance == null) return;
+        Player_Equipment activeEquip = GetActiveEquipment();
+        if (activeEquip == null) return;
 
-        ItemHolder currentWeapon = Player_Equipment.instance.equipmentSlots[0];
+        ItemHolder currentWeapon = activeEquip.equipmentSlots[0];
 
         if (currentWeapon != null && currentWeapon.ItemData != null)
         {
@@ -136,7 +138,11 @@ public class UI_WeaponTab : MonoBehaviour
     {
         if (isPreviewMode && previewItemHolder != null)
         {
-            Player_Equipment.instance.Equip(previewItemHolder, SlotType.INVENTORY, previewInventoryIndex);
+            Player_Equipment activeEquip = GetActiveEquipment();
+            if (activeEquip != null)
+            {
+                activeEquip.Equip(previewItemHolder, SlotType.INVENTORY, previewInventoryIndex);
+            }
 
             CloseSelectionPanel();
         }
@@ -152,5 +158,13 @@ public class UI_WeaponTab : MonoBehaviour
             weaponSelectionPanel.SetActive(false);
         }
         RefreshTab(); // 장착 중인 원래 무기로 되돌려서 다시 그리기
+    }
+
+    private Player_Equipment GetActiveEquipment()
+    {
+        if (BattleManager.instance == null) return null;
+        GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+        if (activePlayer == null) return null;
+        return activePlayer.GetComponent<Player_Equipment>();
     }
 }

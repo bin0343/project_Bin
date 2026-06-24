@@ -168,9 +168,16 @@ public class UI_WeaponRefinement : MonoBehaviour
         targetWeaponHolder.refinementStage += selectedMaterials.Count;
         int newAttack = targetWeaponHolder.GetTotalWeaponAttack();
 
-        if (Player_Equipment.instance != null && Player_Equipment.instance.equipmentSlots[0] == targetWeaponHolder)
+        Player_Equipment activeEquip = null;
+        if (BattleManager.instance != null)
         {
-            Character_Stat stat = Player_Equipment.instance.GetComponent<Character_Stat>();
+            GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+            if (activePlayer != null) activeEquip = activePlayer.GetComponent<Player_Equipment>();
+        }
+
+        if (activeEquip != null && activeEquip.equipmentSlots[0] == targetWeaponHolder)
+        {
+            Character_Stat stat = activeEquip.GetComponent<Character_Stat>();
             if (stat != null)
             {
                 stat.RemoveEquipmentStat(STAT.Attack, oldAttack);

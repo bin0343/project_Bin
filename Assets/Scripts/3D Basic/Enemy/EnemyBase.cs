@@ -23,20 +23,15 @@ public enum SearchPhase
 public enum BattleAction
 {
     Waiting,    // 행동 결정 대기
-    Attacking,
-    Shielding,
-    Avoiding
+    Attacking
 }
 
-public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한 요소
+public class EnemyBase : MonoBehaviour
 {
     private ENEMYSTATE currentState = ENEMYSTATE.IDLE;
     private BattleAction currentBattleAction = BattleAction.Waiting;
     private SearchPhase currentSearchPhase;
     private bool isPerformingAction = false;
-
-    public float shieldProbability = 0.3f;      //플레이어가 공격시 쉴드 확률
-    public float avoidProbability = 0.8f;
 
     protected Animator animator;
 
@@ -44,7 +39,7 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     private float idleTimer = 0f;
 
     private Vector3 moveTarget;
-    private float moveRadius = 10f;  // 랜덤 이동 범위
+    private float moveRadius = 10f;
     private float moveSpeed = 2f;
     public bool isAttacking = false;
     public bool isDead = false;
@@ -66,22 +61,21 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
     public ItemDrop itemDropper;
 
     [Header("UI 설정")]
-    public GameObject hpBarObject; // 몬스터 체력바 캔버스 오브젝트
-    public float hpBarVisibleRange = 12f; // 체력바가 보이는 거리 (SearchRange보다 길게 설정)
+    public GameObject hpBarObject; 
+    public float hpBarVisibleRange = 12f; 
 
     [Header("AI - 시야각")]
     [Range(0, 360)]
-    public float viewAngle = 120f;  //시야각
-    public float viewRadius { get { return searchRange; } }     //시야 반경
-    public Transform eyeTransform;      //시야의 시작점 or 몬스터 위치(눈이 없는 개체)
+    public float viewAngle = 120f; 
+    public float viewRadius { get { return searchRange; } }
+    public Transform eyeTransform;
 
     [Header("AI - 레이어")]
     public LayerMask playerLayer;
-    public LayerMask obstacleLayerMask;     //장애물 레이어
+    public LayerMask obstacleLayerMask; 
 
     [Header("AI - 추적로직")]
     public float timeToGiveUp = 5f;     //추적 포기 시간
-    //private float timeSinceLostTarget = 0f;
     private Vector3 lastKnownPosition;
 
     [Header("AI - Patrol Logic")]
@@ -388,7 +382,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         ExecuteAction();
     }
 
-    //타겟이 죽었는지 확인하는 헬퍼 함수
     private bool IsTargetDead(Transform targetObj)
     {
         if (targetObj.CompareTag("Player"))
@@ -400,37 +393,11 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             var npcStat = targetObj.GetComponent<Character_Stat>();
             return npcStat != null && npcStat.currentHP <= 0;
         }
-        return true; // 모르는 대상이면 죽은 취급
+        return true; 
     }
 
     private void ChooseNextAction()
     {
-        bool isTargetAttacking = false;
-
-        if (target.CompareTag("Player"))
-        {
-            isTargetAttacking = playerAction.IsAttacking;
-        }
-        else if (target.CompareTag("Companion"))
-        {
-            var npcBase = target.GetComponent<NPCBase>();
-            if (npcBase != null) isTargetAttacking = (npcBase.currentState == NPCState.ATTACK);
-        }
-
-        if (isTargetAttacking && Random.value < avoidProbability)
-        {
-            currentBattleAction = BattleAction.Avoiding;
-            return;
-        }
-
-        if (isTargetAttacking && Random.value < shieldProbability)
-        {
-            currentBattleAction = BattleAction.Shielding;
-            return;
-        }
-
-
-
         if (Time.time >= lastAttackTime + attackDelay)
         {
             currentBattleAction = BattleAction.Attacking;
@@ -447,12 +414,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
             case BattleAction.Attacking:
                 StartCoroutine(AttackCoroutine());
                 break;
-            case BattleAction.Shielding:
-                StartCoroutine(ShieldCoroutine());
-                break;
-            case BattleAction.Avoiding:
-                AvoidAction();
-                break;
             case BattleAction.Waiting:
                 break;
         }
@@ -467,39 +428,6 @@ public class EnemyBase : MonoBehaviour  //Time.timeScale = 1f; //연출력에 중요한
         isPerformingAction = false;
     }
 
-    IEnumerator ShieldCoroutine()
-    {
-        isPerformingAction = true;
-        animator.SetTrigger("IsShield");
-        yield return new WaitForSeconds(2.0f);  //방패 들고 있을 시간.
-        isPerformingAction = false;
-    }
-
-    void AvoidAction()
-    {
-        isPerformingAction = true;
-        animator.SetTrigger("IsAvoiding");
-
-        float avoidDuration = 0.8f;
-        float avoidDistance = 5.0f;
-        float jumpHeight = 0.6f;
-
-        Vector3 dir = (transform.position - target.position).normalized;
-        Vector3 endPos = transform.position + dir * avoidDistance;
-
-        if (navAgent.enabled) navAgent.enabled = false;
-
-        transform.DOJump(endPos, jumpHeight, 1, avoidDuration)
-            .SetEase(Ease.OutQuad)
-            .OnComplete(() => {
-                if (!isDead && navAgent != null)
-                {
-                    navAgent.enabled = true;
-                    navAgent.velocity = Vector3.zero;
-                }
-                isPerformingAction = false;
-            });
-    }
     #endregion
 
     #region Dead

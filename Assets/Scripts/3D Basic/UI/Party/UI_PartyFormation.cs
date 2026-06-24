@@ -28,14 +28,14 @@ public class UI_PartyFormation : MonoBehaviour
     public GameObject subPanel_CharacterSelect;
     public Transform rosterListParent;
     public GameObject rosterSlotPrefab;
-    public Transform previewSpawnPoint; 
+    public Transform previewSpawnPoint;
     public Text previewNameText;
     public Text previewLevelText;
     public Button executeFormationButton;
 
     public GameObject previewStageRoot;
     private GameObject currentPreviewModel;
-    private Character_Data selectedDataForSlot; 
+    private Character_Data selectedDataForSlot;
     private int currentEditingSlotIndex = -1;
     private Dictionary<string, GameObject> cachedPreviewModels = new Dictionary<string, GameObject>();
 
@@ -44,6 +44,7 @@ public class UI_PartyFormation : MonoBehaviour
 
     private Character_Data[] spawnedData = new Character_Data[3];
     private HashSet<string> playedFirstIdleSet = new HashSet<string>();
+    private bool wasOpened = false; // 게임 실행 시 처음에 비활성화 돼서 저장된 데이터 초기화 되는 현상 방지
 
     private void Start()
     {
@@ -62,13 +63,36 @@ public class UI_PartyFormation : MonoBehaviour
         if (formationCamera != null) formationCamera.gameObject.SetActive(true);
         subPanel_CharacterSelect.SetActive(false);
 
+        wasOpened = true;
+
         List<Character_Data> currentData = Character_Manager.instance.currentPartyData;
         for (int i = 0; i < 3; i++)
         {
-            tempParty[i] = (i < currentData.Count) ? currentData[i] : null;
+            tempParty[i] = (currentData != null && i < currentData.Count) ? currentData[i] : null;
         }
 
+        CompactParty();
         Refresh3DStage();
+    }
+
+    private void OnDisable()
+    {
+        if (Character_Manager.instance == null || !wasOpened) return;
+        CompactParty();
+
+        List<Character_Data> finalData = new List<Character_Data>();
+        List<string> finalIDs = new List<string>();
+
+        for (int i = 0; i < 3; i++)
+        {
+            finalData.Add(tempParty[i]);
+            finalIDs.Add(tempParty[i] != null ? tempParty[i].characterID : "");
+        }
+
+        Character_Manager.instance.SaveParty(finalIDs, finalData);
+
+        if (BattleManager.instance != null) BattleManager.instance.InitializeParty();
+        if (currentPreviewModel != null) currentPreviewModel.gameObject.SetActive(false);
     }
 
     private void Refresh3DStage()
@@ -137,6 +161,19 @@ public class UI_PartyFormation : MonoBehaviour
     private void OpenSubPanel(int slotIndex)
     {
         if (previewStageRoot != null) previewStageRoot.SetActive(true);
+
+        int targetIndex = slotIndex;
+        if (tempParty[slotIndex] == null)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (tempParty[i] == null)
+                {
+                    targetIndex = i;
+                    break;
+                }
+            }
+        }
         currentEditingSlotIndex = slotIndex;
         subPanel_CharacterSelect.SetActive(true);
 
@@ -148,9 +185,9 @@ public class UI_PartyFormation : MonoBehaviour
 
         RefreshRosterList();
 
-        if (tempParty[slotIndex] != null)
+        if (tempParty[currentEditingSlotIndex] != null)
         {
-            SelectCharacterInSubPanel(tempParty[slotIndex]);
+            SelectCharacterInSubPanel(tempParty[currentEditingSlotIndex]);
         }
         else
         {
@@ -286,26 +323,30 @@ public class UI_PartyFormation : MonoBehaviour
 
         tempParty[currentEditingSlotIndex] = selectedDataForSlot;
 
+        CompactParty();
+
         subPanel_CharacterSelect.SetActive(false);
         Refresh3DStage();
     }
 
-    public void SaveAndClose()
+    // 파티의 빈 공간을 없애고 1번 슬롯부터 차례대로 당겨서 정렬하는 함수
+    private void CompactParty()
     {
-        List<Character_Data> finalData = new List<Character_Data>();
-        List<string> finalIDs = new List<string>();
+        List<Character_Data> compacted = new List<Character_Data>();
 
         for (int i = 0; i < 3; i++)
         {
-            if (tempParty[i] != null)
-            {
-                finalData.Add(tempParty[i]);
-                finalIDs.Add(tempParty[i].characterID);
-            }
+            if (tempParty[i] != null) compacted.Add(tempParty[i]);
         }
 
-        Character_Manager.instance.SaveParty(finalIDs, finalData);
+        for (int i = 0; i < 3; i++)
+        {
+            tempParty[i] = (i < compacted.Count ? compacted[i] : null);
+        }
+    }
 
+    public void SaveAndClose()
+    {
         if (formationCamera != null) formationCamera.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }

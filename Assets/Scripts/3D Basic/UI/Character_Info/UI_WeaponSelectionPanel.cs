@@ -21,10 +21,17 @@ public class UI_WeaponSelectionPanel : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        if (Player_Inventory.instance == null || Player_Equipment.instance == null) return;
+        Player_Equipment activeEquip = null;
+        if (BattleManager.instance != null)
+        {
+            GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+            if (activePlayer != null) activeEquip = activePlayer.GetComponent<Player_Equipment>();
+        }
+
+        if (Player_Inventory.instance == null || activeEquip == null) return;
 
         List<ItemHolder> inv = Player_Inventory.instance.inventorySlots;
-        WeaponCategory currentUsableCategory = Player_Equipment.instance.usableWeaponCategory;
+        WeaponCategory currentUsableCategory = activeEquip.usableWeaponCategory;
 
         for (int i = 0; i < inv.Count; i++)
         {

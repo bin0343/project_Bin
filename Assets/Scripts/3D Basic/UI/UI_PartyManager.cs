@@ -37,7 +37,7 @@ public class UI_PartyManager : MonoBehaviour
                 partySlots[i].gameObject.SetActive(true); // È°¼ºÈ­
 
                 float currentHp = GetCharacterCurrentHp(charData.characterID);
-                float maxHp = GetCharacterCurrentHp(charData.characterID);
+                float maxHp = GetCharacterMaxHp(charData.characterID);
 
                 partySlots[i].UpdatePortrait(charData.characterPortrait, currentHp, maxHp);
             }
@@ -46,7 +46,7 @@ public class UI_PartyManager : MonoBehaviour
 
     private float GetCharacterCurrentHp(string charID)
     {
-        if (UI_Manager.instance != null && UI_Manager.instance.activeCharacterStat != null)
+        if (UI_Manager.instance != null && UI_Manager.instance.activeCharacterStat != null && UI_Manager.instance.activeCharacterStat.characterData != null)
         {
             if (UI_Manager.instance.activeCharacterStat.characterData.characterID == charID)
             {

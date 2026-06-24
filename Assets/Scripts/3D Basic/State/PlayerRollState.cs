@@ -53,11 +53,7 @@ public class PlayerRollState : PlayerBaseState
             isAttackBuffered = true;
         }
 
-        player.rigidbody.velocity = new Vector3(
-            rollDirection.x * rollSpeed,
-            player.rigidbody.velocity.y, // Y축(중력/낙하)은 자연스럽게 유지
-            rollDirection.z * rollSpeed
-        );
+        player.move.ForceMove(rollDirection, rollSpeed);
 
         if (rollTimer >= rollDuration)
         {

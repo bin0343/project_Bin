@@ -53,4 +53,11 @@ public class MiniMapController : MonoBehaviour
             playerIcon.localEulerAngles = new Vector3(0f, 0f, -playerRotationY);
         }
     }
+
+    public void SetTarget(Transform newTarget)
+    {
+        playerPositionTarget = newTarget;
+        Transform realModel = newTarget.Find("Player");
+        playerRotationTarget = (realModel != null) ? realModel : newTarget;
+    }
 }

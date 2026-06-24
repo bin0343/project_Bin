@@ -8,70 +8,97 @@ public class Player_Move : MonoBehaviour
 {
     public Animator Animator { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
-    private CameraArm cameraArmScript;
 
     [SerializeField] public float CharacterRunSpeed = 12.0f;
-    [SerializeField] public Transform CharacterBody; 
-    [SerializeField] private Transform CameraArm; 
+    [SerializeField] public Transform CharacterBody;
     [SerializeField] private float RotateSpeed = 7.0f;
-
-    //private Transform currentReference;
-
     [SerializeField] private LayerMask groundLayer;
 
+    [Header("계단/턱 보정 (Step Climbing)")]
+    [SerializeField] private float stepHeight = 0.4f;   // 오를 수 있는 턱의 최대 높이 (무릎 정도 높이)
+    [SerializeField] private float stepSmooth = 15.0f;  // 턱을 오를 때의 부드러움
+
     private Coroutine rotationCoroutine;
+    private Vector3 targetMoveVelocity = Vector3.zero;
+    private bool isMovementCalledThisFrame = false;
 
     void Start()
     {
         Rigidbody = GetComponent<Rigidbody>();
         Animator = CharacterBody.GetComponentInChildren<Animator>();
-        //Action = GetComponent<Player_Action>();
-        cameraArmScript = CameraArm.GetComponent<CameraArm>();
-        //currentReference = CameraArm;
-
         if (groundLayer == 0) groundLayer = -1;
     }
 
-    void Update()
+    void Update() { }
+
+    private void LateUpdate()
     {
-        /*if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
-            return;*/
-        Look();
+        if (!isMovementCalledThisFrame) targetMoveVelocity = Vector3.zero;
+        isMovementCalledThisFrame = false;
     }
 
     private void FixedUpdate()
     {
-        
+        Rigidbody.velocity = new Vector3(targetMoveVelocity.x, Rigidbody.velocity.y, targetMoveVelocity.z);
+
+        if (targetMoveVelocity.sqrMagnitude > 0)
+        {
+            HandleStepClimb();
+        }
     }
 
-    void Look()
+    private void HandleStepClimb()
     {
-        /*if (cameraArmScript != null && cameraArmScript.FirstPersonCamera.enabled)
+        Vector3 moveDir = new Vector3(targetMoveVelocity.x, 0, targetMoveVelocity.z).normalized;
+
+        float rayLength = 0.5f;
+        Vector3 footPos = Rigidbody.position + Vector3.up * 0.05f;
+
+        if (Physics.Raycast(footPos, moveDir, out RaycastHit hitLower, rayLength, groundLayer))
         {
-            float mouseX = Input.GetAxis("Mouse X");
-            // 이 스크립트가 붙어있는 'Character' 루트 오브젝트를 회전
-            transform.Rotate(Vector3.up * mouseX);
-        }*/
+            float angle = Vector3.Angle(Vector3.up, hitLower.normal);
+            if (angle > 70f)
+            {
+                Vector3 kneePos = Rigidbody.position + Vector3.up * stepHeight;
+                if (!Physics.Raycast(kneePos, moveDir, rayLength + 0.1f, groundLayer))
+                {
+                    Vector3 checkPos = kneePos + moveDir * rayLength;
+                    if (Physics.Raycast(checkPos, Vector3.down, out RaycastHit hitUpper, stepHeight, groundLayer))
+                    {
+                        Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, 0f, Rigidbody.velocity.z);
+
+                        Vector3 targetPos = Rigidbody.position;
+                        targetPos.y = hitUpper.point.y;
+
+                        Rigidbody.MovePosition(Vector3.Lerp(Rigidbody.position, targetPos, Time.fixedDeltaTime * stepSmooth));
+                    }
+                }
+            }
+        }
     }
 
     public void HandleMovement(Vector2 moveInput, float speed)
     {
-        if (moveInput.magnitude == 0) return;
+        isMovementCalledThisFrame = true;
 
-        Transform refTransform = CameraArm;
+        if (moveInput.magnitude == 0)
+        {
+            targetMoveVelocity = Vector3.zero;
+            return;
+        }
+
+        Transform refTransform = Camera.main.transform;
 
         Vector3 lookForward = new Vector3(refTransform.forward.x, 0f, refTransform.forward.z).normalized;
         Vector3 lookRight = new Vector3(refTransform.right.x, 0f, refTransform.right.z).normalized;
 
         Vector3 moveDir = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
 
-        Rigidbody.MovePosition(transform.position + moveDir * Time.deltaTime * speed);
+        targetMoveVelocity = moveDir * speed;
 
-        if (!GetComponentInParent<Player_Action>().CanRotate)
-            return;
+        if (!GetComponentInParent<Player_Action>().CanRotate) return;
 
-        // 회전 로직 (1인칭 아닐 때만)
-        if (moveDir.sqrMagnitude > 0f) // sqrMagnitude는 0보다 클 때만 (즉, 움직임이 있을 때만)
+        if (moveDir.sqrMagnitude > 0f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);
             CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * RotateSpeed);
@@ -94,34 +121,31 @@ public class Player_Move : MonoBehaviour
             directionWeight = (sideWeight + vertical) / 2f;
         }
 
-        float baseSpeed = CharacterRunSpeed;
-        return baseSpeed * directionWeight;
+        return CharacterRunSpeed * directionWeight;
+    }
+
+    public void ForceMove(Vector3 direction, float speed)
+    {
+        isMovementCalledThisFrame = true;
+        targetMoveVelocity = direction * speed;
     }
 
     public void AlignToCameraForward()
     {
         Transform camTransform = Camera.main.transform;
-
-        // 카메라의 정면 벡터를 가져와서 y축(높이)은 무시
         Vector3 camForward = camTransform.forward;
         camForward.y = 0;
 
-        // 벡터 정규화
         if (camForward.sqrMagnitude > 0)
         {
             camForward.Normalize();
-
-            // 캐릭터의 몸통을 카메라 방향으로 즉시 회전
             CharacterBody.rotation = Quaternion.LookRotation(camForward);
         }
     }
 
     public void LookAtMouse()
     {
-        if (rotationCoroutine != null)
-        {
-            StopCoroutine(rotationCoroutine);
-        }
+        if (rotationCoroutine != null) StopCoroutine(rotationCoroutine);
         rotationCoroutine = StartCoroutine(RotateToMouseCoroutine());
     }
 
@@ -150,38 +174,25 @@ public class Player_Move : MonoBehaviour
 
         if (hasHit)
         {
-            // 2. 목표 회전값 계산
             Vector3 direction = (targetPoint - transform.position).normalized;
-            direction.y = 0; // 수직 회전 방지
+            direction.y = 0;
 
             if (direction != Vector3.zero)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-                // 3. 회전 루프 (목표 각도와 거의 비슷해질 때까지)
-                // 20.0f는 매우 빠른 회전 속도입니다. (일반 이동 회전보다 훨씬 빠름)
                 float attackRotateSpeed = 20.0f;
 
                 while (Quaternion.Angle(CharacterBody.rotation, targetRotation) > 1.0f)
                 {
-                    CharacterBody.rotation = Quaternion.Slerp(
-                        CharacterBody.rotation,
-                        targetRotation,
-                        Time.deltaTime * attackRotateSpeed
-                    );
-                    yield return null; // 다음 프레임까지 대기
+                    CharacterBody.rotation = Quaternion.Slerp(CharacterBody.rotation, targetRotation, Time.deltaTime * attackRotateSpeed);
+                    yield return null;
                 }
 
-                // 4. 루프가 끝나면 깔끔하게 목표 각도로 확정
                 CharacterBody.rotation = targetRotation;
             }
         }
-
         rotationCoroutine = null;
     }
 
-    public void HandleRotation()
-    {
-        
-    }
+    public void HandleRotation() { }
 }

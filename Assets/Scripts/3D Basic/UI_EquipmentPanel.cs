@@ -19,9 +19,14 @@ public class UI_EquipmentPanel : MonoBehaviour
 
     public void RefreshUI()
     {
-        if (Player_Equipment.instance == null) return;
+        Player_Equipment activeEquip = null;
+        if (BattleManager.instance != null)
+        {
+            GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+            if (activePlayer != null) activeEquip = activePlayer.GetComponent<Player_Equipment>();
+        }
 
-        if (equipmentSlotsUI == null) return;
+        if (activeEquip == null || equipmentSlotsUI == null) return;
 
         for (int i = 0; i < equipmentSlotsUI.Length; i++)
         {
@@ -30,7 +35,7 @@ public class UI_EquipmentPanel : MonoBehaviour
                 equipmentSlotsUI[i].gameObject.SetActive(true);
             }
 
-            ItemHolder equippedItem = Player_Equipment.instance.equipmentSlots[i];
+            ItemHolder equippedItem = activeEquip.equipmentSlots[i];
             if (equippedItem != null)
             {
                 equipmentSlotsUI[i].Setup(equippedItem);

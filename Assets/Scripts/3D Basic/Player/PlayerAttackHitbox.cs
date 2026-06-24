@@ -20,7 +20,7 @@ public class PlayerAttackHitbox : MonoBehaviour
 
     public void ResetHasHit()
     {
-        weapon_Player.hasHit = false;
+        //weapon_Player.hasHit = false;
     }
 
     private void OnTriggerEnter(Collider other)
