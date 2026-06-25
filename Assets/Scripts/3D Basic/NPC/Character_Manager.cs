@@ -2,6 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
+public class PartyPreset
+{
+    public string presetName;
+    public List<string> characterIDs = new List<string>();
+}
+
 public class CharacterStatus
 {
     public string characterID;
@@ -46,19 +52,14 @@ public class Character_Manager : MonoBehaviour
 
     public List<Character_Data> allcharacterDataList;   //모든 npc
 
+    public List<PartyPreset> partyPresets = new List<PartyPreset>();
+
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
+        if (instance != null && instance != this) return;
+        instance = this;
 
-            InitializeAllNPCs();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        InitializeAllNPCs();
     }
 
     //모든 npc 등록
@@ -86,6 +87,25 @@ public class Character_Manager : MonoBehaviour
     {
         currentPartyIDs = new List<string>(newPartyIDs);
         currentPartyData = new List<Character_Data>(newPartyData); 
+    }
+
+    public void SavePreset(int index, string name, List<string> ids)
+    {
+        if (partyPresets.Count <= index)
+        {
+            for (int i = partyPresets.Count; i <= index; i++)
+            {
+                partyPresets.Add(new PartyPreset());
+            }
+        }
+        partyPresets[index].presetName = name;
+        partyPresets[index].characterIDs = new List<string>(ids);
+    }
+
+    public PartyPreset GetPreset(int index)
+    {
+        if (index < 0 || index >= partyPresets.Count) return null;
+        return partyPresets[index];
     }
 
     public CharacterStatus GetCharacterStatus(string npcID, Character_Data data = null)

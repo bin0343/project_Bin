@@ -535,7 +535,7 @@ Transform:
   m_GameObject: {fileID: 1686838922035384929}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.492, z: 0}
+  m_LocalPosition: {x: 0, y: 1.232, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2173,7 +2173,23 @@ MonoBehaviour:
   targetingController: {fileID: 0}
   stat: {fileID: 8891377208993434242}
   skillUIManagers: {fileID: 0}
-  shield: {fileID: 0}
+  attackMoveCurves:
+  - serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  - serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  - serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  attackMoveDistance: 2
   pickupRadius: 3
   itemLayer:
     serializedVersion: 2
@@ -2227,10 +2243,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterData: {fileID: 11400000, guid: c667cc181c16a4242ab496208ffd42d2, type: 2}
   baseStats:
-  - 100
+  - 200
   - 10
   - 10
-  currentHP: 100
+  currentHP: 200
   isDead: 0
 --- !u!54 &4430843481029900957
 Rigidbody:

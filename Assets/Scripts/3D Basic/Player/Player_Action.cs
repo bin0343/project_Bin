@@ -29,6 +29,11 @@ public class Player_Action : MonoBehaviour
     public UI_SkillManager skillUIManagers;
     public Weapon_Player currentWeapon { get; private set; }
 
+    [Header("공격 시 이동(커브 기반)")]
+    [Tooltip("1타, 2타, 3타에 해당하는 전진 커브 (X: 0~1 정규화된 시간, Y: 누적 전진량)")]
+    public AnimationCurve[] attackMoveCurves = new AnimationCurve[3];
+    public float attackMoveDistance = 2f;
+
     [Header("아이템 줍기 반경")]
     public float pickupRadius = 3.0f;
     public LayerMask itemLayer;
@@ -170,6 +175,14 @@ public class Player_Action : MonoBehaviour
         }
 
         animator.SetFloat("VerticalVelocity", rigidbody.velocity.y);
+    }
+
+    private void OnEnable()
+    {
+        if (UI_SkillManager.Instance != null)
+        {
+            UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
+        }
     }
 
     private void FixedUpdate()

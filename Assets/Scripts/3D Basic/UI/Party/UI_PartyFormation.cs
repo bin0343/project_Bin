@@ -22,7 +22,10 @@ public class UI_PartyFormation : MonoBehaviour
     [Header("프리셋 및 이름 UI")]
     public Text presetNameText;
     public InputField presetNameInput;
+    public GameObject namePanel;
     public Button renameButton;
+    public Button confirmRenameButton;
+    public Button[] presetButtons = new Button[3];
 
     [Header("서브 탭 (캐릭터 선택창)")]
     public GameObject subPanel_CharacterSelect;
@@ -46,6 +49,15 @@ public class UI_PartyFormation : MonoBehaviour
     private HashSet<string> playedFirstIdleSet = new HashSet<string>();
     private bool wasOpened = false; // 게임 실행 시 처음에 비활성화 돼서 저장된 데이터 초기화 되는 현상 방지
 
+    private int currentPresetIndex = 0;
+
+    private bool isQuitting = false;    //오류 방지
+
+    private void OnApplicationQuit()
+    {
+        isQuitting = true;
+    }
+
     private void Start()
     {
         for (int i = 0; i < plusButtons.Length; i++)
@@ -54,7 +66,17 @@ public class UI_PartyFormation : MonoBehaviour
             plusButtons[i].onClick.AddListener(() => OpenSubPanel(index));
         }
 
+        for (int i = 0; i < presetButtons.Length; i++)
+        {
+            int index = i;
+            presetButtons[i].onClick.AddListener( () => OnClickLoadPreset(index));
+        }
+
         executeFormationButton.onClick.AddListener(ExecuteFormation);
+        if (renameButton != null) renameButton.onClick.AddListener(OnClickRename);
+        if (confirmRenameButton != null) confirmRenameButton.onClick.AddListener(OnClickConfirmRename);
+
+        if (presetNameInput != null) presetNameInput.characterLimit = 15;
     }
 
     public void OpenFormationWindow()
@@ -62,8 +84,22 @@ public class UI_PartyFormation : MonoBehaviour
         gameObject.SetActive(true);
         if (formationCamera != null) formationCamera.gameObject.SetActive(true);
         subPanel_CharacterSelect.SetActive(false);
+        CloseNamePanel();
 
         wasOpened = true;
+
+        if (Character_Manager.instance != null && presetNameText != null)
+        {
+            PartyPreset preset = Character_Manager.instance.GetPreset(currentPresetIndex);
+            if (preset != null && !string.IsNullOrEmpty(preset.presetName))
+            {
+                presetNameText.text = preset.presetName;
+            }
+            else
+            {
+                presetNameText.text = $"파티 {currentPresetIndex + 1}";
+            }
+        }
 
         List<Character_Data> currentData = Character_Manager.instance.currentPartyData;
         for (int i = 0; i < 3; i++)
@@ -77,8 +113,33 @@ public class UI_PartyFormation : MonoBehaviour
 
     private void OnDisable()
     {
+        if (isQuitting) return;
+
+        CloseNamePanel();
+
         if (Character_Manager.instance == null || !wasOpened) return;
         CompactParty();
+
+        bool isEmptyParty = true;
+        for (int i = 0; i < 3; i++)
+        {
+            if (tempParty[i] != null)
+            {
+                isEmptyParty = false;
+                break;
+            }
+        }
+
+        if (isEmptyParty)
+        {
+            currentPresetIndex = 0;
+            LoadPresetToTemp(0); // ★ 중복 로직을 함수 하나로 통합 처리
+            CompactParty();
+        }
+        else
+        {
+            AutoSaveCurrentPreset();
+        }
 
         List<Character_Data> finalData = new List<Character_Data>();
         List<string> finalIDs = new List<string>();
@@ -161,19 +222,8 @@ public class UI_PartyFormation : MonoBehaviour
     private void OpenSubPanel(int slotIndex)
     {
         if (previewStageRoot != null) previewStageRoot.SetActive(true);
-
-        int targetIndex = slotIndex;
-        if (tempParty[slotIndex] == null)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                if (tempParty[i] == null)
-                {
-                    targetIndex = i;
-                    break;
-                }
-            }
-        }
+        CloseNamePanel();
+        
         currentEditingSlotIndex = slotIndex;
         subPanel_CharacterSelect.SetActive(true);
 
@@ -207,6 +257,12 @@ public class UI_PartyFormation : MonoBehaviour
         subPanel_CharacterSelect.SetActive(false);
 
         Refresh3DStage();
+    }
+
+    public void CloseNamePanel()
+    {
+        if (namePanel != null) namePanel.SetActive(false);
+        if (presetNameInput != null) presetNameInput.text = "";
     }
 
     private void RefreshRosterList()
@@ -347,7 +403,92 @@ public class UI_PartyFormation : MonoBehaviour
 
     public void SaveAndClose()
     {
+        CloseNamePanel();
         if (formationCamera != null) formationCamera.gameObject.SetActive(false);
         gameObject.SetActive(false);
+    }
+
+    public void OnClickRename()
+    {
+        if (namePanel != null)
+        {
+            namePanel.SetActive(true);
+
+            if (presetNameInput != null && presetNameText != null)
+            {
+                presetNameInput.text = presetNameText.text;
+            }
+        }
+    }
+
+    public void OnClickConfirmRename()
+    {
+        if (presetNameInput != null && presetNameText != null)
+        {
+            if (!string.IsNullOrWhiteSpace(presetNameInput.text))
+            {
+                presetNameText.text = presetNameInput.text.Trim();
+            }
+        }
+        CloseNamePanel();
+    }
+
+    public void OnClickSavePreset()
+    {
+        AutoSaveCurrentPreset();
+    }
+
+    public void OnClickLoadPreset(int index)
+    {
+        AutoSaveCurrentPreset();
+        CloseNamePanel();
+
+        if (presetNameText == null)
+        {
+            Debug.LogError("UI_PartyFormation 인스펙터 창에서 'Preset Name Text'를 연결했는지 확인하세요!");
+            return;
+        }
+
+        currentPresetIndex = index;
+        PartyPreset preset = Character_Manager.instance.GetPreset(index);
+
+        if (preset == null || string.IsNullOrEmpty(preset.presetName) || preset.characterIDs == null)
+        {
+            presetNameText.text = $"파티 {index + 1}";
+            for (int i = 0; i < 3; i++) tempParty[i] = null;
+            Refresh3DStage();
+            return;
+        }
+
+        presetNameText.text = preset.presetName;
+        LoadPresetToTemp(index);
+        Refresh3DStage();
+    }
+
+    private void AutoSaveCurrentPreset()
+    {
+        if (Character_Manager.instance == null || presetNameText == null) return;
+
+        List<string> ids = new List<string>();
+        foreach (var charData in tempParty)
+        {
+            ids.Add(charData != null ? charData.characterID : "");
+        }
+
+        Character_Manager.instance.SavePreset(currentPresetIndex, presetNameText.text, ids);
+    }
+
+    private void LoadPresetToTemp(int index)
+    {
+        PartyPreset preset = Character_Manager.instance.GetPreset(index);
+        List<Character_Data> allData = Character_Manager.instance.allcharacterDataList;
+
+        if (preset == null || preset.characterIDs == null || allData == null) return;
+
+        for (int i = 0; i < 3; i++)
+        {
+            string id = (i < preset.characterIDs.Count) ? preset.characterIDs[i] : "";
+            tempParty[i] = allData.Find(d => d != null && d.characterID == id);
+        }
     }
 }

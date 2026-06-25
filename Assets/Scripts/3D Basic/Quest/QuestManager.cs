@@ -23,13 +23,8 @@ public class QuestManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (instance != null && instance != this) return;
         instance = this;
-        DontDestroyOnLoad(gameObject);
 
         questDatabase = new Dictionary<string, Quest>();
 

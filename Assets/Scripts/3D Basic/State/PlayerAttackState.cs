@@ -7,6 +7,8 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
     //상태 진입 직후 애니메이션 전환이 완료되었는지 확인하는 플래그
     private bool isTransitionFinished = false;
 
+    private float previousCurveValue = 0f;  //커브 이전값 저장하고 얼마나 차이나는지 확인
+
     protected override PlayerAnimState GetAnimState()
     {
         switch (comboStep)
@@ -37,6 +39,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
         }
 
         isTransitionFinished = false;
+        previousCurveValue = 0f;
 
         comboStep++;
         if (comboStep > 3)
@@ -57,10 +60,6 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
                 player.ChangeState(new PlayerRollState());
                 return; // 상태 전환 후 아래 로직 실행 안 함
             }
-            else
-            {
-                Debug.Log("스태미나가 부족해서 구를 수 없습니다!");
-            }
         }
 
         if (!isTransitionFinished)
@@ -71,6 +70,34 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
             if (stateInfo.shortNameHash == expectedAnimHash)
             {
                 isTransitionFinished = true;
+            }
+        }
+
+        if (isTransitionFinished)
+        {
+            AnimatorStateInfo stateInfo = player.animator.GetCurrentAnimatorStateInfo(0);
+            float normalizedTime = Mathf.Clamp01(stateInfo.normalizedTime);
+            if (player.attackMoveCurves != null && player.attackMoveCurves.Length >= comboStep)
+            {
+                AnimationCurve currentCurve = player.attackMoveCurves[comboStep - 1];
+
+                if (currentCurve != null && currentCurve.keys.Length > 0)
+                {
+                    float currentCurveValue = currentCurve.Evaluate(normalizedTime);
+                    float delta = currentCurveValue - previousCurveValue;
+
+                    if (delta > 0)
+                    {
+                        Vector3 dashDirection = player.animator.transform.forward;
+                        dashDirection.y = 0;
+                        dashDirection.Normalize();
+
+                        Vector3 moveDelta = dashDirection * delta * player.attackMoveDistance;
+                        player.rigidbody.MovePosition(player.rigidbody.position + moveDelta);
+                    }
+
+                    previousCurveValue = currentCurveValue;
+                }
             }
         }
 
@@ -90,6 +117,8 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
         player.animEvents?.EndAttackTrail();
         player.canReceiveInput = false;
         player.IsAttacking = false;
+
+        player.rigidbody.velocity = new Vector3(0, player.rigidbody.velocity.y, 0);
     }
 
     public static void ResetCombo()

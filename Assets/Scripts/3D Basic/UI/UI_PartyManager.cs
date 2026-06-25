@@ -53,7 +53,22 @@ public class UI_PartyManager : MonoBehaviour
                 return UI_Manager.instance.activeCharacterStat.currentHP;
             }
         }
-        
+
+        if (BattleManager.instance != null && BattleManager.instance.SpawnedCharacters != null)
+        {
+            foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
+            {
+                if (charObj != null)
+                {
+                    Character_Stat stat = charObj.GetComponent<Character_Stat>();
+                    if (stat != null && stat.characterData != null && stat.characterData.characterID == charID)
+                    {
+                        return stat.currentHP;
+                    }
+                }
+            }
+        }
+
         return GetCharacterMaxHp(charID);
     }
 

@@ -24,18 +24,8 @@ public class Player_Inventory : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            if (instance != this)
-            {
-                Destroy(gameObject);
-            }
-        }
+        if (instance != null && instance != this) return;
+        instance = this;
     }
 
     private void Start()

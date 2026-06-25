@@ -92882,6 +92882,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 716784916}
+  - component: {fileID: 716784917}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -92908,6 +92909,18 @@ Transform:
   - {fileID: 1851724933}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &716784917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 716784915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b4dfad6e863f3a489921476f3fa0a5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &717092925
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -115551,11 +115564,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: -0.000022888184
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.00043523184
+      value: -0.0008098644
       objectReference: {fileID: 0}
     - target: {fileID: 6838592671850859857, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: formationCamera
@@ -192083,7 +192096,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80e03782a68ccab49afec6af4c35e93d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterStatusList: []
   currentPartyIDs: []
   currentPartyData:
   - {fileID: 11400000, guid: ffd7827c13454bc4ca937423a53518ed, type: 2}
@@ -192093,6 +192105,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ffd7827c13454bc4ca937423a53518ed, type: 2}
   - {fileID: 11400000, guid: c667cc181c16a4242ab496208ffd42d2, type: 2}
   - {fileID: 0}
+  partyPresets: []
 --- !u!114 &1368292161
 MonoBehaviour:
   m_ObjectHideFlags: 0

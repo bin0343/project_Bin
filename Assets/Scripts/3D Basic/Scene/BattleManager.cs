@@ -15,17 +15,12 @@ public class BattleManager : MonoBehaviour
     private GameObject[] spawnedCharacters = new GameObject[3];
     private int currentActiveIndex = 0;
 
+    public GameObject[] SpawnedCharacters => spawnedCharacters;
+
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (instance != null && instance != this) return;
+        instance = this;
     }
 
     private void Start()
@@ -48,36 +43,44 @@ public class BattleManager : MonoBehaviour
         if (Character_Manager.instance == null) return;
 
         List<Character_Data> party = Character_Manager.instance.currentPartyData;
-        Debug.Log($"초기화 시도 - 파티원 수: {party.Count}");
+
+        Vector3 spawnPos = (startSpawnPoint != null) ? startSpawnPoint.position : Vector3.zero;
+        Quaternion spawnRot = Quaternion.identity;
+
+        GameObject activeChar = GetActiveCharacter();
+        if (activeChar != null)
+        {
+            spawnPos = activeChar.transform.position;
+            spawnRot = activeChar.transform.rotation;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (spawnedCharacters[i] != null)
+            {
+                Destroy(spawnedCharacters[i]);
+                spawnedCharacters[i] = null;
+            }
+        }
+
+        currentActiveIndex = 0;
 
         for (int i = 0; i < 3; i++)
         {
             if (i < party.Count && party[i] != null)
             {
-                if (spawnedCharacters[i] == null)
-                {
-                    Vector3 spawnPos = (startSpawnPoint != null) ? startSpawnPoint.position : Vector3.zero;
-                    GameObject charObj = Instantiate(party[i].characterPrefab, spawnPos, Quaternion.identity);
-                    spawnedCharacters[i] = charObj;
+                GameObject charObj = Instantiate(party[i].characterPrefab, spawnPos, spawnRot);
+                spawnedCharacters[i] = charObj;
 
-                    if (currentActiveIndex == i || (currentActiveIndex == 0 && i == 0))
-                    {
-                        charObj.SetActive(true);
-                        ChangeCameraTarget(charObj.transform);
-                        UpdateSystemsWithActiveCharacter(charObj);
-                    }
-                    else
-                    {
-                        charObj.SetActive(false);
-                    }
-                }
-            }
-            else
-            {
-                if (spawnedCharacters[i] != null)
+                if (i == 0)
                 {
-                    Destroy(spawnedCharacters[i]);
-                    spawnedCharacters[i] = null;
+                    charObj.SetActive(true);
+                    ChangeCameraTarget(charObj.transform);
+                    UpdateSystemsWithActiveCharacter(charObj);
+                }
+                else
+                {
+                    charObj.SetActive(false);
                 }
             }
         }
