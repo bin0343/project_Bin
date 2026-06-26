@@ -5,27 +5,18 @@ using UnityEngine.EventSystems;
 
 public class Player_Action : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject player;
+    [SerializeField] private GameObject player;
     public Animator animator {  get; private set; }
     public Player_AnimationEvents animEvents { get; private set; }
-    //public PlayerAttackHitbox attackHitbox { get; private set; }
     public new Rigidbody rigidbody { get; private set; }
     public Player_Move move;
 
     [Header("Skills")]
     public Skill_Base[] assignedSkills = new Skill_Base[4];
-    public Skill_BasicSkill runningAttackData;
     public SkillHolder[] playerSkills;
-
-    private SkillHolder runningAttackHolder;
-
-    public SkillTargetingController targetingController;
-    private bool isTargetingSkill = false;
-    public SkillHolder skillBeingAimed;
+    [HideInInspector] public SkillHolder activeCastingSkill;
 
     public Character_Stat stat;
-
     public UI_SkillManager skillUIManagers;
     public Weapon_Player currentWeapon { get; private set; }
 
@@ -43,17 +34,14 @@ public class Player_Action : MonoBehaviour
     public float groundCheckDistance = 0.2f;
     public float fallMultiplier = 2.5f;     // 떨어질 때 가속도
     public float lowJumpMultiplier = 2.0f;  // 스페이스바를 짧게 눌렀을 때의 가속도
-
     public LayerMask groundLayer;
 
     private float coyoteTime = 0.15f;
     private float coyoteTimer = 0f;
     private float jumpGraceTimer = 0f;
-
     private float airborneTimer = 0f;
     private float fallAnimationDelay = 2f;
 
-    [HideInInspector] public bool IsGuarding { get; private set; } = false;
     [HideInInspector] public bool IsGrounded = true;
     [HideInInspector] public bool IsDead = false;
     [HideInInspector] public bool IsKick = false;
@@ -63,7 +51,6 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public bool CanRotate = true;
     [HideInInspector] public bool IsInvincible = false; //무적상태(구르기)
 
-    public static event Action<Sprite, float> OnRunningAttackUsed;
     public IPlayerState currentState;
     public int currentComboStep { get; private set; }
 
@@ -87,15 +74,7 @@ public class Player_Action : MonoBehaviour
         animEvents = player.GetComponent<Player_AnimationEvents>();
         skillUIManagers = FindObjectOfType<UI_SkillManager>();
 
-        targetingController = GetComponent<SkillTargetingController>();
-        if (targetingController != null)
-        {
-            targetingController.OnTargetSelected += FinalizeSkillTargeting;
-            targetingController.OnTargetingCancelled += CancelSkillTargeting;
-        }
-
         playerSkills = new SkillHolder[assignedSkills.Length];
-
         for (int i = 0; i < assignedSkills.Length; i++)
         {
             if (assignedSkills[i] != null)
@@ -106,11 +85,6 @@ public class Player_Action : MonoBehaviour
             {
                 playerSkills[i] = null;
             }
-        }
-
-        if (runningAttackData != null)
-        {
-            runningAttackHolder = new SkillHolder(runningAttackData);
         }
 
         ChangeState(new PlayerIdleState());
@@ -140,12 +114,9 @@ public class Player_Action : MonoBehaviour
             ChangeState(new PlayerDeadState());
             return; 
         }
-        /*if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
-            return;*/
+       
         if (IsDead) return;
-        if (isTargetingSkill)
-            return;
-        //HandleGuardInput();
+      
         currentState?.Execute(this);
         CheckGroundStatus();
 
@@ -219,7 +190,6 @@ public class Player_Action : MonoBehaviour
         IsGrounded = false;
         coyoteTime = 0f;
         jumpGraceTimer = 0.1f;
-
         airborneTimer = 10f;
     }
 
@@ -262,7 +232,6 @@ public class Player_Action : MonoBehaviour
     }
 
     #region Input Handlers
-    // 모든 상태 클래스가 호출할 스킬 처리 전용 함수
     public void HandleSkillInput(int slotIndex)
     {
         Player_Equipment myEquipment = GetComponent<Player_Equipment>();
@@ -271,29 +240,17 @@ public class Player_Action : MonoBehaviour
             myEquipment.EnterCombatState();
         }
 
-        if (isTargetingSkill) return;
         if (slotIndex < 0 || slotIndex >= playerSkills.Length) return;
 
         SkillHolder skillToUse = playerSkills[slotIndex];
 
         if (skillToUse == null || !skillToUse.CanUse()) return;
 
-        if (skillToUse.SkillData is Skill_AreaAttack areaSkill)
-        {
-            skillBeingAimed = skillToUse;
-            ChangeState(new PlayerSkillTargetingState());
-        }
-        else
-        {
-            //skillToUse.Use(gameObject);
-            ChangeState(new PlayerCastingState(skillToUse));
-        }
+        ChangeState(new PlayerCastingState(skillToUse)); 
     }
 
-    // --- ADDED: 모든 상태 클래스가 호출할 아이템 처리 전용 함수 ---
     public void HandleItemInput(int slotIndex)
     {
-        // 기존 TryUseItem의 로직을 그대로 가져옵니다.
         if (slotIndex < 0 || slotIndex >= Player_Inventory.instance.quickSlots.Length) return;
 
         ItemHolder itemToUse = Player_Inventory.instance.quickSlots[slotIndex];
@@ -320,55 +277,14 @@ public class Player_Action : MonoBehaviour
     }
     #endregion
 
-    #region Targeting Callback
-    // 조준이 완료(마우스 좌클릭)되었을 때 호출될 함수
-    private void FinalizeSkillTargeting(Vector3 targetPosition)
+    public void ExecuteSkillEffectEvent()
     {
-        if (skillBeingAimed == null) return;
-
-        // 1. 스킬 사용 처리 (MP소모, 쿨타임 시작, 시전 애니메이션)
-        skillBeingAimed.Use(gameObject);
-
-        // 2. 실제 스킬 효과(파티클 생성, 피해)는 코루틴으로 처리
-        StartCoroutine(SpawnEffectAndDealDamage(targetPosition, skillBeingAimed.SkillData as Skill_AreaAttack));
-
-        // 3. 상태 초기화
-        isTargetingSkill = false;
-        skillBeingAimed = null;
-
-        ChangeState(new PlayerIdleState());
-    }
-
-    // 조준이 취소(마우스 우클릭)되었을 때 호출될 함수
-    private void CancelSkillTargeting()
-    {
-        isTargetingSkill = false;
-        skillBeingAimed = null;
-        Debug.Log("스킬 조준을 취소했습니다.");
-
-        ChangeState(new PlayerIdleState());
-    }
-
-    // 지정된 위치에 스킬 효과를 생성하고 피해를 주는 코루틴
-    private IEnumerator SpawnEffectAndDealDamage(Vector3 position, Skill_AreaAttack skillData)
-    {
-        if (skillData == null || skillData.effectPrefab == null) yield break;
-
-        // 약간의 딜레이 후 효과 생성 및 피해 적용
-        yield return new WaitForSeconds(0.5f);
-
-        Instantiate(skillData.effectPrefab, position, Quaternion.identity);
-
-        Collider[] hitEnemies = Physics.OverlapSphere(position, skillData.attackRadius);
-        foreach (var enemy in hitEnemies)
+        if (activeCastingSkill != null)
         {
-            if (enemy.CompareTag("Enemy"))
-            {
-                enemy.GetComponent<Enemy_Stat>()?.TakeDamage(skillData.damageAmount, AttackType.None);
-            }
+            activeCastingSkill.SkillData.ApplySkillEffects(gameObject);
+            activeCastingSkill = null;
         }
     }
-    #endregion
 
     private void TryPickUpNearbyItems()
     {
@@ -427,29 +343,11 @@ public class Player_Action : MonoBehaviour
         currentWeapon?.StopTrail();
     }
 
-    public bool CanUseRunningAttack()
-    {
-        if (runningAttackHolder == null) return false;
-        return runningAttackHolder.CanUse();
-    }
-
     public void SetComboStep(int step)
     {
         currentComboStep = step;
     }
-
-    public void UseRunningAttack()
-    {
-        if (runningAttackHolder == null) return;
-
-        runningAttackHolder.Use(gameObject);
-
-        if (runningAttackData != null)
-        {
-            OnRunningAttackUsed?.Invoke(runningAttackData.skillIcon, runningAttackData.cooldownTime);
-        }
-    }
-
+    
     public void OnDamageTaken()
     {
         if (IsInvincible) return;

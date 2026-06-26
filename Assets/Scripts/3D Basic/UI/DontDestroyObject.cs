@@ -3,29 +3,20 @@ using System.Collections.Generic;
 
 public class DontDestroyObject : MonoBehaviour
 {
-    private static HashSet<int> processedObjects = new HashSet<int>();
+    public static DontDestroyObject instance;
 
     private void Awake()
     {
-        int instanceID = gameObject.GetInstanceID();
-        if (processedObjects.Contains(instanceID))
+        if (instance == null)
         {
-            return;
+            instance = this;
+            transform.SetParent(null);
+            DontDestroyOnLoad(gameObject);
         }
-
-        var objs = FindObjectsOfType<DontDestroyObject>();
-        foreach (var obj in objs)
+        else
         {
-            if (obj != this && obj.gameObject.name == gameObject.name)
-            {
-                Destroy(gameObject);
-                return;
-            }
+            // ¾ÀÀÌ ¹Ù²ð ¶§ »õ·Î »ý±ä º¹Á¦º» UI_Canvas´Â ÆÄ±«
+            Destroy(gameObject);
         }
-
-        transform.SetParent(null);
-        DontDestroyOnLoad(gameObject);
-
-        processedObjects.Add(instanceID);
     }
 }

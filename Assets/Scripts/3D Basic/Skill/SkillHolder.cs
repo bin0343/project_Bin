@@ -26,6 +26,12 @@ public class SkillHolder
         lastUseTime = Time.time;
     }
 
+    public void Use(GameObject user, Vector3 targetPosition)
+    {
+        SkillData.ApplySkillEffects(user, targetPosition);
+        lastUseTime = Time.time;
+    }
+
     // UI 표시를 위해 남은 쿨타임을 계산하는 함수
     public float GetRemainingCooldown()
     {

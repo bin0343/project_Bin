@@ -13,7 +13,7 @@ public class MainPlayer : MonoBehaviour
     private Transform CharacterBody; // 메인 캐릭터
     [SerializeField]
     private Transform CameraArm; // 메인 캐릭터의 카메라
-    [SerializeField]
+    //[SerializeField]
     //private float MouseSensitivity = 2.0f;
 
 

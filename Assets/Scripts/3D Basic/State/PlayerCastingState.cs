@@ -23,7 +23,9 @@ public class PlayerCastingState : PlayerBaseState
 
         if (skillToUse != null)
         {
-            skillToUse.Use(player.gameObject);
+            player.activeCastingSkill = skillToUse;
+
+            player.animator.SetTrigger(skillToUse.SkillData.animTriggerName);
         }
     }
 

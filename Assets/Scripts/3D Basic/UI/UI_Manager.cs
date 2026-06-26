@@ -23,6 +23,7 @@ public class UI_Manager : MonoBehaviour
     public UI_QuestPanel UI_QuestPanel;
     public GameObject optionPanel;
     public GameObject partyFormationPanel;
+    public Text phoneTimeText;
 
     [Header("Main HUD Elements")]
     public GameObject characterIconPanel;
@@ -56,6 +57,11 @@ public class UI_Manager : MonoBehaviour
             partyFormationPanel.SetActive(false);
         }
 
+        if (optionPanel != null)
+        {
+            optionPanel.SetActive(false);
+        }
+
         //UpdateCursorState();
     }
 
@@ -71,6 +77,11 @@ public class UI_Manager : MonoBehaviour
 
     private void Update()
     {
+        if (optionPanel != null && optionPanel.activeSelf)
+        {
+            UpdatePhoneClock();
+        }
+
         if (!IsUIOpen && (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyUp(KeyCode.LeftAlt)))
         {
             UpdateCursorState();
@@ -138,6 +149,14 @@ public class UI_Manager : MonoBehaviour
         }
         
         //Enemy_HpBar.UpdateStatus(EnemyStat);
+    }
+
+    private void UpdatePhoneClock()
+    {
+        if (phoneTimeText != null)
+        {
+            phoneTimeText.text = System.DateTime.Now.ToString("HH:mm");
+        }
     }
 
     //메인 HUD끄고 켜기
@@ -426,4 +445,13 @@ public class UI_Manager : MonoBehaviour
         UpdateCursorState();
     }
     #endregion
+
+    public void OnClickGameQuit()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
+#endif
+    }
 }

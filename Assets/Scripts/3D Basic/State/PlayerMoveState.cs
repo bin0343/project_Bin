@@ -59,26 +59,7 @@ public class PlayerMoveState : PlayerBaseState
             // 2순위: 공격 입력이 있었는가?
             if (attackInput)
             {
-                // 공격 입력이 있다면, 달리기 공격 시도인지 확인
-                if (Input.GetKey(KeyCode.LeftShift))
-                {
-                    // 달리기 공격 시도라면, 쿨타임을 확인
-                    if (player.CanUseRunningAttack())
-                    {
-                        // 쿨타임이 정상이면 달리기 공격 상태로 전환
-                        player.ChangeState(new PlayerRunningAttackState());
-                    }
-                    else
-                    {
-                        // 쿨타임이라면, 디버그 로그를 찍고 아무것도 하지 않음
-                        // (상태를 바꾸지 않으므로 계속 달리기 상태를 유지)
-                        Debug.Log("달리기 공격 쿨타임입니다!");
-                    }
-                }
-                else // 달리기 공격 시도가 아니라면, 일반 공격 상태로 전환
-                {
-                    player.ChangeState(new PlayerAttackState());
-                }
+                player.ChangeState(new PlayerAttackState());
             }
             // 그 외 모든 경우 (점프도, 공격도 아닐 때): 계속 이동
             else

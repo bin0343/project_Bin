@@ -8,7 +8,7 @@ public class Skill_Buff : Skill_Base
     public int attackIncreaseAmount;
     public GameObject auraPrefab;
 
-    protected override void ApplyEffect(GameObject user)
+    protected override void ApplyEffect(GameObject user, Vector3 targetPosition)
     {
         Character_Stat stat = user.GetComponent<Character_Stat>();
         stat.AddEquipmentStat(STAT.Attack, attackIncreaseAmount);
