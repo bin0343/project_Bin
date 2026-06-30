@@ -22,10 +22,12 @@ public class UI_PartyFormation : MonoBehaviour
     [Header("프리셋 및 이름 UI")]
     public Text presetNameText;
     public InputField presetNameInput;
+    public GameObject blurPanel;
     public GameObject namePanel;
     public Button renameButton;
     public Button confirmRenameButton;
     public Button[] presetButtons = new Button[3];
+
 
     [Header("서브 탭 (캐릭터 선택창)")]
     public GameObject subPanel_CharacterSelect;
@@ -133,7 +135,7 @@ public class UI_PartyFormation : MonoBehaviour
         if (isEmptyParty)
         {
             currentPresetIndex = 0;
-            LoadPresetToTemp(0); // ★ 중복 로직을 함수 하나로 통합 처리
+            LoadPresetToTemp(0); // 중복 로직을 함수 하나로 통합 처리
             CompactParty();
         }
         else
@@ -262,6 +264,7 @@ public class UI_PartyFormation : MonoBehaviour
     public void CloseNamePanel()
     {
         if (namePanel != null) namePanel.SetActive(false);
+        if (blurPanel != null) blurPanel.SetActive(false);
         if (presetNameInput != null) presetNameInput.text = "";
     }
 
@@ -347,12 +350,14 @@ public class UI_PartyFormation : MonoBehaviour
         {
             currentPreviewModel = Instantiate(data.uiPrefab, previewSpawnPoint.position, previewSpawnPoint.rotation);
             currentPreviewModel.transform.SetParent(previewSpawnPoint);
-            currentPreviewModel.transform.localPosition = Vector3.zero;
             currentPreviewModel.transform.localRotation = Quaternion.identity;
-            currentPreviewModel.transform.localScale = Vector3.one * previewModelScale;
 
+            // 캐싱 처리 등록
             cachedPreviewModels.Add(data.characterID, currentPreviewModel);
         }
+
+        currentPreviewModel.transform.localPosition = new Vector3(0, data.uiPreviewYOffset, 0);
+        currentPreviewModel.transform.localScale = Vector3.one * data.uiPreviewScale;
 
         Animator anim = currentPreviewModel.GetComponentInChildren<Animator>();
         if (anim != null)
@@ -413,6 +418,7 @@ public class UI_PartyFormation : MonoBehaviour
         if (namePanel != null)
         {
             namePanel.SetActive(true);
+            blurPanel.SetActive(true);
 
             if (presetNameInput != null && presetNameText != null)
             {

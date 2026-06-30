@@ -23,7 +23,13 @@ public class Player_Action : MonoBehaviour
     [Header("공격 시 이동(커브 기반)")]
     [Tooltip("1타, 2타, 3타에 해당하는 전진 커브 (X: 0~1 정규화된 시간, Y: 누적 전진량)")]
     public AnimationCurve[] attackMoveCurves = new AnimationCurve[3];
-    public float attackMoveDistance = 2f;
+    public float attackMoveDistance = 30f;
+
+    [Header("오토 타겟팅 설정")]
+    [Tooltip("공격 시 적 탐색 반경")]
+    public float targetSearchRadius = 30f;
+    [Tooltip("몬스터들 레이어")]
+    public LayerMask enemyLayer;
 
     [Header("아이템 줍기 반경")]
     public float pickupRadius = 3.0f;
@@ -50,16 +56,15 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
     [HideInInspector] public bool CanRotate = true;
     [HideInInspector] public bool IsInvincible = false; //무적상태(구르기)
+    [HideInInspector] public bool comboQueued = false;
 
     public IPlayerState currentState;
     public int currentComboStep { get; private set; }
 
-    public bool IsPointerOverUI()       //마우스가 ui위에 있는지 확인
+    public bool IsPointerOverUI()
     {
-        // EventSystem이 없으면 false 반환 (에러 방지)
         if (EventSystem.current == null) return false;
 
-        // 마우스 포인터가 UI 요소(Raycast Target이 켜진 패널/버튼 등) 위에 있으면 true 반환
         return EventSystem.current.IsPointerOverGameObject();
     }
 
@@ -116,7 +121,13 @@ public class Player_Action : MonoBehaviour
         }
        
         if (IsDead) return;
-      
+
+        if (UI_Manager.instance != null && UI_Manager.instance.IsUIOpen)
+        {
+            if (move != null) move.ForceMove(Vector3.zero, 0f);
+            return;
+        }
+
         currentState?.Execute(this);
         CheckGroundStatus();
 
@@ -326,23 +337,6 @@ public class Player_Action : MonoBehaviour
         currentWeapon = newWeapon;
     }
 
-    public void OnAttackBlocked()
-    {
-        // 이미 막혔거나, 죽었거나, 다른 리액션 중일 때는 무시
-        if (currentState is PlayerHitState || IsDead)
-        {
-            return;
-        }
-
-        Debug.Log("공격이 막힘! 상태를 AttackBlocked로 변경합니다.");
-        ChangeState(new PlayerIdleState());
-
-        // 2. 공격 관련 상태들을 확실하게 정리해줍니다.
-        IsAttacking = false;
-        currentWeapon?.DisableHitbox();
-        currentWeapon?.StopTrail();
-    }
-
     public void SetComboStep(int step)
     {
         currentComboStep = step;
@@ -388,9 +382,19 @@ public class Player_Action : MonoBehaviour
     {
         (currentState as IStateAnimationEvents)?.OnAnimationEvent(eventType, this);
     }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(0f, 0.5f, 1f, 0.15f); // 반투명 푸른색
+        Gizmos.DrawSphere(transform.position, attackMoveDistance);
+
+        Gizmos.color = new Color(0f, 0.5f, 1f, 0.6f);
+        Gizmos.DrawWireSphere(transform.position, attackMoveDistance);
+    }
 }
 
 public interface IStateAnimationEvents
 {
     void OnAnimationEvent(Player_Action.AnimationEventType eventType, Player_Action player);
 }
+

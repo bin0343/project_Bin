@@ -47,11 +47,17 @@ public class BattleManager : MonoBehaviour
         Vector3 spawnPos = (startSpawnPoint != null) ? startSpawnPoint.position : Vector3.zero;
         Quaternion spawnRot = Quaternion.identity;
 
+        string savedActiveCharacterID = "";
         GameObject activeChar = GetActiveCharacter();
         if (activeChar != null)
         {
             spawnPos = activeChar.transform.position;
             spawnRot = activeChar.transform.rotation;
+            Character_Stat stat = activeChar.GetComponent<Character_Stat>();
+            if (stat != null && stat.characterData != null)
+            {
+                savedActiveCharacterID = stat.characterData.characterID;
+            }
         }
 
         for (int i = 0; i < 3; i++)
@@ -72,17 +78,20 @@ public class BattleManager : MonoBehaviour
                 GameObject charObj = Instantiate(party[i].characterPrefab, spawnPos, spawnRot);
                 spawnedCharacters[i] = charObj;
 
-                if (i == 0)
+                if (!string.IsNullOrEmpty(savedActiveCharacterID) && party[i].characterID == savedActiveCharacterID)
                 {
-                    charObj.SetActive(true);
-                    ChangeCameraTarget(charObj.transform);
-                    UpdateSystemsWithActiveCharacter(charObj);
+                    currentActiveIndex = i;
                 }
-                else
-                {
-                    charObj.SetActive(false);
-                }
+
+                charObj.SetActive(false);
             }
+        }
+
+        if (spawnedCharacters[currentActiveIndex] != null)
+        {
+            spawnedCharacters[currentActiveIndex].SetActive(true);
+            ChangeCameraTarget(spawnedCharacters[currentActiveIndex].transform);
+            UpdateSystemsWithActiveCharacter(spawnedCharacters[currentActiveIndex]);
         }
     }
 

@@ -18,27 +18,41 @@ public class UI_WeaponTab : MonoBehaviour
     public GameObject changeButton;       // 기본 상태일 때 보이는 [교체] 버튼
     public GameObject confirmEquipButton; // 미리보기 상태일 때 보이는 [장착 확정] 버튼
 
-    private GameObject currentUIWeaponObject; // 현재 띄워진 3D 모델을 기억할 변수
+    private GameObject currentUIWeaponObject; 
 
     private bool isPreviewMode = false;
     private ItemHolder previewItemHolder;
     private int previewInventoryIndex;
 
-    public void RefreshTab()
+    private Character_Data targetCharacterData;
+
+    public void RefreshTab(Character_Data characterData = null)
     {
-        Player_Equipment activeEquip = GetActiveEquipment();
-        if (activeEquip == null) return;
+        if (characterData != null)
+        {
+            targetCharacterData = characterData;
+        }
+
+        CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(targetCharacterData.characterID);
+        Player_Equipment activeEquip = GetEquipmentOfCharacter(targetCharacterData);
 
         ItemHolder targetHolder = null;
 
-        // 상태에 따라 보여줄 아이템 결정 (미리보기 중이면 미리보기 아이템, 아니면 장착 중인 아이템)
         if (isPreviewMode && previewItemHolder != null)
         {
             targetHolder = previewItemHolder;
         }
         else
         {
-            targetHolder = activeEquip.equipmentSlots[0];
+            if (activeEquip != null)
+            {
+                targetHolder = activeEquip.equipmentSlots[0];
+                if (cStatus != null) cStatus.equippedWeapon = targetHolder; // 최신화 데이터 백업
+            }
+            else if (cStatus != null)
+            {
+                targetHolder = cStatus.equippedWeapon;
+            }
         }
 
         if (targetHolder != null && targetHolder.ItemData != null)
@@ -139,12 +153,40 @@ public class UI_WeaponTab : MonoBehaviour
         if (isPreviewMode && previewItemHolder != null)
         {
             Player_Equipment activeEquip = GetActiveEquipment();
+            CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(targetCharacterData.characterID);
+
             if (activeEquip != null)
             {
                 activeEquip.Equip(previewItemHolder, SlotType.INVENTORY, previewInventoryIndex);
+                if (cStatus != null) cStatus.equippedWeapon = activeEquip.equipmentSlots[0];
+            }
+            else
+            {
+                if (cStatus != null && Player_Inventory.instance != null)
+                {
+                    if (previewInventoryIndex >= 0 && previewInventoryIndex < Player_Inventory.instance.inventorySlots.Count)
+                    {
+                        ItemHolder oldWeapon = cStatus.equippedWeapon;
+                        ItemHolder newWeapon = Player_Inventory.instance.inventorySlots[previewInventoryIndex];
+
+                        cStatus.equippedWeapon = newWeapon;
+
+                        if (oldWeapon != null && oldWeapon.ItemData != null)
+                        {
+                            Player_Inventory.instance.inventorySlots[previewInventoryIndex] = oldWeapon;
+                        }
+                        else
+                        {
+                            Player_Inventory.instance.inventorySlots.RemoveAt(previewInventoryIndex);
+                        }
+
+                        Player_Inventory.instance.CleanUpInventory();
+                        Player_Inventory.instance.RefreshAllUI();
+                    }
+                }
             }
 
-            CloseSelectionPanel();
+                CloseSelectionPanel();
         }
     }
 
@@ -162,9 +204,25 @@ public class UI_WeaponTab : MonoBehaviour
 
     private Player_Equipment GetActiveEquipment()
     {
-        if (BattleManager.instance == null) return null;
-        GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
-        if (activePlayer == null) return null;
-        return activePlayer.GetComponent<Player_Equipment>();
+        return GetEquipmentOfCharacter(targetCharacterData);
+    }
+
+    private Player_Equipment GetEquipmentOfCharacter(Character_Data characterData)
+    {
+        if (characterData == null || BattleManager.instance == null || BattleManager.instance.SpawnedCharacters == null) return null;
+
+        foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
+        {
+            if (charObj != null)
+            {
+                Character_Stat stat = charObj.GetComponent<Character_Stat>();
+                if (stat != null && stat.characterData != null && stat.characterData.characterID == characterData.characterID)
+                {
+                    return charObj.GetComponent<Player_Equipment>();
+                }
+            }
+        }
+
+        return null;
     }
 }

@@ -29,6 +29,7 @@ public class UI_CharacterTab : MonoBehaviour
     public UI_CharacterRotation rotationScript;
 
     public Button characterEnhanceButton;
+    private Character_Data currentlySelectedCharacter;
 
     private void OnDisable()
     {
@@ -36,34 +37,76 @@ public class UI_CharacterTab : MonoBehaviour
         if (characterStageRoot != null) characterStageRoot.SetActive(false);
     }
 
-    public void RefreshTab()
+    public void RefreshTab(Character_Data selectedChar)
     {
         if (characterStageRoot != null) characterStageRoot.SetActive(true);
 
         mainInfoSubPanel.SetActive(true);
         if (enhancementSubPanel != null) enhancementSubPanel.SetActive(false);
 
-        UpdateMainInfo();
+        currentlySelectedCharacter = selectedChar;
 
-        Character_Stat activeStat = UI_Manager.instance.activeCharacterStat;
-        if (activeStat != null && activeStat.characterData != null)
+        if (currentlySelectedCharacter != null)
         {
-            SpawnAndSetupCharacter(activeStat.characterData);
+            DisplayCharacterInfo(currentlySelectedCharacter);
         }
+    }
+
+    public void DisplayCharacterInfo(Character_Data characterData)
+    {
+        if (characterData == null) return;
+
+        currentlySelectedCharacter = characterData;
+
+        CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(characterData.characterID);
+        levelText.text = $"LV. {cStatus.level}";
+
+        Character_Stat spawnedStat = null;
+        if (BattleManager.instance != null && BattleManager.instance.SpawnedCharacters != null)
+        {
+            foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
+            {
+                if (charObj != null)
+                {
+                    Character_Stat stat = charObj.GetComponent<Character_Stat>();
+                    if (stat != null && stat.characterData != null && stat.characterData.characterID == characterData.characterID)
+                    {
+                        spawnedStat = stat;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 실시간 월드 데이터 가공 표기 분기 처리
+        if (spawnedStat != null)
+        {
+            // 출전 중인 파티원인 경우: 월드 오브젝트의 실시간 장비 연산 및 깎여 있는 현재 체력 데이터 정확히 로드
+            hpText.text = $"HP: {spawnedStat.currentHP} / {spawnedStat.maxHP}";
+            attackText.text = $"공격력: {spawnedStat.attackPower}";
+            defenseText.text = $"방어력: {spawnedStat.defensePower}";
+        }
+        else
+        {
+            // 순수 대기실 소속 비파티원 멤버인 경우: 매니저 스탯을 기준으로 온전한 상태 연산 후 출력 (체력은 풀피)
+            float maxHp = (cStatus.currentStats != null && cStatus.currentStats.Length > (int)STAT.HP) ? cStatus.currentStats[(int)STAT.HP] : 100f;
+            float atk = (cStatus.currentStats != null && cStatus.currentStats.Length > (int)STAT.Attack) ? cStatus.currentStats[(int)STAT.Attack] : 10f;
+            float def = (cStatus.currentStats != null && cStatus.currentStats.Length > (int)STAT.Defense) ? cStatus.currentStats[(int)STAT.Defense] : 5f;
+
+            hpText.text = $"HP: {(int)maxHp} / {(int)maxHp}";
+            attackText.text = $"공격력: {(int)atk}";
+            defenseText.text = $"방어력: {(int)def}";
+        }
+
+        // 4. 하단 무대 영역의 3D 프리뷰 모델 동적 스위칭
+        SpawnAndSetupCharacter(characterData);
     }
 
     public void UpdateMainInfo()
     {
-        Character_Stat activeStat = UI_Manager.instance.activeCharacterStat;
-
-        if (activeStat != null)
+        if (currentlySelectedCharacter != null)
         {
-            CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(activeStat.characterData.characterID);
-
-            levelText.text = $"LV. {cStatus.level}";
-            hpText.text = $"HP: {activeStat.currentHP} / {activeStat.maxHP}";
-            attackText.text = $"공격력: {activeStat.attackPower}";
-            defenseText.text = $"방어력: {activeStat.defensePower}";
+            DisplayCharacterInfo(currentlySelectedCharacter);
         }
     }
 
@@ -129,12 +172,5 @@ public class UI_CharacterTab : MonoBehaviour
         enhancementSubPanel.SetActive(false);
         mainInfoSubPanel.SetActive(true);
         UpdateMainInfo();
-    }
-
-    private IEnumerator PlayAppearAnimationDelyaed()
-    {
-        yield return null;
-
-        uiCharacterAnimator.Play("First Idle", -1, 0f);
     }
 }

@@ -11,7 +11,6 @@ public class PartyPreset
 public class CharacterStatus
 {
     public string characterID;
-    public int currentAffinity;
 
     public int level;
     public int currentExp;
@@ -19,15 +18,18 @@ public class CharacterStatus
     public float[] currentStats;
 
     public bool isStatInitialized = false;
+    public bool isOwned = false;       // 스토리 진행 중 영입 완료 여부
+    public ItemHolder equippedWeapon;
 
     public CharacterStatus(string id)
     {
         characterID = id;
-        currentAffinity = 10;
         level = 1;
         currentExp = 0;
         currentStats = new float[(int)STAT.STAT_COUNT];
         isStatInitialized = false;
+        isOwned = false;
+        equippedWeapon = null;
     }
 
     public void InitializeStats(Character_Data data)
@@ -43,16 +45,15 @@ public class Character_Manager : MonoBehaviour
     public static Character_Manager instance;
 
     public List<CharacterStatus> characterStatusList = new List<CharacterStatus>();
-
+    public List<string> currentPartyIDs = new List<string>();
+    public List<Character_Data> currentPartyData = new List<Character_Data>();
+    public List<Character_Data> allcharacterDataList;   //모든 npc
+    public List<PartyPreset> partyPresets = new List<PartyPreset>();
     public Dictionary<string, CharacterStatus> characterStatusDictionary = new Dictionary<string, CharacterStatus>();
 
-    public List<string> currentPartyIDs = new List<string>();
-
-    public List<Character_Data> currentPartyData = new List<Character_Data>();
-
-    public List<Character_Data> allcharacterDataList;   //모든 npc
-
-    public List<PartyPreset> partyPresets = new List<PartyPreset>();
+    [Header("시작 시 기본 지급할 캐릭터 목록")]
+    [Tooltip("게임 시작 시 자동으로 보유 상태로 만들어줄 캐릭터들의 ID")]
+    public List<string> defaultOwnedCharacterIDs = new List<string>();
 
     private void Awake()
     {
@@ -71,16 +72,69 @@ public class Character_Manager : MonoBehaviour
         {
             if (data == null) continue;
 
-            // 아직 딕셔너리에 없다면 추가
             if (!characterStatusDictionary.ContainsKey(data.characterID))
             {
                 CharacterStatus newStatus = new CharacterStatus(data.characterID);
                 newStatus.InitializeStats(data); // 기본 스탯으로 초기화
 
+                if (defaultOwnedCharacterIDs != null && defaultOwnedCharacterIDs.Contains(data.characterID))
+                {
+                    newStatus.isOwned = true;
+                }
+
+                if (data.characterPrefab != null)
+                {
+                    Player_Equipment pEquip = data.characterPrefab.GetComponent<Player_Equipment>();
+                    if (pEquip != null && pEquip.equipmentSlots != null && pEquip.equipmentSlots.Length > 0)
+                    {
+                        if (pEquip.equipmentSlots[0] != null && pEquip.equipmentSlots[0].ItemData != null)
+                        {
+                            newStatus.equippedWeapon = pEquip.equipmentSlots[0];
+                        }
+                    }
+                }
+
                 characterStatusDictionary.Add(data.characterID, newStatus);
+                characterStatusList.Add(newStatus);
             }
         }
         Debug.Log($"NPC 매니저 초기화 완료: 총 {characterStatusDictionary.Count}명 등록됨.");
+    }
+
+    public void RecruitCharacter(string npcID)
+    {
+        if (characterStatusDictionary.ContainsKey(npcID))
+        {
+            if (!characterStatusDictionary[npcID].isOwned)
+            {
+                characterStatusDictionary[npcID].isOwned = true;
+            }
+        }
+    }
+
+    public bool IsRecruited(string npcID)
+    {
+        if (!characterStatusDictionary.ContainsKey(npcID)) return false;
+
+        return characterStatusDictionary[npcID].isOwned;
+    }
+
+    public List<Character_Data> GetOwnedCharacters()
+    {
+        List<Character_Data> ownedList = new List<Character_Data>();
+
+        if (allcharacterDataList != null)
+        {
+            foreach (var data in allcharacterDataList)
+            {
+                if (data != null && IsRecruited(data.characterID))
+                {
+                    ownedList.Add(data);
+                }
+            }
+        }
+
+        return ownedList;
     }
 
     public void SaveParty(List<string> newPartyIDs, List<Character_Data> newPartyData)
@@ -129,32 +183,6 @@ public class Character_Manager : MonoBehaviour
         return status;
     }
 
-    public bool IsRecruited(string npcID)
-    {
-        if (!characterStatusDictionary.ContainsKey(npcID)) return false;
-
-        return characterStatusDictionary[npcID].currentAffinity >= 10;
-    }
-
-    // 내가 보유 중인 모든 캐릭터 리스트를 반환
-    public List<Character_Data> GetOwnedCharacters()
-    {
-        List<Character_Data> ownedList = new List<Character_Data>();
-
-        if (allcharacterDataList != null)
-        {
-            foreach (var data in allcharacterDataList)
-            {
-                if (data != null && IsRecruited(data.characterID))
-                {
-                    ownedList.Add(data);
-                }
-            }
-        }
-
-        return ownedList;
-    }
-
     public void SaveParty(List<string> newPartyIDs)
     {
         currentPartyIDs = new List<string>(newPartyIDs);
@@ -184,20 +212,6 @@ public class Character_Manager : MonoBehaviour
         }
     }
 
-    public int GetAffinity(string npcID)
-    {
-        CharacterStatus status = GetCharacterStatus(npcID, null);
-        return status.currentAffinity;
-    }
-
-    public void ChangeAffinity(string npcID, int amount)
-    {
-        if (amount == 0) return;
-
-        CharacterStatus status = GetCharacterStatus(npcID, null);
-        status.currentAffinity += amount;
-    }
-
     public List<NPCSaveData> GetSaveData()
     {
         List<NPCSaveData> saveList = new List<NPCSaveData>();
@@ -208,7 +222,7 @@ public class Character_Manager : MonoBehaviour
             NPCSaveData data = new NPCSaveData();
 
             data.npcID = status.characterID;
-            data.affinity = status.currentAffinity;
+            data.affinity = status.isOwned ? 1 : 0;
             data.level = status.level;
             data.currentExp = status.currentExp;
 
@@ -232,7 +246,7 @@ public class Character_Manager : MonoBehaviour
             if (characterStatusDictionary.ContainsKey(data.npcID))
             {
                 CharacterStatus status = characterStatusDictionary[data.npcID];
-                status.currentAffinity = data.affinity;
+                status.isOwned = (data.affinity == 1);
                 status.level = data.level;
                 status.currentExp = data.currentExp;
 

@@ -43,11 +43,17 @@ public class Player_Move : MonoBehaviour
 
         if (targetMoveVelocity.sqrMagnitude > 0)
         {
-            HandleStepClimb();
+            bool isClimbing = HandleStepClimb();
+
+            // 2. 올라가는 중이 아니라면, 계단을 내려가는 중인지 체크하여 보정합니다.
+            if (!isClimbing)
+            {
+                HandleStepDescend();
+            }
         }
     }
 
-    private void HandleStepClimb()
+    private bool HandleStepClimb()
     {
         Vector3 moveDir = new Vector3(targetMoveVelocity.x, 0, targetMoveVelocity.z).normalized;
 
@@ -71,7 +77,39 @@ public class Player_Move : MonoBehaviour
                         targetPos.y = hitUpper.point.y;
 
                         Rigidbody.MovePosition(Vector3.Lerp(Rigidbody.position, targetPos, Time.fixedDeltaTime * stepSmooth));
+                        return true; // 올라가기 보정 작동함
                     }
+                }
+            }
+        }
+        return false; // 작동하지 않음
+    }
+
+    private void HandleStepDescend()
+    {
+        if (Rigidbody.velocity.y > 0.1f) return;
+
+        float rayLength = stepHeight + 0.1f;
+        Vector3 footPos = Rigidbody.position + Vector3.up * 0.05f;
+
+        if (Physics.Raycast(footPos, Vector3.down, out RaycastHit hit, rayLength, groundLayer))
+        {
+            float groundDist = Rigidbody.position.y - hit.point.y;
+
+            if (groundDist > 0.05f && groundDist <= stepHeight)
+            {
+                Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, 0f, Rigidbody.velocity.z);
+
+                Vector3 targetPos = Rigidbody.position;
+                targetPos.y = hit.point.y;
+
+                Rigidbody.MovePosition(targetPos);
+                Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, 0f, Rigidbody.velocity.z);
+
+                Player_Action playerAction = GetComponentInParent<Player_Action>();
+                if (playerAction != null)
+                {
+                    playerAction.IsGrounded = true;
                 }
             }
         }

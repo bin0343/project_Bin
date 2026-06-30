@@ -15,6 +15,10 @@ public class Character_Data : ScriptableObject
     [Tooltip("캐릭터 정보창에 띄울 가벼운 껍데기 프리팹 (애니메이터, 모델링만 포함)")]
     public GameObject uiPrefab;
 
+    [Header("UI 프리뷰 전용 개별 보정 스탯")]
+    public float uiPreviewScale = 1.0f;
+    public float uiPreviewYOffset = 0.0f;
+
     [Header("전투 설정(기초 스탯)")]
     public float[] baseStats = new float[(int)STAT.STAT_COUNT];
 

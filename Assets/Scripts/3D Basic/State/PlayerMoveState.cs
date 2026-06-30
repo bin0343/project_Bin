@@ -50,33 +50,29 @@ public class PlayerMoveState : PlayerBaseState
                 }
                 return;
             }
-            // 1순위: 점프
+
             if (jumpInput && player.IsGrounded)
             {
                 player.ChangeState(new PlayerJumpState());
                 return;
             }
-            // 2순위: 공격 입력이 있었는가?
+
             if (attackInput)
             {
                 player.ChangeState(new PlayerAttackState());
             }
-            // 그 외 모든 경우 (점프도, 공격도 아닐 때): 계속 이동
             else
             {
                 HandleMovementInput(player);
             }
         }
 
-        // --- 3. 상태 전환과 별개로 매 프레임 확인해야 하는 입력들 ---
         HandleCommonSkillInput(player);
         HandleCommonItemInput(player);
     }
 
     public override void Exit(Player_Action player)
     {
-        // Move 상태를 벗어날 때는 IsMoving 애니메이션 파라미터를 false로 설정하여
-        // 다른 상태(예: 공격)에서 불필요한 움직임 애니메이션이 재생되는 것을 방지합니다.
-        //player.animator.SetBool("IsMoving", false);
+
     }
 }

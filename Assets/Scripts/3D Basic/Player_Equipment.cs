@@ -50,6 +50,22 @@ public class Player_Equipment : MonoBehaviour
     {
         Character_Stat stat = GetComponent<Character_Stat>();
 
+        if (stat != null && stat.characterData != null && Character_Manager.instance != null)
+        {
+            CharacterStatus status = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
+            if (status != null)
+            {
+                if (status.equippedWeapon != null)
+                {
+                    equipmentSlots[0] = status.equippedWeapon;
+                }
+                else if (equipmentSlots.Length > 0 && equipmentSlots[0] != null && equipmentSlots[0].ItemData != null)
+                {
+                    status.equippedWeapon = equipmentSlots[0];
+                }
+            }
+        }
+
         for (int i = 0; i < equipmentSlots.Length; i++)
         {
             // 슬롯에 아이템이 있고, 데이터가 유효하다면
@@ -147,15 +163,23 @@ public class Player_Equipment : MonoBehaviour
         if (equipmentData.weaponPrefab != null)
         {
             currentWeaponObject = Instantiate(equipmentData.weaponPrefab, weaponMountPoint);
-
             Weapon_Player newWeaponController = currentWeaponObject.GetComponentInChildren<Weapon_Player>();
-
             playerAction.SetCurrentWeapon(newWeaponController);
         }
 
         // 스탯 적용
         Character_Stat stat = GetComponent<Character_Stat>();
-        stat.AddEquipmentStat(STAT.Attack, itemToEquip.GetTotalWeaponAttack());
+        if (stat != null)
+        {
+            stat.AddEquipmentStat(STAT.Attack, itemToEquip.GetTotalWeaponAttack());
+        }
+
+        if (stat != null && stat.characterData != null && Character_Manager.instance != null)
+        {
+            CharacterStatus status = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
+            if (status != null) status.equippedWeapon = itemToEquip;
+        }
+
         Debug.Log($"{equipmentData.itemName}을(를) 장착했습니다.");
 
         RefreshUI();
@@ -184,6 +208,12 @@ public class Player_Equipment : MonoBehaviour
             }
 
             equipmentSlots[slotIndex] = null;
+
+            if (stat.characterData != null && Character_Manager.instance != null)
+            {
+                CharacterStatus status = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
+                if (status != null) status.equippedWeapon = null;
+            }
         }
 
         if (currentWeaponObject != null)

@@ -1793,7 +1793,6 @@ MonoBehaviour:
   assignedSkills:
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
   - {fileID: 0}
-  runningAttackData: {fileID: 0}
   stat: {fileID: 0}
   skillUIManagers: {fileID: 0}
   attackMoveCurves:
@@ -1804,10 +1803,37 @@ MonoBehaviour:
       value: 0
       inSlope: 0
       outSlope: 0
-      tangentMode: 136
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.366
+      value: 0
+      inSlope: -0
+      outSlope: 6.4102554
+      tangentMode: 69
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.522
+      value: 1
+      inSlope: 6.4102554
+      outSlope: 0
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -0
+      outSlope: 0
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -1875,7 +1901,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  attackMoveDistance: 2
+  attackMoveDistance: 10
+  targetSearchRadius: 10
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
   pickupRadius: 3
   itemLayer:
     serializedVersion: 2
@@ -1933,7 +1963,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4096
   stepHeight: 0.4
-  stepSmooth: 15
+  stepSmooth: 35
 --- !u!136 &3050126407679256677
 CapsuleCollider:
   m_ObjectHideFlags: 0

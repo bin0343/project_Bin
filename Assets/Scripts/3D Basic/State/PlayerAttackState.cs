@@ -8,6 +8,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
     private bool isTransitionFinished = false;
 
     private float previousCurveValue = 0f;  //커브 이전값 저장하고 얼마나 차이나는지 확인
+    private float currentDashDistance = 0f;
 
     protected override PlayerAnimState GetAnimState()
     {
@@ -28,15 +29,38 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
             myEquipment.EnterCombatState();
         }
 
-        player.CanRotate = false;
-        if (Cursor.visible || Cursor.lockState == CursorLockMode.None)
+        Transform targetEnemy = FindEnemyWithinMaxRange(player);
+
+        if (targetEnemy != null)
         {
-            player.move.LookAtMouse();
+            Vector3 targetDir = targetEnemy.position - player.transform.position;
+            targetDir.y = 0f;
+
+            if (targetDir.sqrMagnitude > 0.001f)
+            {
+                player.animator.transform.rotation = Quaternion.LookRotation(targetDir);
+            }
+
+            float distanceToEnemy = Vector3.Distance(player.transform.position, targetEnemy.position);
+
+            float desiredDashDist = distanceToEnemy - 1.0f;
+            currentDashDistance = Mathf.Clamp(desiredDashDist, 0f, player.attackMoveDistance);
         }
         else
         {
-            player.move.AlignToCameraForward();
+            if (Cursor.visible || Cursor.lockState == CursorLockMode.None)
+            {
+                player.move.LookAtMouse();
+            }
+            else
+            {
+                player.move.AlignToCameraForward();
+            }
+
+            currentDashDistance = 0f;
         }
+
+        player.CanRotate = false;
 
         isTransitionFinished = false;
         previousCurveValue = 0f;
@@ -70,6 +94,16 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
             if (stateInfo.shortNameHash == expectedAnimHash)
             {
                 isTransitionFinished = true;
+
+                float normalizedTime = Mathf.Clamp01(stateInfo.normalizedTime);
+                if (player.attackMoveCurves != null && player.attackMoveCurves.Length >= comboStep)
+                {
+                    AnimationCurve currentCurve = player.attackMoveCurves[comboStep - 1];
+                    if (currentCurve != null && currentCurve.keys.Length > 0)
+                    {
+                        previousCurveValue = currentCurve.Evaluate(normalizedTime);
+                    }
+                }
             }
         }
 
@@ -92,7 +126,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
                         dashDirection.y = 0;
                         dashDirection.Normalize();
 
-                        Vector3 moveDelta = dashDirection * delta * player.attackMoveDistance;
+                        Vector3 moveDelta = dashDirection * delta * currentDashDistance;
                         player.rigidbody.MovePosition(player.rigidbody.position + moveDelta);
                     }
 
@@ -133,6 +167,11 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
             return;
         }
 
+        if (eventType == Player_Action.AnimationEventType.COMBO_WINDOW_OPEN)
+        {
+            player.canReceiveInput = true;
+        }
+
         if (eventType == Player_Action.AnimationEventType.ATTACK_ANIMATION_END)
         {
             ResetCombo();
@@ -146,5 +185,32 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
                 player.ChangeState(new PlayerIdleState());
             }
         }
+    }
+
+
+    private Transform FindEnemyWithinMaxRange(Player_Action player)
+    {
+        Collider[] colliders = Physics.OverlapSphere(player.transform.position, player.attackMoveDistance, player.enemyLayer);
+
+        Transform bestTarget = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (Collider col in colliders)
+        {
+            if (!col.CompareTag("Enemy")) continue;
+
+            Enemy_Stat enemyStat = col.GetComponent<Enemy_Stat>();
+            if (enemyStat == null || enemyStat.currentHP <= 0) continue;
+
+            float distance = Vector3.Distance(player.transform.position, col.transform.position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                bestTarget = col.transform;
+            }
+        }
+
+        return bestTarget;
     }
 }
