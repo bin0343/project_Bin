@@ -9,6 +9,10 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     private float previousCurveValue = 0f;  //커브 이전값 저장하고 얼마나 차이나는지 확인
     private float currentDashDistance = 0f;
+    private float dashStartNormalizedTime = 0f;
+
+    private bool comboWindowOpend = false;
+    private bool comboConsumed = false;
 
     protected override PlayerAnimState GetAnimState()
     {
@@ -43,7 +47,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
             float distanceToEnemy = Vector3.Distance(player.transform.position, targetEnemy.position);
 
-            float desiredDashDist = distanceToEnemy - 1.0f;
+            float desiredDashDist = distanceToEnemy - player.attackDashStopDistance;
             currentDashDistance = Mathf.Clamp(desiredDashDist, 0f, player.attackMoveDistance);
         }
         else
@@ -82,7 +86,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
             if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
             {
                 player.ChangeState(new PlayerRollState());
-                return; // 상태 전환 후 아래 로직 실행 안 함
+                return; 
             }
         }
 
@@ -96,14 +100,8 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
                 isTransitionFinished = true;
 
                 float normalizedTime = Mathf.Clamp01(stateInfo.normalizedTime);
-                if (player.attackMoveCurves != null && player.attackMoveCurves.Length >= comboStep)
-                {
-                    AnimationCurve currentCurve = player.attackMoveCurves[comboStep - 1];
-                    if (currentCurve != null && currentCurve.keys.Length > 0)
-                    {
-                        previousCurveValue = currentCurve.Evaluate(normalizedTime);
-                    }
-                }
+                dashStartNormalizedTime = normalizedTime;
+                previousCurveValue = 0f;
             }
         }
 
@@ -111,13 +109,15 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
         {
             AnimatorStateInfo stateInfo = player.animator.GetCurrentAnimatorStateInfo(0);
             float normalizedTime = Mathf.Clamp01(stateInfo.normalizedTime);
+            float rawDashCurveTime = Mathf.Clamp01(normalizedTime - dashStartNormalizedTime);
+            float dashCurveTime = Mathf.Clamp01(rawDashCurveTime * player.attackDashCurveSpeed);
             if (player.attackMoveCurves != null && player.attackMoveCurves.Length >= comboStep)
             {
                 AnimationCurve currentCurve = player.attackMoveCurves[comboStep - 1];
 
                 if (currentCurve != null && currentCurve.keys.Length > 0)
                 {
-                    float currentCurveValue = currentCurve.Evaluate(normalizedTime);
+                    float currentCurveValue = currentCurve.Evaluate(dashCurveTime);
                     float delta = currentCurveValue - previousCurveValue;
 
                     if (delta > 0)
@@ -135,13 +135,20 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
             }
         }
 
-        if (player.canReceiveInput && Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !player.IsPointerOverUI())
         {
-            if (comboStep < 3)
+            player.comboQueued = true;
+            player.lastComboInputTime = Time.time;
+
+            if (TryConsumeCombo(player))
             {
-                player.ChangeState(new PlayerAttackState());
                 return;
             }
+        }
+
+        if (player.comboQueued && Time.time - player.lastComboInputTime > player.comboInputBufferTime)
+        {
+            player.comboQueued = false;
         }
     }
 
@@ -162,18 +169,28 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public void OnAnimationEvent(Player_Action.AnimationEventType eventType, Player_Action player)
     {
+        if (eventType == Player_Action.AnimationEventType.COMBO_WINDOW_OPEN)
+        {
+            comboWindowOpend = true;
+            player.canReceiveInput = true;
+
+            TryConsumeCombo(player);
+            return;
+        }
+
         if (!isTransitionFinished)
         {
             return;
         }
 
-        if (eventType == Player_Action.AnimationEventType.COMBO_WINDOW_OPEN)
-        {
-            player.canReceiveInput = true;
-        }
-
         if (eventType == Player_Action.AnimationEventType.ATTACK_ANIMATION_END)
         {
+            if (TryConsumeCombo(player))
+            {
+                return;
+            }
+
+            player.comboQueued = false;
             ResetCombo();
 
             if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
@@ -212,5 +229,19 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
         }
 
         return bestTarget;
+    }
+
+    private bool TryConsumeCombo(Player_Action player)
+    {
+        if (comboConsumed) return false;
+        if (!comboWindowOpend) return false;
+        if (!player.comboQueued) return false;
+
+        comboConsumed = true;
+        player.comboQueued = false;
+        player.canReceiveInput = false;
+
+        player.ChangeState(new PlayerAttackState());
+        return true;
     }
 }

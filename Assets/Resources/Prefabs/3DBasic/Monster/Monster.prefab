@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7442217668681245080}
   - component: {fileID: 1462598004550336977}
   - component: {fileID: 4200508389218209283}
+  - component: {fileID: 5747673271882710984}
   - component: {fileID: 9125036294441300227}
   - component: {fileID: 6352026574016209094}
   - component: {fileID: 9034927260712466659}
@@ -113,6 +114,28 @@ MonoBehaviour:
   timeToGiveUp: 5
   patrolRadius: 5
   patrolDuration: 5
+  dissolveEffect: {fileID: 5747673271882710984}
+--- !u!114 &5747673271882710984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817376556446839000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e8f20ad8a16fea4fafd425f924915d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dissolveShader: {fileID: 4800000, guid: 23d89d38587a552479db3134e3467edc, type: 3}
+  dissolveNoiseTexture: {fileID: 2800000, guid: b0e9fc4e78820ad48af734ad5fe2ca7c, type: 3}
+  dissolveStartDelay: 0.5
+  dissolveDuration: 3
+  edgeColor: {r: 1, g: 0.3884746, b: 0.1273585, a: 1}
+  edgeWidth: 0.05
+  edgeEmission: 2
+  rootObject: {fileID: 1817376556446839000}
+  excludeObject: {fileID: 5743240469275329642}
 --- !u!195 &9125036294441300227
 NavMeshAgent:
   m_ObjectHideFlags: 0

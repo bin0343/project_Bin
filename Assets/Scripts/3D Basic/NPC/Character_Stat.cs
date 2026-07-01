@@ -19,7 +19,7 @@ public class Character_Stat : MonoBehaviour
     public bool isDead = false;
 
 
-    private void Start()
+    private void Awake()
     {
         if (characterData != null)
         {

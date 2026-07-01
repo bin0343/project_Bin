@@ -1802,24 +1802,15 @@ MonoBehaviour:
       time: 0
       value: 0
       inSlope: 0
-      outSlope: 0
+      outSlope: 3.2258065
       tangentMode: 69
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.366
-      value: 0
-      inSlope: -0
-      outSlope: 6.4102554
-      tangentMode: 69
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.522
+      time: 0.31
       value: 1
-      inSlope: 6.4102554
+      inSlope: 3.2258065
       outSlope: 0
       tangentMode: 69
       weightedMode: 0
@@ -1901,8 +1892,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  attackMoveDistance: 10
-  targetSearchRadius: 10
+  attackMoveDistance: 6
+  attackDashStopDistance: 1.2
+  attackDashCurveSpeed: 2
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -1917,6 +1909,9 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 4096
+  comboInputBufferTime: 0.3
+  lastComboInputTime: -999
+  comboQueued: 0
   IsGrounded: 1
   IsDead: 0
   IsKick: 0

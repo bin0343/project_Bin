@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 
 public enum ENEMYSTATE
@@ -51,6 +52,7 @@ public class EnemyBase : MonoBehaviour
     private float lastAttackTime = 0f;
     private float stunDuration = 1.5f;
     private float stunTimer = 0f;
+    private bool hasAggro = false;  // 어그로 여부
 
     private NavMeshAgent navAgent;
     private Enemy_Stat stat;
@@ -87,6 +89,8 @@ public class EnemyBase : MonoBehaviour
 
     public void SetSpawner(MonsterSpawner spawner) { mySpawner = spawner; }
 
+    [SerializeField] private EnemyDissolveEffect dissolveEffect;
+
     protected void Start()
     {
         animator = GetComponentInChildren<Animator>();
@@ -107,6 +111,10 @@ public class EnemyBase : MonoBehaviour
         }
 
         slashTrail.emitting = false;
+        if (dissolveEffect == null)
+        {
+            dissolveEffect = GetComponentInChildren<EnemyDissolveEffect>();
+        }
     }
 
     protected void FixedUpdate()
@@ -228,30 +236,33 @@ public class EnemyBase : MonoBehaviour
 
     private void Chase()
     {
-        /*navAgent.isStopped = false;
-        animator.SetBool("IsIdle", false);
-        animator.SetBool("IsMoving", true);
+        if (target == null)
+        {
+            currentState = ENEMYSTATE.IDLE;
+            hasAggro = false;
+            return;
+        }
 
-        if (IsTargetVisible())
+        float distance = Vector3.Distance(transform.position, target.position);
+
+        if (hasAggro)
         {
             lastKnownPosition = target.position;
-            navAgent.stoppingDistance = attackRange * 0.9f;
-            //navAgent.SetDestination(target.position);
-            if (navAgent.enabled && navAgent.isOnNavMesh)
-                navAgent.SetDestination(target.position);
-
-            if (Vector3.Distance(transform.position, target.position) <= navAgent.stoppingDistance)
-            {
-                currentState = ENEMYSTATE.BATTLE;
-                return;
-            }
         }
         else
         {
-            currentSearchPhase = SearchPhase.Investigating;
-        }*/
+            if (IsTargetVisible())
+            {
+                lastKnownPosition = target.position;
+            }
+            else
+            {
+                currentSearchPhase = SearchPhase.Investigating;
+                return;
+            }
+        }
 
-        if (navAgent.enabled && navAgent.isOnNavMesh)
+        if (navAgent != null && navAgent.enabled && navAgent.isOnNavMesh)
         {
             navAgent.isStopped = false;
             navAgent.stoppingDistance = attackRange * 0.9f;
@@ -261,20 +272,10 @@ public class EnemyBase : MonoBehaviour
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
 
-        if (IsTargetVisible())
+        if (distance <= attackRange)
         {
-            lastKnownPosition = target.position;
-
-            // 거리 체크
-            if (Vector3.Distance(transform.position, target.position) <= navAgent.stoppingDistance)
-            {
-                currentState = ENEMYSTATE.BATTLE;
-                return;
-            }
-        }
-        else
-        {
-            currentSearchPhase = SearchPhase.Investigating;
+            currentState = ENEMYSTATE.BATTLE;
+            return;
         }
     }
 
@@ -438,12 +439,18 @@ public class EnemyBase : MonoBehaviour
         transform.DOKill();
 
         isDead = true;
-        /*if (mySpawner != null)
-        {
-            mySpawner.OnMonsterDead(this.gameObject);
-        }*/
+        
         currentState = ENEMYSTATE.DEAD; // 상태를 DEAD로 전환
         animator.SetTrigger("IsDie");   // 사망 애니메이션 재생
+
+        if (dissolveEffect != null)
+        {
+            dissolveEffect.PlayDissolve();
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
 
         if (navAgent.enabled && navAgent.isOnNavMesh)
         {
@@ -491,7 +498,6 @@ public class EnemyBase : MonoBehaviour
                 Debug.LogWarning($"이 몬스터({gameObject.name})의 Enemy_Stat에 EnemyName이 지정되지 않아 퀘스트 카운트가 오르지 않습니다.");
             }
         }
-        //this.enabled = false;
     }
     #endregion
 
@@ -624,8 +630,9 @@ public class EnemyBase : MonoBehaviour
             if (distance > searchRange * 1.5f)
             {
                 target = null;
+                hasAggro = false;
                 currentState = ENEMYSTATE.IDLE;
-                Debug.Log("플레이어를 놓쳤다.");
+                currentSearchPhase = SearchPhase.Chasing;
             }
         }
     }
@@ -683,18 +690,31 @@ public class EnemyBase : MonoBehaviour
 
     public void OnDamageTaken(Transform attacker)
     {
-        if (isDead) return;
+        if (isDead || attacker == null) return;
 
-        // 공격한 대상을 타겟으로 설정
         target = attacker;
-        
-        // 현재 상태가 이미 BATTLE이나 STUN이 아니라면 전투 태세로 전환
-        if (currentState != ENEMYSTATE.BATTLE && currentState != ENEMYSTATE.STUN && currentState != ENEMYSTATE.DEAD)
+        hasAggro = true;
+
+        lastKnownPosition = attacker.position;
+        currentSearchPhase = SearchPhase.Chasing;
+
+        idleTimer = 0f;
+        patrolTimer = 0f;
+
+        if (navAgent != null && navAgent.enabled && navAgent.isOnNavMesh)
         {
-            currentState = ENEMYSTATE.BATTLE;
-            // 추적을 위해 NavMesh 재설정 등 필요한 로직 추가 가능
-            if(navAgent.enabled && navAgent.isOnNavMesh) navAgent.isStopped = false;
+            navAgent.isStopped = false;
+            navAgent.ResetPath();
         }
+
+        if (currentState == ENEMYSTATE.STUN || currentState == ENEMYSTATE.DEAD) return;
+
+        float distance = Vector3.Distance(transform.position, attacker.position);
+
+        if (distance <= attackRange)
+            currentState = ENEMYSTATE.BATTLE;
+        else
+            currentState = ENEMYSTATE.SEARCH;
     }
 
 #if UNITY_EDITOR

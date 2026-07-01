@@ -5,7 +5,6 @@ using UnityEngine;
 public class Player_AnimationEvents : MonoBehaviour
 {
     Player_Action action;
-    Player_Move move;
     public Animator animator;
 
     /*[Header("Attack Effect")]
@@ -50,7 +49,7 @@ public class Player_AnimationEvents : MonoBehaviour
 
     public void OnAttackCombo()
     {
-        action.canReceiveInput = true;
+        action.OnAnimationEvent(Player_Action.AnimationEventType.COMBO_WINDOW_OPEN);
     }
 
     public void StartAttackTrail()
@@ -80,7 +79,7 @@ public class Player_AnimationEvents : MonoBehaviour
 
     public void OnComboWindowOpen()
     {
-        action.canReceiveInput = true;
+        action.OnAnimationEvent(Player_Action.AnimationEventType.COMBO_WINDOW_OPEN);
     }
 
     public void OnAttackAnimationEnd()

@@ -24,10 +24,10 @@ public class Player_Action : MonoBehaviour
     [Tooltip("1타, 2타, 3타에 해당하는 전진 커브 (X: 0~1 정규화된 시간, Y: 누적 전진량)")]
     public AnimationCurve[] attackMoveCurves = new AnimationCurve[3];
     public float attackMoveDistance = 30f;
+    public float attackDashStopDistance = 0.8f;
+    public float attackDashCurveSpeed = 1f; // 커브를 읽는 속도, 1이면 기본, 1보다 크면 빠르게
 
     [Header("오토 타겟팅 설정")]
-    [Tooltip("공격 시 적 탐색 반경")]
-    public float targetSearchRadius = 30f;
     [Tooltip("몬스터들 레이어")]
     public LayerMask enemyLayer;
 
@@ -41,6 +41,11 @@ public class Player_Action : MonoBehaviour
     public float fallMultiplier = 2.5f;     // 떨어질 때 가속도
     public float lowJumpMultiplier = 2.0f;  // 스페이스바를 짧게 눌렀을 때의 가속도
     public LayerMask groundLayer;
+
+    [Header("콤보 입력")]
+    public float comboInputBufferTime = 0.2f;   //콤보 입력 저장 시간
+    [HideInInspector] public float lastComboInputTime = -999f;
+    [HideInInspector] public bool comboQueued = false;
 
     private float coyoteTime = 0.15f;
     private float coyoteTimer = 0f;
@@ -56,7 +61,6 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
     [HideInInspector] public bool CanRotate = true;
     [HideInInspector] public bool IsInvincible = false; //무적상태(구르기)
-    [HideInInspector] public bool comboQueued = false;
 
     public IPlayerState currentState;
     public int currentComboStep { get; private set; }
