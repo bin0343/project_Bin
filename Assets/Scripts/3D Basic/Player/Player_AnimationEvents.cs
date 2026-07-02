@@ -6,6 +6,7 @@ public class Player_AnimationEvents : MonoBehaviour
 {
     Player_Action action;
     public Animator animator;
+    private Player_AttackVFX attackVFX;
 
     /*[Header("Attack Effect")]
     [SerializeField] public TrailRenderer slashTrail;*/
@@ -13,13 +14,9 @@ public class Player_AnimationEvents : MonoBehaviour
     void Start()
     {
         action = GetComponentInParent<Player_Action>();
+        attackVFX = GetComponentInParent<Player_AttackVFX>();
         //slashTrail.emitting = false;
         action.currentWeapon?.StopTrail();
-    }
-
-    public void KickEnd()
-    {
-        action.IsKick = false;
     }
 
     public void BuffStart()
@@ -35,6 +32,11 @@ public class Player_AnimationEvents : MonoBehaviour
     public void OnJumpAttackEnd()
     {
         action.IsGrounded = true;
+    }
+
+    public void PlaySlashVFX()
+    {
+        attackVFX?.PlaySlashVFX();
     }
 
     public void AttackStart()
@@ -90,21 +92,5 @@ public class Player_AnimationEvents : MonoBehaviour
     public void OnHitAnimationEnd()
     {
         (action.currentState as PlayerHitState)?.OnHitAnimationEnd(action);
-    }
-
-    public void CameraShakeEvent()
-    {
-        if (Shared.MainCamera != null)
-        {
-            Shared.MainCamera.Shake(0.2f, 3f, 4);
-        }
-    }
-
-    public void CameraShake_Attack()
-    {
-        if (Shared.MainCamera != null)
-        {
-            Shared.MainCamera.Shake(0.1f, 2f, 3);
-        }
     }
 }

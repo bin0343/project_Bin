@@ -52,14 +52,14 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
         }
         else
         {
-            if (Cursor.visible || Cursor.lockState == CursorLockMode.None)
+            /*if (Cursor.visible || Cursor.lockState == CursorLockMode.None)
             {
                 player.move.LookAtMouse();
             }
             else
             {
                 player.move.AlignToCameraForward();
-            }
+            }*/
 
             currentDashDistance = 0f;
         }

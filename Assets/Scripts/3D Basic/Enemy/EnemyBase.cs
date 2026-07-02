@@ -470,6 +470,7 @@ public class EnemyBase : MonoBehaviour
         if (col != null)
         {
             col.isTrigger = false;
+            col.enabled = false;
         }
 
         if (hpBarObject != null)
@@ -498,17 +499,6 @@ public class EnemyBase : MonoBehaviour
                 Debug.LogWarning($"이 몬스터({gameObject.name})의 Enemy_Stat에 EnemyName이 지정되지 않아 퀘스트 카운트가 오르지 않습니다.");
             }
         }
-    }
-    #endregion
-
-    #region Attack Reaction
-    public void OnAttackParried()
-    {
-        Debug.Log("몬스터: 무기가 튕겨나가는 애니메이션 재생!");
-        animator.SetTrigger("IsParried");
-
-        isAttacking = false; // IsAttacking 플래그가 있다면 초기화
-        lastAttackTime = Time.time; // 다음 공격까지 잠시 딜레이를 줌
     }
     #endregion
 

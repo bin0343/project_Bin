@@ -81,6 +81,30 @@ public class Weapon_Player : MonoBehaviour
                         : AttackType.Normal;
 
                     enemyStat.TakeDamage(damage, currentAttackType);
+
+                    if (CameraShakeManager.instance != null)
+                    {
+                        if (currentAttackType == AttackType.Knockback)
+                        {
+                            CameraShakeManager.instance.ShakeKnockbackHit();
+                        }
+                        else
+                        {
+                            CameraShakeManager.instance.ShakeNormalHit();
+                        }
+                    }
+
+                    if (HitVFXManager.instance != null)
+                    {
+                        Vector3 hitPoint = collider.ClosestPoint(center);
+
+                        Vector3 hitDirection = enemyStat.transform.position - modelTransform.position;
+                        hitDirection.y = 0f;
+
+                        bool isCriticalHit = currentAttackType == AttackType.Knockback;
+
+                        HitVFXManager.instance.PlayEnemyHit(hitPoint, hitDirection, isCriticalHit);
+                    }
                 }
             }
         }

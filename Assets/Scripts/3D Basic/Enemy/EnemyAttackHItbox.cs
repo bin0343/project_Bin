@@ -69,6 +69,22 @@ public class EnemyAttackHItbox : MonoBehaviour
 
                     targetStat.TakeDamage(damage);
 
+                    if (HitVFXManager.instance != null)
+                    {
+                        Vector3 hitPoint = collider.ClosestPoint(center);
+
+                        float minHitHeight = targetStat.transform.position.y + 0.9f;
+                        if (hitPoint.y < minHitHeight)
+                        {
+                            hitPoint.y = minHitHeight;
+                        }
+
+                        Vector3 hitDirection = targetStat.transform.position - rootTransform.position;
+                        hitDirection.y = 0f;
+
+                        HitVFXManager.instance.PlayPlayerHit(hitPoint, hitDirection);
+                    }
+
                     Player_Action playerAction = collider.GetComponentInParent<Player_Action>();
                     if (playerAction != null)
                     {
