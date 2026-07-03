@@ -62,6 +62,21 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public bool CanRotate = true;
     [HideInInspector] public bool IsInvincible = false; //무적상태(구르기)
 
+    [Header("극한 회피")]
+    [Tooltip("극한회피 성공 시 느려지는 시간 배율")]
+    public float perfectEvadeTimeScale = 0.25f;
+    [Tooltip("극한회피 슬로우 지속 시간. 실제 시간 기준")]
+    public float perfectEvadeSlowDuration = 0.25f;
+    [Tooltip("극한회피 성공 후 공격 보너스 유지 시간")]
+    public float perfectEvadeBonusDuration = 3.0f;
+    [Tooltip("극한회피 성공 후 공격 보너스 데미지 배율")]
+    public float perfectEvadeAttackMultiplier = 1.5f;
+    [SerializeField] private PerfectDodgeVignette perfectDodgeVignetteUI;
+    [HideInInspector] public bool hasPerfectEvadeAttackBouns;
+    private float perfectEvadeBonusEndUnscaledTime = -999f;
+    private Coroutine perfectEvadeSlowCoroutine;
+    [SerializeField] private PlayerAfterImageEffect afterImageEffect;
+
     public IPlayerState currentState;
     public int currentComboStep { get; private set; }
 
@@ -82,6 +97,10 @@ public class Player_Action : MonoBehaviour
         stat = player.GetComponentInParent<Character_Stat>();
         animEvents = player.GetComponent<Player_AnimationEvents>();
         skillUIManagers = FindObjectOfType<UI_SkillManager>();
+
+        if (perfectDodgeVignetteUI == null) perfectDodgeVignetteUI = FindObjectOfType<PerfectDodgeVignette>(true);
+
+        if (afterImageEffect == null) afterImageEffect = GetComponent<PlayerAfterImageEffect>();
 
         playerSkills = new SkillHolder[assignedSkills.Length];
         for (int i = 0; i < assignedSkills.Length; i++)
@@ -125,6 +144,8 @@ public class Player_Action : MonoBehaviour
         }
        
         if (IsDead) return;
+
+        UpdatePerfectEvadeBonus();
 
         if (UI_Manager.instance != null && UI_Manager.instance.IsUIOpen)
         {
@@ -335,7 +356,7 @@ public class Player_Action : MonoBehaviour
             }
         }
     }
-
+    
     public void SetCurrentWeapon(Weapon_Player newWeapon)
     {
         currentWeapon = newWeapon;
@@ -345,7 +366,79 @@ public class Player_Action : MonoBehaviour
     {
         currentComboStep = step;
     }
-    
+
+    private void UpdatePerfectEvadeBonus()
+    {
+        if (!hasPerfectEvadeAttackBouns) return;
+
+        if (Time.unscaledTime >= perfectEvadeBonusEndUnscaledTime)
+        {
+            hasPerfectEvadeAttackBouns = false;
+        }
+    }
+
+    public bool IsRollingState()
+    {
+        return currentState is PlayerRollState;
+    }
+
+    public void TriggerPerfectEvade()
+    {
+        hasPerfectEvadeAttackBouns = true;
+        perfectEvadeBonusEndUnscaledTime = Time.unscaledTime + perfectEvadeBonusDuration;
+
+        if (perfectEvadeSlowCoroutine != null)
+        {
+            StopCoroutine(perfectEvadeSlowCoroutine);
+            RestoreTimeScale();
+        }
+
+        if (perfectDodgeVignetteUI != null)
+        {
+            perfectDodgeVignetteUI.Play();
+        }
+
+        if (afterImageEffect != null)
+        {
+            afterImageEffect.PlayBurst();
+        }
+
+        perfectEvadeSlowCoroutine = StartCoroutine(PerfectEvadeSlowCoroutine());
+    }
+
+    public float GetPerfectEvadeAttackMultiplier()
+    {
+        UpdatePerfectEvadeBonus();
+
+        if (!hasPerfectEvadeAttackBouns) return 1f;
+
+        return perfectEvadeAttackMultiplier;
+    }
+
+    public void ConsumePerfectEvadeAttackBonus()
+    {
+        hasPerfectEvadeAttackBouns = false;
+    }
+
+    private IEnumerator PerfectEvadeSlowCoroutine()
+    {
+        Time.timeScale = perfectEvadeTimeScale;
+        Time.fixedDeltaTime = 0.02f * perfectEvadeTimeScale;
+
+        yield return new WaitForSecondsRealtime(perfectEvadeSlowDuration);
+
+        RestoreTimeScale();
+
+        perfectEvadeSlowCoroutine = null;
+    }
+
+    private void RestoreTimeScale()
+    {
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+    }
+
+
     public void OnDamageTaken()
     {
         if (IsInvincible) return;

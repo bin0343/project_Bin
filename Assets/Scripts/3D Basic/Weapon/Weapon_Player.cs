@@ -11,12 +11,14 @@ public class Weapon_Player : MonoBehaviour
     [Header("히트 박스 설정")]
     [Tooltip("타격 판정 박스의 크기 (가로, 높이, 깊이)")]
     [SerializeField] private Vector3 hitboxSize = new Vector3(2f, 2f, 2f);
-
     [Tooltip("플레이어 위치 기준 판정 박스의 오프셋")]
     [SerializeField] private Vector3 hitboxOffset = new Vector3(0, 1f, 1.5f);
-
     [Tooltip("적 감지 레이어 마스크")]
     [SerializeField] private LayerMask enemyLayer;
+
+    private bool usePerfectEvadeBonusThisHitbox = false;
+    private bool perfectEvadeBonusHitApplied = false;
+    private float cachedPerfectEvadeDamageMultiplier = 1f;
 
     private bool isHitboxActive = false;
 
@@ -45,11 +47,26 @@ public class Weapon_Player : MonoBehaviour
     {
         isHitboxActive = true;
         hitEnemies.Clear();
+
+        cachedPerfectEvadeDamageMultiplier = 1f;
+        usePerfectEvadeBonusThisHitbox = false;
+        perfectEvadeBonusHitApplied = false;
+
+        if (playerAction != null)
+        {
+            cachedPerfectEvadeDamageMultiplier = playerAction.GetPerfectEvadeAttackMultiplier();
+            usePerfectEvadeBonusThisHitbox = cachedPerfectEvadeDamageMultiplier > 1f;
+        }
     }
 
     public void DisableHitbox()
     {
         isHitboxActive = false;
+
+        if (perfectEvadeBonusHitApplied && playerAction != null)
+        {
+            playerAction.ConsumePerfectEvadeAttackBonus();
+        }
     }
 
     private void PerformAttackCheck()
@@ -75,6 +92,13 @@ public class Weapon_Player : MonoBehaviour
                 if (playerStat != null)
                 {
                     int damage = Mathf.Max(playerStat.attackPower - enemyStat.defensePower, 1);
+
+                    if (usePerfectEvadeBonusThisHitbox)
+                    {
+                        damage = Mathf.RoundToInt(damage * cachedPerfectEvadeDamageMultiplier);
+                        damage = Mathf.Max(damage, 1);
+                        perfectEvadeBonusHitApplied = true;
+                    }
 
                     AttackType currentAttackType = (playerAction.currentComboStep == 3)
                         ? AttackType.Knockback

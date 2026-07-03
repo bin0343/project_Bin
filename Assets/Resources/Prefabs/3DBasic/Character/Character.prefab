@@ -1854,6 +1854,7 @@ GameObject:
   - component: {fileID: 367463570587945949}
   - component: {fileID: 6675883505787172727}
   - component: {fileID: 2416729583197961797}
+  - component: {fileID: 7653148764732854792}
   - component: {fileID: 3050126407679256677}
   - component: {fileID: 2177487352792341080}
   m_Layer: 3
@@ -2049,6 +2050,13 @@ MonoBehaviour:
   canReceiveInput: 1
   CanRotate: 1
   IsInvincible: 0
+  perfectEvadeTimeScale: 0.25
+  perfectEvadeSlowDuration: 0.35
+  perfectEvadeBonusDuration: 3
+  perfectEvadeAttackMultiplier: 1.5
+  perfectDodgeVignetteUI: {fileID: 0}
+  hasPerfectEvadeAttackBouns: 0
+  afterImageEffect: {fileID: 0}
 --- !u!114 &367463570587945949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2122,6 +2130,26 @@ MonoBehaviour:
     scale: {x: 1, y: 1, z: 1}
     destroyTime: 1
     parentToSpawnPoint: 0
+--- !u!114 &7653148764732854792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5895738226672795899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f80b021fc9301cd46945d8d637d8a5df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  modelRoot: {fileID: 7824089770105362860}
+  afterImageMaterial: {fileID: 2100000, guid: 440ecb7e920f413488697954db8241d7, type: 2}
+  startColor: {r: 0.7075472, g: 0.7075472, b: 0.7075472, a: 0.36078432}
+  spawnCount: 5
+  spawnInterval: 0.1
+  lifeTime: 0.35
+  useSourceMeshScale: 1
+  disableShadow: 1
 --- !u!136 &3050126407679256677
 CapsuleCollider:
   m_ObjectHideFlags: 0

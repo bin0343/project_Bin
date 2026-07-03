@@ -5,43 +5,73 @@ using UnityEngine;
 public class PlayerRollState : PlayerBaseState
 {
     private float rollTimer;
-    private float rollDuration = 1.167f;
-    private float rollSpeed = 7f;      // 구르기 이동 속도 (수치 조절 필요)
-    private Vector3 rollDirection;
 
-    private bool isAttackBuffered = false; //선입력
+    [Header("하이브리드 대시 기획 수치 조절")]
+    private float maxRollSpeed = 12f;       // 내가 원하는 대시 순간 속도
+    private float dashLoopDuration;
+
+    private Vector3 dashDirection;
+    private bool isAttackBuffered = false;
+
+    public static int consecutiveDashCount = 0; // 현재 연속 대시 횟수 추적
+    public static float cooldownEndTime = 0f;    // 쿨타임이 종료되는 절대 시간 타임스탬프
+    public static float lastDashEndTime = 0f;    // 직전 대시가 완전히 끝난 절대 시간
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStaticDashVariables()
+    {
+        consecutiveDashCount = 0;
+        cooldownEndTime = 0f;
+        lastDashEndTime = 0f;
+    }
+
+    private bool isDashBuffered = false;         // 현재 대시 중 Shift 선입력 버퍼
+
+    public static bool CanDash => Time.time >= cooldownEndTime;
 
     protected override PlayerAnimState GetAnimState() => PlayerAnimState.Roll;
 
     public override void Enter(Player_Action player)
     {
-        Debug.Log("상태 진입 : Roll");
-        base.Enter(player);
+        if (!CanDash)
+        {
+            player.ChangeState(new PlayerIdleState());
+            return;
+        }
+
+        if (Time.time - lastDashEndTime > 0.5f)
+        {
+            consecutiveDashCount = 0;
+        }
+
+        consecutiveDashCount++;
 
         PlayerAttackState.ResetCombo();
-
         player.IsInvincible = true;
         rollTimer = 0f;
-
         isAttackBuffered = false;
+        isDashBuffered = false; // 선입력 버퍼 리셋
 
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         if (moveInput.magnitude > 0.01f)
         {
-            // 움직임 입력이 있다면 카메라가 바라보는 방향을 기준으로 굴러갈 방향 계산
             Transform camTransform = Camera.main.transform;
             Vector3 lookForward = new Vector3(camTransform.forward.x, 0f, camTransform.forward.z).normalized;
             Vector3 lookRight = new Vector3(camTransform.right.x, 0f, camTransform.right.z).normalized;
-
-            rollDirection = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
-
-            player.move.CharacterBody.rotation = Quaternion.LookRotation(rollDirection);
+            dashDirection = (lookForward * moveInput.y + lookRight * moveInput.x).normalized;
+            player.move.CharacterBody.rotation = Quaternion.LookRotation(dashDirection);
         }
         else
         {
-            // 가만히 서있다가 구르면 캐릭터가 현재 바라보는 정면 방향으로 구릅니다.
-            rollDirection = player.move.CharacterBody.forward;
+            dashDirection = player.move.CharacterBody.forward;
         }
+
+        maxRollSpeed = 12f;
+        dashLoopDuration = 0.35f;
+
+        base.Enter(player);
+
+        player.animator.CrossFadeInFixedTime("Avoid_Dash", 0.1f);
     }
 
     public override void Execute(Player_Action player)
@@ -53,12 +83,45 @@ public class PlayerRollState : PlayerBaseState
             isAttackBuffered = true;
         }
 
-        player.move.ForceMove(rollDirection, rollSpeed);
-
-        if (rollTimer >= rollDuration)
+        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetMouseButtonDown(1)) && rollTimer > 0.05f)
         {
-            // 구르기 종료 시 미끄러짐 방지를 위해 x, z 속도를 0으로 잡아줍니다.
+            isDashBuffered = true;
+        }
+
+        AnimatorStateInfo stateInfo = player.animator.GetCurrentAnimatorStateInfo(0);
+        if (rollTimer > 0.1f && (stateInfo.IsName("Avoid_Dash") || stateInfo.IsName("Avoid_Dashing")))
+        {
+            if (player.animator.GetInteger("ActionState") == 14)
+            {
+                player.animator.SetInteger("ActionState", -1);
+            }
+        }
+
+        if (rollTimer < dashLoopDuration)
+        {
+            player.move.ForceMove(dashDirection, maxRollSpeed);
+        }
+        else
+        {
             player.rigidbody.velocity = new Vector3(0, player.rigidbody.velocity.y, 0);
+            lastDashEndTime = Time.time; 
+
+            if (consecutiveDashCount >= 2)
+            {
+                cooldownEndTime = Time.time + 1.5f; // 1.5초 ~ 2.0초 중 원하는 내부 쿨타임 지정
+                consecutiveDashCount = 0;
+                isDashBuffered = false; 
+            }
+
+            if (isDashBuffered && CanDash)
+            {
+                isDashBuffered = false;
+                if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
+                {
+                    player.ChangeState(new PlayerRollState());
+                    return;
+                }
+            }
 
             if (isAttackBuffered)
             {
@@ -67,16 +130,10 @@ public class PlayerRollState : PlayerBaseState
             }
 
             Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-
-            // 움직임 입력이 있으면 Move, 없으면 Idle로 복귀
             if (moveInput.magnitude > 0.01f)
-            {
                 player.ChangeState(new PlayerMoveState());
-            }
             else
-            {
                 player.ChangeState(new PlayerIdleState());
-            }
         }
     }
 

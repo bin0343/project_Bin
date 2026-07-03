@@ -21,7 +21,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void Execute(Player_Action player)
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsGrounded && !player.IsPointerOverUI())
+        if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetMouseButtonDown(1)) && player.IsGrounded && !player.IsPointerOverUI())
         {
             if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
             {

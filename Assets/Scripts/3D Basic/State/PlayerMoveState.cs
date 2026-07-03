@@ -20,7 +20,7 @@ public class PlayerMoveState : PlayerBaseState
         Vector2 moveInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         bool isMoving = moveInput.magnitude > 0;
         bool jumpInput = Input.GetButtonDown("Jump");
-        bool rollInput = Input.GetKeyDown(KeyCode.LeftShift);
+        bool rollInput = Input.GetKeyDown(KeyCode.LeftShift) || Input.GetMouseButtonDown(1);
         bool attackInput = Input.GetMouseButtonDown(0) && !player.IsPointerOverUI();
 
         if (!isMoving)
@@ -29,7 +29,7 @@ public class PlayerMoveState : PlayerBaseState
 
             if (exitTimer >= changeTimer)
             {
-                player.ChangeState(new PlayerIdleState());
+                player.ChangeState(new PlayerStopState());
                 return;
             }
             
@@ -38,15 +38,11 @@ public class PlayerMoveState : PlayerBaseState
         {
             exitTimer = 0f;
 
-            if(rollInput && player.IsGrounded)
+            if (rollInput && player.IsGrounded && PlayerRollState.CanDash)
             {
                 if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
                 {
                     player.ChangeState(new PlayerRollState());
-                }
-                else
-                {
-                    Debug.Log("스태미나가 부족해서 구를 수 없습니다!");
                 }
                 return;
             }
