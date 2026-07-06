@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca4a40178fe95ad4b9d894fac50ef6f4, type: 3}
+  m_Name: Holy Sword
+  m_EditorClassIdentifier: 
+  skillName: 
+  skillType: 1
+  skillIcon: {fileID: 21300006, guid: a75445bb16444f14f96fdf9c734945cc, type: 3}
+  animTriggerName: AttackSkill
+  cooldownTime: 5
+  duration: 2
+  castTime: 2.95
+  damageAmount: 40
+  hitboxSize: {x: 6, y: 3, z: 6}
+  spawnOffset: {x: 0, y: 0, z: 2}
+  damageDelay: 0.1
+  effectPrefab: {fileID: 5222750351268202474, guid: 471430dca40f907499aac08fe5b5bb09, type: 3}
+  useCameraShake: 1
+  shakeAmplitude: 3
+  shakeFrequency: 20
+  shakeDuration: 0.5

@@ -33,6 +33,9 @@ public class PlayerRollState : PlayerBaseState
 
     public override void Enter(Player_Action player)
     {
+        player.currentWeapon?.ForceStopTrail();
+        player.IsAttacking = false;
+
         if (!CanDash)
         {
             player.ChangeState(new PlayerIdleState());
@@ -140,6 +143,5 @@ public class PlayerRollState : PlayerBaseState
     public override void Exit(Player_Action player)
     {
         player.IsInvincible = false;
-        Debug.Log("ªÛ≈¬ ¿Ã≈ª : Roll");
     }
 }

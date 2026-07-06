@@ -21,6 +21,11 @@ public class DamageTextSpawner : MonoBehaviour
 
     public void SpawnDamageText(int damage, Vector3 position, Quaternion rotation, Canvas parentCanvas)
     {
+        SpawnDamageText(damage, position, rotation, parentCanvas, false);
+    }
+
+    public void SpawnDamageText(int damage, Vector3 position, Quaternion rotation, Canvas parentCanvas, bool isPerfectEvadeBonus)
+    {
         if (damageTextPrefab == null || parentCanvas == null)
         {
             Debug.LogError("DamageTextPrefab 또는 ParentCanvas가 null입니다.");
@@ -32,7 +37,7 @@ public class DamageTextSpawner : MonoBehaviour
         DamageText dmgText = textObject.GetComponent<DamageText>();
         if (dmgText != null)
         {
-            dmgText.SetDamage(damage);
+            dmgText.SetDamage(damage, isPerfectEvadeBonus);
         }
 
         textObject.transform.position = position;

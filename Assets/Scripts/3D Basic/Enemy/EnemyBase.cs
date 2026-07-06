@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Unity.VisualScripting;
 
 public enum ENEMYSTATE
 {
@@ -48,16 +49,27 @@ public class EnemyBase : MonoBehaviour
     public Transform target;
     public float searchRange = 10f;
     public float attackRange = 3f;
-    private float attackDelay = 1.0f;
-    private float lastAttackTime = 0f;
+    [SerializeField] private float battleExitRange = 0.5f;
     private float stunDuration = 1.5f;
     private float stunTimer = 0f;
     private bool hasAggro = false;  // 어그로 여부
+
+    [Header("AI 공격 타이밍")]
+    [SerializeField] private float attackDelay = 1.0f;
+    [SerializeField] private float attackAnimationTime = 2.2f;
+    private float nextAttackReadyTime = 0f;
+
+    [Header("AI 스턴, 공격 우선순위")]
+    [Tooltip("공격 모션이 시작된 경우 스턴 무시")]
+    [SerializeField] private bool ignoreStunWhileAttacking = true;
+    [Tooltip("공격 쿨타임 끝나면 스턴 무시")]
+    [SerializeField] private bool ignoreStunWhenAttackReady = true;
 
     private NavMeshAgent navAgent;
     private Enemy_Stat stat;
     [SerializeField] public TrailRenderer slashTrail;
     private Player_Action playerAction;
+    private Enemy_AnimationEvent animationEvent;
     private MonsterSpawner mySpawner;
 
     public ItemDrop itemDropper;
@@ -98,6 +110,7 @@ public class EnemyBase : MonoBehaviour
         stat = GetComponentInParent<Enemy_Stat>();
         itemDropper = GetComponent<ItemDrop>();
         slashTrail = GetComponentInChildren<TrailRenderer>();
+        animationEvent = GetComponentInChildren<Enemy_AnimationEvent>();
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
@@ -262,6 +275,13 @@ public class EnemyBase : MonoBehaviour
             }
         }
 
+        if (distance <= attackRange)
+        {
+            StopMoveForBattle();
+            currentState = ENEMYSTATE.BATTLE;
+            return;
+        }
+
         if (navAgent != null && navAgent.enabled && navAgent.isOnNavMesh)
         {
             navAgent.isStopped = false;
@@ -271,12 +291,6 @@ public class EnemyBase : MonoBehaviour
 
         animator.SetBool("IsIdle", false);
         animator.SetBool("IsMoving", true);
-
-        if (distance <= attackRange)
-        {
-            currentState = ENEMYSTATE.BATTLE;
-            return;
-        }
     }
 
     private void Investigate()
@@ -340,6 +354,18 @@ public class EnemyBase : MonoBehaviour
             }
         }
     }
+
+    private void StopMoveForBattle()
+    {
+        if (navAgent != null && navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = true;
+            navAgent.ResetPath();
+        }
+
+        animator.SetBool("IsMoving", false);
+        animator.SetBool("IsIdle", true);
+    }
     #endregion
 
     #region Battle
@@ -356,12 +382,23 @@ public class EnemyBase : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, target.position);
 
-        if (distance >= attackRange)
+        if (distance > attackRange + battleExitRange)
         {
             isPerformingAction = false;
             currentState = ENEMYSTATE.SEARCH;
+            currentSearchPhase = SearchPhase.Chasing;
             return;
         }
+
+        if (navAgent != null && navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = true;
+            navAgent.ResetPath();
+        }
+
+        animator.SetBool("IsMoving", false);
+        animator.SetBool("IsIdle", true);
+
         transform.LookAt(target.position);
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
@@ -374,10 +411,6 @@ public class EnemyBase : MonoBehaviour
             navAgent.ResetPath();
             return;
         }
-
-        animator.SetBool("IsMoving", false);
-
-        if (isPerformingAction) return;
 
         ChooseNextAction();
         ExecuteAction();
@@ -394,12 +427,12 @@ public class EnemyBase : MonoBehaviour
             var npcStat = targetObj.GetComponent<Character_Stat>();
             return npcStat != null && npcStat.currentHP <= 0;
         }
-        return true; 
+        return true;
     }
 
     private void ChooseNextAction()
     {
-        if (Time.time >= lastAttackTime + attackDelay)
+        if (CanStartAttackNow())
         {
             currentBattleAction = BattleAction.Attacking;
             return;
@@ -423,10 +456,16 @@ public class EnemyBase : MonoBehaviour
     IEnumerator AttackCoroutine()
     {
         isPerformingAction = true;
+        isAttacking = false;
+        nextAttackReadyTime = float.PositiveInfinity;
         animator.SetTrigger("IsAttack");
-        lastAttackTime = Time.time;
-        yield return new WaitForSeconds(2.2f);
+        yield return new WaitForSeconds(attackAnimationTime);
+
+        if (animationEvent != null) animationEvent.ForceEndAttack();
         isPerformingAction = false;
+        isAttacking = false;
+
+        nextAttackReadyTime = Time.time + attackDelay;
     }
 
     #endregion
@@ -436,12 +475,14 @@ public class EnemyBase : MonoBehaviour
     {
         if (isDead) return;
 
+        if (animationEvent != null) animationEvent.ForceEndAttack();
+
         transform.DOKill();
 
         isDead = true;
-        
-        currentState = ENEMYSTATE.DEAD; // 상태를 DEAD로 전환
-        animator.SetTrigger("IsDie");   // 사망 애니메이션 재생
+
+        currentState = ENEMYSTATE.DEAD;
+        animator.SetTrigger("IsDie");
 
         if (dissolveEffect != null)
         {
@@ -457,9 +498,9 @@ public class EnemyBase : MonoBehaviour
             navAgent.isStopped = true;
             navAgent.ResetPath();
         }
-        navAgent.enabled = false; 
+        navAgent.enabled = false;
 
-        gameObject.tag = "Corpse"; // 태그 변경
+        gameObject.tag = "Corpse";
 
         if (itemDropper != null)
         {
@@ -503,17 +544,27 @@ public class EnemyBase : MonoBehaviour
     #endregion
 
     #region Stun
-    public void EnterStunState(float duration)
+    public bool EnterStunState(float duration)
     {
         // 이미 스턴 중이거나 죽었다면 중복 실행 방지
-        if (isDead) return;
+        if (isDead) return false;
+
+        if (ShouldIgnoreHitStun())
+        {
+            if (currentState == ENEMYSTATE.STUN && !isPerformingAction && !isAttacking)
+            {
+                ExitStunToCombatState();
+            }
+
+            return false;
+        }
 
         if (currentState == ENEMYSTATE.STUN)
         {
             stunTimer = 0f;
-            animator.Play("Stun", 0, 0f); // 애니메이션을 처음부터 다시 재생하여 경직 효과를 명확히 보여줌
+            animator.Play("Stun", 0, 0f);
             Debug.Log("스턴 갱신!");
-            return;
+            return true;
         }
 
         transform.DOKill();
@@ -522,47 +573,94 @@ public class EnemyBase : MonoBehaviour
         stunDuration = duration;
         stunTimer = 0f; // 타이머 초기화
 
-        // 현재 하던 모든 행동을 즉시 중단
         isPerformingAction = false;
+        if (animationEvent != null) animationEvent.ForceEndAttack();
         StopAllCoroutines();
-        //GetComponentInChildren<Weapon_EnemyDefense>(true)?.SetActiveDefense(false);
-        if (navAgent.isOnNavMesh) navAgent.isStopped = true;
+        if (navAgent != null && navAgent.enabled && navAgent.isOnNavMesh) navAgent.isStopped = true;
 
         animator.SetTrigger("IsStun");
         Debug.Log("STUN 상태 진입: " + duration + "초 동안 행동 불가");
+        return true;
+    }
+
+    private bool IsAttackCooldownReady()
+    {
+        return Time.time >= nextAttackReadyTime;
+    }
+
+    private bool IsTargetInAttackRange()
+    {
+        if (target == null) return false;
+        return Vector3.Distance(transform.position, target.position) <= attackRange;
+    }
+
+    private bool CanStartAttackNow()
+    {
+        return IsAttackCooldownReady() && IsTargetInAttackRange();
+    }
+
+    private bool ShouldIgnoreHitStun()
+    {
+        if (isDead) return true;
+
+        if (ignoreStunWhileAttacking && (isPerformingAction || isAttacking))
+        {
+            return true;
+        }
+
+        if (ignoreStunWhenAttackReady && CanStartAttackNow())
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void ExitStunToCombatState()
+    {
+        stunTimer = 0f;
+
+        if (navAgent != null && navAgent.enabled && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = false;
+        }
+
+        if (target == null)
+        {
+            currentState = ENEMYSTATE.IDLE;
+            return;
+        }
+
+        float distance = Vector3.Distance(transform.position, target.position);
+
+        if (distance <= attackRange)
+        {
+            currentState = ENEMYSTATE.BATTLE;
+        }
+        else
+        {
+            currentState = ENEMYSTATE.SEARCH;
+            currentSearchPhase = SearchPhase.Chasing;
+        }
     }
 
     protected virtual void StunStateLogic()
     {
+        if (ignoreStunWhenAttackReady && CanStartAttackNow())
+        {
+            ExitStunToCombatState();
+            return;
+        }
+
         stunTimer += Time.deltaTime;
         if (stunTimer >= stunDuration)
         {
-            stunTimer = 0f;
-            if (navAgent.enabled && navAgent.isOnNavMesh) navAgent.isStopped = false;
-
-            // --- 여기가 핵심! 스턴이 풀렸을 때 타겟이 있는지 먼저 확인합니다. ---
-            if (target != null)
-            {
-                // 타겟이 있다면: 기존 로직대로 거리를 재서 BATTLE 또는 SEARCH로 전환
-                float distance = Vector3.Distance(transform.position, target.position);
-                if (distance <= attackRange)
-                {
-                    currentState = ENEMYSTATE.BATTLE;
-                }
-                else
-                {
-                    currentState = ENEMYSTATE.SEARCH;
-                    // 스턴에서 풀린 후 바로 추격할 수 있도록 하위 상태를 Chasing으로 설정
-                    currentSearchPhase = SearchPhase.Chasing;
-                }
-            }
-            else
-            {
-                // 타겟이 없다면: IDLE 상태로 돌아가서 다시 주변을 탐색 시작
-                currentState = ENEMYSTATE.IDLE;
-            }
+            ExitStunToCombatState();
         }
     }
+
+
+
     #endregion
 
     protected virtual void SetRandomMoveTarget()

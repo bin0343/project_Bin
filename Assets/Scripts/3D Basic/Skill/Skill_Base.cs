@@ -19,23 +19,12 @@ public abstract class Skill_Base : ScriptableObject
 
     public void ApplySkillEffects(GameObject user)
     {
-        TriggerAnimation(user);
         ApplyEffect(user, user.transform.position + user.transform.forward);
     }
 
     public void ApplySkillEffects(GameObject user, Vector3 targetPosition)
     {
-        TriggerAnimation(user);
         ApplyEffect(user, targetPosition);
-    }
-
-    private void TriggerAnimation(GameObject user)
-    {
-        Animator anim = user.GetComponentInChildren<Animator>();
-        if (anim != null && !string.IsNullOrEmpty(animTriggerName))
-        {
-            anim.SetTrigger(animTriggerName);
-        }
     }
 
     protected abstract void ApplyEffect(GameObject user, Vector3 targetPosition);

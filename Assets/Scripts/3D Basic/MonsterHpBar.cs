@@ -25,7 +25,6 @@ public class MonsterHpBar : MonoBehaviour
         if (target != null)
         {
             transform.position = target.position + offset;
-            /*transform.rotation = cam.transform.rotation; // 카메라 완전 정면*/
             if (cam == null || !cam.gameObject.activeInHierarchy)
             {
                 cam = Camera.main;
@@ -33,20 +32,13 @@ public class MonsterHpBar : MonoBehaviour
 
             if (cam != null)
             {
-                // [옵션 1] 롤/로아 스타일 (가장 추천)
-                // 카메라가 쿼터뷰로 위에서 내려다봐도, HP바는 찌그러지지 않고 화면에 평면으로 보이게 함
                 transform.rotation = cam.transform.rotation;
-
-                // [옵션 2] 수직으로 세우기 (원하신다면 주석 풀고 사용)
-                // 카메라를 바라보긴 하는데, 뒤로 눕지 않고 땅에 수직으로 서있는 표지판처럼 만듦
-                // transform.LookAt(transform.position + cam.transform.rotation * Vector3.forward, Vector3.up);
             }
         }
     }
 
     public void Setup(Enemy_Stat stat)
     {
-        //stat = stat;
         hpBarFront.fillAmount = (float)stat.currentHP / stat.maxHP;
     }
 

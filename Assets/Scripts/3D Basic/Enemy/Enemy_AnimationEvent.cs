@@ -5,10 +5,12 @@ using UnityEngine;
 public class Enemy_AnimationEvent : MonoBehaviour
 {
     private EnemyBase enemy;
+    private EnemyAttackHItbox attackHItbox;
 
     private void Awake()
     {
         enemy = GetComponentInParent<EnemyBase>();
+        attackHItbox = GetComponent<EnemyAttackHItbox>();
     }
 
     public void StartAttackTrail()
@@ -25,11 +27,25 @@ public class Enemy_AnimationEvent : MonoBehaviour
 
     public void StartAttack()
     {
-        enemy.isAttacking = true;
+        if (enemy != null)
+            enemy.isAttacking = true;
+
+        if (attackHItbox != null)
+            attackHItbox.EnableHitbox();
     }
 
     public void EndAttack()
     {
-        enemy.isAttacking = false;
+        if (enemy != null)
+            enemy.isAttacking = false;
+
+        if (attackHItbox != null)
+            attackHItbox.DisableHitbox();
+    }
+
+    public void ForceEndAttack()
+    {
+        EndAttack();
+        EndAttackTrail();
     }
 }

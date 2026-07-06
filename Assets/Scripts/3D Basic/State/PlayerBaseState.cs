@@ -66,18 +66,6 @@ public abstract class PlayerBaseState : IPlayerState
             float speed = player.move.GetAdjustedSpeed(moveInput) * speedModifier;
             player.move.HandleMovement(moveInput, speed);
             player.move.HandleRotation();
-
-            /*player.animator.SetFloat("Horizontal", moveInput.x);
-            player.animator.SetFloat("Vertical", moveInput.y);*/
         }
-
-        // 3. 달리기/걷기 애니메이션 상태 전환
-        /*PlayerAnimState expectedAnimState = Input.GetKey(KeyCode.LeftShift) ? PlayerAnimState.Run : PlayerAnimState.Walk;
-        if (player.animator.GetInteger("ActionState") != (int)expectedAnimState)
-        {
-            if (player.currentState is PlayerMoveState)
-            player.animator.SetInteger("ActionState", (int)expectedAnimState);
-        }*/
-
     }
 }

@@ -21,17 +21,18 @@ public class Player_AnimationEvents : MonoBehaviour
 
     public void BuffStart()
     {
+        if (action == null)
+        {
+            action = GetComponentInParent<Player_Action>();
+        }
+
         action.IsBuff = true;
+        action.ExecuteSkillEffectEvent();
     }
 
     public void BuffEnd()
     {
         action.IsBuff = false;
-    }
-
-    public void OnJumpAttackEnd()
-    {
-        action.IsGrounded = true;
     }
 
     public void PlaySlashVFX()
@@ -92,5 +93,15 @@ public class Player_AnimationEvents : MonoBehaviour
     public void OnHitAnimationEnd()
     {
         (action.currentState as PlayerHitState)?.OnHitAnimationEnd(action);
+    }
+
+    public void SkillEffectEvent()
+    {
+        if (action == null)
+        {
+            action = GetComponentInParent<Player_Action>();
+        }
+
+        action.ExecuteSkillEffectEvent();
     }
 }

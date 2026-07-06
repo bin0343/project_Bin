@@ -212,7 +212,7 @@ public class Player_Action : MonoBehaviour
     {
         if (newstate is PlayerHitState || newstate is PlayerIdleState || newstate is PlayerDeadState || newstate is PlayerRollState)
         {
-            currentWeapon?.StopTrail();
+            currentWeapon?.ForceStopTrail();
             currentWeapon?.DisableHitbox();
             IsAttacking = false;
         }
@@ -315,11 +315,16 @@ public class Player_Action : MonoBehaviour
 
     public void ExecuteSkillEffectEvent()
     {
-        if (activeCastingSkill != null)
+        if (activeCastingSkill == null)
         {
-            activeCastingSkill.SkillData.ApplySkillEffects(gameObject);
-            activeCastingSkill = null;
+            Debug.LogWarning("[Skill] activeCastingSkill이 null입니다. 스킬 효과 실행 실패");
+            return;
         }
+
+        Debug.Log("[Skill] 스킬 효과 실행: " + activeCastingSkill.SkillData.skillName);
+
+        activeCastingSkill.Use(gameObject);
+        activeCastingSkill = null;
     }
 
     private void TryPickUpNearbyItems()

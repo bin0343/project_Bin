@@ -13,7 +13,6 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void Enter(Player_Action player)
     {
-        Debug.Log("상태 진입 : Jump");
         base.Enter(player);
 
         player.ForceJumpAirborne();
@@ -51,6 +50,5 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void Exit(Player_Action player)
     {
-        Debug.Log("상태 이탈 : Jump");
     }
 }

@@ -9,7 +9,6 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void Enter(Player_Action player)
     {
-        Debug.Log("상태 진입 : Idle");
         base.Enter(player);
 
         PlayerAttackState.ResetCombo();
@@ -27,10 +26,7 @@ public class PlayerIdleState : PlayerBaseState
             {
                 player.ChangeState(new PlayerRollState());
             }
-            else
-            {
-                Debug.Log("스태미나가 부족해서 구를 수 없습니다!");
-            }
+            
             return;
         }
 
@@ -62,7 +58,6 @@ public class PlayerIdleState : PlayerBaseState
     public override void Exit(Player_Action player)
     {
         player.animator.SetInteger("RandomIdleIndex", 0);
-        Debug.Log("상태 이탈 : Idle");
     }
 
     public void HandleRandomIdle(Player_Action player)

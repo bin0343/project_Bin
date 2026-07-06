@@ -17,6 +17,12 @@ public class Skill_InstantAttack : Skill_Base
     [Tooltip("SkillEffectEntity 컴포넌트가 포함된 순수 파티클 프리팹")]
     public GameObject effectPrefab;
 
+    [Header("카메라 흔들림")]
+    [SerializeField] private bool useCameraShake = true;
+    [SerializeField] private float shakeAmplitude = 1.0f;
+    [SerializeField] private float shakeFrequency = 15f;
+    [SerializeField] private float shakeDuration = 0.12f;
+
     protected override void ApplyEffect(GameObject user, Vector3 targetPosition)
     {
         if (effectPrefab == null) return;
@@ -25,6 +31,11 @@ public class Skill_InstantAttack : Skill_Base
         Vector3 spawnPos = modelTransform.position + modelTransform.TransformDirection(spawnOffset);
 
         GameObject skillGo = Instantiate(effectPrefab, spawnPos, modelTransform.rotation);
+
+        if (useCameraShake && CameraShakeManager.instance != null)
+        {
+            CameraShakeManager.instance.Shake(shakeAmplitude, shakeFrequency, shakeDuration);
+        }
 
         SkillEffectEntity entity = skillGo.GetComponent<SkillEffectEntity>();
         if (entity == null) entity = skillGo.AddComponent<SkillEffectEntity>();

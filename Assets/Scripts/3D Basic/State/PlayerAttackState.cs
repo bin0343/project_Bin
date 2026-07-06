@@ -156,6 +156,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
     {
         player.CanRotate = true;
         player.animEvents?.EndAttackTrail();
+        player.currentWeapon?.ForceStopTrail();
         player.canReceiveInput = false;
         player.IsAttacking = false;
 

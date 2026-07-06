@@ -1849,6 +1849,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7824089770105362860}
+  - component: {fileID: 3288458148647318553}
   - component: {fileID: 3599926761963137994}
   - component: {fileID: 6854339425477246251}
   - component: {fileID: 367463570587945949}
@@ -1883,6 +1884,23 @@ Transform:
   - {fileID: 3137543094438671382}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0.491, z: 0}
+--- !u!114 &3288458148647318553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5895738226672795899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e7565c47815aa84c95c8408855555c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  modelAnimator: {fileID: 1948474105030964819}
+  skill: {fileID: 11400000, guid: 711409ad1fc50c74e91d3e6fffb9c553, type: 2}
+  drawGizmo: 1
+  gizmoColor: {r: 1, g: 0, b: 0, a: 0.25}
+  wireColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &3599926761963137994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1922,7 +1940,7 @@ MonoBehaviour:
   move: {fileID: 0}
   assignedSkills:
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 711409ad1fc50c74e91d3e6fffb9c553, type: 2}
   stat: {fileID: 0}
   skillUIManagers: {fileID: 0}
   attackMoveCurves:

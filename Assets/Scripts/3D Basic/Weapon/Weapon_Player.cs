@@ -67,6 +67,10 @@ public class Weapon_Player : MonoBehaviour
         {
             playerAction.ConsumePerfectEvadeAttackBonus();
         }
+
+        usePerfectEvadeBonusThisHitbox = false;
+        perfectEvadeBonusHitApplied = false;
+        cachedPerfectEvadeDamageMultiplier = 1f;
     }
 
     private void PerformAttackCheck()
@@ -93,7 +97,9 @@ public class Weapon_Player : MonoBehaviour
                 {
                     int damage = Mathf.Max(playerStat.attackPower - enemyStat.defensePower, 1);
 
-                    if (usePerfectEvadeBonusThisHitbox)
+                    bool isPerfectEvadeBouns = usePerfectEvadeBonusThisHitbox;
+
+                    if (isPerfectEvadeBouns)
                     {
                         damage = Mathf.RoundToInt(damage * cachedPerfectEvadeDamageMultiplier);
                         damage = Mathf.Max(damage, 1);
@@ -104,7 +110,7 @@ public class Weapon_Player : MonoBehaviour
                         ? AttackType.Knockback
                         : AttackType.Normal;
 
-                    enemyStat.TakeDamage(damage, currentAttackType);
+                    enemyStat.TakeDamage(damage, currentAttackType, isPerfectEvadeBouns);
 
                     if (CameraShakeManager.instance != null)
                     {

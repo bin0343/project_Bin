@@ -51,9 +51,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d17b74c3fc8f89f42995180405399985, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  moveSpeed: 1.5
   alphaSpeed: 1.5
   destroyTime: 1.5
+  perfectEvadeColor: {r: 0, g: 1, b: 0.991797, a: 1}
+  perfectEvadeSizeMulitplier: 1.5
+  useBoldItalic: 1
 --- !u!222 &3433409181245167968
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -109,4 +112,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
-  m_VerticalFit: 0
+  m_VerticalFit: 2

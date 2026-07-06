@@ -1,3 +1,4 @@
+using ExitGames.Client.Photon.StructWrapping;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,11 +30,13 @@ public class Enemy_Stat : MonoBehaviour
     private Canvas myCanvas;
 
     public Vector3 damageTextOffset = new Vector3(0, 2.5f, 0);
+    [SerializeField] private float damageTextCameraForwardOffset = 0.45f;
+    [SerializeField] private bool useColliderDamageTextPosition = true;
 
     private EnemyBase enemyBase;
     private Animator animator;
-
     private Enemy_AnimationEvent enemyAnimation;
+    private Collider enemyCollider;
 
     void Start()
     {
@@ -45,10 +48,16 @@ public class Enemy_Stat : MonoBehaviour
         enemyBase = GetComponent<EnemyBase>();
         animator = GetComponentInChildren<Animator>();
         enemyAnimation = GetComponentInChildren<Enemy_AnimationEvent>();
+        enemyCollider = GetComponent<Collider>();
         currentHP = maxHP;
     }
 
     public void TakeDamage(int damage, AttackType type)
+    {
+        TakeDamage(damage, type, false);
+    }
+
+    public void TakeDamage(int damage, AttackType type, bool isPerfectEvadeBonus)
     {
         if (enemyBase.isDead) return;
 
@@ -58,10 +67,10 @@ public class Enemy_Stat : MonoBehaviour
         
         if (DamageTextSpawner.instance != null)
         {
-            Quaternion textRotation = Camera.main.transform.rotation;
-            Vector3 spawnPosition = transform.position + damageTextOffset;
+            Quaternion textRotation = Camera.main != null ? Camera.main.transform.rotation : Quaternion.identity;
+            Vector3 spawnPosition = GetDamageTextSpawnPosition();
 
-            DamageTextSpawner.instance.SpawnDamageText(damage, spawnPosition, textRotation, myCanvas);
+            DamageTextSpawner.instance.SpawnDamageText(damage, spawnPosition, textRotation, myCanvas, isPerfectEvadeBonus);
         }
 
         if (hpBar != null)
@@ -84,12 +93,35 @@ public class Enemy_Stat : MonoBehaviour
                 enemyBase.EnterStunState(1.5f);
                 break;
             case AttackType.Knockback:
-                enemyBase.EnterStunState(1.5f);
-                enemyBase.ApplyKnockback();
+                if (enemyBase.EnterStunState(1.5f))
+                {
+                    enemyBase.ApplyKnockback();
+                }
                 break;
-                // AttackType.None 이나 default는 아무 효과 없음
+        }
+    }
+
+    private Vector3 GetDamageTextSpawnPosition()
+    {
+        Vector3 basePosition = transform.position + damageTextOffset;
+
+        if (useColliderDamageTextPosition && enemyCollider != null)
+        {
+            Bounds bounds = enemyCollider.bounds;
+            basePosition = bounds.center;
+            basePosition.y = bounds.max.y + damageTextOffset.y;
         }
 
-        
+        if (Camera.main == null) return basePosition;
+
+        Vector3 cameraSideDirection = Camera.main.transform.position - transform.position;
+        cameraSideDirection.y = 0f;
+
+        if (cameraSideDirection.sqrMagnitude < 0.001f)
+            cameraSideDirection = -Camera.main.transform.forward;
+
+        cameraSideDirection.Normalize();
+
+        return basePosition + cameraSideDirection * damageTextCameraForwardOffset;
     }
 }

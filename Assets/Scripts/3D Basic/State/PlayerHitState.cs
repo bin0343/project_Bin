@@ -11,7 +11,6 @@ public class PlayerHitState : PlayerBaseState
 
     public override void Enter(Player_Action player)
     {
-        Debug.Log("상태 진입: Hit");
         base.Enter(player);
     }
 
@@ -21,7 +20,6 @@ public class PlayerHitState : PlayerBaseState
 
     public override void Exit(Player_Action player)
     {
-        Debug.Log("상태 이탈: Hit");
     }
 
     public void OnHitAnimationEnd(Player_Action player)

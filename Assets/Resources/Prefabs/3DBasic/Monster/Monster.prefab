@@ -81,7 +81,9 @@ MonoBehaviour:
   currentHP: 80
   ExpReward: 50
   hpBar: {fileID: 0}
-  damageTextOffset: {x: 0, y: 1, z: 0}
+  damageTextOffset: {x: 0, y: -0.5, z: 0}
+  damageTextCameraForwardOffset: 0.45
+  useColliderDamageTextPosition: 1
 --- !u!114 &4200508389218209283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,6 +101,11 @@ MonoBehaviour:
   target: {fileID: 0}
   searchRange: 10
   attackRange: 3
+  battleExitRange: 0.5
+  attackDelay: 1
+  attackAnimationTime: 2.2
+  ignoreStunWhileAttacking: 1
+  ignoreStunWhenAttackReady: 1
   slashTrail: {fileID: 0}
   itemDropper: {fileID: 0}
   hpBarObject: {fileID: 8125778970120973617}

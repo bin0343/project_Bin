@@ -66091,13 +66091,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   freeLookCamera: {fileID: 805714991}
   normalHitShake:
-    amplitude: 1
+    amplitude: 2
     frequency: 15
     duration: 0.2
   knockbackHitShake:
-    amplitude: 2
+    amplitude: 3
     frequency: 20
-    duration: 0.3
+    duration: 0.5
 --- !u!1001 &504081090
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -116161,7 +116161,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.011775835
+      value: 0.54041517
       objectReference: {fileID: 0}
     - target: {fileID: 6838592671850859857, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: formationCamera
@@ -153077,7 +153077,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462598004550336977, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: damageTextOffset.y
-      value: 1
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1462598004550336977, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: stats.Array.data[0]
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 1817376556446839000, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_Name
@@ -153122,6 +153126,10 @@ PrefabInstance:
     - target: {fileID: 2629540847430102083, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4200508389218209283, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
+      propertyPath: attackDelay
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
