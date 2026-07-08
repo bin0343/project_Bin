@@ -21,10 +21,10 @@ public class DamageTextSpawner : MonoBehaviour
 
     public void SpawnDamageText(int damage, Vector3 position, Quaternion rotation, Canvas parentCanvas)
     {
-        SpawnDamageText(damage, position, rotation, parentCanvas, false);
+        SpawnDamageText(damage, position, rotation, parentCanvas, false, Color.white);
     }
 
-    public void SpawnDamageText(int damage, Vector3 position, Quaternion rotation, Canvas parentCanvas, bool isPerfectEvadeBonus)
+    public void SpawnDamageText(int damage, Vector3 position, Quaternion rotation, Canvas parentCanvas, bool isPerfectEvadeBonus, Color textColor)
     {
         if (damageTextPrefab == null || parentCanvas == null)
         {
@@ -37,7 +37,7 @@ public class DamageTextSpawner : MonoBehaviour
         DamageText dmgText = textObject.GetComponent<DamageText>();
         if (dmgText != null)
         {
-            dmgText.SetDamage(damage, isPerfectEvadeBonus);
+            dmgText.SetDamage(damage, isPerfectEvadeBonus, textColor);
         }
 
         textObject.transform.position = position;

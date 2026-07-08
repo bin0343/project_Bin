@@ -70,7 +70,7 @@ public class Enemy_Stat : MonoBehaviour
             Quaternion textRotation = Camera.main != null ? Camera.main.transform.rotation : Quaternion.identity;
             Vector3 spawnPosition = GetDamageTextSpawnPosition();
 
-            DamageTextSpawner.instance.SpawnDamageText(damage, spawnPosition, textRotation, myCanvas, isPerfectEvadeBonus);
+            DamageTextSpawner.instance.SpawnDamageText(damage, spawnPosition, textRotation, myCanvas, isPerfectEvadeBonus, Color.white);
         }
 
         if (hpBar != null)

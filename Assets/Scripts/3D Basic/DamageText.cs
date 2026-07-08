@@ -57,12 +57,12 @@ public class DamageText : MonoBehaviour
         initialized = true;
     }
 
-    public void SetDamage(int damage)
+    /*public void SetDamage(int damage)
     {
         SetDamage(damage, false);
-    }
+    }*/
 
-    public void SetDamage(int damage, bool isPerfectEvadeBonus)
+    public void SetDamage(int damage, bool isPerfectEvadeBonus, Color textColor)
     {
         Initialize();
 
@@ -82,7 +82,7 @@ public class DamageText : MonoBehaviour
         }
         else
         {
-            text.color = defaultColor;
+            text.color = textColor;
             text.fontSize = defaultFontSize;
             text.fontStyle = defaultFontStyle;
         }

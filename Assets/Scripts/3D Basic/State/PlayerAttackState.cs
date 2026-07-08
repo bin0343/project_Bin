@@ -33,7 +33,13 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
             myEquipment.EnterCombatState();
         }
 
-        Transform targetEnemy = FindEnemyWithinMaxRange(player);
+        bool isRangedWeapon = player.currentWeapon != null && player.currentWeapon.IsRanged;
+
+        float targetSearchRange = isRangedWeapon
+            ? player.currentWeapon.RangedAttackRange
+            : player.attackMoveDistance;
+
+        Transform targetEnemy = player.FindNearestEnemyInRange(targetSearchRange);
 
         if (targetEnemy != null)
         {
@@ -45,22 +51,20 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
                 player.animator.transform.rotation = Quaternion.LookRotation(targetDir);
             }
 
-            float distanceToEnemy = Vector3.Distance(player.transform.position, targetEnemy.position);
-
-            float desiredDashDist = distanceToEnemy - player.attackDashStopDistance;
-            currentDashDistance = Mathf.Clamp(desiredDashDist, 0f, player.attackMoveDistance);
-        }
-        else
-        {
-            /*if (Cursor.visible || Cursor.lockState == CursorLockMode.None)
+            if (isRangedWeapon)
             {
-                player.move.LookAtMouse();
+                currentDashDistance = 0f;
             }
             else
             {
-                player.move.AlignToCameraForward();
-            }*/
+                float distanceToEnemy = Vector3.Distance(player.transform.position, targetEnemy.position);
 
+                float desiredDashDist = distanceToEnemy - player.attackDashStopDistance;
+                currentDashDistance = Mathf.Clamp(desiredDashDist, 0f, player.attackMoveDistance);
+            }
+        }
+        else
+        {
             currentDashDistance = 0f;
         }
 
@@ -203,33 +207,6 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
                 player.ChangeState(new PlayerIdleState());
             }
         }
-    }
-
-
-    private Transform FindEnemyWithinMaxRange(Player_Action player)
-    {
-        Collider[] colliders = Physics.OverlapSphere(player.transform.position, player.attackMoveDistance, player.enemyLayer);
-
-        Transform bestTarget = null;
-        float closestDistance = float.MaxValue;
-
-        foreach (Collider col in colliders)
-        {
-            if (!col.CompareTag("Enemy")) continue;
-
-            Enemy_Stat enemyStat = col.GetComponent<Enemy_Stat>();
-            if (enemyStat == null || enemyStat.currentHP <= 0) continue;
-
-            float distance = Vector3.Distance(player.transform.position, col.transform.position);
-
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                bestTarget = col.transform;
-            }
-        }
-
-        return bestTarget;
     }
 
     private bool TryConsumeCombo(Player_Action player)

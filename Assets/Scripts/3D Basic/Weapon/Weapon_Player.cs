@@ -3,8 +3,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum PlayerWeaponAttackMode
+{
+    Melee,      //근거리
+    Ranged      //원거리
+}
+
 public class Weapon_Player : MonoBehaviour
 {
+    [Header("공격 방식")]
+    [SerializeField] private PlayerWeaponAttackMode attackMode = PlayerWeaponAttackMode.Melee;
+
+    public bool IsRanged
+    {
+        get { return attackMode == PlayerWeaponAttackMode.Ranged; }
+    }
+
+    [Header("원거리 공격 설정")]
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private float projectileRange = 15f;
+    [SerializeField] private float projectileSpeed = 20f;
+
+    [Tooltip("0.5면 몸통 중앙, 0.7이면 가슴~머리 쪽")]
+    [SerializeField, Range(0f, 1f)] private float targetHeightRatio = 0.65f;
+
+    public float RangedAttackRange
+    {
+        get { return projectileRange; }
+    }
+
     [Header("Weapon Components")]
     [SerializeField] private TrailRenderer slashTrail;
 
@@ -157,6 +185,127 @@ public class Weapon_Player : MonoBehaviour
             slashTrail.emitting = false;
             slashTrail.Clear();
         }
+    }
+
+    public void ExecuteAttackFrame()
+    {
+        if (IsRanged)
+        {
+            FireProjectile();
+        }
+        else
+        {
+            EnableHitbox();
+        }
+    }
+
+    public void EndAttackFrame()
+    {
+        if (!IsRanged)
+        {
+            DisableHitbox();
+        }
+    }
+
+    #region 투사체 발사
+    private void FireProjectile()
+    {
+        if (playerAction == null) return;
+        if (projectilePrefab == null) return;
+
+        Transform modelTransform = playerAction.animator.transform;
+        Transform shootPoint = firePoint != null ? firePoint : transform;
+
+        Transform targetTransform = playerAction.FindNearestEnemyInRange(projectileRange);
+        Enemy_Stat targetStat = null;
+
+        if (targetTransform != null)
+        {
+            targetStat = targetTransform.GetComponentInParent<Enemy_Stat>();
+        }
+
+        Vector3 startPosition = shootPoint.position;
+        Vector3 destination;
+
+        if (targetStat != null)
+        {
+            destination = GetEnemyAimPoint(targetStat);
+        }
+        else
+        {
+            Vector3 forward = modelTransform.forward;
+            forward.y = 0f;
+
+            if (forward.sqrMagnitude < 0.001f)
+            {
+                forward = transform.forward;
+            }
+
+            forward.Normalize();
+            destination = startPosition + forward * projectileRange;
+        }
+
+        Vector3 shootDirection = destination - startPosition;
+
+        if (shootDirection.sqrMagnitude < 0.001f)
+        {
+            shootDirection = modelTransform.forward;
+        }
+
+        GameObject projectileObject = Instantiate(
+            projectilePrefab,
+            startPosition,
+            Quaternion.LookRotation(shootDirection.normalized)
+        );
+
+        PlayerProjectile projectile = projectileObject.GetComponent<PlayerProjectile>();
+
+        if (projectile != null)
+        {
+            AttackType currentAttackType = playerAction.currentComboStep == 3
+                ? AttackType.Knockback
+                : AttackType.Normal;
+
+            float perfectEvadeMultiplier = playerAction.GetPerfectEvadeAttackMultiplier();
+            bool usePerfectEvadeBonus = perfectEvadeMultiplier > 1f;
+
+            projectile.Init(
+                playerAction,
+                targetStat,
+                destination,
+                projectileSpeed,
+                currentAttackType,
+                usePerfectEvadeBonus,
+                perfectEvadeMultiplier,
+                targetHeightRatio
+            );
+        }
+    }
+    #endregion
+
+    private Vector3 GetEnemyAimPoint(Enemy_Stat enemyStat)
+    {
+        Collider col = enemyStat.GetComponent<Collider>();
+
+        if (col == null)
+        {
+            col = enemyStat.GetComponentInChildren<Collider>();
+        }
+
+        if (col != null)
+        {
+            Bounds bounds = col.bounds;
+
+            float y = Mathf.Lerp(bounds.min.y, bounds.max.y, targetHeightRatio);
+
+            return new Vector3(
+                bounds.center.x,
+                y,
+                bounds.center.z
+            );
+        }
+
+        return enemyStat.transform.position + Vector3.up * 1.2f;
     }
 
     private void OnDrawGizmos()

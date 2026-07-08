@@ -104,6 +104,25 @@ MonoBehaviour:
   battleExitRange: 0.5
   attackDelay: 1
   attackAnimationTime: 2.2
+  attackPatterns:
+  - patternName: "\uAE30\uBCF8 \uACF5\uACA9"
+    attackIndex: 1
+    animationTime: 2.267
+    cooldownAfterAttack: 3
+    damageMultiplier: 1
+    hitReactionType: 1
+  - patternName: "\uCF64\uBCF4 \uACF5\uACA9"
+    attackIndex: 2
+    animationTime: 4.667
+    cooldownAfterAttack: 6
+    damageMultiplier: 1.1
+    hitReactionType: 2
+  - patternName: "\uB109\uBC31 \uACF5\uACA9"
+    attackIndex: 3
+    animationTime: 3.167
+    cooldownAfterAttack: 6
+    damageMultiplier: 1.5
+    hitReactionType: 3
   ignoreStunWhileAttacking: 1
   ignoreStunWhenAttackReady: 1
   slashTrail: {fileID: 0}

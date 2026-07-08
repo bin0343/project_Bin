@@ -115,9 +115,16 @@ public class EnemyAttackHItbox : MonoBehaviour
                     hitTargets.Add(collider);
 
                     int attackPower = (enemyStat != null) ? enemyStat.attackPower : 10;
-                    int damage = Mathf.Max(attackPower - targetStat.defensePower, 1);
+                    float damageMultiplier = 1f;
+                    if (enemyBase != null)
+                    {
+                        damageMultiplier = enemyBase.CurrentDamageMultiplier;
+                    }
 
-                    targetStat.TakeDamage(damage);
+                    int finalAttackPower = Mathf.RoundToInt(attackPower * damageMultiplier);
+                    int damage = Mathf.Max(finalAttackPower - targetStat.defensePower, 1);
+
+                    targetStat.TakeDamage(damage, rootTransform);
 
                     if (HitVFXManager.instance != null)
                     {
@@ -137,7 +144,14 @@ public class EnemyAttackHItbox : MonoBehaviour
 
                     if (playerAction != null)
                     {
-                        playerAction.OnDamageTaken();
+                        HitReactionType reactionType = HitReactionType.Normal;
+
+                        if (enemyBase != null)
+                        {
+                            reactionType = enemyBase.CurrentHitReactionType;
+                        }
+
+                        playerAction.OnDamageTaken(reactionType, rootTransform.position);
                     }
                 }
             }

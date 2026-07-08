@@ -28,6 +28,30 @@ public enum BattleAction
     Attacking
 }
 
+[System.Serializable]
+public class EnemyAttackPattern
+{
+    [Header("기본 정보")]
+    public string patternName = "Attack1";
+
+    [Tooltip("Animator의 AttackIndex 값. 1, 2, 3 중 하나")]
+    [Range(1, 3)] public int attackIndex = 1;
+
+    [Header("타이밍")]
+    [Tooltip("공격 애니메이션이 끝나는 시간")]
+    public float animationTime = 2.2f;
+
+    [Tooltip("공격 이후 다음 공격까지 시간")]
+    public float cooldownAfterAttack = 1.0f;
+
+    [Header("공격 효과")]
+    [Tooltip("몬스터 공격력에 곱해질 배율")]
+    public float damageMultiplier = 1.0f;
+
+    [Tooltip("플레이어가 받을 피격 리액션")]
+    public HitReactionType hitReactionType = HitReactionType.Normal;
+}
+
 public class EnemyBase : MonoBehaviour
 {
     private ENEMYSTATE currentState = ENEMYSTATE.IDLE;
@@ -58,6 +82,36 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] private float attackDelay = 1.0f;
     [SerializeField] private float attackAnimationTime = 2.2f;
     private float nextAttackReadyTime = 0f;
+
+    [Header("AI 공격 패턴")]
+    [SerializeField] private List<EnemyAttackPattern> attackPatterns = new List<EnemyAttackPattern>();
+    private EnemyAttackPattern currentAttackPattern;
+    public EnemyAttackPattern CurrentAttackPattern
+    {
+        get { return currentAttackPattern; }
+    }
+
+    public HitReactionType CurrentHitReactionType
+    {
+        get
+        {
+            if (currentAttackPattern == null)
+                return HitReactionType.Normal;
+
+            return currentAttackPattern.hitReactionType;
+        }
+    }
+
+    public float CurrentDamageMultiplier
+    {
+        get
+        {
+            if (currentAttackPattern == null)
+                return 1f;
+
+            return currentAttackPattern.damageMultiplier;
+        }
+    }
 
     [Header("AI 스턴, 공격 우선순위")]
     [Tooltip("공격 모션이 시작된 경우 스턴 무시")]
@@ -123,7 +177,12 @@ public class EnemyBase : MonoBehaviour
             hpBarObject.SetActive(false);
         }
 
-        slashTrail.emitting = false;
+        if (slashTrail != null)
+        {
+            slashTrail.emitting = false;
+            slashTrail.Clear();
+        }
+        
         if (dissolveEffect == null)
         {
             dissolveEffect = GetComponentInChildren<EnemyDissolveEffect>();
@@ -457,15 +516,62 @@ public class EnemyBase : MonoBehaviour
     {
         isPerformingAction = true;
         isAttacking = false;
-        nextAttackReadyTime = float.PositiveInfinity;
-        animator.SetTrigger("IsAttack");
-        yield return new WaitForSeconds(attackAnimationTime);
 
-        if (animationEvent != null) animationEvent.ForceEndAttack();
+        nextAttackReadyTime = float.PositiveInfinity;
+
+        currentAttackPattern = GetRandomAttackPattern();
+
+        animator.SetInteger("AttackIndex", currentAttackPattern.attackIndex);
+
+
+
+        animator.ResetTrigger("IsAttack");
+        animator.SetTrigger("IsAttack");
+
+        yield return new WaitForSeconds(currentAttackPattern.animationTime);
+
+        if (animationEvent != null)
+        {
+            animationEvent.ForceEndAttack();
+        }
+
         isPerformingAction = false;
         isAttacking = false;
 
-        nextAttackReadyTime = Time.time + attackDelay;
+        nextAttackReadyTime = Time.time + currentAttackPattern.cooldownAfterAttack;
+
+        currentAttackPattern = null;
+    }
+
+    private EnemyAttackPattern GetRandomAttackPattern()
+    {
+        List<EnemyAttackPattern> validPatterns = new List<EnemyAttackPattern>();
+
+        int count = Mathf.Min(attackPatterns.Count, 3);
+
+        for (int i = 0; i < count; i++)
+        {
+            if (attackPatterns[i] != null)
+            {
+                validPatterns.Add(attackPatterns[i]);
+            }
+        }
+
+        if (validPatterns.Count == 0)
+        {
+            EnemyAttackPattern defaultPattern = new EnemyAttackPattern();
+            defaultPattern.patternName = "Default Attack";
+            defaultPattern.attackIndex = 1;
+            defaultPattern.animationTime = attackAnimationTime;
+            defaultPattern.cooldownAfterAttack = attackDelay;
+            defaultPattern.damageMultiplier = 1f;
+            defaultPattern.hitReactionType = HitReactionType.Normal;
+
+            return defaultPattern;
+        }
+
+        int randomIndex = Random.Range(0, validPatterns.Count);
+        return validPatterns[randomIndex];
     }
 
     #endregion

@@ -18,12 +18,42 @@ public class Character_Stat : MonoBehaviour
 
     public bool isDead = false;
 
+    [Header("데미지 텍스트")]
+    [SerializeField] private bool showDamageText = true;
+    [SerializeField] private Canvas damageTextCanvas;
+    [SerializeField] private Vector3 damageTextOffset = new Vector3(0f, 0.35f, 0f);
+    [SerializeField] private float damageTextCameraForwardOffset = 0.45f;
+    [SerializeField] private bool useColliderForDamageTextPosition = true;
+    [SerializeField] private Color damageTextColor = Color.white;
+
+    private Collider characterCollider;
+
 
     private void Awake()
     {
+        CacheDamageTextReferences();
+
         if (characterData != null)
         {
             InitializeFromManager();
+        }
+    }
+
+    private void Start()
+    {
+        CacheDamageTextReferences();
+    }
+
+    private void CacheDamageTextReferences()
+    {
+        if (characterCollider == null)
+        {
+            characterCollider = GetComponentInChildren<Collider>();
+        }
+
+        if (damageTextCanvas == null)
+        {
+            damageTextCanvas = GetComponentInChildren<Canvas>(true);
         }
     }
 
@@ -108,11 +138,73 @@ public class Character_Stat : MonoBehaviour
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0);
 
-        // TODO: 나중에 UI_Manager.instance.UpdatePlayerStatus(this) 등을 호출하여 화면 아래 메인 체력바 깎기
+        ShowDamageText(damage, attacker);
+
         if (currentHP <= 0)
         {
             Die();
         }
+    }
+
+    private void ShowDamageText(int damage, Transform attacker)
+    {
+        if (!showDamageText) return;
+        if (DamageTextSpawner.instance == null) return;
+
+        CacheDamageTextReferences();
+
+        if (damageTextCanvas == null)
+        {
+            Debug.LogWarning($"{name}에 데미지 텍스트용 Canvas가 없습니다. Character 하위에 World Space Canvas를 하나 만들어주세요.");
+            return;
+        }
+
+        Quaternion textRotation = Camera.main != null ? Camera.main.transform.rotation : Quaternion.identity;
+        Vector3 spawnPosition = GetDamageTextSpawnPosition(attacker);
+
+        DamageTextSpawner.instance.SpawnDamageText(
+            damage,
+            spawnPosition,
+            textRotation,
+            damageTextCanvas,
+            false,
+            damageTextColor
+        );
+    }
+
+    private Vector3 GetDamageTextSpawnPosition(Transform attacker)
+    {
+        Vector3 basePosition = transform.position + damageTextOffset;
+
+        if (useColliderForDamageTextPosition && characterCollider != null)
+        {
+            Bounds bounds = characterCollider.bounds;
+            basePosition = bounds.center;
+            basePosition.y = bounds.max.y + damageTextOffset.y;
+        }
+
+        Vector3 pushDirection = Vector3.zero;
+
+        if (Camera.main != null)
+        {
+            pushDirection = Camera.main.transform.position - transform.position;
+            pushDirection.y = 0f;
+        }
+
+        if (pushDirection.sqrMagnitude < 0.001f && attacker != null)
+        {
+            pushDirection = transform.position - attacker.position;
+            pushDirection.y = 0f;
+        }
+
+        if (pushDirection.sqrMagnitude < 0.001f)
+        {
+            pushDirection = transform.forward;
+        }
+
+        pushDirection.Normalize();
+
+        return basePosition + pushDirection * damageTextCameraForwardOffset;
     }
 
     public void GainExp(int amount)

@@ -1,7 +1,14 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+
+public enum HitReactionType
+{
+    None,   //데미지만
+    Normal, //데미지 + Idle상태일때 확률로 HitState
+    Stagger,    //HitState(강제 경직)
+    Knockback   //HitState + 넉백
+}
 
 public class Player_Action : MonoBehaviour
 {
@@ -47,6 +54,16 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public float lastComboInputTime = -999f;
     [HideInInspector] public bool comboQueued = false;
 
+    [Header("피격 리액션")]
+    [SerializeField, Range(0f, 1f)] private float idleHitReactionChance = 0.35f;
+    [SerializeField] private float hitReactionCooldown = 0.7f;
+    private float lastHitReactionTime = -999f;
+
+    [Header("피격 넉백")]
+    [SerializeField] private float enemyKnockbackDistance = 2.5f;
+    [SerializeField] private float enemyKnockbackDuration = 0.25f;
+    private Coroutine enemyKnockbackCoroutine;
+ 
     private float coyoteTime = 0.15f;
     private float coyoteTimer = 0f;
     private float jumpGraceTimer = 0f;
@@ -372,6 +389,8 @@ public class Player_Action : MonoBehaviour
         currentComboStep = step;
     }
 
+    #region Evade
+
     private void UpdatePerfectEvadeBonus()
     {
         if (!hasPerfectEvadeAttackBouns) return;
@@ -437,25 +456,116 @@ public class Player_Action : MonoBehaviour
         perfectEvadeSlowCoroutine = null;
     }
 
+    #endregion
+
+    #region Hit
+    public void OnDamageTaken(HitReactionType reactionType = HitReactionType.Normal, Vector3? attackerPosition = null)
+    {
+        if (IsInvincible) return;
+        if (IsDead) return;
+
+        if (ShouldEnterHitState(reactionType))
+        {
+            bool shouldKnockback = reactionType == HitReactionType.Knockback;
+            EnterHitState(shouldKnockback, attackerPosition);
+        }
+    }
+
+    private bool ShouldEnterHitState(HitReactionType reactionType)
+    {
+        if (currentState is PlayerDeadState)
+            return false;
+
+        if (currentState is PlayerHitState)
+            return false;
+
+        if (reactionType == HitReactionType.None)
+            return false;
+
+        if (Time.time < lastHitReactionTime + hitReactionCooldown)
+            return false;
+
+        if (reactionType == HitReactionType.Stagger || reactionType == HitReactionType.Knockback)
+            return true;
+
+        if (reactionType == HitReactionType.Normal)
+        {
+            if (!(currentState is PlayerIdleState))
+                return false;
+
+            return Random.value <= idleHitReactionChance;
+        }
+
+        return false;
+    }
+
+    private void EnterHitState(bool applyKnockback = false, Vector3? attackerPosition = null)
+    {
+        lastHitReactionTime = Time.time;
+
+        currentWeapon?.ForceStopTrail();
+        currentWeapon?.DisableHitbox();
+        IsAttacking = false;
+
+        ChangeState(new PlayerHitState());
+
+        if (applyKnockback && attackerPosition.HasValue)
+        {
+            if (enemyKnockbackCoroutine != null)
+            {
+                StopCoroutine(enemyKnockbackCoroutine);
+            }
+
+            enemyKnockbackCoroutine = StartCoroutine(EnemyKnockbackRoutine(attackerPosition.Value));
+        }
+    }
+
+    private IEnumerator EnemyKnockbackRoutine(Vector3 attackerPosition)
+    {
+        CanRotate = false;
+
+        if (move != null)
+        {
+            move.ForceMove(Vector3.zero, 0f);
+        }
+
+        Vector3 knockDir = transform.position - attackerPosition;
+        knockDir.y = 0f;
+
+        if (knockDir.sqrMagnitude < 0.001f)
+        {
+            knockDir = -player.transform.forward;
+        }
+
+        knockDir.Normalize();
+
+        Vector3 startPos = rigidbody.position;
+        Vector3 endPos = startPos + knockDir * enemyKnockbackDistance;
+
+        float timer = 0f;
+
+        while (timer < enemyKnockbackDuration)
+        {
+            timer += Time.fixedDeltaTime;
+
+            float t = timer / enemyKnockbackDuration;
+            float easedT = 1f - Mathf.Pow(1f - t, 3f);
+
+            Vector3 nextPos = Vector3.Lerp(startPos, endPos, easedT);
+            rigidbody.MovePosition(nextPos);
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        CanRotate = true;
+        enemyKnockbackCoroutine = null;
+    }
+    #endregion
+
     private void RestoreTimeScale()
     {
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
-    }
-
-
-    public void OnDamageTaken()
-    {
-        if (IsInvincible) return;
-
-        if (!IsDead)
-        {
-            currentWeapon?.ForceStopTrail();
-            currentWeapon?.DisableHitbox();
-            IsAttacking = false;
-
-            ChangeState(new PlayerHitState());
-        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -466,12 +576,32 @@ public class Player_Action : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    public Transform FindNearestEnemyInRange(float range)
     {
-        if (other.gameObject.CompareTag("Weapon_Enemy"))
+        Collider[] colliders = Physics.OverlapSphere(transform.position, range, enemyLayer);
+
+        Transform bestTarget = null;
+        float closestSqrDistance = float.MaxValue;
+
+        foreach (Collider col in colliders)
         {
-            Debug.Log("피격당함");
+            Enemy_Stat enemyStat = col.GetComponentInParent<Enemy_Stat>();
+            if (enemyStat == null) continue;
+            if (enemyStat.currentHP <= 0) continue;
+
+            Vector3 diff = enemyStat.transform.position - transform.position;
+            diff.y = 0f;
+
+            float sqrDistance = diff.sqrMagnitude;
+
+            if (sqrDistance < closestSqrDistance)
+            {
+                closestSqrDistance = sqrDistance;
+                bestTarget = enemyStat.transform;
+            }
         }
+
+        return bestTarget;
     }
 
     public enum AnimationEventType

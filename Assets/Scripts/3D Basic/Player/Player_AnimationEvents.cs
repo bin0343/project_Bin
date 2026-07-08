@@ -67,12 +67,12 @@ public class Player_AnimationEvents : MonoBehaviour
 
     public void EnableAttackHitbox()
     {
-        action.currentWeapon?.EnableHitbox();
+        action.currentWeapon?.ExecuteAttackFrame();
     }
 
     public void DisableAttackHitbox()
     {
-        action.currentWeapon?.DisableHitbox();
+        action.currentWeapon?.EndAttackFrame();
     }
 
     public void ResetRandomIdle()
