@@ -24,6 +24,18 @@ public class Weapon_Player : MonoBehaviour
     [SerializeField] private Transform firePoint;
     [SerializeField] private float projectileRange = 15f;
     [SerializeField] private float projectileSpeed = 20f;
+    [SerializeField] private ParticleSystem fireVFX;
+
+    [Header("원거리 3타 낙하 공격")]
+    [SerializeField] private GameObject skyStrikePrefab;
+    [Tooltip("공격 지점 위에서 생성되는 높이")]
+    [SerializeField] private float skyStrikeSpawnHeight = 8f;
+    [Tooltip("타겟이 없을 때 플레이어 전방에 떨어질 거리")]
+    [SerializeField] private float skyStrikeForwardDistance = 6f;
+    [Tooltip("낙하 속도")]
+    [SerializeField] private float skyStrikeSpeed = 25f;
+    [Tooltip("3타 광역 공격 반경")]
+    [SerializeField] private float skyStrikeRadius = 3f;
 
     [Tooltip("0.5면 몸통 중앙, 0.7이면 가슴~머리 쪽")]
     [SerializeField, Range(0f, 1f)] private float targetHeightRatio = 0.65f;
@@ -189,13 +201,19 @@ public class Weapon_Player : MonoBehaviour
 
     public void ExecuteAttackFrame()
     {
-        if (IsRanged)
+        if (!IsRanged)
         {
-            FireProjectile();
+            EnableHitbox();
+            return;
+        }
+
+        if (playerAction != null && playerAction.currentComboStep == 3)
+        {
+            FireSkyStrike();
         }
         else
         {
-            EnableHitbox();
+            FireProjectile();
         }
     }
 
@@ -252,6 +270,8 @@ public class Weapon_Player : MonoBehaviour
             shootDirection = modelTransform.forward;
         }
 
+        PlayFireVFX();
+
         GameObject projectileObject = Instantiate(
             projectilePrefab,
             startPosition,
@@ -280,6 +300,63 @@ public class Weapon_Player : MonoBehaviour
                 targetHeightRatio
             );
         }
+    }
+
+    private void FireSkyStrike()
+    {
+        if (playerAction == null) return;
+        if (skyStrikePrefab == null) return;
+
+        Transform modelTransform = playerAction.animator.transform;
+
+        Transform targetTransform = playerAction.FindNearestEnemyInRange(projectileRange);
+
+        Vector3 impactPoint;
+
+        if (targetTransform != null)
+        {
+            impactPoint = targetTransform.position;
+        }
+        else
+        {
+            Vector3 forward = modelTransform.forward;
+            forward.y = 0f;
+
+            if (forward.sqrMagnitude < 0.001f)
+            {
+                forward = transform.forward;
+            }
+
+            forward.Normalize();
+
+            impactPoint = playerAction.transform.position + forward * skyStrikeForwardDistance;
+        }
+
+        Vector3 spawnPosition = impactPoint + Vector3.up * skyStrikeSpawnHeight;
+
+        GameObject strikeObject = Instantiate(skyStrikePrefab, spawnPosition, Quaternion.identity);
+
+        PlayerSkyStrike skyStrike = strikeObject.GetComponent<PlayerSkyStrike>();
+
+        if (skyStrike == null)
+        {
+            Destroy(strikeObject);
+            return;
+        }
+
+        float perfectEvadeMultiplier = playerAction.GetPerfectEvadeAttackMultiplier();
+
+        bool usePerfectEvadeBonus = perfectEvadeMultiplier > 1f;
+
+        skyStrike.Init(playerAction, impactPoint, skyStrikeSpeed, skyStrikeRadius, playerAction.enemyLayer, usePerfectEvadeBonus, perfectEvadeMultiplier);
+    }
+
+    private void PlayFireVFX()
+    {
+        if (fireVFX == null) return;
+
+        fireVFX.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        fireVFX.Play(true);
     }
     #endregion
 

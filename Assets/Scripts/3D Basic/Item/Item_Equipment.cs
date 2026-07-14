@@ -6,7 +6,8 @@ public enum WeaponCategory
 {
     OneHandedSword, // 한손검
     Greatsword,     // 대검
-    Arrow         // 권총
+    Arrow,         // 권총
+    MagicCatalyst   //마법
 }
 
 [CreateAssetMenu(fileName = "NewEquipment", menuName = "Item/Equipment")]
@@ -26,6 +27,10 @@ public class Item_Equipment : Item_Base
     [Header("장착 시 외형")]
     [Tooltip("이 장비를 착용했을 때 캐릭터 손에 생성될 무기 프리팹")]
     public GameObject weaponPrefab;
+
+    [Header("UI 프리뷰")]
+    [Tooltip("무기 탭에서 보여줄 전용 프리뷰 프리팹. 비어 있으면 weaponPrefab을 사용합니다.")]
+    public GameObject weaponPreviewPrefab;
 
     private void OnValidate()
     {

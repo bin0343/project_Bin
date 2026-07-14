@@ -163,8 +163,14 @@ public class Player_Equipment : MonoBehaviour
         if (equipmentData.weaponPrefab != null)
         {
             currentWeaponObject = Instantiate(equipmentData.weaponPrefab, weaponMountPoint);
+
+            originalWeaponScale = currentWeaponObject.transform.localScale;
+
             Weapon_Player newWeaponController = currentWeaponObject.GetComponentInChildren<Weapon_Player>();
+
             playerAction.SetCurrentWeapon(newWeaponController);
+
+            currentWeaponObject.SetActive(isInCombat);
         }
 
         // ½ºÅÈ Àû¿ë

@@ -69,7 +69,9 @@ public class UI_WeaponTab : MonoBehaviour
                 if (nextAttackText != null) nextAttackText.gameObject.SetActive(false);
                 descriptionText.text = weaponData.itemDescription;
 
-                Update3DModel(weaponData.weaponPrefab);
+                GameObject previewPrefab = weaponData.weaponPreviewPrefab != null ? weaponData.weaponPreviewPrefab : weaponData.weaponPrefab;
+
+                Update3DModel(previewPrefab);
             }
         }
         else
