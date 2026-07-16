@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d734d42923c255a4cae16f0f6d566c6a, type: 3}
+  m_Name: Tornado
+  m_EditorClassIdentifier: 
+  skillName: 
+  skillType: 1
+  skillIcon: {fileID: -853744557, guid: 066b7afbe24099d4cbc1f70e952c904b, type: 3}
+  animTriggerName: AttackSkill
+  cooldownTime: 15
+  duration: 3
+  castTime: 2.167
+  castRange: 13
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 4096
+  groundCheckHeight: 1
+  pullFieldPrefab: {fileID: 3688235171609399123, guid: a5e3794b9aa261d4583f9c2bb4ccac9b, type: 3}
+  damageMode: 0
+  fieldDuration: 2.5
+  singleFieldDuration: 0.4
+  damageInterval: 0.5
+  pullRadius: 8
+  pullSpeed: 10
+  centerStopDistance: 0.5
+  damageAmount: 20

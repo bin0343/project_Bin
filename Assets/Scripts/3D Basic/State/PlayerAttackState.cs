@@ -85,6 +85,19 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
 
     public override void Execute(Player_Action player)
     {
+        if (player.TryGetUsableSkillInput(out int skillIndex))
+        {
+            player.comboQueued = false;
+
+            comboWindowOpend = false;
+            comboConsumed = true;
+
+            ResetCombo();
+
+            player.HandleSkillInput(skillIndex);
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsGrounded && !player.IsPointerOverUI())
         {
             if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
@@ -161,6 +174,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
         player.CanRotate = true;
         player.animEvents?.EndAttackTrail();
         player.currentWeapon?.ForceStopTrail();
+        player.currentWeapon?.DisableHitbox();
         player.canReceiveInput = false;
         player.IsAttacking = false;
 

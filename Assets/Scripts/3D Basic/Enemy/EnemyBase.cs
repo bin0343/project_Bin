@@ -153,6 +153,13 @@ public class EnemyBase : MonoBehaviour
     public float patrolDuration = 5f;
     private float patrolTimer = 0f;
 
+    [Header("넉백 충돌 보정")]
+    [SerializeField] private LayerMask knockbackObstacleLayer;
+    [SerializeField] private float knockbackCheckRadius = 0.45f;
+    [SerializeField] private float knockbackCheckHeight = 0.8f;
+    [SerializeField] private float knockbackWallBuffer = 0.15f;
+    [SerializeField] private float knockbackNavMeshSampleDistance = 1.0f;
+
     public void SetSpawner(MonsterSpawner spawner) { mySpawner = spawner; }
 
     [SerializeField] private EnemyDissolveEffect dissolveEffect;
@@ -650,12 +657,12 @@ public class EnemyBase : MonoBehaviour
     #endregion
 
     #region Stun
-    public bool EnterStunState(float duration)
+    public bool EnterStunState(float duration, bool forceStun = false)
     {
         // 이미 스턴 중이거나 죽었다면 중복 실행 방지
         if (isDead) return false;
 
-        if (ShouldIgnoreHitStun())
+        if (!forceStun && ShouldIgnoreHitStun())
         {
             if (currentState == ENEMYSTATE.STUN && !isPerformingAction && !isAttacking)
             {
@@ -678,6 +685,11 @@ public class EnemyBase : MonoBehaviour
         currentState = ENEMYSTATE.STUN;
         stunDuration = duration;
         stunTimer = 0f; // 타이머 초기화
+
+        if (forceStun)
+        {
+            nextAttackReadyTime = Time.time + Mathf.Max(attackDelay, duration);
+        }
 
         isPerformingAction = false;
         if (animationEvent != null) animationEvent.ForceEndAttack();
@@ -864,8 +876,14 @@ public class EnemyBase : MonoBehaviour
     {
         if (target == null) return;
 
-        Vector3 knockDir = (transform.position - target.position).normalized;
-        float knockDistance = 3.0f; // 기존 힘(10) * 시간(0.3) 대략 계산
+        Vector3 knockDir = transform.position - target.position;
+        knockDir.y = 0f;
+
+        if (knockDir.sqrMagnitude < 0.001f) knockDir = -transform.forward;
+
+        knockDir.Normalize();
+
+        float knockDistance = 3.0f;
         float knockTime = 0.3f;
 
         if (Shared.MainCamera != null)
@@ -873,13 +891,49 @@ public class EnemyBase : MonoBehaviour
             Shared.MainCamera.Shake(0.15f, knockTime, 3);
         }
 
-        if (navAgent.enabled) navAgent.enabled = false;
+        Vector3 safeDestination = GetSafeKnockbackDestination(knockDir, knockDistance);
 
-        transform.DOMove(transform.position + knockDir * knockDistance, knockTime)
-            .SetEase(Ease.OutCubic) // 부드러운 감속 효과
-            .OnComplete(() => {
-                if (!isDead && navAgent != null) navAgent.enabled = true;
+        if (navAgent != null && navAgent.enabled) navAgent.enabled = false;
+
+        transform.DOMove(safeDestination, knockTime)
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() =>
+            {
+                if (!isDead && navAgent != null)
+                {
+                    navAgent.enabled = true;
+
+                    if (navAgent.isOnNavMesh)
+                    {
+                        navAgent.Warp(transform.position);
+                    }
+                }
             });
+    }
+
+    private Vector3 GetSafeKnockbackDestination(Vector3 direction, float distance)
+    {
+        Vector3 startPosition = transform.position;
+
+        LayerMask obstacleMask = knockbackObstacleLayer.value != 0 ? knockbackObstacleLayer : obstacleLayerMask;
+
+        Vector3 castOrigin = startPosition + Vector3.up * knockbackCheckHeight;
+
+        float allowedDistance = distance;
+
+        if (Physics.SphereCast(castOrigin, knockbackCheckRadius, direction, out RaycastHit hit, distance, obstacleMask, QueryTriggerInteraction.Ignore))
+        {
+            allowedDistance = Mathf.Max(hit.distance - knockbackWallBuffer, 0f);
+        }
+
+        Vector3 destination = startPosition + direction * allowedDistance;
+
+        if (NavMesh.SamplePosition(destination, out NavMeshHit navHit, knockbackNavMeshSampleDistance, NavMesh.AllAreas))
+        {
+            destination = navHit.position;
+        }
+
+        return destination;
     }
 
     public void OnDamageTaken(Transform attacker)

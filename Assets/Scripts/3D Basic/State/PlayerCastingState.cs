@@ -17,12 +17,15 @@ public class PlayerCastingState : PlayerBaseState
 
     public override void Enter(Player_Action player)
     {
-        if (skillToUse != null)
-        {
-            player.activeCastingSkill = skillToUse;
+        base.Enter(player);
 
-            player.animator.SetTrigger(skillToUse.SkillData.animTriggerName);
-        }
+        if (skillToUse == null) return;
+
+        player.activeCastingSkill = skillToUse;
+
+        player.animator.ResetTrigger(skillToUse.SkillData.animTriggerName);
+
+        player.animator.SetTrigger(skillToUse.SkillData.animTriggerName);
     }
 
     public override void Execute(Player_Action player)

@@ -7,7 +7,8 @@ public enum AttackType
 {
     None,
     Normal,
-    Knockback
+    Knockback,
+    Skill
 }
 
 public class Enemy_Stat : MonoBehaviour
@@ -97,6 +98,9 @@ public class Enemy_Stat : MonoBehaviour
                 {
                     enemyBase.ApplyKnockback();
                 }
+                break;
+            case AttackType.Skill:
+                enemyBase.EnterStunState(1.5f, true);
                 break;
         }
     }

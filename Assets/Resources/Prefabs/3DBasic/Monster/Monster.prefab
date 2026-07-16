@@ -140,6 +140,13 @@ MonoBehaviour:
   timeToGiveUp: 5
   patrolRadius: 5
   patrolDuration: 5
+  knockbackObstacleLayer:
+    serializedVersion: 2
+    m_Bits: 12288
+  knockbackCheckRadius: 0.45
+  knockbackCheckHeight: 0.8
+  knockbackWallBuffer: 0.15
+  knockbackNavMeshSampleDistance: 1
   dissolveEffect: {fileID: 5747673271882710984}
 --- !u!114 &5747673271882710984
 MonoBehaviour:

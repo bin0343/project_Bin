@@ -19,9 +19,13 @@ public class Player_Action : MonoBehaviour
     public Player_Move move;
 
     [Header("Skills")]
-    public Skill_Base[] assignedSkills = new Skill_Base[4];
+    public Skill_Base[] assignedSkills = new Skill_Base[2];
     public SkillHolder[] playerSkills;
     [HideInInspector] public SkillHolder activeCastingSkill;
+
+    [Header("스킬 입력 키")]
+    [SerializeField]
+    private KeyCode[] skillKeys = { KeyCode.E, KeyCode.Q };
 
     public Character_Stat stat;
     public UI_SkillManager skillUIManagers;
@@ -63,7 +67,13 @@ public class Player_Action : MonoBehaviour
     [SerializeField] private float enemyKnockbackDistance = 2.5f;
     [SerializeField] private float enemyKnockbackDuration = 0.25f;
     private Coroutine enemyKnockbackCoroutine;
- 
+
+    [Header("공격 대쉬 충돌 보정")]
+    [SerializeField] private LayerMask attackDashObstacleLayer;
+    [SerializeField] private float attackDashCheckRadius = 0.35f;
+    [SerializeField] private float attackDashCheckHeight = 0.8f;
+    [SerializeField] private float attackDashWallBuffer = 0.1f;
+
     private float coyoteTime = 0.15f;
     private float coyoteTimer = 0f;
     private float jumpGraceTimer = 0f;
@@ -285,6 +295,34 @@ public class Player_Action : MonoBehaviour
     }
 
     #region Input Handlers
+    public bool TryGetUsableSkillInput(out int skillIndex)
+    {
+        skillIndex = -1;
+
+        if (!IsGrounded) return false;
+        if (IsPointerOverUI()) return false;
+        if (playerSkills == null) return false;
+        if (skillKeys == null) return false;
+
+        int checkCount = Mathf.Min(skillKeys.Length, playerSkills.Length);
+
+        for (int i = 0; i < checkCount; i++)
+        {
+            if (!Input.GetKeyDown(skillKeys[i])) continue;
+
+            SkillHolder skill = playerSkills[i];
+
+            if (skill == null) continue;
+
+            if (!skill.CanUse()) continue;
+
+            skillIndex = i;
+            return true;
+        }
+
+        return false;
+    }
+
     public void HandleSkillInput(int slotIndex)
     {
         Player_Equipment myEquipment = GetComponent<Player_Equipment>();
@@ -561,6 +599,28 @@ public class Player_Action : MonoBehaviour
         enemyKnockbackCoroutine = null;
     }
     #endregion
+
+    public Vector3 GetSafeAttackDashDelta(Vector3 direction, float distance)
+    {
+        if (distance <= 0f) return Vector3.zero;
+
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.001f) return Vector3.zero;
+
+        direction.Normalize();
+
+        Vector3 castOrigin = rigidbody.position + Vector3.up * attackDashCheckHeight;
+
+        float allowedDistance = distance;
+
+        if (Physics.SphereCast(castOrigin, attackDashCheckRadius, direction, out RaycastHit hit, distance, attackDashObstacleLayer, QueryTriggerInteraction.Ignore))
+        {
+            allowedDistance = Mathf.Max(hit.distance - attackDashWallBuffer, 0f);
+        }
+
+        return direction * allowedDistance;
+    }
 
     private void RestoreTimeScale()
     {

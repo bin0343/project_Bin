@@ -33,13 +33,9 @@ public abstract class PlayerBaseState : IPlayerState
 
     protected virtual void HandleCommonSkillInput(Player_Action player)     //스킬 입력 공통
     {
-        for (int i = 0; i < player.playerSkills.Length; i++)
+        if (player.TryGetUsableSkillInput(out int skillIndex))
         {
-            if (Input.GetKeyDown(KeyCode.F1 + i) && player.IsGrounded)
-            {
-                player.HandleSkillInput(i);
-                return;
-            }
+            player.HandleSkillInput(skillIndex);
         }
     }
 
