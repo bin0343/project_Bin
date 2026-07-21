@@ -1942,6 +1942,7 @@ MonoBehaviour:
   assignedSkills:
   - {fileID: 11400000, guid: 8b6dfbced166ae842acc35a94d815ead, type: 2}
   - {fileID: 11400000, guid: 711409ad1fc50c74e91d3e6fffb9c553, type: 2}
+  skillKeys: 6500000071000000
   stat: {fileID: 0}
   skillUIManagers: {fileID: 0}
   attackMoveCurves:
@@ -2065,6 +2066,12 @@ MonoBehaviour:
   hitReactionCooldown: 0.7
   enemyKnockbackDistance: 2.5
   enemyKnockbackDuration: 0.25
+  attackDashObstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  attackDashCheckRadius: 0.35
+  attackDashCheckHeight: 0.8
+  attackDashWallBuffer: 0.1
   IsGrounded: 1
   IsDead: 0
   IsKick: 0
@@ -2080,6 +2087,7 @@ MonoBehaviour:
   perfectDodgeVignetteUI: {fileID: 0}
   hasPerfectEvadeAttackBouns: 0
   afterImageEffect: {fileID: 0}
+  dashInternalCooldown: 1
 --- !u!114 &367463570587945949
 MonoBehaviour:
   m_ObjectHideFlags: 0

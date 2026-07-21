@@ -25,9 +25,16 @@ public class PlayerRollState : PlayerBaseState
         lastDashEndTime = 0f;
     }
 
+    public static void ResetInternalCooldown()
+    {
+        consecutiveDashCount = 0;
+        cooldownEndTime = 0f;
+        lastDashEndTime = -999f;
+    }
+
     private bool isDashBuffered = false;         // 현재 대시 중 Shift 선입력 버퍼
 
-    public static bool CanDash => Time.time >= cooldownEndTime;
+    public static bool CanDash => Time.unscaledTime >= cooldownEndTime;
 
     protected override PlayerAnimState GetAnimState() => PlayerAnimState.Roll;
 
@@ -42,7 +49,7 @@ public class PlayerRollState : PlayerBaseState
             return;
         }
 
-        if (Time.time - lastDashEndTime > 0.5f)
+        if (Time.unscaledTime - lastDashEndTime > 0.5f)
         {
             consecutiveDashCount = 0;
         }
@@ -107,11 +114,11 @@ public class PlayerRollState : PlayerBaseState
         else
         {
             player.rigidbody.velocity = new Vector3(0, player.rigidbody.velocity.y, 0);
-            lastDashEndTime = Time.time; 
+            lastDashEndTime = Time.unscaledTime;
 
             if (consecutiveDashCount >= 2)
             {
-                cooldownEndTime = Time.time + 1.5f; // 1.5초 ~ 2.0초 중 원하는 내부 쿨타임 지정
+                cooldownEndTime = Time.unscaledTime + player.DashInternalCooldown;
                 consecutiveDashCount = 0;
                 isDashBuffered = false; 
             }

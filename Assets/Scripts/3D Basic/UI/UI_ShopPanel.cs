@@ -45,7 +45,7 @@ public class UI_ShopPanel : MonoBehaviour
     private Item_Base selectedItem;
     private int selectedItemPrice;
     private int currentQuantity = 1;
-    private int maxQuantity = 99; // 최대 구매/판매 가능 수량
+    //private int maxQuantity = 99; // 최대 구매/판매 가능 수량
 
     private void OnEnable()
     {

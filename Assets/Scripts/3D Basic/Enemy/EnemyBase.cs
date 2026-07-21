@@ -91,7 +91,7 @@ public class EnemyBase : MonoBehaviour
         get { return currentAttackPattern; }
     }
 
-    public HitReactionType CurrentHitReactionType
+    public virtual HitReactionType CurrentHitReactionType
     {
         get
         {
@@ -102,7 +102,7 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
-    public float CurrentDamageMultiplier
+    public virtual float CurrentDamageMultiplier
     {
         get
         {
@@ -196,7 +196,7 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
-    protected void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         if (isDead)
         {
@@ -657,7 +657,7 @@ public class EnemyBase : MonoBehaviour
     #endregion
 
     #region Stun
-    public bool EnterStunState(float duration, bool forceStun = false)
+    public virtual bool EnterStunState(float duration, bool forceStun = false)
     {
         // 이미 스턴 중이거나 죽었다면 중복 실행 방지
         if (isDead) return false;
@@ -936,7 +936,7 @@ public class EnemyBase : MonoBehaviour
         return destination;
     }
 
-    public void OnDamageTaken(Transform attacker)
+    public virtual void OnDamageTaken(Transform attacker)
     {
         if (isDead || attacker == null) return;
 
@@ -963,6 +963,16 @@ public class EnemyBase : MonoBehaviour
             currentState = ENEMYSTATE.BATTLE;
         else
             currentState = ENEMYSTATE.SEARCH;
+    }
+
+    protected void ForceEndAttackEffects()
+    {
+        isAttacking = false;
+
+        if (animationEvent != null)
+        {
+            animationEvent.ForceEndAttack();
+        }
     }
 
 #if UNITY_EDITOR

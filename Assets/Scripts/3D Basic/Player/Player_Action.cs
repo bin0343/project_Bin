@@ -7,7 +7,8 @@ public enum HitReactionType
     None,   //데미지만
     Normal, //데미지 + Idle상태일때 확률로 HitState
     Stagger,    //HitState(강제 경직)
-    Knockback   //HitState + 넉백
+    Knockback,   //HitState + 넉백
+    LanchKnockDown  //넘어지면서 뒤로 날아감
 }
 
 public class Player_Action : MonoBehaviour
@@ -103,6 +104,14 @@ public class Player_Action : MonoBehaviour
     private float perfectEvadeBonusEndUnscaledTime = -999f;
     private Coroutine perfectEvadeSlowCoroutine;
     [SerializeField] private PlayerAfterImageEffect afterImageEffect;
+
+    [Header("회피 설정")]
+    [SerializeField] private float dashInternalCooldown = 1.5f;
+
+    public float DashInternalCooldown
+    {
+        get { return dashInternalCooldown; }
+    }
 
     public IPlayerState currentState;
     public int currentComboStep { get; private set; }
@@ -448,6 +457,8 @@ public class Player_Action : MonoBehaviour
     {
         hasPerfectEvadeAttackBouns = true;
         perfectEvadeBonusEndUnscaledTime = Time.unscaledTime + perfectEvadeBonusDuration;
+
+        PlayerRollState.ResetInternalCooldown();
 
         if (perfectEvadeSlowCoroutine != null)
         {

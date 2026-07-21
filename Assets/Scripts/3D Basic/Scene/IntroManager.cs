@@ -48,7 +48,7 @@ public class IntroManager : MonoBehaviour
     public bool isForcingBuilding = false;      // 건물 강제 클릭 모드
     public int targetBuildingID = 0;            // 목표 건물 ID
 
-    private bool isMapTutorialActive = false;
+    //private bool isMapTutorialActive = false;
 
     private void Awake()
     {
@@ -280,7 +280,7 @@ public class IntroManager : MonoBehaviour
 
         isScheduleGuidePhase = false;
 
-        isMapTutorialActive = true;
+        //isMapTutorialActive = true;
 
         dialoguePanel.SetActive(true);
         if (standingCG) standingCG.gameObject.SetActive(true);
@@ -347,7 +347,7 @@ public class IntroManager : MonoBehaviour
 
         if (originDialogueManager != null) originDialogueManager.enabled = true;
 
-        isMapTutorialActive = false;
+        //isMapTutorialActive = false;
 
         if (lobbyManager != null)
         {

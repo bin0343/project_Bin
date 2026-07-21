@@ -39,6 +39,13 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
             ? player.currentWeapon.RangedAttackRange
             : player.attackMoveDistance;
 
+        int nextComboStep = comboStep + 1;
+
+        if (nextComboStep > 3)
+        {
+            nextComboStep = 1;
+        }
+
         Transform targetEnemy = player.FindNearestEnemyInRange(targetSearchRange);
 
         if (targetEnemy != null)
@@ -51,7 +58,7 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
                 player.animator.transform.rotation = Quaternion.LookRotation(targetDir);
             }
 
-            if (isRangedWeapon)
+            if (isRangedWeapon || nextComboStep != 1)
             {
                 currentDashDistance = 0f;
             }
@@ -73,12 +80,9 @@ public class PlayerAttackState : PlayerBaseState, IStateAnimationEvents
         isTransitionFinished = false;
         previousCurveValue = 0f;
 
-        comboStep++;
-        if (comboStep > 3)
-        {
-            comboStep = 1;
-        }
+        comboStep = nextComboStep;
         player.SetComboStep(comboStep);
+
         player.canReceiveInput = false;
         base.Enter(player);
     }
