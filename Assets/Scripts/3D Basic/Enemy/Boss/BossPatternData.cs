@@ -54,9 +54,18 @@ public class BossPatternData : ScriptableObject
     [Tooltip("돌진 시간에 따른 누적 이동 비율")]
     public AnimationCurve dashMoveCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
+    [Header("돌진 연출")]
+    [Tooltip("돌진할 때 Animator 공격 애니메이션을 재생할지")]
+    public bool playDashAnimation = true;
+    [Tooltip("돌진 선딜 동안 바닥 경고선을 표시할지")]
+    public bool showDashTelegraph = true;
+    [Min(0.05f)]
+    [Tooltip("바닥에 표시할 돌진 경고선의 너비")]
+    public float dashTelegraphWidth = 1.5f;
+
     [Header("공격 애니메이션")]
     [Tooltip("애니메이터에 전달할 공격 번호")]
-    [Range(1, 3)] public int attackIndex = 1;
+    [Range(1, 10)] public int attackIndex = 1;
     [Tooltip("공격 시작부터 패턴 종료까지 걸리는 시간")]
     [Min(0.1f)] public float animationTime = 1.5f;
 

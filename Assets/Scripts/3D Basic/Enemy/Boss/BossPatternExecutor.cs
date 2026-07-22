@@ -18,6 +18,9 @@ public class BossPatternExecutor : MonoBehaviour
     [Tooltip("벽과의 간격")]
     [SerializeField, Min(0f)] private float dashWallBuffer = 0.15f;
 
+    [Header("경고선")]
+    [SerializeField] private BossDashTelegraph dashTelegraph;
+ 
     private Animator animator;
 
     private EnemyAttackHItbox attackHitbox;
@@ -29,10 +32,17 @@ public class BossPatternExecutor : MonoBehaviour
         attackHitbox = GetComponentInChildren<EnemyAttackHItbox>();
         enemyBase = GetComponent<EnemyBase>();
 
+        if (dashTelegraph == null)
+        {
+            dashTelegraph = GetComponentInChildren<BossDashTelegraph>(true);
+        }
+
         if (attackHitbox == null)
         {
             Debug.LogWarning($"[{gameObject.name}] 돌진에 사용할 " + $"EnemyAttackHItbox가 없습니다.");
         }
+
+        dashTelegraph?.Hide();
     }
 
     public IEnumerator Execute(BossPatternData pattern, Transform target)
@@ -90,13 +100,30 @@ public class BossPatternExecutor : MonoBehaviour
 
         float windupElapsedTime = 0f;
 
+        dashTelegraph?.Hide();
+
         while (windupElapsedTime < pattern.dashWindupTime)
         {
-            if (enemyBase != null && enemyBase.isDead) yield break;
+            if (enemyBase != null && enemyBase.isDead)
+            {
+                dashTelegraph?.Hide();
+                yield break;
+            }
+
+            if (target == null)
+            {
+                dashTelegraph?.Hide();
+                yield break;
+            }
 
             windupElapsedTime += Time.deltaTime;
 
             FaceTarget(target);
+
+            Vector3 previewDirection = transform.forward;
+            previewDirection.y = 0f;
+            
+            UpdateDashTelegraph(pattern, previewDirection);
 
             yield return null;
         }
@@ -104,9 +131,17 @@ public class BossPatternExecutor : MonoBehaviour
         Vector3 dashDirection = transform.forward;
         dashDirection.y = 0f;
 
-        if (dashDirection.sqrMagnitude < 0.001f) yield break;
+        if (dashDirection.sqrMagnitude < 0.001f)
+        {
+            dashTelegraph?.Hide();
+            yield break;
+        }
 
         dashDirection.Normalize();
+
+        dashTelegraph?.Hide();
+
+        PlayDashAnimation(pattern);
 
         if (attackHitbox != null)
         {
@@ -120,6 +155,8 @@ public class BossPatternExecutor : MonoBehaviour
         {
             if (enemyBase != null && enemyBase.isDead)
             {
+                dashTelegraph?.Hide();
+
                 if (attackHitbox != null)
                 {
                     attackHitbox.DisableHitbox();
@@ -156,6 +193,8 @@ public class BossPatternExecutor : MonoBehaviour
 
             yield return null;
         }
+
+        dashTelegraph?.Hide();
 
         if (attackHitbox != null)
         {
@@ -210,5 +249,55 @@ public class BossPatternExecutor : MonoBehaviour
         safeMoveDelta = direction * requestDistance;
 
         return false;
+    }
+
+    private void UpdateDashTelegraph(BossPatternData pattern, Vector3 dashDirection)
+    {
+        if (pattern == null) return;
+
+        if (!pattern.showDashTelegraph)
+        {
+            dashTelegraph?.Hide();
+            return;
+        }
+
+        if (dashTelegraph == null) return;
+
+        dashDirection.y = 0f;
+
+        if (dashDirection.sqrMagnitude < 0.001f)
+        {
+            dashTelegraph.Hide();
+            return;
+        }
+
+        dashDirection.Normalize();
+
+        TryGetSafeDash(dashDirection, pattern.dashDistance, out Vector3 safePreviewDelta);
+
+        Vector3 startPostion = transform.position;
+        Vector3 endPosition = startPostion + safePreviewDelta;
+
+        dashTelegraph.UpdateLine(startPostion, endPosition, pattern.dashTelegraphWidth);
+    }
+
+    private void PlayDashAnimation(BossPatternData pattern)
+    {
+        if (pattern == null) return;
+
+        if (!pattern.playDashAnimation) return;
+
+        if (animator == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] " + $"돌진 애니메이션을 재생할 Animator가 없습니다.");
+
+            return;
+        }
+
+        animator.SetBool("IsIdle", false);
+        animator.SetBool("IsMoving", false);
+        animator.SetInteger("AttackIndex", pattern.attackIndex);
+        animator.ResetTrigger("IsAttack");
+        animator.SetTrigger("IsAttack");
     }
 }

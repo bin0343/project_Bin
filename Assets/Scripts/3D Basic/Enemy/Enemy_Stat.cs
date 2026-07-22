@@ -1,6 +1,4 @@
-using ExitGames.Client.Photon.StructWrapping;
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public enum AttackType
@@ -13,9 +11,17 @@ public enum AttackType
 
 public class Enemy_Stat : MonoBehaviour
 {
+    [Header("적 표시 정보")]
     public string EnemyName;
-    
+    public int EnemyLevel = 1;
 
+    [Header("체력바")]
+    [Tooltip("머리 위에 띄울지 여부")]
+    [SerializeField] private bool useWorldHpBar = true;
+
+    public event Action<int, int> OnHpChanged;
+    public event Action OnDied;
+    
     public float[] stats = new float[(int)STAT.STAT_COUNT];
 
     public void SetStat(STAT type, float value) { stats[(int)type] = value; }
@@ -41,16 +47,27 @@ public class Enemy_Stat : MonoBehaviour
 
     void Start()
     {
-        hpBar = GetComponentInChildren<MonsterHpBar>();
-        if (hpBar != null)
-            hpBar.Setup(this);
-
         myCanvas = GetComponentInChildren<Canvas>(true);
         enemyBase = GetComponent<EnemyBase>();
         animator = GetComponentInChildren<Animator>();
         enemyAnimation = GetComponentInChildren<Enemy_AnimationEvent>();
         enemyCollider = GetComponent<Collider>();
+
         currentHP = maxHP;
+
+        if (useWorldHpBar)
+        {
+            hpBar = GetComponentInChildren<MonsterHpBar>();
+
+            if (hpBar != null)
+            {
+                hpBar.Setup(this);
+            }
+        }
+        else
+        {
+            hpBar = null;
+        }
     }
 
     public void TakeDamage(int damage, AttackType type)
@@ -60,11 +77,12 @@ public class Enemy_Stat : MonoBehaviour
 
     public void TakeDamage(int damage, AttackType type, bool isPerfectEvadeBonus)
     {
-        if (enemyBase.isDead) return;
+        if (enemyBase == null || enemyBase.isDead) return;
 
-        int prevHP = currentHP;
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0);
+
+        OnHpChanged?.Invoke(currentHP, maxHP);
         
         if (DamageTextSpawner.instance != null)
         {
@@ -74,9 +92,6 @@ public class Enemy_Stat : MonoBehaviour
             DamageTextSpawner.instance.SpawnDamageText(damage, spawnPosition, textRotation, myCanvas, isPerfectEvadeBonus, Color.white);
         }
 
-        if (hpBar != null)
-            hpBar.UpdateHpBar();
-
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -85,7 +100,9 @@ public class Enemy_Stat : MonoBehaviour
 
         if (currentHP <= 0)
         {
+            OnDied?.Invoke();
             enemyBase.Dead();
+            return;
         }
 
         switch (type)

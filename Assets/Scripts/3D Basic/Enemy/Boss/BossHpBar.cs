@@ -3,72 +3,86 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class MonsterHpBar : MonoBehaviour
+public class BossHpBar : MonoBehaviour
 {
-    [Header("월드 체력바 회전")]
-    [Tooltip("카메라 방향을 바라볼 World Space Canvas")]
-    [SerializeField] private Transform billboardCanvas;
+    public static BossHpBar instance {  get; private set; }
 
-    public Image hpBarFront;
+    [Header("보스 UI")]
+    [SerializeField] private GameObject bossPanel;
+
+    [Header("보스 정보")]
     [SerializeField] private TMP_Text levelText;
+    [SerializeField] private TMP_Text bossNameText;
 
-    [Header("피해 체력 연출")]
+    [Header("체력바")]
+    [SerializeField] private Image hpbarFill;
+    [Tooltip("깎인 체력을 잠시 표시하는 흰색 이미지")]
     [SerializeField] private Image damageBarFill;
+    [Header("피해 체력 연출")]
     [Tooltip("흰색 피해 바가 줄어들기 전 유지되는 시간")]
     [SerializeField] private float damageHoldDuration = 0.25f;
     [Tooltip("흰색 피해 바가 실제 체력까지 줄어드는 시간")]
-    [SerializeField] private float damageShrinkDuration = 0.35f;
+    [SerializeField] private float damageShrinkDuration = 0.4f;
 
-    private Camera cam;
-    private Enemy_Stat stat;
+    [Header("스턴 게이지 - 임시")]
+    [SerializeField] private GameObject stunGaugeRoot;
+    [SerializeField] private Image StunGaugeFill;
+
+    private Enemy_Stat currentBossStat;
     private Coroutine damageBarCoroutine;
 
-    void Start()
+    private void Awake()
     {
-        stat = GetComponentInParent<Enemy_Stat>();
-        cam = Camera.main;
-    }
-
-    void LateUpdate()
-    {
-        if (billboardCanvas == null) return;
-
-        if (cam == null || !cam.gameObject.activeInHierarchy)
+        if (instance != null && instance != this)
         {
-            cam = Camera.main;
+            Destroy(gameObject);
+            return;
         }
 
-        if (cam != null)
-        {
-            billboardCanvas.rotation = Quaternion.Euler(0f, cam.transform.eulerAngles.y, 0f);
-        }
+        instance = this;
+
+        if (bossPanel != null) bossPanel.SetActive(false);
+
+        if (stunGaugeRoot != null) stunGaugeRoot.SetActive(false);
     }
 
-    public void Setup(Enemy_Stat targetStat)
+    public void Show(Enemy_Stat bossStat)
     {
-        UnbindStat();
+        if(bossStat == null)
+        {
+            Debug.LogWarning("[Boss UI] 연결할 Enemy_Stat이 없습니다.");
+            return;
+        }
 
-        stat = targetStat;
+        UnbindCurrentBoss();
 
-        if (stat == null) return;
+        currentBossStat = bossStat;
 
-        stat.OnHpChanged += HandleHpChanged;
+        currentBossStat.OnHpChanged += HandleHpChanged;
+        currentBossStat.OnDied += Hide;
+
+        if (bossNameText != null)
+        {
+            bossNameText.text = string.IsNullOrEmpty(currentBossStat.EnemyName) ? currentBossStat.gameObject.name : currentBossStat.EnemyName;
+        }
 
         if (levelText != null)
         {
-            levelText.text = $"Lv.{targetStat.EnemyLevel}";
+            levelText.text = $"Lv. {currentBossStat.EnemyLevel}";
         }
 
-        SetHpImmediately(stat.currentHP, stat.maxHP);
+        SetHpImmediately(currentBossStat.currentHP, currentBossStat.maxHP);
+
+        if (bossPanel != null) bossPanel.SetActive(true);
     }
 
-    private void HandleHpChanged(int currenHp, int maxHP)
+    public void HandleHpChanged(int currentHp, int maxHp)
     {
-        if (hpBarFront == null) return;
+        if (hpbarFill == null) return;
 
-        float targetFillAmount = CalculateFillAmount(currenHp, maxHP);
+        float targetFillAmount = CalculateFillAmount(currentHp, maxHp);
 
-        float previousFillAmount = hpBarFront.fillAmount;
+        float previousFillAmount = hpbarFill.fillAmount;
 
         bool tookDamage = targetFillAmount < previousFillAmount;
 
@@ -76,7 +90,7 @@ public class MonsterHpBar : MonoBehaviour
 
         if (!tookDamage)
         {
-            hpBarFront.fillAmount = targetFillAmount;
+            hpbarFill.fillAmount = targetFillAmount;
 
             if (damageBarFill != null)
             {
@@ -91,7 +105,7 @@ public class MonsterHpBar : MonoBehaviour
             damageBarFill.fillAmount = Mathf.Max(damageBarFill.fillAmount, previousFillAmount);
         }
 
-        hpBarFront.fillAmount = targetFillAmount;
+        hpbarFill.fillAmount = targetFillAmount;
 
         if (damageBarFill == null) return;
 
@@ -110,9 +124,9 @@ public class MonsterHpBar : MonoBehaviour
 
         float fillAmount = CalculateFillAmount(currentHp, maxHp);
 
-        if (hpBarFront != null)
+        if (hpbarFill != null) 
         {
-            hpBarFront.fillAmount = fillAmount;
+            hpbarFill.fillAmount = fillAmount;
         }
 
         if (damageBarFill != null)
@@ -167,26 +181,31 @@ public class MonsterHpBar : MonoBehaviour
         damageBarCoroutine = null;
     }
 
-    private void OnDisable()
+    public void Hide()
     {
         StopDamageBarCoroutine();
+        UnbindCurrentBoss();
 
-        if (hpBarFront != null && damageBarFill != null)
-        {
-            damageBarFill.fillAmount = hpBarFront.fillAmount;
-        }
+        if (bossPanel != null) bossPanel.SetActive(false);
+    }
+
+    public void UnbindCurrentBoss()
+    {
+        if (currentBossStat == null) return;
+
+        currentBossStat.OnHpChanged -= HandleHpChanged;
+        currentBossStat.OnDied -= Hide;
+
+        currentBossStat = null;
     }
 
     private void OnDestroy()
     {
-        UnbindStat();
-    }
+        UnbindCurrentBoss();
 
-    private void UnbindStat()
-    {
-        if (stat == null) return;
-
-        stat.OnHpChanged -= HandleHpChanged;
-        stat = null;
+        if (instance == this)
+        {
+            instance = null;
+        }
     }
 }

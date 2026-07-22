@@ -61,6 +61,7 @@ public class BossEnemy : EnemyBase
     [SerializeField] private BossDistanceZone currentDistanceZone;
 
     private Transform playerTransform;
+    private Enemy_Stat bossStat;
 
     public BossPhase CurrentPhase
     {
@@ -100,6 +101,13 @@ public class BossEnemy : EnemyBase
     private void Awake()
     {
         FindPlayer();
+
+        bossStat = GetComponent<Enemy_Stat>();
+
+        if (bossStat == null)
+        {
+            bossStat = GetComponentInParent<Enemy_Stat>();
+        }
 
         if (patternExecutor == null)
         {
@@ -213,6 +221,15 @@ public class BossEnemy : EnemyBase
         currentBossState = BossState.Decision;
 
         UpdateDistanceZone(true);
+
+        if (BossHpBar.instance != null)
+        {
+            BossHpBar.instance.Show(bossStat);
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] 씬에서 UI_BossHpBar를 찾을 수 없습니다.");
+        }
 
         Debug.Log($"[{gameObject.name}] 보스전 시작! " + $"현재 페이즈: {currentPhase}");
     }
@@ -365,7 +382,7 @@ public class BossEnemy : EnemyBase
 
     private float GetNextPatternCheckTime()
     {
-        float eearliestReadyTime = float.PositiveInfinity;
+        float earliestReadyTime = float.PositiveInfinity;
 
         bool hasConditionCandidate = false;
 
@@ -379,12 +396,12 @@ public class BossEnemy : EnemyBase
 
             if (!patternReadyTimes.TryGetValue(pattern, out float readyTime)) return Time.time;
 
-            if (readyTime < eearliestReadyTime) eearliestReadyTime = readyTime;
+            if (readyTime < earliestReadyTime) earliestReadyTime = readyTime;
         }
 
-        if (!hasConditionCandidate || float.IsPositiveInfinity(eearliestReadyTime)) return Time.time + 0.5f;
+        if (!hasConditionCandidate || float.IsPositiveInfinity(earliestReadyTime)) return Time.time + 0.5f;
 
-        return Mathf.Max(Time.time + 0.05f, eearliestReadyTime);
+        return Mathf.Max(Time.time + 0.05f, earliestReadyTime);
     }
 
     private void RefreshValidPatterns()
