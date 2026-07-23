@@ -30,6 +30,7 @@ public class BossPatternData : ScriptableObject
     public List<BossPhase> usablePhases = new List<BossPhase>();
     [Tooltip("패턴 사용 가능한 거리")]
     public BossPatternDistance usableDistance = BossPatternDistance.Both;
+
     [Header("패턴 선택 설정")]
     [Min(0f)]
     [Tooltip("선택 가중치(이 패턴을 쓸 가중치)")]
@@ -37,6 +38,15 @@ public class BossPatternData : ScriptableObject
     [Min(0f)]
     [Tooltip("패턴 쿨타임")]
     public float cooldown = 3f;
+
+    [Header("연계 가중치")]
+    [Tooltip("직전 패턴에 따라 선택 가중치를 높일지")]
+    public bool patternWeightBonus = false;
+    [Tooltip("가중치 보너스 적용 직전 패턴")]
+    public BossPatternType previousPatternType = BossPatternType.Dash;
+    [Min(1f)]
+    [Tooltip("가중치 보너스 배율")]
+    public float patternWeightMultiplier = 5f;
 
     [Header("보스 실행 종류")]
     public BossPatternType patternType;
@@ -62,6 +72,35 @@ public class BossPatternData : ScriptableObject
     [Min(0.05f)]
     [Tooltip("바닥에 표시할 돌진 경고선의 너비")]
     public float dashTelegraphWidth = 1.5f;
+
+    [Header("점프 공격 설정")]
+    [Tooltip("점프 공격 애니메이션을 재생할지")]
+    public bool playLeapAnimation = true;
+    [Min(0f)]
+    [Tooltip("점프 포물선의 최대 높이")]
+    public float leapHeight = 5f;
+    [Min(0.1f)]
+    [Tooltip("점프 시작부터 착지 충격까지 걸리는 시간")]
+    public float leapTimeToImpact = 0.9f;
+    [Min(0f)]
+    [Tooltip("착지 후 다음 행동까지의 후딜")]
+    public float leapRecoveryTime = 0.5f;
+    [Min(0.1f)]
+    [Tooltip("착지 범위 공격 반경")]
+    public float leapAttackRadius = 3f;
+    [Tooltip("착탄 지점 경고 원을 표시할지")]
+    public bool showLeapTelegraph = true;
+    [Min(0f)]
+    [Tooltip("플레이어 중심과 보스 착지 위치 사이의 거리")]
+    public float leapLandingStopDistance = 1.2f;
+
+    [Header("점프 착지 카메라 흔들림")]
+    [Min(0f)]
+    public float leapShakeAmplitude = 0.25f;
+    [Min(0f)]
+    public float leapShakeDuration = 0.25f;
+    [Min(0)]
+    public int leapShakeFrequency = 5;
 
     [Header("공격 애니메이션")]
     [Tooltip("애니메이터에 전달할 공격 번호")]

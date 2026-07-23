@@ -18,8 +18,51 @@ MonoBehaviour:
   usableDistance: 1
   selectionWeight: 2
   cooldown: 5
+  patternWeightBonus: 1
+  previousPatternType: 1
+  patternWeightMultiplier: 5
   patternType: 3
-  attackIndex: 1
-  animationTime: 1.5
-  damageMultiplier: 1
+  dashDistance: 8
+  dashDuration: 0.6
+  dashWindupTime: 0.4
+  dashMoveCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  playDashAnimation: 1
+  showDashTelegraph: 1
+  dashTelegraphWidth: 1.5
+  playLeapAnimation: 1
+  leapHeight: 5
+  leapTimeToImpact: 1.2
+  leapRecoveryTime: 0.5
+  leapAttackRadius: 3
+  showLeapTelegraph: 1
+  leapLandingStopDistance: 1.2
+  leapShakeAmplitude: 1.4
+  leapShakeDuration: 0.25
+  leapShakeFrequency: 16
+  attackIndex: 5
+  animationTime: 2.317
+  damageMultiplier: 2
   hitReactionType: 4

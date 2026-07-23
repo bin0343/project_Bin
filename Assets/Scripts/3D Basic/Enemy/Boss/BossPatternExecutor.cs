@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BossPatternExecutor : MonoBehaviour
 {
@@ -20,7 +21,28 @@ public class BossPatternExecutor : MonoBehaviour
 
     [Header("경고선")]
     [SerializeField] private BossDashTelegraph dashTelegraph;
- 
+
+    [Header("점프 공격")]
+    [SerializeField] private BossAreaTelegraph leapTelegraph;
+    [Tooltip("착탄할 바닥 레이어")]
+    [SerializeField] private LayerMask leapGroundLayer;
+    [Tooltip("점프 범위 공격 대상")]
+    [SerializeField] private LayerMask attackTargetLayer;
+    [SerializeField, Min(0.1f)] private float leapGroundCheckHeight = 10f;
+    [SerializeField, Min(0.1f)] private float leapGroundCheckDistance = 30f;
+    [SerializeField, Min(0.1f)] private float leapNavMeshSampleDistance = 2f;
+
+    private NavMeshAgent navAgent;
+    private Enemy_Stat enemyStat;
+
+    private bool isLeapActive;
+    private bool leapImpactTriggered;
+    private bool leapAgentWasEnabled;
+
+    private BossPatternData activeLeapPattern;
+    private Vector3 activeLeapImpactPoint;
+    private Vector3 activeLeapLandingPoint;
+
     private Animator animator;
 
     private EnemyAttackHItbox attackHitbox;
@@ -31,6 +53,13 @@ public class BossPatternExecutor : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         attackHitbox = GetComponentInChildren<EnemyAttackHItbox>();
         enemyBase = GetComponent<EnemyBase>();
+        navAgent = GetComponent<NavMeshAgent>();
+        enemyStat = GetComponent<Enemy_Stat>();
+
+        if (leapTelegraph == null)
+        {
+            leapTelegraph = GetComponentInChildren<BossAreaTelegraph>(true);
+        }
 
         if (dashTelegraph == null)
         {
@@ -43,6 +72,7 @@ public class BossPatternExecutor : MonoBehaviour
         }
 
         dashTelegraph?.Hide();
+        leapTelegraph?.Hide();
     }
 
     public IEnumerator Execute(BossPatternData pattern, Transform target)
@@ -60,6 +90,9 @@ public class BossPatternExecutor : MonoBehaviour
                 break;
             case BossPatternType.Dash:
                 yield return ExecuteDash(pattern, target);
+                break;
+            case BossPatternType.Leap:
+                yield return ExecuteLeap(pattern, target);
                 break;
             default:
                 yield return ExecuteFakePattern(pattern);
@@ -202,6 +235,97 @@ public class BossPatternExecutor : MonoBehaviour
         }
     }
 
+    private IEnumerator ExecuteLeap(BossPatternData pattern, Transform target)
+    {
+        if (pattern == null) yield break;
+        if (target == null) yield break;
+
+        Vector3 startPosition = transform.position;
+        Vector3 impactPoint = GetLeapImpactPoint(target);
+        Vector3 landingPoint = GetLeapLandingPoint(startPosition, impactPoint, pattern.leapLandingStopDistance);
+
+        FaceTarget(target);
+
+        activeLeapPattern = pattern;
+        activeLeapImpactPoint = impactPoint;
+        activeLeapLandingPoint = landingPoint;
+
+        isLeapActive = true;
+        leapImpactTriggered = false;
+
+        if (pattern.showLeapTelegraph)
+        {
+            leapTelegraph?.Show(impactPoint, pattern.leapAttackRadius);
+        }
+        else
+        {
+            leapTelegraph?.Hide();
+        }
+
+        PlayLeapAnimation(pattern);
+
+        leapAgentWasEnabled = navAgent != null && navAgent.enabled;
+
+        if (leapAgentWasEnabled)
+        {
+            if (navAgent.isOnNavMesh)
+            {
+                navAgent.isStopped = true;
+                navAgent.ResetPath();
+            }
+
+            navAgent.enabled = false;
+        }
+
+        float elapsedTime = 0f;
+
+        float impactEventTimeout = Mathf.Max(pattern.animationTime, pattern.leapTimeToImpact + 0.1f);
+
+        while (!leapImpactTriggered && elapsedTime < impactEventTimeout)
+        {
+            if (enemyBase != null && enemyBase.isDead)
+            {
+                leapTelegraph?.Hide();
+
+                isLeapActive = false;
+                activeLeapPattern = null;
+
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            float normalizedTime = Mathf.Clamp01(elapsedTime / Mathf.Max(pattern.leapTimeToImpact, 0.01f));
+
+            Vector3 horizontalPosition = Vector3.Lerp(startPosition, landingPoint, normalizedTime);
+
+            float vecticalOffset = 4f * pattern.leapHeight * normalizedTime * (1f - normalizedTime);
+
+            transform.position = horizontalPosition + Vector3.up * vecticalOffset;
+
+            yield return null;
+        }
+
+        if (!leapImpactTriggered)
+        {
+            Debug.LogWarning($"[{gameObject.name}] " + $"점프 착지 Animation Event가 없어 " + $"시간 기준으로 착지 처리합니다.");
+
+            TriggerLeapImpact();
+        }
+
+        RestoreAgentAfterLeap();
+
+        float remainingAnimationTime =Mathf.Max(pattern.animationTime - elapsedTime, pattern.leapRecoveryTime);
+
+        if (remainingAnimationTime > 0f)
+        {
+            yield return new WaitForSeconds(remainingAnimationTime);
+        }
+
+        isLeapActive = false;
+        activeLeapPattern = null;
+    } 
+
     private IEnumerator ExecuteFakePattern(BossPatternData pattern)
     {
         Debug.Log($"[{gameObject.name}] 미구현 패턴 임시 실행: " + $"{pattern.patternName}");
@@ -281,6 +405,52 @@ public class BossPatternExecutor : MonoBehaviour
         dashTelegraph.UpdateLine(startPostion, endPosition, pattern.dashTelegraphWidth);
     }
 
+    private Vector3 GetLeapImpactPoint(Transform target)
+    {
+        Vector3 targetPosition = target.position;
+        Vector3 rayOrigin = targetPosition + Vector3.up * leapGroundCheckHeight;
+        float rayDistance = leapGroundCheckHeight + leapGroundCheckDistance;
+
+        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, rayDistance, leapGroundLayer, QueryTriggerInteraction.Ignore))
+        {
+            targetPosition = hit.point;
+        }
+        else
+        {
+            targetPosition.y = transform.position.y;
+        }
+
+        if (NavMesh.SamplePosition(targetPosition, out NavMeshHit navHit, leapNavMeshSampleDistance, NavMesh.AllAreas))
+        {
+            targetPosition = navHit.position;
+        }
+
+        return targetPosition;
+    }
+
+    private Vector3 GetLeapLandingPoint(Vector3 startPosition, Vector3 impactPoint, float stopDistance)
+    {
+        Vector3 direction = impactPoint - startPosition;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.001f)
+        {
+            return impactPoint;
+        }
+
+        direction.Normalize();
+        
+        Vector3 landingPoint = impactPoint - direction * stopDistance;
+        landingPoint.y = impactPoint.y;
+        
+        if (NavMesh.SamplePosition(landingPoint, out NavMeshHit navHit, leapNavMeshSampleDistance, NavMesh.AllAreas))
+        {
+            landingPoint = navHit.position;
+        }
+
+        return landingPoint;
+    }
+
     private void PlayDashAnimation(BossPatternData pattern)
     {
         if (pattern == null) return;
@@ -299,5 +469,96 @@ public class BossPatternExecutor : MonoBehaviour
         animator.SetInteger("AttackIndex", pattern.attackIndex);
         animator.ResetTrigger("IsAttack");
         animator.SetTrigger("IsAttack");
+    }
+
+    private void PlayLeapAnimation(BossPatternData pattern)
+    {
+        if (pattern == null) return;
+        if (!pattern.playLeapAnimation) return;
+        if (animator == null) return;
+
+        animator.SetBool("IsIdle", false);
+        animator.SetBool("IsMoving", false);
+        animator.SetInteger("AttackIndex", pattern.attackIndex);
+        animator.ResetTrigger("IsAttack");
+        animator.SetTrigger("IsAttack");
+    }
+
+    public void TriggerLeapImpact()
+    {
+        if (!isLeapActive) return;
+        if (leapImpactTriggered) return;
+        if (activeLeapPattern == null) return;
+
+        leapImpactTriggered = true;
+
+        transform.position = activeLeapLandingPoint;
+
+        leapTelegraph?.Hide();
+
+        if (CameraShakeManager.instance != null)
+        {
+            CameraShakeManager.instance.Shake(activeLeapPattern.leapShakeAmplitude, activeLeapPattern.leapShakeFrequency, activeLeapPattern.leapShakeDuration);
+        }
+
+        PerformLeapAreaAttack(activeLeapPattern, activeLeapImpactPoint);
+    }
+
+    private void PerformLeapAreaAttack(BossPatternData pattern, Vector3 impactPoint)
+    {
+        Collider[] colliders = Physics.OverlapSphere(impactPoint, pattern.leapAttackRadius, attackTargetLayer, QueryTriggerInteraction.Ignore);
+
+        HashSet<Character_Stat> hitTargets = new HashSet<Character_Stat>();
+
+        foreach (Collider col in colliders)
+        {
+            Character_Stat targetStat = col.GetComponentInParent<Character_Stat>();
+
+            if (targetStat == null) continue;
+            if (!hitTargets.Add(targetStat)) continue;
+
+            Player_Action playerAction = targetStat.GetComponentInParent<Player_Action>();
+         
+            if (playerAction != null && playerAction.IsInvincible)
+            {
+                if (playerAction.IsRollingState())
+                {
+                    playerAction.TriggerPerfectEvade();
+                }
+
+                continue;
+            }
+
+            int attackPower = enemyStat != null ? enemyStat.attackPower : 10;
+            float damageMultiplier = enemyBase != null ? enemyBase.CurrentDamageMultiplier : 1f;
+            int finalAttackPower = Mathf.RoundToInt(attackPower * damageMultiplier);
+            int damage = Mathf.Max(finalAttackPower - targetStat.defensePower, 1);
+
+            targetStat.TakeDamage(damage, transform);
+
+            if (playerAction != null)
+            {
+                HitReactionType reactionType = enemyBase != null ? enemyBase.CurrentHitReactionType : HitReactionType.Normal;
+
+                playerAction.OnDamageTaken(reactionType, impactPoint);
+            }
+        }
+    }
+
+    private void RestoreAgentAfterLeap()
+    {
+        if (!leapAgentWasEnabled) return;
+        leapAgentWasEnabled = false;
+        if (navAgent == null) return;
+        if (enemyBase != null && enemyBase.isDead) return;
+
+        navAgent.enabled = true;
+
+        if (navAgent.isOnNavMesh)
+        {
+            navAgent.Warp(transform.position);
+
+            navAgent.isStopped = true;
+        }
     }
 }

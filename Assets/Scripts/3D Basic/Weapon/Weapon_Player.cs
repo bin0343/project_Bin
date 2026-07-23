@@ -282,23 +282,12 @@ public class Weapon_Player : MonoBehaviour
 
         if (projectile != null)
         {
-            AttackType currentAttackType = playerAction.currentComboStep == 3
-                ? AttackType.Knockback
-                : AttackType.Normal;
+            AttackType currentAttackType = playerAction.currentComboStep == 3 ? AttackType.Knockback : AttackType.Normal;
 
             float perfectEvadeMultiplier = playerAction.GetPerfectEvadeAttackMultiplier();
             bool usePerfectEvadeBonus = perfectEvadeMultiplier > 1f;
 
-            projectile.Init(
-                playerAction,
-                targetStat,
-                destination,
-                projectileSpeed,
-                currentAttackType,
-                usePerfectEvadeBonus,
-                perfectEvadeMultiplier,
-                targetHeightRatio
-            );
+            projectile.Init(playerAction, targetStat, destination, projectileSpeed, currentAttackType, usePerfectEvadeBonus, perfectEvadeMultiplier, targetHeightRatio);
         }
     }
 

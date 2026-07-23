@@ -6,11 +6,13 @@ public class Enemy_AnimationEvent : MonoBehaviour
 {
     private EnemyBase enemy;
     private EnemyAttackHItbox attackHItbox;
+    private BossPatternExecutor bossPatternExecutor;
 
     private void Awake()
     {
         enemy = GetComponentInParent<EnemyBase>();
         attackHItbox = GetComponent<EnemyAttackHItbox>();
+        bossPatternExecutor = GetComponentInParent<BossPatternExecutor>();
     }
 
     public void StartAttackTrail()
@@ -47,5 +49,10 @@ public class Enemy_AnimationEvent : MonoBehaviour
     {
         EndAttack();
         EndAttackTrail();
+    }
+
+    public void LeapImpactEvent()
+    {
+        bossPatternExecutor?.TriggerLeapImpact();
     }
 }

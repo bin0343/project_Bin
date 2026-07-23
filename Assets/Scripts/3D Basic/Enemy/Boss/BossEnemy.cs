@@ -50,8 +50,7 @@ public class BossEnemy : EnemyBase
     private float delayBetweenPatterns = 1f;
 
     [Header("패턴 실행기")]
-    [SerializeField]
-    private BossPatternExecutor patternExecutor;
+    [SerializeField] private BossPatternExecutor patternExecutor;
 
     private Coroutine patternCoroutine;
     private float nextPatternDecisionTime;
@@ -62,6 +61,7 @@ public class BossEnemy : EnemyBase
 
     private Transform playerTransform;
     private Enemy_Stat bossStat;
+    private BossPatternData lastPattern;
 
     public BossPhase CurrentPhase
     {
@@ -188,11 +188,8 @@ public class BossEnemy : EnemyBase
         {
             nextPatternDecisionTime = GetNextPatternCheckTime();
 
-            Debug.Log($"[{gameObject.name}] " + $"현재 사용 가능한 패턴이 없습니다. " + $"약 {Mathf.Max(nextPatternDecisionTime - Time.time, 0f):F1}초 후 재확인");
             return;
         }
-
-        Debug.Log($"[{gameObject.name}] 선택된 패턴: " + $"{selectedPattern.patternName}");
 
         StartSelectedPattern();
     }
@@ -230,8 +227,6 @@ public class BossEnemy : EnemyBase
         {
             Debug.LogWarning($"[{gameObject.name}] 씬에서 UI_BossHpBar를 찾을 수 없습니다.");
         }
-
-        Debug.Log($"[{gameObject.name}] 보스전 시작! " + $"현재 페이즈: {currentPhase}");
     }
 
     private void FindPlayer()
@@ -269,11 +264,6 @@ public class BossEnemy : EnemyBase
         if (!zoneChanged && !forceRefresh) return;
 
         currentDistanceZone = nextZone;
-
-        if (zoneChanged)
-        {
-            Debug.Log($"[{gameObject.name}] 거리 구간 변경: " + $"{currentDistanceZone}");
-        }
     }
 
     #region PatternCoroutine
@@ -282,13 +272,9 @@ public class BossEnemy : EnemyBase
     {
         if (patternExecutor == null)
         {
-            Debug.LogError($"[{gameObject.name}] " + $"BossPatternExecutor가 없습니다.");
-
             FinishCurrentPattern(pattern);
             yield break;
         }
-
-        Debug.Log($"[{gameObject.name}] 패턴 실행 요청: " + $"{pattern.patternName}");
 
         yield return patternExecutor.Execute(pattern, target);
 
@@ -309,7 +295,7 @@ public class BossEnemy : EnemyBase
         {
             StartPatternCooldown(completedPattern);
 
-            Debug.Log($"[{gameObject.name}] 패턴 종료: " + $"{completedPattern.patternName} / " + $"ExecutingPattern → Decision");
+            lastPattern = completedPattern;
         }
 
         selectedPattern = null;
@@ -376,8 +362,6 @@ public class BossEnemy : EnemyBase
         float readyTime = Time.time + cooldown;
 
         patternReadyTimes[pattern] = readyTime;
-
-        Debug.Log($"[{gameObject.name}] " + $"{pattern.patternName} 쿨타임 시작: " + $"{cooldown:F1}초");
     }
 
     private float GetNextPatternCheckTime()
@@ -415,12 +399,30 @@ public class BossEnemy : EnemyBase
             validPatterns.Add(pattern);
         }
 
-        Debug.Log($"[{gameObject.name}] 사용 가능 패턴 갱신: " + $"{validPatterns.Count}개 / " + $"페이즈: {currentPhase}, 거리: {currentDistanceZone}");
-
         foreach (BossPatternData pattern in validPatterns)
         {
             Debug.Log($"- 후보 패턴: {pattern.patternName}");
         }
+    }
+
+    private float GetEffectivePatternWeight(BossPatternData pattern)
+    {
+        if (pattern == null) return 0f;
+
+        float weight = Mathf.Max(pattern.selectionWeight, 0f);
+
+        if (!pattern.patternWeightBonus) return weight;
+
+        if (lastPattern == null) return weight;
+
+        if (lastPattern.patternType != pattern.previousPatternType)
+        {
+            return weight;
+        }
+
+        float multiplier = Mathf.Max(pattern.patternWeightMultiplier, 1f);
+
+        return weight * multiplier;
     }
 
     private BossPatternData SelectPatternByWeight()
@@ -433,7 +435,7 @@ public class BossEnemy : EnemyBase
         {
             if (pattern == null) continue;
 
-            totalWeight += Mathf.Max(pattern.selectionWeight, 0f);
+            totalWeight += GetEffectivePatternWeight(pattern);
         }
 
         if (totalWeight <= 0f) return null;
@@ -444,7 +446,7 @@ public class BossEnemy : EnemyBase
         {
             if (pattern == null) continue;
 
-            float weight = Mathf.Max(pattern.selectionWeight, 0f);
+            float weight = GetEffectivePatternWeight(pattern);
 
             randomValue -= weight;
 
