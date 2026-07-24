@@ -37,14 +37,14 @@ public class BossEnemy : EnemyBase
 
     [Header("보스 패턴")]
     [Tooltip("보스가 사용할 수 있는 패턴 목록")]
-    [SerializeField] private List<BossPatternData> availablePatterns = new List<BossPatternData>();
+    [SerializeField] private List<BossPatternDataBase> availablePatterns = new List<BossPatternDataBase>();
 
     [Header("현재 가능한 패턴 - 확인용")]
-    [SerializeField] private List<BossPatternData> validPatterns = new List<BossPatternData>();
+    [SerializeField] private List<BossPatternDataBase> validPatterns = new List<BossPatternDataBase>();
 
     [Header("패턴 실행 테스트")]
     [SerializeField]
-    private BossPatternData selectedPattern;
+    private BossPatternDataBase selectedPattern;
     [Tooltip("패턴 종료 후 다음 패턴을 고르기 전 대기 시간")]
     [SerializeField]
     private float delayBetweenPatterns = 1f;
@@ -55,13 +55,13 @@ public class BossEnemy : EnemyBase
     private Coroutine patternCoroutine;
     private float nextPatternDecisionTime;
 
-    private readonly Dictionary<BossPatternData, float> patternReadyTimes = new Dictionary<BossPatternData, float>();
+    private readonly Dictionary<BossPatternDataBase, float> patternReadyTimes = new Dictionary<BossPatternDataBase, float>();
 
     [SerializeField] private BossDistanceZone currentDistanceZone;
 
     private Transform playerTransform;
     private Enemy_Stat bossStat;
-    private BossPatternData lastPattern;
+    private BossPatternDataBase lastPattern;
 
     public BossPhase CurrentPhase
     {
@@ -268,7 +268,7 @@ public class BossEnemy : EnemyBase
 
     #region PatternCoroutine
 
-    private IEnumerator ExecuteSelectedPattern(BossPatternData pattern)
+    private IEnumerator ExecuteSelectedPattern(BossPatternDataBase pattern)
     {
         if (patternExecutor == null)
         {
@@ -287,7 +287,7 @@ public class BossEnemy : EnemyBase
         FinishCurrentPattern(pattern);
     }
 
-    private void FinishCurrentPattern(BossPatternData completedPattern)
+    private void FinishCurrentPattern(BossPatternDataBase completedPattern)
     {
         ForceEndAttackEffects();
 
@@ -316,7 +316,7 @@ public class BossEnemy : EnemyBase
         animator.SetBool("IsMoving", false);
     }
 
-    private bool IsPatternConditionValid(BossPatternData pattern)
+    private bool IsPatternConditionValid(BossPatternDataBase pattern)
     {
         if (pattern == null) return false;
 
@@ -335,7 +335,7 @@ public class BossEnemy : EnemyBase
         return false;
     }
 
-    private bool IsPatternCooldownReady(BossPatternData pattern)
+    private bool IsPatternCooldownReady(BossPatternDataBase pattern)
     {
         if (pattern == null) return false;
 
@@ -344,7 +344,7 @@ public class BossEnemy : EnemyBase
         return Time.time >= readyTime;
     }
 
-    private bool IsPatternValid(BossPatternData pattern)
+    private bool IsPatternValid(BossPatternDataBase pattern)
     {
         if (!IsPatternConditionValid(pattern)) return false;
 
@@ -353,7 +353,7 @@ public class BossEnemy : EnemyBase
         return true;
     }
 
-    private void StartPatternCooldown(BossPatternData pattern)
+    private void StartPatternCooldown(BossPatternDataBase pattern)
     {
         if (pattern == null) return;
 
@@ -370,7 +370,7 @@ public class BossEnemy : EnemyBase
 
         bool hasConditionCandidate = false;
 
-        foreach (BossPatternData pattern in availablePatterns)
+        foreach (BossPatternDataBase pattern in availablePatterns)
         {
             if (pattern == null) continue;
 
@@ -392,20 +392,20 @@ public class BossEnemy : EnemyBase
     {
         validPatterns.Clear();
 
-        foreach (BossPatternData pattern in availablePatterns)
+        foreach (BossPatternDataBase pattern in availablePatterns)
         {
             if (!IsPatternValid(pattern)) continue;
 
             validPatterns.Add(pattern);
         }
 
-        foreach (BossPatternData pattern in validPatterns)
+        foreach (BossPatternDataBase pattern in validPatterns)
         {
             Debug.Log($"- 후보 패턴: {pattern.patternName}");
         }
     }
 
-    private float GetEffectivePatternWeight(BossPatternData pattern)
+    private float GetEffectivePatternWeight(BossPatternDataBase pattern)
     {
         if (pattern == null) return 0f;
 
@@ -415,7 +415,7 @@ public class BossEnemy : EnemyBase
 
         if (lastPattern == null) return weight;
 
-        if (lastPattern.patternType != pattern.previousPatternType)
+        if (lastPattern.PatternType != pattern.previousPatternType)
         {
             return weight;
         }
@@ -425,13 +425,13 @@ public class BossEnemy : EnemyBase
         return weight * multiplier;
     }
 
-    private BossPatternData SelectPatternByWeight()
+    private BossPatternDataBase SelectPatternByWeight()
     {
         if (validPatterns.Count == 0) return null;
 
         float totalWeight = 0f;
 
-        foreach (BossPatternData pattern in validPatterns)
+        foreach (BossPatternDataBase pattern in validPatterns)
         {
             if (pattern == null) continue;
 
@@ -442,7 +442,7 @@ public class BossEnemy : EnemyBase
 
         float randomValue = Random.Range(0f, totalWeight);
 
-        foreach (BossPatternData pattern in validPatterns)
+        foreach (BossPatternDataBase pattern in validPatterns)
         {
             if (pattern == null) continue;
 

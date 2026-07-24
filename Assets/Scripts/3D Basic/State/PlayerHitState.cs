@@ -4,8 +4,20 @@ using UnityEngine;
 
 public class PlayerHitState : PlayerBaseState
 {
+    private readonly bool useLaunchKnockDownAnimation;
+
+    public PlayerHitState(bool useLaunchKnockDownAnimation = false)
+    {
+        this.useLaunchKnockDownAnimation = useLaunchKnockDownAnimation;
+    }
+
     protected override PlayerAnimState GetAnimState()
     {
+        if (useLaunchKnockDownAnimation)
+        {
+            return PlayerAnimState.LaunchKnockDown;
+        }
+
         return PlayerAnimState.Hit;
     }
 
@@ -24,6 +36,6 @@ public class PlayerHitState : PlayerBaseState
 
     public void OnHitAnimationEnd(Player_Action player)
     {
-        player.ChangeState(new PlayerIdleState());
+        player.NotifyHitAnimationEnded();
     }
 }

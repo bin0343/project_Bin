@@ -39,7 +39,7 @@ public class BossPatternExecutor : MonoBehaviour
     private bool leapImpactTriggered;
     private bool leapAgentWasEnabled;
 
-    private BossPatternData activeLeapPattern;
+    private BossLeapPatternData activeLeapPattern;
     private Vector3 activeLeapImpactPoint;
     private Vector3 activeLeapLandingPoint;
 
@@ -75,7 +75,7 @@ public class BossPatternExecutor : MonoBehaviour
         leapTelegraph?.Hide();
     }
 
-    public IEnumerator Execute(BossPatternData pattern, Transform target)
+    public IEnumerator Execute(BossPatternDataBase pattern, Transform target)
     {
         if (pattern == null)
         {
@@ -83,16 +83,16 @@ public class BossPatternExecutor : MonoBehaviour
             yield break;
         }
 
-        switch (pattern.patternType)
+        switch (pattern)
         {
-            case BossPatternType.BasicMelee:
-                yield return ExecuteBasicMelee(pattern, target);
+            case BossBasicMeleePatternData meleePattern:
+                yield return ExecuteBasicMelee(meleePattern, target);
                 break;
-            case BossPatternType.Dash:
-                yield return ExecuteDash(pattern, target);
+            case BossDashPatternData dashPattern:
+                yield return ExecuteDash(dashPattern, target);
                 break;
-            case BossPatternType.Leap:
-                yield return ExecuteLeap(pattern, target);
+            case BossLeapPatternData leapPattern:
+                yield return ExecuteLeap(leapPattern, target);
                 break;
             default:
                 yield return ExecuteFakePattern(pattern);
@@ -101,7 +101,7 @@ public class BossPatternExecutor : MonoBehaviour
     }
 
     #region PatternCoroutine
-    private IEnumerator ExecuteBasicMelee(BossPatternData pattern, Transform target)
+    private IEnumerator ExecuteBasicMelee(BossBasicMeleePatternData pattern, Transform target)
     {
         Debug.Log($"[{gameObject.name}] 근접 패턴 실행: " + $"{pattern.patternName}");
 
@@ -123,7 +123,7 @@ public class BossPatternExecutor : MonoBehaviour
         yield return new WaitForSeconds(pattern.animationTime);
     }
 
-    private IEnumerator ExecuteDash(BossPatternData pattern, Transform target)
+    private IEnumerator ExecuteDash(BossDashPatternData pattern, Transform target)
     {
         if (pattern == null) yield break;
 
@@ -235,7 +235,7 @@ public class BossPatternExecutor : MonoBehaviour
         }
     }
 
-    private IEnumerator ExecuteLeap(BossPatternData pattern, Transform target)
+    private IEnumerator ExecuteLeap(BossLeapPatternData pattern, Transform target)
     {
         if (pattern == null) yield break;
         if (target == null) yield break;
@@ -326,7 +326,7 @@ public class BossPatternExecutor : MonoBehaviour
         activeLeapPattern = null;
     } 
 
-    private IEnumerator ExecuteFakePattern(BossPatternData pattern)
+    private IEnumerator ExecuteFakePattern(BossPatternDataBase pattern)
     {
         Debug.Log($"[{gameObject.name}] 미구현 패턴 임시 실행: " + $"{pattern.patternName}");
 
@@ -375,7 +375,7 @@ public class BossPatternExecutor : MonoBehaviour
         return false;
     }
 
-    private void UpdateDashTelegraph(BossPatternData pattern, Vector3 dashDirection)
+    private void UpdateDashTelegraph(BossDashPatternData pattern, Vector3 dashDirection)
     {
         if (pattern == null) return;
 
@@ -451,7 +451,7 @@ public class BossPatternExecutor : MonoBehaviour
         return landingPoint;
     }
 
-    private void PlayDashAnimation(BossPatternData pattern)
+    private void PlayDashAnimation(BossDashPatternData pattern)
     {
         if (pattern == null) return;
 
@@ -471,7 +471,7 @@ public class BossPatternExecutor : MonoBehaviour
         animator.SetTrigger("IsAttack");
     }
 
-    private void PlayLeapAnimation(BossPatternData pattern)
+    private void PlayLeapAnimation(BossLeapPatternData pattern)
     {
         if (pattern == null) return;
         if (!pattern.playLeapAnimation) return;
@@ -496,6 +496,10 @@ public class BossPatternExecutor : MonoBehaviour
 
         leapTelegraph?.Hide();
 
+        Vector3 effectDirection = activeLeapImpactPoint - activeLeapLandingPoint;
+
+        SpawnPatternEffect(activeLeapPattern.impactEffect, activeLeapImpactPoint, effectDirection, activeLeapPattern.leapAttackRadius);
+
         if (CameraShakeManager.instance != null)
         {
             CameraShakeManager.instance.Shake(activeLeapPattern.leapShakeAmplitude, activeLeapPattern.leapShakeFrequency, activeLeapPattern.leapShakeDuration);
@@ -504,7 +508,7 @@ public class BossPatternExecutor : MonoBehaviour
         PerformLeapAreaAttack(activeLeapPattern, activeLeapImpactPoint);
     }
 
-    private void PerformLeapAreaAttack(BossPatternData pattern, Vector3 impactPoint)
+    private void PerformLeapAreaAttack(BossLeapPatternData pattern, Vector3 impactPoint)
     {
         Collider[] colliders = Physics.OverlapSphere(impactPoint, pattern.leapAttackRadius, attackTargetLayer, QueryTriggerInteraction.Ignore);
 
@@ -543,6 +547,38 @@ public class BossPatternExecutor : MonoBehaviour
                 playerAction.OnDamageTaken(reactionType, impactPoint);
             }
         }
+    }
+
+    private GameObject SpawnPatternEffect(BossEffectData effectData, Vector3 spawnPosition, Vector3 lookDirection, float targetRadius = 0f)
+    {
+        if (effectData == null) return null;
+        if (effectData.prefab == null) return null;
+
+        spawnPosition.y += effectData.groundOffset;
+        lookDirection.y = 0f;
+        Quaternion spawnRotation = Quaternion.identity;
+
+        if (lookDirection.sqrMagnitude > 0.001f)
+        {
+            spawnRotation = Quaternion.LookRotation(lookDirection.normalized);
+        }
+
+        GameObject effectObject = Instantiate(effectData.prefab, spawnPosition, spawnRotation);
+
+        if (targetRadius > 0f)
+        {
+            float baseRadius = Mathf.Max(effectData.baseRadius, 0.01f);
+            float scaleMultiplier = targetRadius / baseRadius;
+
+            effectObject.transform.localScale *= scaleMultiplier;
+        }
+
+        if (effectData.lifetime > 0f)
+        {
+            Destroy(effectObject, effectData.lifetime);
+        }
+
+        return effectObject;
     }
 
     private void RestoreAgentAfterLeap()

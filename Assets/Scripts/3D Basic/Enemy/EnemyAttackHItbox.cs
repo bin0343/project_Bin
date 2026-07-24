@@ -105,9 +105,14 @@ public class EnemyAttackHItbox : MonoBehaviour
                 {
                     Player_Action playerAction = collider.GetComponentInParent<Player_Action>();
 
+                    if (playerAction != null && perfectEvadeTargets.Contains(playerAction))
+                    {
+                        hitTargets.Add(collider);
+                        continue;
+                    }
+
                     if (playerAction != null && playerAction.IsInvincible)
                     {
-                        // 회피 무적 중이면 데미지는 주지 않고, 이번 공격 판정에서는 이미 처리한 대상으로 본다.
                         hitTargets.Add(collider);
                         continue;
                     }
@@ -151,7 +156,7 @@ public class EnemyAttackHItbox : MonoBehaviour
                             reactionType = enemyBase.CurrentHitReactionType;
                         }
 
-                        playerAction.OnDamageTaken(reactionType, rootTransform.position);
+                        playerAction.OnDamageTaken(reactionType, rootTransform.position, rootTransform.forward);
                     }
                 }
             }

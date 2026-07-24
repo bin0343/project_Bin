@@ -8,7 +8,7 @@ public enum HitReactionType
     Normal, //데미지 + Idle상태일때 확률로 HitState
     Stagger,    //HitState(강제 경직)
     Knockback,   //HitState + 넉백
-    LanchKnockDown  //넘어지면서 뒤로 날아감
+    LaunchKnockDown  //넘어지면서 뒤로 날아감
 }
 
 public class Player_Action : MonoBehaviour
@@ -67,7 +67,25 @@ public class Player_Action : MonoBehaviour
     [Header("피격 넉백")]
     [SerializeField] private float enemyKnockbackDistance = 2.5f;
     [SerializeField] private float enemyKnockbackDuration = 0.25f;
-    private Coroutine enemyKnockbackCoroutine;
+
+    [Header("런치 넉다운")]
+    [SerializeField] private float launchKnockDownDistance = 5f;
+    [SerializeField] private float launchKnockDownHeight = 2.2f;
+    [SerializeField] private float launchKnockDownDuration = 0.65f;
+    [Tooltip("돌진 공격을 옆에서 맞았을 때 대각선으로 날아가는 정도")]
+    [SerializeField, Range(0f, 1.5f)]
+    private float launchSideInfluence = 0.8f;
+
+    [Header("피격 이동 충돌 보정")]
+    [SerializeField] private LayerMask hitReactionObstacleLayer;
+    [SerializeField] private float hitReactionCheckRadius = 0.35f;
+    [SerializeField] private float hitReactionCheckHeight = 0.8f;
+    [SerializeField] private float hitReactionWallBuffer = 0.1f;
+
+    private Coroutine enemyHitMoveCoroutine;
+
+    private bool isHitReactionMotionActive;
+    private bool hitAnimationEnded;
 
     [Header("공격 대쉬 충돌 보정")]
     [SerializeField] private LayerMask attackDashObstacleLayer;
@@ -508,16 +526,14 @@ public class Player_Action : MonoBehaviour
     #endregion
 
     #region Hit
-    public void OnDamageTaken(HitReactionType reactionType = HitReactionType.Normal, Vector3? attackerPosition = null)
+    public void OnDamageTaken(HitReactionType reactionType = HitReactionType.Normal, Vector3? sourcePosition = null, Vector3? attackDircetion = null)
     {
         if (IsInvincible) return;
         if (IsDead) return;
 
-        if (ShouldEnterHitState(reactionType))
-        {
-            bool shouldKnockback = reactionType == HitReactionType.Knockback;
-            EnterHitState(shouldKnockback, attackerPosition);
-        }
+        if (!ShouldEnterHitState(reactionType)) return;
+
+        EnterHitState(reactionType, sourcePosition, attackDircetion);
     }
 
     private bool ShouldEnterHitState(HitReactionType reactionType)
@@ -534,7 +550,7 @@ public class Player_Action : MonoBehaviour
         if (Time.time < lastHitReactionTime + hitReactionCooldown)
             return false;
 
-        if (reactionType == HitReactionType.Stagger || reactionType == HitReactionType.Knockback)
+        if (reactionType == HitReactionType.Stagger || reactionType == HitReactionType.Knockback || reactionType == HitReactionType.LaunchKnockDown)
             return true;
 
         if (reactionType == HitReactionType.Normal)
@@ -548,7 +564,7 @@ public class Player_Action : MonoBehaviour
         return false;
     }
 
-    private void EnterHitState(bool applyKnockback = false, Vector3? attackerPosition = null)
+    private void EnterHitState(HitReactionType reactionType, Vector3? sourcePosition = null, Vector3? attackDirection = null)
     {
         lastHitReactionTime = Time.time;
 
@@ -556,20 +572,94 @@ public class Player_Action : MonoBehaviour
         currentWeapon?.DisableHitbox();
         IsAttacking = false;
 
-        ChangeState(new PlayerHitState());
-
-        if (applyKnockback && attackerPosition.HasValue)
+        if (enemyHitMoveCoroutine != null)
         {
-            if (enemyKnockbackCoroutine != null)
-            {
-                StopCoroutine(enemyKnockbackCoroutine);
-            }
-
-            enemyKnockbackCoroutine = StartCoroutine(EnemyKnockbackRoutine(attackerPosition.Value));
+            StopCoroutine(enemyHitMoveCoroutine);
+            enemyHitMoveCoroutine = null;
         }
+
+        bool isKnockback = reactionType == HitReactionType.Knockback;
+        bool isLaunchKnockDown = reactionType == HitReactionType.LaunchKnockDown;
+        bool hasMovement = isKnockback || isLaunchKnockDown;
+
+        hitAnimationEnded = false;
+        isHitReactionMotionActive = hasMovement;
+
+        ChangeState(new PlayerHitState(isLaunchKnockDown));
+
+        if (!hasMovement) return;
+
+        Vector3 reactionDirection = CalculateHitReactionDirection(sourcePosition, attackDirection, isLaunchKnockDown);
+
+        float moveDistance = isLaunchKnockDown ? launchKnockDownDistance : enemyKnockbackDistance;
+        float moveDuration = isLaunchKnockDown ? launchKnockDownDuration : enemyKnockbackDuration;
+        float arcHeight = isLaunchKnockDown ? launchKnockDownHeight : 0f;
+
+        enemyHitMoveCoroutine = StartCoroutine(HitReactionMoveRoutine(reactionDirection, moveDistance, moveDuration, arcHeight));
     }
 
-    private IEnumerator EnemyKnockbackRoutine(Vector3 attackerPosition)
+    private Vector3 CalculateHitReactionDirection(Vector3? sourcePosition, Vector3? attackDirection, bool useDirectionalLaunch)
+    {
+        Vector3 radialDirection = Vector3.zero;
+
+        if (sourcePosition.HasValue)
+        {
+            radialDirection = transform.position - sourcePosition.Value;
+            radialDirection.y = 0f;
+        }
+
+        if (useDirectionalLaunch && attackDirection.HasValue)
+        {
+            Vector3 forwardDirection = attackDirection.Value;
+            forwardDirection.y = 0f;
+
+            if (forwardDirection.sqrMagnitude > 0.001f)
+            {
+                forwardDirection.Normalize();
+
+                Vector3 rightDirection = Vector3.Cross(Vector3.up, forwardDirection).normalized;
+
+                float sideAmount = 0f;
+
+                if (radialDirection.sqrMagnitude > 0.001f)
+                {
+                    radialDirection.Normalize();
+
+                    sideAmount = Vector3.Dot(radialDirection, rightDirection);
+                }
+
+                Vector3 directionalLaunch = forwardDirection + rightDirection * sideAmount * launchSideInfluence;
+
+                if (directionalLaunch.sqrMagnitude > 0.001f)
+                {
+                    return directionalLaunch.normalized;
+                }
+            }
+        }
+
+        if (radialDirection.sqrMagnitude > 0.001f)
+        {
+            return radialDirection.normalized;
+        }
+
+        if (attackDirection.HasValue)
+        {
+            Vector3 fallbackAttackDirection = attackDirection.Value;
+            fallbackAttackDirection.y = 0f;
+
+            if (fallbackAttackDirection.sqrMagnitude > 0.001f)
+            {
+                return fallbackAttackDirection.normalized;
+            }
+        }
+
+        Vector3 fallbackDirection = -player.transform.forward;
+        fallbackDirection.y = 0f;
+
+        return fallbackDirection.normalized;
+    }
+
+    private IEnumerator HitReactionMoveRoutine(Vector3 direction, float distance, float duration, float arcHeight)
     {
         CanRotate = false;
 
@@ -578,36 +668,96 @@ public class Player_Action : MonoBehaviour
             move.ForceMove(Vector3.zero, 0f);
         }
 
-        Vector3 knockDir = transform.position - attackerPosition;
-        knockDir.y = 0f;
+        direction.y = 0f;
 
-        if (knockDir.sqrMagnitude < 0.001f)
+        if (direction.sqrMagnitude < 0.001f)
         {
-            knockDir = -player.transform.forward;
+            direction = -player.transform.forward;
+            direction.y = 0f;
         }
 
-        knockDir.Normalize();
+        direction.Normalize();
 
-        Vector3 startPos = rigidbody.position;
-        Vector3 endPos = startPos + knockDir * enemyKnockbackDistance;
+        duration = Mathf.Max(duration, 0.01f);
 
-        float timer = 0f;
+        float safeDistance = GetSafeHitReactionDistance(direction, distance);
 
-        while (timer < enemyKnockbackDuration)
+        Vector3 startPosition = rigidbody.position;
+        Vector3 endPosition = startPosition + direction * safeDistance;
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
         {
-            timer += Time.fixedDeltaTime;
+            if (IsDead) break;
 
-            float t = timer / enemyKnockbackDuration;
-            float easedT = 1f - Mathf.Pow(1f - t, 3f);
+            elapsedTime += Time.fixedDeltaTime;
 
-            Vector3 nextPos = Vector3.Lerp(startPos, endPos, easedT);
-            rigidbody.MovePosition(nextPos);
+            float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+            float easedTime = 1f - Mathf.Pow(1f - normalizedTime, 3f);
+
+            Vector3 nextPosition = Vector3.Lerp(startPosition, endPosition, easedTime);
+
+            if (arcHeight > 0f)
+            {
+                float verticalOffset = 4f * arcHeight * normalizedTime * (1f - normalizedTime);
+
+                nextPosition.y = Mathf.Lerp(startPosition.y, endPosition.y, normalizedTime) + verticalOffset;
+            }
+            else
+            {
+                nextPosition.y = rigidbody.position.y;
+            }
+
+            rigidbody.MovePosition(nextPosition);
 
             yield return new WaitForFixedUpdate();
         }
 
+        rigidbody.velocity = Vector3.zero;
+
         CanRotate = true;
-        enemyKnockbackCoroutine = null;
+
+        isHitReactionMotionActive = false;
+        enemyHitMoveCoroutine = null;
+
+        TryFinishHitReaction();
+    }
+
+    private float GetSafeHitReactionDistance(Vector3 direction, float requestedDistance)
+    {
+        if (requestedDistance <= 0f) return 0f;
+
+        if (hitReactionObstacleLayer.value == 0) return requestedDistance;
+
+        Vector3 castOrigin = rigidbody.position + Vector3.up * hitReactionCheckHeight;
+
+        if (Physics.SphereCast(castOrigin, hitReactionCheckRadius, direction, out RaycastHit hit, requestedDistance, hitReactionObstacleLayer, QueryTriggerInteraction.Ignore))
+        {
+            return Mathf.Max(hit.distance - hitReactionWallBuffer, 0f);
+        }
+
+        return requestedDistance;
+    }
+
+    public void NotifyHitAnimationEnded()
+    {
+        hitAnimationEnded = true;
+
+        TryFinishHitReaction();
+    }
+
+    private void TryFinishHitReaction()
+    {
+        if (IsDead) return;
+
+        if (!(currentState is PlayerHitState)) return;
+
+        if (!hitAnimationEnded) return;
+
+        if (isHitReactionMotionActive) return;
+
+        ChangeState(new PlayerIdleState());
     }
     #endregion
 

@@ -2,21 +2,22 @@ using UnityEngine;
 
 public enum PlayerAnimState
 {
-    Idle,   //0
-    Hit,   //1
-    Run,    //2
-    Attack1,    //3
-    Attack2,    //4
-    Attack3,    //5
-    RunningAttack,  //6
-    Jump,   //7
-    RunningJump,   //8 
-    Sit,    //9
-    SitMove,    //10
-    Kick,   //11
-    Shield, //12
-    Dead,    //13
-    Roll    //14
+    Idle,               //0
+    Hit,                //1
+    Run,                //2
+    Attack1,            //3
+    Attack2,            //4
+    Attack3,            //5
+    RunningAttack,      //6
+    Jump,               //7
+    RunningJump,        //8 
+    Sit,                //9
+    SitMove,            //10
+    Kick,               //11
+    Shield,             //12
+    Dead,               //13
+    Roll,               //14
+    LaunchKnockDown     //15
 }
 
 public abstract class PlayerBaseState : IPlayerState
