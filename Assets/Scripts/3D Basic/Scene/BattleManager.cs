@@ -217,4 +217,72 @@ public class BattleManager : MonoBehaviour
     {
         return spawnedCharacters[currentActiveIndex];
     }
+
+    public void PreparePartyForSceneTransition()
+    {
+        GameObject activeCharacter = GetActiveCharacter();
+
+        if (activeCharacter == null) return; 
+
+        Player_Action playerAction = activeCharacter.GetComponent<Player_Action>();
+
+        if (playerAction != null && !playerAction.IsDead)
+        {
+            playerAction.currentWeapon?.ForceStopTrail();
+            playerAction.currentWeapon?.DisableHitbox();
+
+            playerAction.ChangeState(new PlayerIdleState());
+        }
+
+        Rigidbody activeRigidbody = activeCharacter.GetComponent<Rigidbody>();
+
+        if (activeRigidbody != null)
+        {
+            activeRigidbody.velocity = Vector3.zero;
+            activeRigidbody.angularVelocity = Vector3.zero;
+        }
+
+        PlayerAttackState.ResetCombo();
+    }
+
+    public void MovePartyToSpawnPoint(Transform spawnPoint)
+    {
+        if (spawnPoint == null)
+        {
+            Debug.LogError("[BattleManager] 이동할 SpawnPoint가 없습니다.");
+            return;
+        }
+
+        Vector3 spawnPosition = spawnPoint.position;
+        Quaternion spawnRotation = spawnPoint.rotation;
+
+        for (int i = 0; i < spawnedCharacters.Length; i++)
+        {
+            GameObject character = spawnedCharacters[i];
+
+            if (character == null) continue;
+
+            character.transform.SetPositionAndRotation(spawnPosition, spawnRotation);
+
+            Rigidbody characterRigidbody = character.GetComponent<Rigidbody>();
+
+            if (characterRigidbody != null)
+            {
+                characterRigidbody.position = spawnPosition;
+                characterRigidbody.rotation = spawnRotation;
+                characterRigidbody.velocity = Vector3.zero;
+                characterRigidbody.angularVelocity = Vector3.zero;
+            }
+        }
+
+        Physics.SyncTransforms();
+
+        GameObject activeCharacter = GetActiveCharacter();
+
+        if (activeCharacter != null)
+        {
+            ChangeCameraTarget(activeCharacter.transform);
+            UpdateSystemsWithActiveCharacter(activeCharacter);
+        }
+    }
 }
