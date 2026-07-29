@@ -26,6 +26,10 @@ public class UI_StatusBar : MonoBehaviour
 
     public void UpdateStatus(Character_Stat stat)
     {
+        if (!isActiveAndEnabled) return;
+
+        if (stat == null) return;
+
         CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
         
         if (levelText != null) levelText.text = $"Lv.{cStatus.level}";

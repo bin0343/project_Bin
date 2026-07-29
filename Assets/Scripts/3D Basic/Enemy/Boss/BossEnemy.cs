@@ -13,6 +13,7 @@ public enum BossPhase
 public enum BossState
 {
     Dormant,           // 보스전 시작 전
+    Opening,
     Decision,          // 다음 패턴 선택
     ExecutingPattern,  // 패턴 실행 중
     PhaseChanging,     // 페이즈 전환 중
@@ -31,6 +32,23 @@ public class BossEnemy : EnemyBase
     [SerializeField] private BossPhase currentPhase = BossPhase.Phase1;
     [SerializeField] private BossState currentBossState = BossState.Dormant;
     [SerializeField] private float battleStartDistance = 10f;
+
+    [Header("보스 소개 연출")]
+    [SerializeField] private float introTriggerDistance = 20f;
+    [SerializeField] private Transform introCameraTarget;
+
+    private bool introDistanceChecked;
+
+    public Transform IntroCameraTarget
+    {
+        get
+        {
+            return introCameraTarget != null ? introCameraTarget : transform;
+        }
+    }
+
+    [Header("오프닝 공격")]
+    [SerializeField] private BossOpeningLeapData openingLeapData;
 
     [Header("거리 판단")]
     [SerializeField] private float closeRange = 4f;     //이 안에 있으면 근거리
@@ -128,6 +146,8 @@ public class BossEnemy : EnemyBase
             case BossState.Dormant:
                 DormantLogic();
                 break;
+            case BossState.Opening:
+                break;
             case BossState.Decision:
                 DecisionLogic();
                 break;
@@ -154,17 +174,96 @@ public class BossEnemy : EnemyBase
             if (playerTransform == null) return;
         }
 
+        if (BossIntroController.instance != null && BossIntroController.instance.IsPlaying) return;
+
         Vector3 difference = playerTransform.position - transform.position;
         difference.y = 0f;
 
+        float distanceSqr = difference.sqrMagnitude;
+
+        if (!introDistanceChecked)
+        {
+            float introDistanceSqr = introTriggerDistance * introTriggerDistance;
+
+            if (distanceSqr <= introDistanceSqr)
+            {
+                introDistanceChecked = true;
+
+                BossIntroController controller = BossIntroController.instance;
+
+                if (controller != null)
+                {
+                    if (controller.TryPlayIntro(this))
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("[BossEnemy] BossIntroController가 없어 " + "소개 연출을 건너뜁니다.");
+                }
+            }
+        }
+
         float startDistanceSqr = battleStartDistance * battleStartDistance;
 
-        if (difference.sqrMagnitude <= startDistanceSqr)
+        if (distanceSqr <= startDistanceSqr)
         {
             target = playerTransform;
             StartBossBattle();
         }
     }
+    #endregion
+
+    #region Opening
+    public bool BeginOpeningLeap()
+    {
+        if (currentBossState != BossState.Dormant) return false;
+
+        if (patternExecutor == null) return false;
+
+        if (openingLeapData == null) return false;
+
+        if (playerTransform == null)
+        {
+            FindPlayer();
+
+            if (playerTransform == null) return false;
+        }
+
+        bool started = patternExecutor.StartOpeningLeap(openingLeapData, playerTransform, CompleteOpeningLeap);
+
+        if (!started) return false;
+
+        target = playerTransform;
+        currentBossState = BossState.Opening;
+
+        return true;
+    }
+
+    public void ReleaseOpeningLeapTargeting()
+    {
+        if (currentBossState != BossState.Opening) return;
+
+        patternExecutor?.ReleaseOpeningLeapTargeting();
+    }
+
+    private void CompleteOpeningLeap()
+    {
+        target = playerTransform;
+
+        currentBossState = BossState.Decision;
+
+        UpdateDistanceZone(true);
+
+        nextPatternDecisionTime = Time.time + delayBetweenPatterns;
+
+        if (BossHpBar.instance != null)
+        {
+            BossHpBar.instance.Show(bossStat);
+        }
+    }
+
     #endregion
 
     #region Decision
@@ -211,10 +310,8 @@ public class BossEnemy : EnemyBase
         return false;
     }
 
-    private void StartBossBattle()
+    private void EnterBattleState()
     {
-        if (currentBossState != BossState.Dormant) return;
-
         currentBossState = BossState.Decision;
 
         UpdateDistanceZone(true);
@@ -223,10 +320,14 @@ public class BossEnemy : EnemyBase
         {
             BossHpBar.instance.Show(bossStat);
         }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] 씬에서 UI_BossHpBar를 찾을 수 없습니다.");
-        }
+    }
+
+    private void StartBossBattle()
+    {
+        if (currentBossState != BossState.Dormant)
+            return;
+
+        EnterBattleState();
     }
 
     private void FindPlayer()
@@ -473,6 +574,9 @@ public class BossEnemy : EnemyBase
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position,introTriggerDistance);
+
         // 보스전 시작 거리
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, battleStartDistance);

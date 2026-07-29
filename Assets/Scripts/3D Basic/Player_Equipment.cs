@@ -15,8 +15,23 @@ public class Player_Equipment : MonoBehaviour
 
     [Header("전투 (무기 표시) 설정")]
     public float combatCooldown = 5f; // 마지막 공격/피격 후 무기가 사라지기까지의 시간
-    public bool isInCombat = false;
+    private bool isInCombat = false;
     private float combatTimer = 0f;
+
+    public bool IsInCombat
+    {
+        get { return isInCombat; }
+    }
+
+    public float RemainingCombatTime
+    {
+        get
+        {
+            if (!IsInCombat) return 0f;
+
+            return Mathf.Max(combatTimer, 0f);
+        }
+    }
 
     //무기 사라짐 효과
     private Coroutine weaponFadeCoroutine;
@@ -97,10 +112,17 @@ public class Player_Equipment : MonoBehaviour
         }
     }
 
-    public void EnterCombatState()
+    public void EnterCombatState(float remainingTime = -1f)
     {
         isInCombat = true;
-        combatTimer = combatCooldown;
+        if (remainingTime > 0f)
+        {
+            combatTimer = remainingTime;
+        }
+        else
+        {
+            combatTimer = combatCooldown;
+        }
 
         if (currentWeaponObject != null)
         {
@@ -112,7 +134,6 @@ public class Player_Equipment : MonoBehaviour
             }
 
             currentWeaponObject.SetActive(true);
-
             currentWeaponObject.transform.localScale = originalWeaponScale;
         }
     }
@@ -125,6 +146,24 @@ public class Player_Equipment : MonoBehaviour
         {
             if (weaponFadeCoroutine != null) StopCoroutine(weaponFadeCoroutine);
             weaponFadeCoroutine = StartCoroutine(FadeOutWeaponCoroutine());
+        }
+    }
+
+    public void ClearCombatState()
+    {
+        isInCombat = false;
+        combatTimer = 0f;
+
+        if (weaponFadeCoroutine != null)
+        {
+            StopCoroutine(weaponFadeCoroutine);
+            weaponFadeCoroutine = null;
+        }
+
+        if (currentWeaponObject != null)
+        {
+            currentWeaponObject.SetActive(false);
+            currentWeaponObject.transform.localScale = originalWeaponScale;
         }
     }
 

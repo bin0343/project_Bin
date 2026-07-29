@@ -43,6 +43,9 @@ public class BossPatternExecutor : MonoBehaviour
     private Vector3 activeLeapImpactPoint;
     private Vector3 activeLeapLandingPoint;
 
+    private Coroutine openingLeapCoroutine;
+    private bool openingTargetingReleased;
+
     private Animator animator;
 
     private EnemyAttackHItbox attackHitbox;
@@ -99,6 +102,197 @@ public class BossPatternExecutor : MonoBehaviour
                 break;
         }
     }
+
+    #region OpeningLeap
+
+    public bool StartOpeningLeap(BossOpeningLeapData data, Transform target, System.Action onComplete)
+    {
+        if (data == null) return false;
+        if (target == null) return false;
+        if (openingLeapCoroutine != null) return false;
+
+        openingTargetingReleased = false;
+
+        openingLeapCoroutine = StartCoroutine(OpeningLeapRoutine(data, target, onComplete));
+
+        return true;
+    }
+
+    public void ReleaseOpeningLeapTargeting()
+    {
+        if (openingLeapCoroutine == null) return;
+
+        openingTargetingReleased = true;
+    }
+
+    private IEnumerator OpeningLeapRoutine(BossOpeningLeapData data, Transform target, System.Action onComplete)
+    {
+        leapTelegraph?.Hide();
+
+        FaceTarget(target);
+
+        // 오프닝 점프 애니메이션 시작
+        if (animator != null)
+        {
+            animator.SetBool("IsIdle", false);
+            animator.SetBool("IsMoving", false);
+            animator.SetInteger("AttackIndex", data.attackIndex);
+            animator.ResetTrigger("IsAttack");
+            animator.SetTrigger("IsAttack");
+        }
+
+        // 점프 중 NavMeshAgent가 위치를 되돌리지 않도록 비활성화
+        leapAgentWasEnabled = navAgent != null && navAgent.enabled;
+
+        if (leapAgentWasEnabled)
+        {
+            if (navAgent.isOnNavMesh)
+            {
+                navAgent.isStopped = true;
+                navAgent.ResetPath();
+            }
+
+            navAgent.enabled = false;
+        }
+
+        Vector3 groundStartPosition = transform.position;
+
+        Vector3 hiddenPosition = groundStartPosition + Vector3.up * data.hiddenHeight;
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < data.takeOffDuration)
+        {
+            if (enemyBase != null && enemyBase.isDead)
+            {
+                leapTelegraph?.Hide();
+                RestoreAgentAfterLeap();
+
+                openingLeapCoroutine = null;
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            float normalizedTime = Mathf.Clamp01(elapsedTime / Mathf.Max(data.takeOffDuration, 0.01f));
+
+            transform.position = Vector3.Lerp(groundStartPosition, hiddenPosition, normalizedTime);
+
+            yield return null;
+        }
+
+        transform.position = hiddenPosition;
+
+        while (!openingTargetingReleased)
+        {
+            if (enemyBase != null && enemyBase.isDead)
+            {
+                leapTelegraph?.Hide();
+                RestoreAgentAfterLeap();
+
+                openingLeapCoroutine = null;
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        Vector3 lockedImpactPoint = GetLeapImpactPoint(target);
+
+        elapsedTime = 0f;
+
+        while (elapsedTime < data.trackingDuration)
+        {
+            if (enemyBase != null && enemyBase.isDead)
+            {
+                leapTelegraph?.Hide();
+                RestoreAgentAfterLeap();
+
+                openingLeapCoroutine = null;
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            if (target != null)
+            {
+                lockedImpactPoint = GetLeapImpactPoint(target);
+            }
+
+            leapTelegraph?.Show(lockedImpactPoint, data.attackRadius);
+
+            yield return null;
+        }
+
+        if (target != null)
+        {
+            lockedImpactPoint = GetLeapImpactPoint(target);
+        }
+
+        leapTelegraph?.Show(lockedImpactPoint, data.attackRadius);
+
+        if (data.lockedWarningDuration > 0f)
+        {
+            yield return new WaitForSeconds(data.lockedWarningDuration);
+        }
+
+        // 5. 플레이어 중심과 겹치지 않을 실제 보스 착지 위치
+        Vector3 landingPoint = GetLeapLandingPoint(transform.position, lockedImpactPoint, data.landingStopDistance);
+
+        Vector3 fallStartPosition = transform.position;
+
+        elapsedTime = 0f;
+
+        // 6. 상공에서 빠르게 낙하
+        while (elapsedTime < data.fallDuration)
+        {
+            if (enemyBase != null && enemyBase.isDead)
+            {
+                leapTelegraph?.Hide();
+                RestoreAgentAfterLeap();
+
+                openingLeapCoroutine = null;
+                yield break;
+            }
+
+            elapsedTime += Time.deltaTime;
+
+            float normalizedTime = Mathf.Clamp01(elapsedTime / Mathf.Max(data.fallDuration, 0.01f));
+
+            // 아래로 갈수록 빠르게 떨어지는 느낌
+            float fallCurve = normalizedTime * normalizedTime;
+
+            transform.position = Vector3.Lerp(fallStartPosition, landingPoint, fallCurve);
+
+            yield return null;
+        }
+
+        transform.position = landingPoint;
+
+        leapTelegraph?.Hide();
+
+        // 7. 착지 이펙트
+        Vector3 effectDirection = lockedImpactPoint - landingPoint;
+
+        SpawnPatternEffect(data.impactEffect, lockedImpactPoint, effectDirection, data.attackRadius);
+
+        // 8. 카메라 흔들림
+        if (CameraShakeManager.instance != null)
+        {
+            CameraShakeManager.instance.Shake(data.shakeAmplitude, data.shakeFrequency, data.shakeDuration);
+        }
+
+        // 9. 범위 피해
+        PerformAreaAttack(lockedImpactPoint, data.attackRadius, data.damageMultiplier, data.hitReactionType);
+
+        RestoreAgentAfterLeap();
+
+        openingLeapCoroutine = null;
+
+        onComplete?.Invoke();
+    }
+
+    #endregion
 
     #region PatternCoroutine
     private IEnumerator ExecuteBasicMelee(BossBasicMeleePatternData pattern, Transform target)
@@ -505,12 +699,12 @@ public class BossPatternExecutor : MonoBehaviour
             CameraShakeManager.instance.Shake(activeLeapPattern.leapShakeAmplitude, activeLeapPattern.leapShakeFrequency, activeLeapPattern.leapShakeDuration);
         }
 
-        PerformLeapAreaAttack(activeLeapPattern, activeLeapImpactPoint);
+        PerformAreaAttack(activeLeapImpactPoint, activeLeapPattern.leapAttackRadius, activeLeapPattern.damageMultiplier, activeLeapPattern.hitReactionType);
     }
 
-    private void PerformLeapAreaAttack(BossLeapPatternData pattern, Vector3 impactPoint)
+    private void PerformAreaAttack(Vector3 impactPoint, float attackRadius, float damageMultiplier, HitReactionType reactionType)
     {
-        Collider[] colliders = Physics.OverlapSphere(impactPoint, pattern.leapAttackRadius, attackTargetLayer, QueryTriggerInteraction.Ignore);
+        Collider[] colliders = Physics.OverlapSphere(impactPoint, attackRadius, attackTargetLayer, QueryTriggerInteraction.Ignore);
 
         HashSet<Character_Stat> hitTargets = new HashSet<Character_Stat>();
 
@@ -522,7 +716,7 @@ public class BossPatternExecutor : MonoBehaviour
             if (!hitTargets.Add(targetStat)) continue;
 
             Player_Action playerAction = targetStat.GetComponentInParent<Player_Action>();
-         
+
             if (playerAction != null && playerAction.IsInvincible)
             {
                 if (playerAction.IsRollingState())
@@ -534,16 +728,15 @@ public class BossPatternExecutor : MonoBehaviour
             }
 
             int attackPower = enemyStat != null ? enemyStat.attackPower : 10;
-            float damageMultiplier = enemyBase != null ? enemyBase.CurrentDamageMultiplier : 1f;
+
             int finalAttackPower = Mathf.RoundToInt(attackPower * damageMultiplier);
+
             int damage = Mathf.Max(finalAttackPower - targetStat.defensePower, 1);
 
             targetStat.TakeDamage(damage, transform);
 
             if (playerAction != null)
             {
-                HitReactionType reactionType = enemyBase != null ? enemyBase.CurrentHitReactionType : HitReactionType.Normal;
-
                 playerAction.OnDamageTaken(reactionType, impactPoint);
             }
         }

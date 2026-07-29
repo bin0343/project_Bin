@@ -106,6 +106,12 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public bool canReceiveInput = true; // 입력을 받을 수 있는 상태인지
     [HideInInspector] public bool CanRotate = true;
     [HideInInspector] public bool IsInvincible = false; //무적상태(구르기)
+    private bool isControlLocked;
+
+    public bool IsControlLocked
+    {
+        get { return isControlLocked; }
+    }
 
     [Header("극한 회피")]
     [Tooltip("극한회피 성공 시 느려지는 시간 배율")]
@@ -186,10 +192,6 @@ public class Player_Action : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            TryPickUpNearbyItems();
-        }
         if (stat.currentHP <= 0 && !(currentState is PlayerDeadState))
         {
             ChangeState(new PlayerDeadState());
@@ -197,6 +199,21 @@ public class Player_Action : MonoBehaviour
         }
        
         if (IsDead) return;
+
+        if (isControlLocked)
+        {
+            if (move != null)
+            {
+                move.ForceMove(Vector3.zero, 0f);
+            }
+
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            TryPickUpNearbyItems();
+        }
 
         UpdatePerfectEvadeBonus();
 
@@ -524,6 +541,10 @@ public class Player_Action : MonoBehaviour
         if (IsInvincible) return;
         if (IsDead) return;
 
+        Player_Equipment equipment = GetComponent<Player_Equipment>();
+
+        if (equipment != null) equipment.EnterCombatState();
+
         if (!ShouldEnterHitState(reactionType)) return;
 
         EnterHitState(reactionType, sourcePosition, attackDircetion);
@@ -787,6 +808,36 @@ public class Player_Action : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             IsGrounded = true;
+        }
+    }
+
+    public void SetControlLocked(bool locked)
+    {
+        isControlLocked = locked;
+
+        if (move != null)
+        {
+            move.ForceMove(Vector3.zero, 0f);
+        }
+
+        if (rigidbody != null)
+        {
+            rigidbody.velocity = new Vector3(0f, rigidbody.velocity.y, 0f);
+            rigidbody.angularVelocity = Vector3.zero;
+        }
+
+        if (locked)
+        {
+            currentWeapon?.ForceStopTrail();
+            currentWeapon?.DisableHitbox();
+
+            comboQueued = false;
+            PlayerAttackState.ResetCombo();
+
+            if (IsGrounded && !IsDead && !(currentState is PlayerIdleState))
+            {
+                ChangeState(new PlayerIdleState());
+            }
         }
     }
 

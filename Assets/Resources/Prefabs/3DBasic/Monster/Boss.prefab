@@ -1366,6 +1366,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2126239798147687983}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3498661326215567160
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7534627951853386404}
+  m_Layer: 6
+  m_Name: Boss_CameraTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7534627951853386404
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3498661326215567160}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.53, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6253962829735511366}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3733949565268632630
 GameObject:
   m_ObjectHideFlags: 0
@@ -1620,6 +1651,7 @@ Transform:
   - {fileID: 5575113297192825509}
   - {fileID: 6282217926328092163}
   - {fileID: 3779858743028957950}
+  - {fileID: 7534627951853386404}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7227895690481279802
@@ -1716,6 +1748,9 @@ MonoBehaviour:
   currentPhase: 0
   currentBossState: 0
   battleStartDistance: 10
+  introTriggerDistance: 50
+  introCameraTarget: {fileID: 7534627951853386404}
+  openingLeapData: {fileID: 11400000, guid: 8505cd091cbbd624f9080238dc2d14ad, type: 2}
   closeRange: 4
   availablePatterns:
   - {fileID: 11400000, guid: 7a504f1b5244d1140972c0d46d9f1983, type: 2}

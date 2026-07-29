@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using DG.Tweening;
 
 public class UI_Manager : MonoBehaviour
@@ -24,7 +25,7 @@ public class UI_Manager : MonoBehaviour
     public GameObject optionPanel;
     public GameObject partyFormationPanel;
     public GameObject QuitPanel;
-    public Text messageText;
+    public TMP_Text messageText;
     public Text phoneTimeText;
 
     [Header("Main HUD Elements (Legacy References)")]
@@ -33,11 +34,18 @@ public class UI_Manager : MonoBehaviour
     public GameObject minimapPanel;
     public GameObject questTracker;
 
-    [Header("시네마틱 애니메이션 설정 (New)")]
+    [Header("시네마틱 애니메이션 설정")]
     public CanvasGroup screenFadeCanvasGroup; 
     public float fadeDuration = 0.4f; 
     public float blackHoldDuration = 1.0f;
-    public float hudSlideDuration = 0.4f; 
+    public float hudSlideDuration = 0.4f;
+
+    private bool isCinematicMode;
+
+    public bool IsCinematicMode
+    {
+        get { return isCinematicMode; }
+    }
 
     [Header("Option Panel Inner Setting")]
     public GameObject optionInnerContent;     
@@ -48,6 +56,16 @@ public class UI_Manager : MonoBehaviour
     public RectTransform[] topHUDElements;
     public RectTransform[] bottomHUDElements;
 
+    [Header("메뉴 연출 중 즉시 숨길 HUD")]
+    [SerializeField]
+    private GameObject[] hideHUDElements;
+
+    private Dictionary<GameObject, bool> instantHUDOriginalStates = new Dictionary<GameObject, bool>();
+
+    private Coroutine restoreHUDCoroutine;
+
+    private bool HUDElementsHidden;
+
     private Dictionary<RectTransform, Vector2> originalHUDPositions = new Dictionary<RectTransform, Vector2>();
     private bool isTransitioning = false; 
 
@@ -56,9 +74,19 @@ public class UI_Manager : MonoBehaviour
 
     public bool isBattleMode { get; set; } = false;
 
-    [Header("메시지 설정")]
-    public float messageDisplayTime = 2.0f;
-    private Coroutine hideMessageCoroutine;
+    [Header("메시지 연출 설정")]
+    [Tooltip("메시지가 위로 올라가며 사라지는 전체 시간")]
+    [SerializeField] private float messageDisplayTime = 1.2f;
+    [Tooltip("메시지가 위로 이동하는 거리")]
+    [SerializeField] private float messageRiseDistance = 100f;
+    [Tooltip("처음 나타날 때 살짝 커지는 시간")]
+    [SerializeField] private float messagePopDuration = 0.12f;
+    [SerializeField] private CanvasGroup messageCanvasGroup;
+    [SerializeField] private RectTransform messageRect;
+
+    private Vector2 originalMessagePosition;
+    private Sequence messageSequence;
+    private bool isMessageInitialized;
 
     private Stack<GameObject> UIStack = new Stack<GameObject>();
     public bool IsUIOpen => UIStack.Count > 0;
@@ -94,17 +122,27 @@ public class UI_Manager : MonoBehaviour
         }
 
         if (partyFormationPanel != null) partyFormationPanel.SetActive(false);
+
         if (optionPanel != null) optionPanel.SetActive(false);
+
         if (blurPanel != null) blurPanel.SetActive(false);
+
         if (screenFadeCanvasGroup != null)
         {
             screenFadeCanvasGroup.alpha = 0f;
             screenFadeCanvasGroup.gameObject.SetActive(false);
         }
+
+        InitializeMessage();
     }
 
     private void Update()
     {
+        if (isCinematicMode)
+        {
+            return;
+        }
+
         if (isTransitioning) return;
 
         if (optionPanel != null && optionPanel.activeSelf)
@@ -160,7 +198,7 @@ public class UI_Manager : MonoBehaviour
             }
         }
 
-        if (activeCharacterStat != null && UI_StatusBar != null)
+        if (activeCharacterStat != null && UI_StatusBar != null && UI_StatusBar.isActiveAndEnabled)
         {
             UI_StatusBar.UpdateStatus(activeCharacterStat);
         }
@@ -188,8 +226,104 @@ public class UI_Manager : MonoBehaviour
         }
     }
 
+    private void HideInstantHUDElements()
+    {
+        if (restoreHUDCoroutine != null)
+        {
+            StopCoroutine(restoreHUDCoroutine);
+            restoreHUDCoroutine = null;
+        }
+
+        if (HUDElementsHidden)
+        {
+            return;
+        }
+
+        instantHUDOriginalStates.Clear();
+
+        if (hideHUDElements == null)
+        {
+            HUDElementsHidden = true;
+            return;
+        }
+
+        foreach (GameObject hudObject in hideHUDElements)
+        {
+            if (hudObject == null) continue;
+
+            if (instantHUDOriginalStates.ContainsKey(hudObject))
+            {
+                continue;
+            }
+
+            if (hudObject == messagePanel)
+            {
+                HideMessage();
+            }
+
+            instantHUDOriginalStates.Add(hudObject, hudObject.activeSelf);
+
+            hudObject.SetActive(false);
+        }
+
+        HUDElementsHidden = true;
+    }
+
+    private void RequestRestoreInstantHUDElements(float delay)
+    {
+        if (restoreHUDCoroutine != null)
+        {
+            StopCoroutine(restoreHUDCoroutine);
+        }
+
+        restoreHUDCoroutine = StartCoroutine(RestoreInstantHUDElementsRoutine(delay));
+    }
+
+    private IEnumerator RestoreInstantHUDElementsRoutine(float delay)
+    {
+        if (!HUDElementsHidden)
+        {
+            restoreHUDCoroutine = null;
+            yield break;
+        }
+
+        if (delay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+        }
+
+        foreach (var pair in instantHUDOriginalStates)
+        {
+            GameObject hudObject = pair.Key;
+            bool wasActive = pair.Value;
+
+            if (hudObject == null) continue;
+
+            hudObject.SetActive(wasActive);
+        }
+
+        if (activeCharacterStat != null && UI_StatusBar != null && UI_StatusBar.isActiveAndEnabled)
+        {
+            UI_StatusBar.UpdateStatus(activeCharacterStat);
+        }
+
+        instantHUDOriginalStates.Clear();
+
+        HUDElementsHidden = false;
+        restoreHUDCoroutine = null;
+    }
+
     public void AnimateHUD(bool show, float duration)
     {
+        if (show)
+        {
+            RequestRestoreInstantHUDElements(duration);
+        }
+        else
+        {
+            HideInstantHUDElements();
+        }
+
         foreach (var pair in originalHUDPositions)
         {
             RectTransform rect = pair.Key;
@@ -212,6 +346,28 @@ public class UI_Manager : MonoBehaviour
 
                 rect.DOAnchorPos(hidePos, duration).SetEase(Ease.InCubic).SetUpdate(true);
             }
+        }
+    }
+
+    public void EnterCinematicMode()
+    {
+        if (isCinematicMode) return;
+
+        isCinematicMode = true;
+        HideMessage();
+
+        AnimateHUD(false, hudSlideDuration);
+    }
+
+    public void ExitCinematicMode()
+    {
+        if (!isCinematicMode) return;
+
+        isCinematicMode = false;
+
+        if (UIStack.Count == 0)
+        {
+            AnimateHUD(true, hudSlideDuration);
         }
     }
     #endregion
@@ -512,8 +668,17 @@ public class UI_Manager : MonoBehaviour
 
     public void ToggleCharacterInfoPanel()
     {
-        if (statusPanel.activeSelf) CloseSpecificUI(statusPanel);
-        else if (!IsUIOpen)
+        if (statusPanel == null) return;
+
+        if (statusPanel.activeSelf)
+        {
+            CloseSpecificUI(statusPanel);
+            return;
+        }
+
+        if (IsCombatRestrictedUIBlocked()) return;
+
+        if (!IsUIOpen)
         {
             StartCoroutine(OpenUITransitionRoutine(statusPanel, () => {
                 UpdatePlayerStatus();
@@ -532,7 +697,10 @@ public class UI_Manager : MonoBehaviour
                 if (controller != null) controller.CloseLocalMap();
             }));
         }
-        else if (!IsUIOpen)
+
+        if (IsCombatRestrictedUIBlocked()) return;
+        
+        if (!IsUIOpen)
         {
             StartCoroutine(OpenUITransitionRoutine(localMapPanel, () => {
                 LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
@@ -551,8 +719,13 @@ public class UI_Manager : MonoBehaviour
                 UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>();
                 if (formationScript != null) formationScript.SaveAndClose();
             }));
+
+            return;
         }
-        else if (!IsUIOpen)
+
+        if (IsCombatRestrictedUIBlocked()) return;
+        
+        if (!IsUIOpen)
         {
             StartCoroutine(OpenUITransitionRoutine(partyFormationPanel, () => {
                 UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>();
@@ -571,17 +744,24 @@ public class UI_Manager : MonoBehaviour
         } 
     }
     public void OpenLocalMapFromOption() 
-    { 
+    {
+        if (IsCombatRestrictedUIBlocked()) return;
+
         if (localMapPanel != null && !localMapPanel.activeSelf) 
         { 
-            OpenUI(localMapPanel); LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
+            OpenUI(localMapPanel); 
+            LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
             if (controller != null) controller.OpenLocalMap(); 
         } 
     }
     public void OpenCharacterInfoFromOption() 
     { 
+        if (IsCombatRestrictedUIBlocked()) return;
+
         if (statusPanel != null && !statusPanel.activeSelf) 
-        { UpdatePlayerStatus(); OpenUI(statusPanel); 
+        { 
+            UpdatePlayerStatus(); 
+            OpenUI(statusPanel); 
         } 
     }
     public void OpenQuestFromOption() 
@@ -589,10 +769,14 @@ public class UI_Manager : MonoBehaviour
         if (questPanel != null && !questPanel.activeSelf) OpenUI(questPanel); 
     }
     public void OpenPartyFormationFromOption() 
-    { 
+    {
+        if (IsCombatRestrictedUIBlocked()) return;
+
         if (partyFormationPanel != null && !partyFormationPanel.activeSelf) 
         { 
-            OpenUI(partyFormationPanel); UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>(); if (formationScript != null) formationScript.OpenFormationWindow(); 
+            OpenUI(partyFormationPanel);
+            UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>(); 
+            if (formationScript != null) formationScript.OpenFormationWindow(); 
         } 
     }
 
@@ -633,29 +817,116 @@ public class UI_Manager : MonoBehaviour
     {
         if (stat != null) activeCharacterStat = stat;
         if (activeCharacterStat == null) FindLocalPlayerStat();
-        if (activeCharacterStat != null && UI_StatusBar != null) UI_StatusBar.UpdateStatus(activeCharacterStat);
+        if (activeCharacterStat != null && UI_StatusBar != null && UI_StatusBar.isActiveAndEnabled) UI_StatusBar.UpdateStatus(activeCharacterStat);
     }
 
     public void ShowMessage(string msg)
     {
+        if (messagePanel == null || messageText == null)
+        {
+            return;
+        }
+
+        if (HUDElementsHidden)
+        {
+            return;
+        }
+
+        if (!isMessageInitialized)
+        {
+            InitializeMessage();
+        }
+
+        if (messageRect == null ||
+            messageCanvasGroup == null)
+        {
+            return;
+        }
+
+        if (messageSequence != null)
+        {
+            messageSequence.Kill();
+            messageSequence = null;
+        }
+
+        messageRect.DOKill();
+        messageCanvasGroup.DOKill();
+
+        messagePanel.SetActive(true);
+        messagePanel.transform.SetAsLastSibling();
+
+        messageText.text = msg;
+        messageRect.anchoredPosition = originalMessagePosition;
+        messageRect.localScale = Vector3.one * 0.85f;
+
+        messageCanvasGroup.alpha = 1f;
+        messageCanvasGroup.interactable = false;
+        messageCanvasGroup.blocksRaycasts = false;
+
+        float animationDuration = Mathf.Max(messageDisplayTime, 0.1f);
+
+        messageSequence = DOTween.Sequence();
+        messageSequence.SetUpdate(true);
+        messageSequence.Insert(0f, messageRect.DOScale(Vector3.one, messagePopDuration).SetEase(Ease.OutBack));
+        messageSequence.Insert(0f, messageRect.DOAnchorPos(originalMessagePosition + Vector2.up * messageRiseDistance, animationDuration).SetEase(Ease.OutCubic));
+        messageSequence.Insert(0f, messageCanvasGroup.DOFade(0f, animationDuration).SetEase(Ease.InQuad));
+
+        messageSequence.OnComplete(() =>
+        {
+            messagePanel.SetActive(false);
+            messageRect.anchoredPosition = originalMessagePosition;
+            messageRect.localScale = Vector3.one;
+            messageCanvasGroup.alpha = 0f;
+            messageSequence = null;
+        });
+    }
+
+    public void HideMessage()
+    {
+        if (messageSequence != null)
+        {
+            messageSequence.Kill();
+            messageSequence = null;
+        }
+
+        if (messageRect != null)
+        {
+            messageRect.DOKill();
+            messageRect.anchoredPosition = originalMessagePosition;
+            messageRect.localScale = Vector3.one;
+        }
+
+        if (messageCanvasGroup != null)
+        {
+            messageCanvasGroup.DOKill();
+            messageCanvasGroup.alpha = 0f;
+        }
+
         if (messagePanel != null)
         {
-            if (hideMessageCoroutine != null) StopCoroutine(hideMessageCoroutine);
-            messagePanel.SetActive(true);
-            messageText.text = msg;
-            hideMessageCoroutine = StartCoroutine(HideMessageRoutine(messageDisplayTime));
+            messagePanel.SetActive(false);
         }
     }
 
-    private IEnumerator HideMessageRoutine(float delay) 
-    { 
-        yield return new WaitForSeconds(delay); HideMessage(); 
-        hideMessageCoroutine = null; 
+    private void InitializeMessage()
+    {
+        if (messagePanel == null) return;
+
+        if (messageRect == null) messageRect = messagePanel.GetComponent<RectTransform>();
+
+        if (messageCanvasGroup == null) messageCanvasGroup = messagePanel.GetComponent<CanvasGroup>();
+
+        if (messageRect != null) originalMessagePosition = messageRect.anchoredPosition;
+
+        messageCanvasGroup.alpha = 0f;
+        messageCanvasGroup.interactable = false;
+        messageCanvasGroup.blocksRaycasts = false;
+
+        messagePanel.SetActive(false);
+
+        isMessageInitialized = true;
     }
-    public void HideMessage() 
-    { 
-        if (messagePanel != null) messagePanel.SetActive(false); 
-    }
+
     private void CheckTimeScale() 
     { 
         Time.timeScale = (UIStack.Count == 0) ? 1f : 0f; 
@@ -681,6 +952,23 @@ public class UI_Manager : MonoBehaviour
                 Cursor.lockState = CursorLockMode.Locked;
             }
         }
+    }
+
+    private bool IsCombatRestrictedUIBlocked()
+    {
+        if (BattleManager.instance == null) return false;
+
+        GameObject activeCharacter = BattleManager.instance.GetActiveCharacter();
+
+        if (activeCharacter == null) return false;
+
+        Player_Equipment equipment = activeCharacter.GetComponent<Player_Equipment>();
+
+        if (equipment == null || !equipment.IsInCombat) return false;
+
+        ShowMessage("전투 중에는 열 수 없는 패널입니다.");
+
+        return true;
     }
 
     public void SetBattleMode(bool isBattle) 
