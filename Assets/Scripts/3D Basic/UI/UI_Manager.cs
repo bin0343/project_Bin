@@ -28,6 +28,22 @@ public class UI_Manager : MonoBehaviour
     public TMP_Text messageText;
     public Text phoneTimeText;
 
+    [Header("공용 상호작용 UI")]
+    [SerializeField]
+    private GameObject interactionPromptUI;
+    [SerializeField]
+    private Text interactionPromptText;
+
+    public GameObject InteractionPromptUI
+    {
+        get { return interactionPromptUI; }
+    }
+
+    public Text InteractionPromptText
+    {
+        get { return interactionPromptText; }
+    }
+
     [Header("Main HUD Elements (Legacy References)")]
     public GameObject characterIconPanel;
     public GameObject skillSlotPanel;
@@ -89,7 +105,13 @@ public class UI_Manager : MonoBehaviour
     private bool isMessageInitialized;
 
     private Stack<GameObject> UIStack = new Stack<GameObject>();
-    public bool IsUIOpen => UIStack.Count > 0;
+
+    private bool isExternalModalOpen;
+    public bool IsExternalModalOpen
+    {
+        get { return isExternalModalOpen; }
+    }
+    public bool IsUIOpen => UIStack.Count > 0 || isExternalModalOpen;
     public bool IsInTargetingMode { get; set; } = false;
 
     private void Awake()
@@ -138,10 +160,9 @@ public class UI_Manager : MonoBehaviour
 
     private void Update()
     {
-        if (isCinematicMode)
-        {
-            return;
-        }
+        if (isCinematicMode) return;
+
+        if (isExternalModalOpen) return;
 
         if (isTransitioning) return;
 
@@ -800,6 +821,14 @@ public class UI_Manager : MonoBehaviour
     }
     public void ToggleMainHUD(bool show) { }
 
+    public void HideInteractionPrompt()
+    {
+        if (interactionPromptUI != null)
+        {
+            interactionPromptUI.SetActive(false);
+        }
+    }
+
     private void FindLocalPlayerStat()
     {
         Character_Stat[] allStats = FindObjectsOfType<Character_Stat>();
@@ -818,6 +847,44 @@ public class UI_Manager : MonoBehaviour
         if (stat != null) activeCharacterStat = stat;
         if (activeCharacterStat == null) FindLocalPlayerStat();
         if (activeCharacterStat != null && UI_StatusBar != null && UI_StatusBar.isActiveAndEnabled) UI_StatusBar.UpdateStatus(activeCharacterStat);
+    }
+
+    public void SetMinimapVisible(bool visible)
+    {
+        if (minimapPanel == null) return;
+
+        minimapPanel.SetActive(visible);
+
+        if (visible && BattleManager.instance != null)
+        {
+            GameObject activeCharacter = BattleManager.instance.GetActiveCharacter();
+
+            if (activeCharacter == null) return;
+
+            MiniMapController minimapController = minimapPanel.GetComponentInParent<MiniMapController>(true);
+
+            if (minimapController != null)
+            {
+                minimapController.SetTarget(activeCharacter.transform);
+            }
+        }
+    }
+
+    //보스맵 퇴장 시
+    public void SetExternalModalOpen(bool isOpen)
+    {
+        isExternalModalOpen = isOpen;
+
+        if (isOpen)
+        {
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Time.timeScale = UIStack.Count > 0 ? 0f : 1f;
+        }
+
+        UpdateCursorState();
     }
 
     public void ShowMessage(string msg)
@@ -938,6 +1005,8 @@ public class UI_Manager : MonoBehaviour
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
+
+            return;
         }
         else
         {

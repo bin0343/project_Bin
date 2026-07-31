@@ -48,14 +48,15 @@ public class BossRewardInteractable : Interactable
                 }
             }
 
+            if (BossArenaManager.instance != null)
+            {
+                BossArenaManager.instance.NotifyRewardClaimed();
+            }
+
             if (interactionPromptUI != null) interactionPromptUI.SetActive(false);
+
             isPlayerInRange = false;
             this.enabled = false;
-
-            if (UI_Manager.instance != null)
-            {
-                UI_Manager.instance.ShowMessage("∫∏ªÛ¿ª »πµÊ«ﬂΩ¿¥œ¥Ÿ!");
-            }
 
             Destroy(gameObject, 1.5f);
         }

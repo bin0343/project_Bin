@@ -12,13 +12,15 @@ public class BossAreaTelegraph : MonoBehaviour
     [Header("내부 채움")]
     [SerializeField] private Transform fillCircle;
 
-    private Transform originalFillParent;
+    private Transform originalRootParent;
+    private Vector3 originalRootLocalPosition;
+    private Quaternion originalRootLocalRotation;
 
     private void Awake()
     {
         if (lineRenderer == null)
         {
-            lineRenderer = GetComponent<LineRenderer>();
+            lineRenderer = GetComponentInChildren<LineRenderer>();
         }
 
         if (lineRenderer == null)
@@ -28,10 +30,12 @@ public class BossAreaTelegraph : MonoBehaviour
             return;
         }
 
+        originalRootParent = transform.parent;
+        originalRootLocalPosition = transform.localPosition;
+        originalRootLocalRotation = transform.localRotation;
+
         if (fillCircle != null)
         {
-            originalFillParent = fillCircle.parent;
-
             Collider[] fillColliders = fillCircle.GetComponentsInChildren<Collider>(true);
 
             foreach (Collider col in fillColliders)
@@ -59,7 +63,15 @@ public class BossAreaTelegraph : MonoBehaviour
 
         radius = Mathf.Max(radius, 0.01f);
 
+        if (transform.parent != null)
+        {
+            transform.SetParent(null, true);
+        }
+
         center.y += groundOffset;
+
+        transform.position = center;
+        transform.rotation = Quaternion.identity;
 
         for (int i = 0; i < segmentCount; i++)
         {
@@ -75,15 +87,10 @@ public class BossAreaTelegraph : MonoBehaviour
 
         if (fillCircle != null)
         {
-            if (fillCircle.parent != null)
-            {
-                fillCircle.SetParent(null, true);
-            }
-
             fillCircle.gameObject.SetActive(true);
 
-            fillCircle.position = center;
-            fillCircle.rotation = Quaternion.identity;
+            fillCircle.localPosition = Vector3.zero;
+            fillCircle.localRotation = Quaternion.identity;
 
             fillCircle.localScale = new Vector3(radius * 2f, 0.01f, radius * 2f);
         }
@@ -99,11 +106,14 @@ public class BossAreaTelegraph : MonoBehaviour
         if (fillCircle != null)
         {
             fillCircle.gameObject.SetActive(false);
+        }
 
-            if (originalFillParent != null && fillCircle.parent != originalFillParent)
-            {
-                fillCircle.SetParent(originalFillParent, true);
-            }
+        if (originalRootParent != null && transform.parent != originalRootParent)
+        {
+            transform.SetParent(originalRootParent, false);
+
+            transform.localPosition = originalRootLocalPosition;
+            transform.localRotation = originalRootLocalRotation;
         }
     }
 

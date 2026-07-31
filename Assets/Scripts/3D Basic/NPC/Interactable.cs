@@ -16,14 +16,21 @@ public abstract class Interactable : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (interactionPromptUI == null || interactionText == null)
+        {
+            ResolveInteractionPrompt();
+        }
+
         if (isPlayerInRange && !isMenuOpen && Input.GetKeyDown(interactionKey))
         {
             OpenMenu();
         }
+
         if (isPlayerInRange && !isMenuOpen && interactionPromptUI != null)
         {
             interactionPromptUI.SetActive(true);
         }
+
         if (Input.GetKeyDown(KeyCode.Escape)) isMenuOpen = false;
     }
 
@@ -105,4 +112,24 @@ public abstract class Interactable : MonoBehaviour
     }
 
     protected abstract void OpenMenu();
+
+    protected void ResolveInteractionPrompt()
+    {
+        if (UI_Manager.instance == null)
+        {
+            return;
+        }
+
+        interactionPromptUI = UI_Manager.instance.InteractionPromptUI;
+
+        interactionText = UI_Manager.instance.InteractionPromptText;
+    }
+
+    protected virtual void OnEnable()
+    {
+        isPlayerInRange = false;
+        isMenuOpen = false;
+
+        ResolveInteractionPrompt();
+    }
 }

@@ -584,7 +584,7 @@ public class EnemyBase : MonoBehaviour
     #endregion
 
     #region Dead
-    public void Dead()
+    public virtual void Dead()
     {
         if (isDead) return;
 

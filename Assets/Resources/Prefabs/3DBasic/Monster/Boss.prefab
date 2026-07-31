@@ -763,6 +763,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3779858743028957950}
+  - component: {fileID: 6961899503312806957}
   m_Layer: 6
   m_Name: LeapTelegraph
   m_TagString: Untagged
@@ -787,6 +788,23 @@ Transform:
   - {fileID: 6403470847583342473}
   m_Father: {fileID: 6253962829735511366}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6961899503312806957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1934296950789011776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb994d3c0ac587a4c8f93bfb02738fc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lineRenderer: {fileID: 6599065618821645031}
+  segmentCount: 64
+  linewidth: 0.12
+  groundOffset: 0.05
+  fillCircle: {fileID: 6403470847583342473}
 --- !u!1 &1938295391870692898
 GameObject:
   m_ObjectHideFlags: 0
@@ -1423,7 +1441,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3733949565268632630}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 0.001, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1652,6 +1670,7 @@ Transform:
   - {fileID: 6282217926328092163}
   - {fileID: 3779858743028957950}
   - {fileID: 7534627951853386404}
+  - {fileID: 3508620103086548605}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7227895690481279802
@@ -1666,14 +1685,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3935379731fb4fa4fb58631904cbd204, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lootMethod: 0
+  lootMethod: 1
   dropTable:
   - itemData: {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
     minAmount: 1
     maxAmount: 2
     dropChance: 54.3
-  bossRewardPrefab: {fileID: 0}
-  dropSpawnPoint: {fileID: 8024399041002023495}
+  bossRewardPrefab: {fileID: 7321264256095192818, guid: cf1f0193875ebc1439c4c8e7c87d1c5b, type: 3}
+  dropSpawnPoint: {fileID: 3508620103086548605}
 --- !u!114 &7074829361133909287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1690,7 +1709,7 @@ MonoBehaviour:
   EnemyLevel: 20
   useWorldHpBar: 0
   stats:
-  - 500
+  - 100
   - 8
   - 3
   currentHP: 500
@@ -1802,7 +1821,7 @@ MonoBehaviour:
   dashCheckHeight: 1
   dashWallBuffer: 0.15
   dashTelegraph: {fileID: 4193760627602837376}
-  leapTelegraph: {fileID: 2054933158959290203}
+  leapTelegraph: {fileID: 0}
   leapGroundLayer:
     serializedVersion: 2
     m_Bits: 4096
@@ -2755,7 +2774,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7315487774819359139}
-  - component: {fileID: 2054933158959290203}
   - component: {fileID: 6599065618821645031}
   m_Layer: 6
   m_Name: OutLine
@@ -2779,23 +2797,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3779858743028957950}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2054933158959290203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6152266078412042995}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb994d3c0ac587a4c8f93bfb02738fc8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lineRenderer: {fileID: 6599065618821645031}
-  segmentCount: 64
-  linewidth: 0.12
-  groundOffset: 0.05
-  fillCircle: {fileID: 6403470847583342473}
 --- !u!120 &6599065618821645031
 LineRenderer:
   serializedVersion: 2
@@ -3469,6 +3470,37 @@ Transform:
   m_Children:
   - {fileID: 8120505248001413491}
   m_Father: {fileID: 2477493647559996061}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6993398555345621009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3508620103086548605}
+  m_Layer: 6
+  m_Name: BossDropItemRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3508620103086548605
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6993398555345621009}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6253962829735511366}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7038419573439864411
 GameObject:
@@ -4735,7 +4767,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5575113297192825509
 Transform:
   m_ObjectHideFlags: 0

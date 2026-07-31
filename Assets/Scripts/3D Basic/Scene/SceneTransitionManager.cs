@@ -24,7 +24,7 @@ public class SceneTransitionManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(Instance);
+            Destroy(gameObject);
             return;
         } 
 
@@ -51,6 +51,8 @@ public class SceneTransitionManager : MonoBehaviour
     private IEnumerator LoadSceneRoutine(string sceneName, string targetSpawnID)
     {
         isTransitioning = true;
+
+        CleanupSceneSpecificUI();
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
@@ -197,5 +199,19 @@ public class SceneTransitionManager : MonoBehaviour
         loadingCanvasGroup.alpha = visible ? 1f : 0f;
         loadingCanvasGroup.blocksRaycasts = visible;
         loadingCanvasGroup.gameObject.SetActive(visible);
+    }
+
+    private void CleanupSceneSpecificUI()
+    {
+        if (BossHpBar.instance != null)
+        {
+            BossHpBar.instance.Hide();
+        }
+
+        if (UI_Manager.instance != null)
+        {
+            UI_Manager.instance.HideInteractionPrompt();
+            UI_Manager.instance.SetBattleMode(false);
+        }
     }
 }

@@ -28,6 +28,11 @@ public enum BossDistanceZone
 
 public class BossEnemy : EnemyBase
 {
+    [Header("보스 저장 정보")]
+    [SerializeField]
+    private string bossID = "Boss_Orc";
+    private bool hasClearedBefore;
+
     [Header("보스 상태, 보스전 시작 거리 조건")]
     [SerializeField] private BossPhase currentPhase = BossPhase.Phase1;
     [SerializeField] private BossState currentBossState = BossState.Dormant;
@@ -81,6 +86,8 @@ public class BossEnemy : EnemyBase
     private Enemy_Stat bossStat;
     private BossPatternDataBase lastPattern;
 
+    private bool skipIntroOnThisSpawn;
+
     public BossPhase CurrentPhase
     {
         get { return currentPhase; }
@@ -130,6 +137,46 @@ public class BossEnemy : EnemyBase
         if (patternExecutor == null)
         {
             patternExecutor = GetComponent<BossPatternExecutor>();
+        }
+
+        if (string.IsNullOrWhiteSpace(bossID))
+        {
+            Debug.LogError($"[{gameObject.name}] Boss ID가 비어 있습니다.");
+        }
+
+        hasClearedBefore = BossClearProgress.IsCleared(bossID);
+
+        if (hasClearedBefore)
+        {
+            introDistanceChecked = true;
+
+            Debug.Log($"[BossEnemy] 이전 클리어 기록 확인: {bossID}");
+        }
+    }
+
+    private void Update()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Input.GetKeyDown(KeyCode.F5))
+        {
+            ResetBossClearForTest();
+        }
+#endif
+    }
+
+    private void ResetBossClearForTest()
+    {
+        BossClearProgress.ResetClear(bossID);
+
+        hasClearedBefore = false;
+        introDistanceChecked = false;
+        skipIntroOnThisSpawn = false;
+
+        Debug.Log($"[BossEnemy] F5 테스트 초기화 완료: {bossID}\n" + "다음 입장부터 소개 연출과 오프닝 공격이 다시 재생됩니다.");
+
+        if (UI_Manager.instance != null)
+        {
+            UI_Manager.instance.ShowMessage("보스 최초 클리어 기록을 초기화했습니다.");
         }
     }
 
@@ -181,7 +228,7 @@ public class BossEnemy : EnemyBase
 
         float distanceSqr = difference.sqrMagnitude;
 
-        if (!introDistanceChecked)
+        if (!skipIntroOnThisSpawn && !introDistanceChecked)
         {
             float introDistanceSqr = introTriggerDistance * introTriggerDistance;
 
@@ -569,6 +616,22 @@ public class BossEnemy : EnemyBase
         currentBossState = BossState.ExecutingPattern;
 
         patternCoroutine = StartCoroutine(ExecuteSelectedPattern(selectedPattern));
+    }
+
+    public void ConfigureSpawn(bool isRespawn)
+    {
+        skipIntroOnThisSpawn = isRespawn;
+    }
+
+    public override void Dead()
+    {
+        if (isDead) return;
+
+        BossClearProgress.MarkCleared(bossID);
+
+        hasClearedBefore = true;
+
+        base.Dead();
     }
 
 #if UNITY_EDITOR

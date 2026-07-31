@@ -95,8 +95,7 @@ public class ItemDrop : MonoBehaviour
 
         Vector3 spawnPos = dropSpawnPoint != null ? dropSpawnPoint.position : transform.position;
 
-        // 보상 오브젝트 생성 (바닥에 살짝 띄우기)
-        GameObject rewardObj = Instantiate(bossRewardPrefab, spawnPos + Vector3.up * 0.5f, Quaternion.identity);
+        GameObject rewardObj = Instantiate(bossRewardPrefab, spawnPos, dropSpawnPoint != null ? dropSpawnPoint.rotation : Quaternion.identity);
 
         // 보상 오브젝트 안에 있는 스크립트에 아이템 정보 전달
         BossRewardInteractable rewardScript = rewardObj.GetComponent<BossRewardInteractable>();
