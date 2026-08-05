@@ -22,9 +22,9 @@ public class UI_PartyManager : MonoBehaviour
             }
         }
 
-        if (Character_Manager.instance == null || Character_Manager.instance.currentPartyData == null) return;
+        if (Character_Manager.Instance == null || Character_Manager.Instance.currentPartyData == null) return;
         
-        List<Character_Data> partyData = Character_Manager.instance.currentPartyData;
+        List<Character_Data> partyData = Character_Manager.Instance.currentPartyData;
 
         for (int i = 0; i < partyData.Count; i++)
         {
@@ -46,17 +46,17 @@ public class UI_PartyManager : MonoBehaviour
 
     private float GetCharacterCurrentHp(string charID)
     {
-        if (UI_Manager.instance != null && UI_Manager.instance.activeCharacterStat != null && UI_Manager.instance.activeCharacterStat.characterData != null)
+        if (UI_Manager.Instance != null && UI_Manager.Instance.activeCharacterStat != null && UI_Manager.Instance.activeCharacterStat.characterData != null)
         {
-            if (UI_Manager.instance.activeCharacterStat.characterData.characterID == charID)
+            if (UI_Manager.Instance.activeCharacterStat.characterData.characterID == charID)
             {
-                return UI_Manager.instance.activeCharacterStat.currentHP;
+                return UI_Manager.Instance.activeCharacterStat.currentHP;
             }
         }
 
-        if (BattleManager.instance != null && BattleManager.instance.SpawnedCharacters != null)
+        if (BattleManager.Instance != null && BattleManager.Instance.SpawnedCharacters != null)
         {
-            foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
+            foreach (GameObject charObj in BattleManager.Instance.SpawnedCharacters)
             {
                 if (charObj != null)
                 {
@@ -74,7 +74,7 @@ public class UI_PartyManager : MonoBehaviour
 
     private float GetCharacterMaxHp(string charID)
     {
-        CharacterStatus status = Character_Manager.instance.GetCharacterStatus(charID);
+        CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(charID);
         if (status != null && status.currentStats != null && status.currentStats.Length > (int)STAT.HP)
         {
             return status.currentStats[(int)STAT.HP];

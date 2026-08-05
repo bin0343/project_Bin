@@ -14,7 +14,7 @@ public class StartingItem
 
 public class Player_Inventory : MonoBehaviour
 {
-    public static Player_Inventory instance;
+    public static Player_Inventory Instance;
 
     public List<ItemHolder> inventorySlots = new List<ItemHolder>();
     public ItemHolder[] quickSlots = new ItemHolder[4];
@@ -24,8 +24,8 @@ public class Player_Inventory : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this) return;
-        instance = this;
+        if (Instance != null && Instance != this) return;
+        Instance = this;
     }
 
     private void Start()
@@ -54,8 +54,8 @@ public class Player_Inventory : MonoBehaviour
             for (int i = 0; i < quantity; i++)
             {
                 inventorySlots.Add(new ItemHolder(item, 1));
-                if (showToast && UI_ItemToastManager.instance != null)
-                    UI_ItemToastManager.instance.ShowToast(item, 1);
+                if (showToast && UI_ItemToastManager.Instance != null)
+                    UI_ItemToastManager.Instance.ShowToast(item, 1);
             }
             RefreshAllUI();
             return true;
@@ -74,8 +74,8 @@ public class Player_Inventory : MonoBehaviour
             stack.AddQuantity(amountToAdd);
             remainingQuantity -= amountToAdd;
 
-            if (amountToAdd > 0 && showToast && UI_ItemToastManager.instance != null)
-                UI_ItemToastManager.instance.ShowToast(item, amountToAdd);
+            if (amountToAdd > 0 && showToast && UI_ItemToastManager.Instance != null)
+                UI_ItemToastManager.Instance.ShowToast(item, amountToAdd);
 
             if (remainingQuantity <= 0)
             {
@@ -90,9 +90,9 @@ public class Player_Inventory : MonoBehaviour
             inventorySlots.Add(new ItemHolder(item, amountForNewStack));
             remainingQuantity -= amountForNewStack;
 
-            if (amountForNewStack > 0 && showToast && UI_ItemToastManager.instance != null)
+            if (amountForNewStack > 0 && showToast && UI_ItemToastManager.Instance != null)
             {
-                UI_ItemToastManager.instance.ShowToast(item, amountForNewStack);
+                UI_ItemToastManager.Instance.ShowToast(item, amountForNewStack);
             }
 
             RefreshAllUI();
@@ -174,9 +174,9 @@ public class Player_Inventory : MonoBehaviour
             ItemHolder sourceItem = GetItemHolderAt(sourceType, sourceIndex);
             if (sourceItem != null)
             {
-                if (BattleManager.instance != null)
+                if (BattleManager.Instance != null)
                 {
-                    GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+                    GameObject activePlayer = BattleManager.Instance.GetActiveCharacter();
                     if (activePlayer != null)
                     {
                         Player_Equipment equip = activePlayer.GetComponent<Player_Equipment>();
@@ -218,9 +218,9 @@ public class Player_Inventory : MonoBehaviour
 
     public void RefreshAllUI()
     {
-        if (UI_Manager.instance != null && UI_Manager.instance.UI_Inventory != null)
+        if (UI_Manager.Instance != null && UI_Manager.Instance.UI_Inventory != null)
         {
-            UI_Manager.instance.UI_Inventory.RefreshUI();
+            UI_Manager.Instance.UI_Inventory.RefreshUI();
         }
 
         // 퀵슬롯 UI도 마찬가지로 체크

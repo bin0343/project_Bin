@@ -57,7 +57,7 @@ public class SceneTransitionManager : MonoBehaviour
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
 
-        BattleManager battleMgr = BattleManager.instance;
+        BattleManager battleMgr = BattleManager.Instance;
         GameObject activeCharacter = null;
         Player_Action activePlayerAction = null;
 
@@ -208,10 +208,10 @@ public class SceneTransitionManager : MonoBehaviour
             BossHpBar.instance.Hide();
         }
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.HideInteractionPrompt();
-            UI_Manager.instance.SetBattleMode(false);
+            UI_Manager.Instance.HideInteractionPrompt();
+            UI_Manager.Instance.SetBattleMode(false);
         }
     }
 }

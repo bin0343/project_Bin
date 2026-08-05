@@ -77,7 +77,7 @@ public class NPC_Interaction : MonoBehaviour
             if (DialogueManager.instance != null)
             {
                 // StartConversation 대신 StartDialogue 사용 (ID 넘김)
-                //DialogueManager.instance.StartDialogue(pendingDialogueID, npcData);
+                //DialogueManager.Instance.StartDialogue(pendingDialogueID, npcData);
             }
         }
     }
@@ -88,7 +88,7 @@ public class NPC_Interaction : MonoBehaviour
         if (DialogueManager.instance != null)
         {
             // 일상 대화 시작
-            //DialogueManager.instance.StartDialogue(csvDialogueID, npcData);
+            //DialogueManager.Instance.StartDialogue(csvDialogueID, npcData);
         }
     }
 

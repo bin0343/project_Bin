@@ -109,9 +109,9 @@ public class IntroManager : MonoBehaviour
         if (introDataList.Count == 0) ParseCSV();
 
         bool isFinished = false;
-        if (GameDataManager.instance != null)
+        if (GameDataManager.Instance != null)
         {
-            isFinished = GameDataManager.instance.saveData.isTutorialFinished;
+            isFinished = GameDataManager.Instance.saveData.isTutorialFinished;
         }
 
         Debug.Log($"[IntroManager] 튜토리얼 완료 여부: {isFinished}");
@@ -244,9 +244,9 @@ public class IntroManager : MonoBehaviour
         PlayerPrefs.SetInt("IsFirstVisit", 0);
         PlayerPrefs.Save();
 
-        if (GameDataManager.instance != null)
+        if (GameDataManager.Instance != null)
         {
-            GameDataManager.instance.saveData.playerName = playerName;
+            GameDataManager.Instance.saveData.playerName = playerName;
         }
 
         if (playerData != null)
@@ -361,10 +361,10 @@ public class IntroManager : MonoBehaviour
         isScheduleGuidePhase = false;
         isForcingBuilding = false;
 
-        if (GameDataManager.instance != null)
+        if (GameDataManager.Instance != null)
         {
-            GameDataManager.instance.saveData.isTutorialFinished = true;
-            GameDataManager.instance.SaveGame();
+            GameDataManager.Instance.saveData.isTutorialFinished = true;
+            GameDataManager.Instance.SaveGame();
         }
     }
 }

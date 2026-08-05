@@ -70,18 +70,18 @@ public class ItemDrop : MonoBehaviour
 
         foreach (var item in lootList)
         {
-            if (Player_Inventory.instance != null)
+            if (Player_Inventory.Instance != null)
             {
-                Player_Inventory.instance.AddItem(item, 1);
+                Player_Inventory.Instance.AddItem(item, 1);
             }
         }
 
         Debug.Log($"잡몹 처치! {lootList.Count}개의 아이템이 인벤토리로 자동 획득되었습니다.");
 
         // 화면 중앙에 시스템 메시지 띄우기
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.ShowMessage($"아이템 {lootList.Count}개 획득!");
+            UI_Manager.Instance.ShowMessage($"아이템 {lootList.Count}개 획득!");
         }
     }
 

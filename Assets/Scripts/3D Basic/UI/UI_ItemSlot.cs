@@ -107,7 +107,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
         if (uiInventory != null)
         {
-            Player_Inventory.instance.HandleSlotDrop(
+            Player_Inventory.Instance.HandleSlotDrop(
                 DragSlot.originalSlotType,
                 DragSlot.originalIndex,
                 this.slotType,
@@ -117,7 +117,7 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
         else
         {
-            Player_Inventory.instance.HandleSlotDrop(
+            Player_Inventory.Instance.HandleSlotDrop(
                 DragSlot.originalSlotType,
                 DragSlot.originalIndex,
                 this.slotType,

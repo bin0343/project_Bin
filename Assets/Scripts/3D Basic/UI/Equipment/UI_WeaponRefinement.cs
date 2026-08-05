@@ -71,7 +71,7 @@ public class UI_WeaponRefinement : MonoBehaviour
     {
         foreach (Transform child in materialGridParent) Destroy(child.gameObject);
 
-        var dupes = Player_Inventory.instance.inventorySlots
+        var dupes = Player_Inventory.Instance.inventorySlots
             .Where(slot => slot != null
                         && slot.ItemData == targetWeaponHolder.ItemData
                         && slot != targetWeaponHolder)
@@ -162,16 +162,16 @@ public class UI_WeaponRefinement : MonoBehaviour
 
         foreach (var mat in selectedMaterials)
         {
-            Player_Inventory.instance.inventorySlots.Remove(mat);
+            Player_Inventory.Instance.inventorySlots.Remove(mat);
         }
 
         targetWeaponHolder.refinementStage += selectedMaterials.Count;
         int newAttack = targetWeaponHolder.GetTotalWeaponAttack();
 
         Player_Equipment activeEquip = null;
-        if (BattleManager.instance != null)
+        if (BattleManager.Instance != null)
         {
-            GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+            GameObject activePlayer = BattleManager.Instance.GetActiveCharacter();
             if (activePlayer != null) activeEquip = activePlayer.GetComponent<Player_Equipment>();
         }
 
@@ -186,12 +186,12 @@ public class UI_WeaponRefinement : MonoBehaviour
         }
 
         selectedMaterials.Clear();
-        Player_Inventory.instance.CleanUpInventory();
-        Player_Inventory.instance.RefreshAllUI();
+        Player_Inventory.Instance.CleanUpInventory();
+        Player_Inventory.Instance.RefreshAllUI();
 
         RefreshAllUI();
 
-        if (UI_Manager.instance != null) UI_Manager.instance.ShowMessage("장비 재련 합성 완료!");
+        if (UI_Manager.Instance != null) UI_Manager.Instance.ShowMessage("장비 재련 합성 완료!");
 
         UI_WeaponTab weaponTab = FindObjectOfType<UI_WeaponTab>();
         if (weaponTab != null) weaponTab.RefreshTab();

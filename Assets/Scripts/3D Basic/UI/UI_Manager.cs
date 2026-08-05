@@ -7,7 +7,7 @@ using DG.Tweening;
 
 public class UI_Manager : MonoBehaviour
 {
-    public static UI_Manager instance;
+    public static UI_Manager Instance;
 
     [Header("UI Panels")]
     public GameObject statusPanel;
@@ -116,12 +116,12 @@ public class UI_Manager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
-        instance = this;
+        Instance = this;
     }
 
     private void Start()
@@ -855,9 +855,9 @@ public class UI_Manager : MonoBehaviour
 
         minimapPanel.SetActive(visible);
 
-        if (visible && BattleManager.instance != null)
+        if (visible && BattleManager.Instance != null)
         {
-            GameObject activeCharacter = BattleManager.instance.GetActiveCharacter();
+            GameObject activeCharacter = BattleManager.Instance.GetActiveCharacter();
 
             if (activeCharacter == null) return;
 
@@ -1025,9 +1025,9 @@ public class UI_Manager : MonoBehaviour
 
     private bool IsCombatRestrictedUIBlocked()
     {
-        if (BattleManager.instance == null) return false;
+        if (BattleManager.Instance == null) return false;
 
-        GameObject activeCharacter = BattleManager.instance.GetActiveCharacter();
+        GameObject activeCharacter = BattleManager.Instance.GetActiveCharacter();
 
         if (activeCharacter == null) return false;
 

@@ -65,9 +65,9 @@ public class Player_Equipment : MonoBehaviour
     {
         Character_Stat stat = GetComponent<Character_Stat>();
 
-        if (stat != null && stat.characterData != null && Character_Manager.instance != null)
+        if (stat != null && stat.characterData != null && Character_Manager.Instance != null)
         {
-            CharacterStatus status = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
+            CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(stat.characterData.characterID);
             if (status != null)
             {
                 if (status.equippedWeapon != null)
@@ -178,9 +178,9 @@ public class Player_Equipment : MonoBehaviour
         {
             Debug.LogWarning($"장착 실패: 이 캐릭터는 [{usableWeaponCategory}] 전용입니다. ({equipmentData.weaponCategory} 장착 불가)");
 
-            if (UI_Manager.instance != null)
+            if (UI_Manager.Instance != null)
             {
-                UI_Manager.instance.ShowMessage("이 캐릭터가 장착할 수 없는 무기 종류입니다.");
+                UI_Manager.Instance.ShowMessage("이 캐릭터가 장착할 수 없는 무기 종류입니다.");
             }
             return; 
         }
@@ -192,11 +192,11 @@ public class Player_Equipment : MonoBehaviour
 
         if (sourceType == SlotType.INVENTORY)
         {
-            Player_Inventory.instance.inventorySlots[sourceIndex] = previouslyEquipped;
+            Player_Inventory.Instance.inventorySlots[sourceIndex] = previouslyEquipped;
         }
         else if (sourceType == SlotType.QUICKSLOT)
         {
-            Player_Inventory.instance.quickSlots[sourceIndex] = previouslyEquipped;
+            Player_Inventory.Instance.quickSlots[sourceIndex] = previouslyEquipped;
         }
 
         if (equipmentData.weaponPrefab != null)
@@ -219,9 +219,9 @@ public class Player_Equipment : MonoBehaviour
             stat.AddEquipmentStat(STAT.Attack, itemToEquip.GetTotalWeaponAttack());
         }
 
-        if (stat != null && stat.characterData != null && Character_Manager.instance != null)
+        if (stat != null && stat.characterData != null && Character_Manager.Instance != null)
         {
-            CharacterStatus status = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
+            CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(stat.characterData.characterID);
             if (status != null) status.equippedWeapon = itemToEquip;
         }
 
@@ -254,9 +254,9 @@ public class Player_Equipment : MonoBehaviour
 
             equipmentSlots[slotIndex] = null;
 
-            if (stat.characterData != null && Character_Manager.instance != null)
+            if (stat.characterData != null && Character_Manager.Instance != null)
             {
-                CharacterStatus status = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
+                CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(stat.characterData.characterID);
                 if (status != null) status.equippedWeapon = null;
             }
         }
@@ -274,9 +274,9 @@ public class Player_Equipment : MonoBehaviour
 
     private void RefreshUI()
     {
-        if (UI_Manager.instance?.UI_Status?.uiEquipmentPanel != null)
+        if (UI_Manager.Instance?.UI_Status?.uiEquipmentPanel != null)
         {
-            UI_Manager.instance.UI_Status.uiEquipmentPanel.RefreshUI();
+            UI_Manager.Instance.UI_Status.uiEquipmentPanel.RefreshUI();
         }
         UI_WeaponTab weaponTab = FindObjectOfType<UI_WeaponTab>();
         if (weaponTab != null && weaponTab.gameObject.activeInHierarchy)

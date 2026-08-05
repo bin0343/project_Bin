@@ -1,6 +1,28 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[System.Serializable]
+public class AscensionMaterialRequirement
+{
+    [Tooltip("필요한 돌파 재료")]
+    public Item_Material material;
+
+    [Min(1)]
+    [Tooltip("필요한 개수")]
+    public int requiredCount = 1;
+}
+
+[System.Serializable]
+public class CharacterAscensionRequirement
+{
+    [Min(1)]
+    [Tooltip("돌파 후 도달하는 단계. 1은 Lv.20 → 40 돌파")]
+    public int targetAscensionStage = 1;
+
+    [Tooltip("이번 돌파에 필요한 재료 목록")]
+    public List<AscensionMaterialRequirement> materials = new List<AscensionMaterialRequirement>();
+}
+
 
 [CreateAssetMenu(fileName = "Character Data", menuName = "Character/Character Data")]
 public class Character_Data : ScriptableObject
@@ -28,13 +50,14 @@ public class Character_Data : ScriptableObject
     [Header("캐릭터 보유 스킬")]
     public List<Skill_Base> characterSkills;  //npc보유 스킬
 
-    /*[Header("대화 설정")]
-    public Conversation startingConversation;
+    [Header("캐릭터 돌파 재료")]
+    [Tooltip("캐릭터별 돌파 단계와 필요한 재료")]
+    public List<CharacterAscensionRequirement> ascensionRequirements = new List<CharacterAscensionRequirement>();
 
-    [Header("퀘스트")]
-    public List<Quest> availableQuests;
+    public CharacterAscensionRequirement GetAscensionRequirement(int targetStage)
+    {
+        if (ascensionRequirements == null) return null;
 
-    [Header("퀘스트 상태별 대화")]
-    public Conversation questInProgressConversation;
-    public Conversation questCompleteConversation;*/
+        return ascensionRequirements.Find(requirement => requirement != null && requirement.targetAscensionStage == targetStage);
+    }
 }

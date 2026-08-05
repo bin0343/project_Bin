@@ -184,9 +184,9 @@ public class Player_Action : MonoBehaviour
             UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
         }
 
-        if (BattleManager.instance != null)
+        if (BattleManager.Instance != null)
         {
-            BattleManager.instance.ChangeCameraTarget(transform.root);
+            BattleManager.Instance.ChangeCameraTarget(transform.root);
         }
     }
 
@@ -217,7 +217,7 @@ public class Player_Action : MonoBehaviour
 
         UpdatePerfectEvadeBonus();
 
-        if (UI_Manager.instance != null && UI_Manager.instance.IsUIOpen)
+        if (UI_Manager.Instance != null && UI_Manager.Instance.IsUIOpen)
         {
             if (move != null) move.ForceMove(Vector3.zero, 0f);
             return;
@@ -379,9 +379,9 @@ public class Player_Action : MonoBehaviour
 
     public void HandleItemInput(int slotIndex)
     {
-        if (slotIndex < 0 || slotIndex >= Player_Inventory.instance.quickSlots.Length) return;
+        if (slotIndex < 0 || slotIndex >= Player_Inventory.Instance.quickSlots.Length) return;
 
-        ItemHolder itemToUse = Player_Inventory.instance.quickSlots[slotIndex];
+        ItemHolder itemToUse = Player_Inventory.Instance.quickSlots[slotIndex];
         if (itemToUse == null) return;
 
         bool success = itemToUse.Use(gameObject);
@@ -394,12 +394,12 @@ public class Player_Action : MonoBehaviour
 
             if (itemToUse.Quantity <= 0)
             {
-                Player_Inventory.instance.quickSlots[slotIndex] = null;
+                Player_Inventory.Instance.quickSlots[slotIndex] = null;
             }
 
             if (UI_ItemManager.Instance != null)
             {
-                UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.instance.quickSlots[slotIndex]);
+                UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.Instance.quickSlots[slotIndex]);
             }
         }
     }
@@ -434,7 +434,7 @@ public class Player_Action : MonoBehaviour
                 Item_Base itemData = fieldItem.GetItem();
 
                 // 아이템 데이터가 있고, 인벤토리에 추가 성공했다면
-                if (itemData != null && Player_Inventory.instance.AddItem(itemData))
+                if (itemData != null && Player_Inventory.Instance.AddItem(itemData))
                 {
                     Debug.Log($"아이템 획득: {itemData.itemName}");
                     fieldItem.DestroyItem(); // 필드 오브젝트 삭제

@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
 
 public class Account_Manager : MonoBehaviour
 {
-    public static Account_Manager instance;
+    public static Account_Manager Instance;
 
     [Header("계정 레벨 및 재화")]
     public int accountLevel = 1;
@@ -17,6 +15,20 @@ public class Account_Manager : MonoBehaviour
     public int currentAP = 240;
     public int maxAP = 240;
 
+    [Header("행동력 자동 회복")]
+    [SerializeField, Min(1)]
+    private int apRecoverySecondsPerPoint = 360;
+
+    [SerializeField, Min(0.1f)]
+    private float apRecoveryCheckInterval = 1f;
+
+    private float apRecoveryCheckTimer;
+    private long lastAPUpdateUtcTicks;
+
+    private const string CurrentAPSaveKey = "Account_CurrentAP";
+
+    private const string LastAPUpdateSaveKey = "Account_LastAPUpdateUtcTicks";
+
     [Header("파티 공용 스태미나 (대시/구르기)")]
     public float maxStamina = 100f;
     public float currentStamina = 100f;
@@ -26,12 +38,16 @@ public class Account_Manager : MonoBehaviour
     private float exhaustionTimer = 0f;
     private const float exhaustionDuration = 5f;
 
+    public event Action<int, int> OnAPChanged;
+
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            LoadAPState();
         }
         else
         {
@@ -58,8 +74,15 @@ public class Account_Manager : MonoBehaviour
             {
                 currentStamina = maxStamina;
             }
+        }
 
-            // UI 업데이트 함수가 있다면 여기서 호출 (예: UpdateStaminaUI();)
+        apRecoveryCheckTimer += Time.unscaledDeltaTime;
+
+        if (apRecoveryCheckTimer >= apRecoveryCheckInterval)
+        {
+            apRecoveryCheckTimer = 0f;
+
+            ApplyAPRecovery();
         }
     }
 
@@ -87,12 +110,101 @@ public class Account_Manager : MonoBehaviour
 
     public bool UseAP(int amount)
     {
-        if (currentAP >= amount)
+        if (amount <= 0) return true;
+
+        ApplyAPRecovery();
+
+        if (currentAP < amount) return false;
+
+        bool wasFull = currentAP >= maxAP;
+
+        currentAP -= amount;
+
+        if (wasFull)
         {
-            currentAP -= amount;
-            return true; // 사용 성공
+            lastAPUpdateUtcTicks = DateTime.UtcNow.Ticks;
         }
-        return false; // 행동력 부족
+
+        NotifyAPChanged();
+        SaveAPState();
+
+        Debug.Log($"[행동력] {amount} 소모 / " + $"현재 {currentAP}/{maxAP}");
+
+        return true;
+    }
+
+    private void LoadAPState()
+    {
+        currentAP = Mathf.Clamp(PlayerPrefs.GetInt(CurrentAPSaveKey, currentAP), 0, maxAP);
+
+        string savedTicks = PlayerPrefs.GetString(LastAPUpdateSaveKey, string.Empty);
+
+        if (!long.TryParse(savedTicks, out lastAPUpdateUtcTicks) || lastAPUpdateUtcTicks <= 0)
+        {
+            lastAPUpdateUtcTicks = DateTime.UtcNow.Ticks;
+
+            SaveAPState();
+            return;
+        }
+
+        ApplyAPRecovery();
+        NotifyAPChanged();
+    }
+
+    private void ApplyAPRecovery()
+    {
+        long currentUtcTicks = DateTime.UtcNow.Ticks;
+
+        if (currentAP >= maxAP)
+        {
+            currentAP = maxAP;
+
+            lastAPUpdateUtcTicks = currentUtcTicks;
+
+            return;
+        }
+
+        long elapsedTicks = currentUtcTicks - lastAPUpdateUtcTicks;
+
+        if (elapsedTicks <= 0) return;
+
+        double elapsedSeconds = elapsedTicks / (double)TimeSpan.TicksPerSecond;
+
+        int recoveredAmount = Mathf.FloorToInt((float)(elapsedSeconds / apRecoverySecondsPerPoint));
+
+        if (recoveredAmount <= 0) return;
+
+        int previousAP = currentAP;
+
+        currentAP = Mathf.Min(currentAP + recoveredAmount, maxAP);
+
+        if (currentAP >= maxAP)
+        {
+            lastAPUpdateUtcTicks = currentUtcTicks;
+        }
+        else
+        {
+            long consumedTicks = (long)recoveredAmount * apRecoverySecondsPerPoint * TimeSpan.TicksPerSecond;
+
+            lastAPUpdateUtcTicks += consumedTicks;
+        }
+
+        if (currentAP != previousAP)
+        {
+            Debug.Log($"[행동력] {recoveredAmount} 회복 / " + $"현재 {currentAP}/{maxAP}");
+
+            NotifyAPChanged();
+            SaveAPState();
+        }
+    }
+
+    private void SaveAPState()
+    {
+        PlayerPrefs.SetInt(CurrentAPSaveKey, currentAP);
+
+        PlayerPrefs.SetString(LastAPUpdateSaveKey, lastAPUpdateUtcTicks.ToString());
+
+        PlayerPrefs.Save();
     }
 
     public void GainAccountExp(int amount)
@@ -105,5 +217,27 @@ public class Account_Manager : MonoBehaviour
             levelUpExp *= 2; // 임시 공식
             Debug.Log($"계정 레벨업! 현재 레벨: {accountLevel}");
         }
+    }
+
+    private void NotifyAPChanged()
+    {
+        OnAPChanged?.Invoke(currentAP, maxAP);
+    }
+
+    private void OnApplicationPause(bool isPaused)
+    {
+        if (isPaused)
+        {
+            SaveAPState();
+        }
+        else
+        {
+            ApplyAPRecovery();
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveAPState();
     }
 }

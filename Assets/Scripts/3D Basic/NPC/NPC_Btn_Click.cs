@@ -24,7 +24,7 @@ public class NPC_Btn_Click : MonoBehaviour
     {
         if (DialogueManager.instance != null && npcData != null)
         {
-            //DialogueManager.instance.StartDialogue(startDialogueID, npcData);
+            //DialogueManager.Instance.StartDialogue(startDialogueID, npcData);
         }
         else
         {

@@ -99,9 +99,9 @@ public class UI_ShopPanel : MonoBehaviour
         else
         {
             // [판매 탭] 내 인벤토리 아이템 표시
-            if (Player_Inventory.instance != null)
+            if (Player_Inventory.Instance != null)
             {
-                foreach (var holder in Player_Inventory.instance.inventorySlots)
+                foreach (var holder in Player_Inventory.Instance.inventorySlots)
                 {
                     if (holder != null && holder.ItemData != null)
                     {
@@ -157,7 +157,7 @@ public class UI_ShopPanel : MonoBehaviour
         if (currentTab == ShopTab.Buy)
         {
             // 가진 돈으로 살 수 있는 최대치
-            int myGold = Account_Manager.instance != null ? Account_Manager.instance.gold : 0;
+            int myGold = Account_Manager.Instance != null ? Account_Manager.Instance.gold : 0;
             if (selectedItemPrice > 0) limit = myGold / selectedItemPrice;
             if (limit > 99) limit = 99;
         }
@@ -166,7 +166,7 @@ public class UI_ShopPanel : MonoBehaviour
             // 판매할 때는 가진 개수가 최대치
             // (간단히 인벤토리를 뒤져서 총 개수 확인)
             // 여기서는 복잡하니 일단 99로 두고, 실제 판매 시 검사
-            if (Player_Inventory.instance != null)
+            if (Player_Inventory.Instance != null)
             {
                 // 현재 인벤토리에서 이 아이템의 총 개수를 찾아야 정확함 (생략 가능)
             }
@@ -219,19 +219,19 @@ public class UI_ShopPanel : MonoBehaviour
     void BuyItem()
     {
         int totalCost = selectedItemPrice * currentQuantity;
-        Account_Manager playerStat = Account_Manager.instance;
+        Account_Manager playerStat = Account_Manager.Instance;
 
         if (playerStat == null) return;
 
         if (playerStat.gold >= totalCost)
         {
-            if (Player_Inventory.instance.AddItem(selectedItem, currentQuantity))
+            if (Player_Inventory.Instance.AddItem(selectedItem, currentQuantity))
             {
                 playerStat.gold -= totalCost;
                 Debug.Log($"구매 성공: {selectedItem.itemName} x{currentQuantity}");
 
                 // UI 갱신 (돈 줄어든 거 반영)
-                if (LobbyManager.instance != null) LobbyManager.instance.RefreshUserInfo();
+                if (LobbyManager.Instance != null) LobbyManager.Instance.RefreshUserInfo();
 
                 // 구매 후 수량 초기화
                 currentQuantity = 1;
@@ -251,15 +251,15 @@ public class UI_ShopPanel : MonoBehaviour
     void SellItem()
     {
         // 판매 로직: 인벤토리에서 아이템 제거 -> 골드 추가
-        if (Player_Inventory.instance.RemoveItem(selectedItem, currentQuantity))
+        if (Player_Inventory.Instance.RemoveItem(selectedItem, currentQuantity))
         {
             int totalGain = selectedItemPrice * currentQuantity;
-            Account_Manager.instance.gold += totalGain;
+            Account_Manager.Instance.gold += totalGain;
 
             Debug.Log($"판매 성공: {selectedItem.itemName} x{currentQuantity} (+{totalGain} G)");
 
             // UI 갱신
-            if (LobbyManager.instance != null) LobbyManager.instance.RefreshUserInfo();
+            if (LobbyManager.Instance != null) LobbyManager.Instance.RefreshUserInfo();
 
             // 판매 후 목록 갱신 (다 팔았으면 목록에서 사라져야 하니까)
             RefreshList();

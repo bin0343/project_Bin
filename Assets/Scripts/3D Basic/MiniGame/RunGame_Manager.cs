@@ -47,9 +47,9 @@ public class RunGame_Manager : MonoBehaviour
 
         // 1. Global Stat (Manager)에 즉시 반영 -> 로비 UI 갱신용
         //Character_Stat globalStat = Character_Stat.globalInstance;
-        if (globalStat == null && Player_Inventory.instance != null)
+        if (globalStat == null && Player_Inventory.Instance != null)
         {
-            globalStat = Player_Inventory.instance.GetComponent<Player_Stat>();
+            globalStat = Player_Inventory.Instance.GetComponent<Player_Stat>();
         }
 
         if (globalStat != null)

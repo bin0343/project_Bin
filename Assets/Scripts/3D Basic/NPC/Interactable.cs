@@ -76,9 +76,9 @@ public abstract class Interactable : MonoBehaviour
         }
 
         //Time.timeScale = 0f; //게임 일시정지(향후 게임시간은 두고 플레이어 조작만 막기)
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.OpenUI(currentOpenMenu);
+            UI_Manager.Instance.OpenUI(currentOpenMenu);
         }
         else
         {
@@ -97,9 +97,9 @@ public abstract class Interactable : MonoBehaviour
         //currentOpenMenu = null;
 
         //Time.timeScale = 1f;
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.CloseSpecificUI(currentOpenMenu);
+            UI_Manager.Instance.CloseSpecificUI(currentOpenMenu);
         }
         else
         {
@@ -115,14 +115,14 @@ public abstract class Interactable : MonoBehaviour
 
     protected void ResolveInteractionPrompt()
     {
-        if (UI_Manager.instance == null)
+        if (UI_Manager.Instance == null)
         {
             return;
         }
 
-        interactionPromptUI = UI_Manager.instance.InteractionPromptUI;
+        interactionPromptUI = UI_Manager.Instance.InteractionPromptUI;
 
-        interactionText = UI_Manager.instance.InteractionPromptText;
+        interactionText = UI_Manager.Instance.InteractionPromptText;
     }
 
     protected virtual void OnEnable()

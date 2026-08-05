@@ -23,9 +23,9 @@ public class UI_EnterButton : MonoBehaviour
     {
         if (nextPanel != null)
         {
-            if (LobbyManager.instance != null)
+            if (LobbyManager.Instance != null)
             {
-                LobbyManager.instance.OpenDepthPanel(nextPanel);
+                LobbyManager.Instance.OpenDepthPanel(nextPanel);
             }
             else
             {

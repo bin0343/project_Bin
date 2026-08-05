@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class MasterManager : MonoBehaviour
 {
-    public static MasterManager instance;
+    public static MasterManager Instance;
 
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
             transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
         }

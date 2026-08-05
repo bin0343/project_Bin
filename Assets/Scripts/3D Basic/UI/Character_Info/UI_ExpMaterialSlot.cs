@@ -54,7 +54,7 @@ public class UI_ExpMaterialSlot : MonoBehaviour
         {
             usedCount++;
             UpdateUI();
-            UI_CharacterEnhancement.instance.CalculatePreview();
+            UI_CharacterEnhancement.Instance.CalculatePreview();
         }
     }
 
@@ -64,7 +64,7 @@ public class UI_ExpMaterialSlot : MonoBehaviour
         {
             usedCount--;
             UpdateUI();
-            UI_CharacterEnhancement.instance.CalculatePreview();
+            UI_CharacterEnhancement.Instance.CalculatePreview();
         }
     }
 

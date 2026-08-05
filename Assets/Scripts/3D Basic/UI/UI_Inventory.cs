@@ -44,7 +44,7 @@ public class UI_Inventory : MonoBehaviour
 
     void Start()
     {
-        playerInventory = Player_Inventory.instance;
+        playerInventory = Player_Inventory.Instance;
 
         allTabButton.onClick.AddListener(() => ChangeTab(InventoryTabType.ALL));
         equipmentTabButton.onClick.AddListener(() => ChangeTab(InventoryTabType.EQUIPMENT));

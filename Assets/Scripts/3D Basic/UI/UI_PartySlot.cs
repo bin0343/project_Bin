@@ -43,7 +43,7 @@ public class UI_PartySlot : MonoBehaviour
             imgFace.sprite = data.characterPortrait;
             if (txtName != null) txtName.text = data.characterName;
 
-            CharacterStatus status = Character_Manager.instance.GetCharacterStatus(data.characterID);
+            CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(data.characterID);
             if (txtLevel != null) txtLevel.text = $"Lv.{status.level}";
         }
         else

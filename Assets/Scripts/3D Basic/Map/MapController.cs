@@ -297,9 +297,9 @@ public class MapController : MonoBehaviour
 
     void UpdateInfoPanel(MapLocationData data, bool isButtonOnRight)
     {
-        if (isLobbyMode && LobbyManager.instance != null && LobbyManager.instance.globalBackButton != null)
+        if (isLobbyMode && LobbyManager.Instance != null && LobbyManager.Instance.globalBackButton != null)
         {
-            LobbyManager.instance.globalBackButton.SetActive(false);
+            LobbyManager.Instance.globalBackButton.SetActive(false);
         }
 
         if (infoPanel)
@@ -385,9 +385,9 @@ public class MapController : MonoBehaviour
         if (infoPanel) infoPanel.SetActive(false);
         mapScrollRect.enabled = true;
 
-        if (isLobbyMode && LobbyManager.instance != null && LobbyManager.instance.globalBackButton != null)
+        if (isLobbyMode && LobbyManager.Instance != null && LobbyManager.Instance.globalBackButton != null)
         {
-            LobbyManager.instance.globalBackButton.SetActive(true);
+            LobbyManager.Instance.globalBackButton.SetActive(true);
         }
 
         contentRect.DOKill();
@@ -425,16 +425,16 @@ public class MapController : MonoBehaviour
         if (isLobbyMode)
         {
             // [로비 모드] LobbyManager에게 뒤로가기 위임
-            if (LobbyManager.instance != null)
-                LobbyManager.instance.OnClickBack();
+            if (LobbyManager.Instance != null)
+                LobbyManager.Instance.OnClickBack();
             else
                 gameObject.SetActive(false);
         }
         else
         {
             // [3D 인게임 모드] UI_Manager를 통해 닫기 (DOTween 스택 관리 포함)
-            if (UI_Manager.instance != null)
-                UI_Manager.instance.CloseSpecificUI(gameObject);
+            if (UI_Manager.Instance != null)
+                UI_Manager.Instance.CloseSpecificUI(gameObject);
             else
                 gameObject.SetActive(false);
         }

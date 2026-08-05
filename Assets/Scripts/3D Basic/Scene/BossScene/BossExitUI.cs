@@ -45,9 +45,9 @@ public class BossExitUI : MonoBehaviour
             confirmPanel.SetActive(false);
         }
 
-        if (UI_Manager.instance != null && UI_Manager.instance.IsExternalModalOpen)
+        if (UI_Manager.Instance != null && UI_Manager.Instance.IsExternalModalOpen)
         {
-            UI_Manager.instance.SetExternalModalOpen(false);
+            UI_Manager.Instance.SetExternalModalOpen(false);
         }
 
         SetVisible(false);
@@ -62,9 +62,9 @@ public class BossExitUI : MonoBehaviour
         confirmPanel.SetActive(true);
         confirmPanel.transform.SetAsLastSibling();
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.SetExternalModalOpen(true);
+            UI_Manager.Instance.SetExternalModalOpen(true);
         }
         else
         {
@@ -82,9 +82,9 @@ public class BossExitUI : MonoBehaviour
             confirmPanel.SetActive(false);
         }
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.SetExternalModalOpen(false);
+            UI_Manager.Instance.SetExternalModalOpen(false);
         }
         else
         {
@@ -109,9 +109,9 @@ public class BossExitUI : MonoBehaviour
             confirmPanel.SetActive(false);
         }
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.SetExternalModalOpen(false);
+            UI_Manager.Instance.SetExternalModalOpen(false);
         }
         else
         {

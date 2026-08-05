@@ -90,9 +90,9 @@ public class UI_PartyFormation : MonoBehaviour
 
         wasOpened = true;
 
-        if (Character_Manager.instance != null && presetNameText != null)
+        if (Character_Manager.Instance != null && presetNameText != null)
         {
-            PartyPreset preset = Character_Manager.instance.GetPreset(currentPresetIndex);
+            PartyPreset preset = Character_Manager.Instance.GetPreset(currentPresetIndex);
             if (preset != null && !string.IsNullOrEmpty(preset.presetName))
             {
                 presetNameText.text = preset.presetName;
@@ -103,7 +103,7 @@ public class UI_PartyFormation : MonoBehaviour
             }
         }
 
-        List<Character_Data> currentData = Character_Manager.instance.currentPartyData;
+        List<Character_Data> currentData = Character_Manager.Instance.currentPartyData;
         for (int i = 0; i < 3; i++)
         {
             tempParty[i] = (currentData != null && i < currentData.Count) ? currentData[i] : null;
@@ -119,7 +119,7 @@ public class UI_PartyFormation : MonoBehaviour
 
         CloseNamePanel();
 
-        if (Character_Manager.instance == null || !wasOpened) return;
+        if (Character_Manager.Instance == null || !wasOpened) return;
         CompactParty();
 
         bool isEmptyParty = true;
@@ -152,9 +152,9 @@ public class UI_PartyFormation : MonoBehaviour
             finalIDs.Add(tempParty[i] != null ? tempParty[i].characterID : "");
         }
 
-        Character_Manager.instance.SaveParty(finalIDs, finalData);
+        Character_Manager.Instance.SaveParty(finalIDs, finalData);
 
-        if (BattleManager.instance != null) BattleManager.instance.InitializeParty();
+        if (BattleManager.Instance != null) BattleManager.Instance.InitializeParty();
         if (currentPreviewModel != null) currentPreviewModel.gameObject.SetActive(false);
     }
 
@@ -273,7 +273,7 @@ public class UI_PartyFormation : MonoBehaviour
         roasterSlotUIList.Clear();
         foreach (Transform child in rosterListParent) Destroy(child.gameObject);
 
-        List<Character_Data> ownedChars = Character_Manager.instance.GetOwnedCharacters();
+        List<Character_Data> ownedChars = Character_Manager.Instance.GetOwnedCharacters();
 
         foreach (var charData in ownedChars)
         {
@@ -335,7 +335,7 @@ public class UI_PartyFormation : MonoBehaviour
         }
 
         previewNameText.text = data.characterName;
-        CharacterStatus status = Character_Manager.instance.GetCharacterStatus(data.characterID);
+        CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(data.characterID);
         previewLevelText.text = $"Lv.{status.level}";
         executeFormationButton.interactable = true;
 
@@ -456,7 +456,7 @@ public class UI_PartyFormation : MonoBehaviour
         }
 
         currentPresetIndex = index;
-        PartyPreset preset = Character_Manager.instance.GetPreset(index);
+        PartyPreset preset = Character_Manager.Instance.GetPreset(index);
 
         if (preset == null || string.IsNullOrEmpty(preset.presetName) || preset.characterIDs == null)
         {
@@ -473,7 +473,7 @@ public class UI_PartyFormation : MonoBehaviour
 
     private void AutoSaveCurrentPreset()
     {
-        if (Character_Manager.instance == null || presetNameText == null) return;
+        if (Character_Manager.Instance == null || presetNameText == null) return;
 
         List<string> ids = new List<string>();
         foreach (var charData in tempParty)
@@ -481,13 +481,13 @@ public class UI_PartyFormation : MonoBehaviour
             ids.Add(charData != null ? charData.characterID : "");
         }
 
-        Character_Manager.instance.SavePreset(currentPresetIndex, presetNameText.text, ids);
+        Character_Manager.Instance.SavePreset(currentPresetIndex, presetNameText.text, ids);
     }
 
     private void LoadPresetToTemp(int index)
     {
-        PartyPreset preset = Character_Manager.instance.GetPreset(index);
-        List<Character_Data> allData = Character_Manager.instance.allcharacterDataList;
+        PartyPreset preset = Character_Manager.Instance.GetPreset(index);
+        List<Character_Data> allData = Character_Manager.Instance.allcharacterDataList;
 
         if (preset == null || preset.characterIDs == null || allData == null) return;
 

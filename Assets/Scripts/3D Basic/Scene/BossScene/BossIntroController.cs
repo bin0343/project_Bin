@@ -5,7 +5,7 @@ using DG.Tweening;
 
 public class BossIntroController : MonoBehaviour
 {
-    public static BossIntroController instance
+    public static BossIntroController Instance
     {
         get;
         private set;
@@ -46,13 +46,13 @@ public class BossIntroController : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        instance = this;
+        Instance = this;
 
         if (introCamera != null)
         {
@@ -65,7 +65,7 @@ public class BossIntroController : MonoBehaviour
 
     private void Start()
     {
-        if (letterbox == null) letterbox = CinematicLetterbox.instance;
+        if (letterbox == null) letterbox = CinematicLetterbox.Instance;
     }
 
     public bool TryPlayIntro(BossEnemy boss)
@@ -92,14 +92,14 @@ public class BossIntroController : MonoBehaviour
     {
         IsPlaying = true;
 
-        if (BattleManager.instance != null)
+        if (BattleManager.Instance != null)
         {
-            BattleManager.instance.SetPlayerControlLocked(true);
+            BattleManager.Instance.SetPlayerControlLocked(true);
         }
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.EnterCinematicMode();
+            UI_Manager.Instance.EnterCinematicMode();
         }
 
         if (letterbox != null) letterbox.Show();
@@ -150,15 +150,15 @@ public class BossIntroController : MonoBehaviour
 
         introCamera.gameObject.SetActive(false);
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.ExitCinematicMode();
+            UI_Manager.Instance.ExitCinematicMode();
         }
 
 
-        if (BattleManager.instance != null)
+        if (BattleManager.Instance != null)
         {
-            BattleManager.instance.SetPlayerControlLocked(false);
+            BattleManager.Instance.SetPlayerControlLocked(false);
         }
 
         boss.ReleaseOpeningLeapTargeting();
@@ -188,14 +188,14 @@ public class BossIntroController : MonoBehaviour
             letterbox.HideImmediate();
         }
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.ExitCinematicMode();
+            UI_Manager.Instance.ExitCinematicMode();
         }
 
-        if (IsPlaying && BattleManager.instance != null)
+        if (IsPlaying && BattleManager.Instance != null)
         {
-            BattleManager.instance.SetPlayerControlLocked(false);
+            BattleManager.Instance.SetPlayerControlLocked(false);
         }
 
         IsPlaying = false;
@@ -205,6 +205,6 @@ public class BossIntroController : MonoBehaviour
     {
         cameraMoveTween?.Kill();
 
-        if (instance == this) instance = null;
+        if (Instance == this) Instance = null;
     }
 }

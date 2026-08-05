@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class GameDataManager : MonoBehaviour
 {
-    public static GameDataManager instance;
+    public static GameDataManager Instance;
 
     public SaveData saveData = new SaveData();
     public Player_Data playerData;
@@ -16,9 +16,9 @@ public class GameDataManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
             DontDestroyOnLoad(gameObject);
             saveFilePath = Path.Combine(Application.persistentDataPath, "MyGameSave.json");
 
@@ -94,19 +94,19 @@ public class GameDataManager : MonoBehaviour
     void GatherGameData()
     {
         // 1. 플레이어 스탯 저장
-        if (Account_Manager.instance != null)
+        if (Account_Manager.Instance != null)
         {
             saveData.playerName = PlayerPrefs.GetString("PlayerName", "플레이어"); // 이름은 PlayerPrefs에서 가져오거나 별도 관리
-            saveData.playerLevel = Account_Manager.instance.accountLevel;
-            saveData.playerGold = Account_Manager.instance.gold;
-            saveData.playerExp = Account_Manager.instance.accountExp;
+            saveData.playerLevel = Account_Manager.Instance.accountLevel;
+            saveData.playerGold = Account_Manager.Instance.gold;
+            saveData.playerExp = Account_Manager.Instance.accountExp;
         }
 
         // 2. 인벤토리 저장
         saveData.inventoryList.Clear();
-        if (Player_Inventory.instance != null)
+        if (Player_Inventory.Instance != null)
         {
-            List<ItemHolder> slots = Player_Inventory.instance.inventorySlots;
+            List<ItemHolder> slots = Player_Inventory.Instance.inventorySlots;
             for (int i = 0; i < slots.Count; i++)
             {
                 if (slots[i] != null && slots[i].ItemData != null)
@@ -121,9 +121,9 @@ public class GameDataManager : MonoBehaviour
         }
 
         //NPC저장
-        if (Character_Manager.instance != null)
+        if (Character_Manager.Instance != null)
         {
-            saveData.npcList = Character_Manager.instance.GetSaveData();
+            saveData.npcList = Character_Manager.Instance.GetSaveData();
         }
 
         //퀘스트 저장
@@ -143,24 +143,24 @@ public class GameDataManager : MonoBehaviour
         }
 
         // 1. 플레이어 스탯 복구
-        if (Account_Manager.instance != null)
+        if (Account_Manager.Instance != null)
         {
-            Account_Manager.instance.accountLevel = saveData.playerLevel;
-            Account_Manager.instance.gold = saveData.playerGold;
-            Account_Manager.instance.accountExp = saveData.playerExp;
+            Account_Manager.Instance.accountLevel = saveData.playerLevel;
+            Account_Manager.Instance.gold = saveData.playerGold;
+            Account_Manager.Instance.accountExp = saveData.playerExp;
 
-            if (LobbyManager.instance != null) LobbyManager.instance.RefreshUserInfo();
+            if (LobbyManager.Instance != null) LobbyManager.Instance.RefreshUserInfo();
         }
 
         // 2. 인벤토리 복구
-        if (Player_Inventory.instance != null)
+        if (Player_Inventory.Instance != null)
         {
             // 기존 인벤토리 싹 비우기 (중복 방지)
-            Player_Inventory.instance.inventorySlots.Clear();
+            Player_Inventory.Instance.inventorySlots.Clear();
 
-            Player_Inventory.instance.inventorySlots.Clear();
+            Player_Inventory.Instance.inventorySlots.Clear();
             // 기본 슬롯 30개 생성 (빈 칸)
-            for (int i = 0; i < 30; i++) Player_Inventory.instance.inventorySlots.Add(null);
+            for (int i = 0; i < 30; i++) Player_Inventory.Instance.inventorySlots.Add(null);
 
             foreach (var savedItem in saveData.inventoryList)
             {
@@ -168,22 +168,22 @@ public class GameDataManager : MonoBehaviour
                 if (itemOriginal != null)
                 {
                     // 해당 위치에 아이템 복구
-                    if (savedItem.slotIndex < Player_Inventory.instance.inventorySlots.Count)
+                    if (savedItem.slotIndex < Player_Inventory.Instance.inventorySlots.Count)
                     {
-                        Player_Inventory.instance.inventorySlots[savedItem.slotIndex]
+                        Player_Inventory.Instance.inventorySlots[savedItem.slotIndex]
                             = new ItemHolder(itemOriginal, savedItem.quantity);
                     }
                 }
             }
 
             // 인벤토리 UI 갱신
-            Player_Inventory.instance.RefreshAllUI();
+            Player_Inventory.Instance.RefreshAllUI();
         }
 
         //NPC로드
-        if (Character_Manager.instance != null)
+        if (Character_Manager.Instance != null)
         {
-            Character_Manager.instance.LoadFromSaveData(saveData.npcList);
+            Character_Manager.Instance.LoadFromSaveData(saveData.npcList);
         }
         //퀘스트 로드
         if (QuestManager.instance != null)

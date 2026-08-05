@@ -33,7 +33,7 @@ public class UI_WeaponTab : MonoBehaviour
             targetCharacterData = characterData;
         }
 
-        CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(targetCharacterData.characterID);
+        CharacterStatus cStatus = Character_Manager.Instance.GetCharacterStatus(targetCharacterData.characterID);
         Player_Equipment activeEquip = GetEquipmentOfCharacter(targetCharacterData);
 
         ItemHolder targetHolder = null;
@@ -155,7 +155,7 @@ public class UI_WeaponTab : MonoBehaviour
         if (isPreviewMode && previewItemHolder != null)
         {
             Player_Equipment activeEquip = GetActiveEquipment();
-            CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(targetCharacterData.characterID);
+            CharacterStatus cStatus = Character_Manager.Instance.GetCharacterStatus(targetCharacterData.characterID);
 
             if (activeEquip != null)
             {
@@ -164,26 +164,26 @@ public class UI_WeaponTab : MonoBehaviour
             }
             else
             {
-                if (cStatus != null && Player_Inventory.instance != null)
+                if (cStatus != null && Player_Inventory.Instance != null)
                 {
-                    if (previewInventoryIndex >= 0 && previewInventoryIndex < Player_Inventory.instance.inventorySlots.Count)
+                    if (previewInventoryIndex >= 0 && previewInventoryIndex < Player_Inventory.Instance.inventorySlots.Count)
                     {
                         ItemHolder oldWeapon = cStatus.equippedWeapon;
-                        ItemHolder newWeapon = Player_Inventory.instance.inventorySlots[previewInventoryIndex];
+                        ItemHolder newWeapon = Player_Inventory.Instance.inventorySlots[previewInventoryIndex];
 
                         cStatus.equippedWeapon = newWeapon;
 
                         if (oldWeapon != null && oldWeapon.ItemData != null)
                         {
-                            Player_Inventory.instance.inventorySlots[previewInventoryIndex] = oldWeapon;
+                            Player_Inventory.Instance.inventorySlots[previewInventoryIndex] = oldWeapon;
                         }
                         else
                         {
-                            Player_Inventory.instance.inventorySlots.RemoveAt(previewInventoryIndex);
+                            Player_Inventory.Instance.inventorySlots.RemoveAt(previewInventoryIndex);
                         }
 
-                        Player_Inventory.instance.CleanUpInventory();
-                        Player_Inventory.instance.RefreshAllUI();
+                        Player_Inventory.Instance.CleanUpInventory();
+                        Player_Inventory.Instance.RefreshAllUI();
                     }
                 }
             }
@@ -211,9 +211,9 @@ public class UI_WeaponTab : MonoBehaviour
 
     private Player_Equipment GetEquipmentOfCharacter(Character_Data characterData)
     {
-        if (characterData == null || BattleManager.instance == null || BattleManager.instance.SpawnedCharacters == null) return null;
+        if (characterData == null || BattleManager.Instance == null || BattleManager.Instance.SpawnedCharacters == null) return null;
 
-        foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
+        foreach (GameObject charObj in BattleManager.Instance.SpawnedCharacters)
         {
             if (charObj != null)
             {

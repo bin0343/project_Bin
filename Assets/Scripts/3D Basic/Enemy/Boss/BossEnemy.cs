@@ -174,9 +174,9 @@ public class BossEnemy : EnemyBase
 
         Debug.Log($"[BossEnemy] F5 테스트 초기화 완료: {bossID}\n" + "다음 입장부터 소개 연출과 오프닝 공격이 다시 재생됩니다.");
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.ShowMessage("보스 최초 클리어 기록을 초기화했습니다.");
+            UI_Manager.Instance.ShowMessage("보스 최초 클리어 기록을 초기화했습니다.");
         }
     }
 
@@ -221,7 +221,7 @@ public class BossEnemy : EnemyBase
             if (playerTransform == null) return;
         }
 
-        if (BossIntroController.instance != null && BossIntroController.instance.IsPlaying) return;
+        if (BossIntroController.Instance != null && BossIntroController.Instance.IsPlaying) return;
 
         Vector3 difference = playerTransform.position - transform.position;
         difference.y = 0f;
@@ -236,7 +236,7 @@ public class BossEnemy : EnemyBase
             {
                 introDistanceChecked = true;
 
-                BossIntroController controller = BossIntroController.instance;
+                BossIntroController controller = BossIntroController.Instance;
 
                 if (controller != null)
                 {

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class UI_ItemToastManager : MonoBehaviour
 {
-    public static UI_ItemToastManager instance;
+    public static UI_ItemToastManager Instance;
 
     [Header("UI 셋업")]
     public GameObject toastPrefab; // 방금 만든 UI_ItemToast 프리팹
@@ -10,7 +10,7 @@ public class UI_ItemToastManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null) instance = this;
+        if (Instance == null) Instance = this;
     }
 
     public void ShowToast(Item_Base item, int amount)

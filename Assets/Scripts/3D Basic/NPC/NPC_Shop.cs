@@ -154,7 +154,7 @@ public class NPC_Shop : Interactable
     {
         Debug.Log("구매 창을 엽니다.");
         //PopulateBuyList();
-        UI_Manager.instance.OpenUI(buyMenuPanel);
+        UI_Manager.Instance.OpenUI(buyMenuPanel);
         //buyMenuPanel.SetActive(true);
         shopMenuPanel.SetActive(false);
 
@@ -170,7 +170,7 @@ public class NPC_Shop : Interactable
     {
         Debug.Log("판매 창을 엽니다.");
         PopulateSellList();
-        UI_Manager.instance.OpenUI(sellMenuPanel);
+        UI_Manager.Instance.OpenUI(sellMenuPanel);
         shopMenuPanel.SetActive(false);
 
         currentState = ShopState.Browsing;
@@ -189,7 +189,7 @@ public class NPC_Shop : Interactable
         }
         createdSellSlots.Clear();
 
-        foreach (ItemHolder playerItemHolder in Player_Inventory.instance.inventorySlots)
+        foreach (ItemHolder playerItemHolder in Player_Inventory.Instance.inventorySlots)
         {
             if (playerItemHolder == null || playerItemHolder.ItemData == null) continue;
 
@@ -254,8 +254,8 @@ public class NPC_Shop : Interactable
         int maxSellable = item.Quantity;
 
         currentState = ShopState.SelectingQuantity;
-        UI_Manager.instance.CloseSpecificUI(sellMenuPanel); // 판매창 닫기
-        UI_Manager.instance.OpenUI(quantityPopup.gameObject); // 팝업 열기
+        UI_Manager.Instance.CloseSpecificUI(sellMenuPanel); // 판매창 닫기
+        UI_Manager.Instance.OpenUI(quantityPopup.gameObject); // 팝업 열기
 
         // [중요] 팝업의 '확인' 콜백으로 OnSellQuantityConfirmed를 연결
         quantityPopup.Initialize(displayItem, maxSellable, OnSellQuantityConfirmed, ReturnToSelling);
@@ -274,7 +274,7 @@ public class NPC_Shop : Interactable
         }
 
         // 1. 인벤토리에서 아이템 제거 시도
-        bool success = Player_Inventory.instance.RemoveItem(itemToSell.ItemData, quantityToSell);
+        bool success = Player_Inventory.Instance.RemoveItem(itemToSell.ItemData, quantityToSell);
 
         if (success)
         {
@@ -284,13 +284,13 @@ public class NPC_Shop : Interactable
             int totalGain = sellPrice * quantityToSell;
 
             // 3. 골드 추가
-            Account_Manager.instance.gold += totalGain;
-            UI_Manager.instance.ShowMessage($"{itemToSell.ItemData.itemName} {quantityToSell}개 판매 완료. (+{totalGain} G)");
+            Account_Manager.Instance.gold += totalGain;
+            UI_Manager.Instance.ShowMessage($"{itemToSell.ItemData.itemName} {quantityToSell}개 판매 완료. (+{totalGain} G)");
             // TODO: 골드 UI 갱신
         }
         else
         {
-            UI_Manager.instance.ShowMessage("아이템 판매에 실패했습니다.");
+            UI_Manager.Instance.ShowMessage("아이템 판매에 실패했습니다.");
         }
 
         ReturnToSelling();
@@ -302,7 +302,7 @@ public class NPC_Shop : Interactable
         currentState = ShopState.Browsing;
 
         // 판매 목록을 다시 연다
-        UI_Manager.instance.OpenUI(sellMenuPanel);
+        UI_Manager.Instance.OpenUI(sellMenuPanel);
 
         // [중요] 판매 후 인벤토리 수량이 변경되었으므로 목록을 새로고침
         PopulateSellList();
@@ -323,8 +323,8 @@ public class NPC_Shop : Interactable
     private void ReturnToShopMenu(GameObject panelToClose)
     {
         currentState = ShopState.Browsing;
-        UI_Manager.instance.CloseSpecificUI(panelToClose);
-        UI_Manager.instance.OpenUI(shopMenuPanel);
+        UI_Manager.Instance.CloseSpecificUI(panelToClose);
+        UI_Manager.Instance.OpenUI(shopMenuPanel);
 
         EventSystem.current.SetSelectedGameObject(buyButton.gameObject);
     }
@@ -343,7 +343,7 @@ public class NPC_Shop : Interactable
 
     private void ShowQuantityPopup(ShopItem item)
     {
-        int currentGold = Account_Manager.instance.gold;
+        int currentGold = Account_Manager.Instance.gold;
         int maxAffordable = 99;
 
         if (item.price > 0)
@@ -351,7 +351,7 @@ public class NPC_Shop : Interactable
             // 1개 이상 살 수 있는 골드가 있는지 확인
             if (currentGold < item.price)
             {
-                UI_Manager.instance.ShowMessage("골드가 부족합니다.");
+                UI_Manager.Instance.ShowMessage("골드가 부족합니다.");
                 return; 
             }
             
@@ -362,9 +362,9 @@ public class NPC_Shop : Interactable
         int maxBuyable = Mathf.Min(99, maxAffordable);
 
         currentState = ShopState.SelectingQuantity;
-        UI_Manager.instance.CloseSpecificUI(buyMenuPanel); // 구매창 닫기 (UI스택)
+        UI_Manager.Instance.CloseSpecificUI(buyMenuPanel); // 구매창 닫기 (UI스택)
 
-        UI_Manager.instance.OpenUI(quantityPopup.gameObject);
+        UI_Manager.Instance.OpenUI(quantityPopup.gameObject);
         quantityPopup.Initialize(item, maxBuyable, OnQuantityConfirmed, ReturnToBrowsing);
         /*currentState = ShopState.SelectingQuantity;
         buyMenuPanel.SetActive(false);
@@ -384,26 +384,26 @@ public class NPC_Shop : Interactable
         int totalPrice = item.price * quantity;
 
         // (Initialize에서 이미 검사했지만) 한 번 더 방어적 검사
-        if (Account_Manager.instance.gold < totalPrice)
+        if (Account_Manager.Instance.gold < totalPrice)
         {
-            UI_Manager.instance.ShowMessage("골드가 부족합니다.");
+            UI_Manager.Instance.ShowMessage("골드가 부족합니다.");
             ReturnToBrowsing();
             return;
         }
 
         // 1. 인벤토리에 아이템 추가 시도
-        bool success = Player_Inventory.instance.AddItem(item.itemData, quantity);
+        bool success = Player_Inventory.Instance.AddItem(item.itemData, quantity);
 
         // 2. 인벤토리 추가에 성공했을 때만 골드 차감
         if (success)
         {
-            Account_Manager.instance.gold -= totalPrice; // 골드 차감
-            UI_Manager.instance.ShowMessage($"{item.itemData.itemName} {quantity}개 구매 완료.");
+            Account_Manager.Instance.gold -= totalPrice; // 골드 차감
+            UI_Manager.Instance.ShowMessage($"{item.itemData.itemName} {quantity}개 구매 완료.");
             // TODO: 골드 UI 갱신 (예: UI_Manager.Instance.UpdateGoldUI())
         }
         else
         {
-            UI_Manager.instance.ShowMessage("인벤토리가 가득 찼습니다.");
+            UI_Manager.Instance.ShowMessage("인벤토리가 가득 찼습니다.");
         }
 
         ReturnToBrowsing();
@@ -414,7 +414,7 @@ public class NPC_Shop : Interactable
         currentState = ShopState.Browsing;
         //quantityPopupPanel.SetActive(false);
 
-        UI_Manager.instance.OpenUI(buyMenuPanel);
+        UI_Manager.Instance.OpenUI(buyMenuPanel);
         //buyMenuPanel.SetActive(true);
 
         if (lastSelectedSlot != null)
@@ -430,8 +430,8 @@ public class NPC_Shop : Interactable
     private void ReturnToShopMenu()
     {
         currentState = ShopState.Browsing;
-        UI_Manager.instance.CloseSpecificUI(buyMenuPanel);
-        UI_Manager.instance.OpenUI(shopMenuPanel);
+        UI_Manager.Instance.CloseSpecificUI(buyMenuPanel);
+        UI_Manager.Instance.OpenUI(shopMenuPanel);
 
         EventSystem.current.SetSelectedGameObject(buyButton.gameObject);
     }

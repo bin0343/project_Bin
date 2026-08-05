@@ -31,14 +31,14 @@ public class TitleManager : MonoBehaviour
         PlayerPrefs.DeleteAll();
         PlayerPrefs.SetInt("IsFirstVisit", 1); // 튜토리얼 다시 보게 설정
 
-        if (GameDataManager.instance != null)
+        if (GameDataManager.Instance != null)
         {
-            GameDataManager.instance.saveData = new SaveData(); // 텅 빈 새 데이터
+            GameDataManager.Instance.saveData = new SaveData(); // 텅 빈 새 데이터
 
             // 기본 지급 아이템이나 초기 골드가 필요하면 여기서 설정
-            // 예: GameDataManager.instance.saveData.playerGold = 1000;
+            // 예: GameDataManager.Instance.saveData.playerGold = 1000;
 
-            GameDataManager.instance.SaveGame(); // 초기 상태 덮어쓰기 저장
+            GameDataManager.Instance.SaveGame(); // 초기 상태 덮어쓰기 저장
         }
 
         SceneManager.LoadScene(lobbySceneName);
@@ -46,9 +46,9 @@ public class TitleManager : MonoBehaviour
 
     void OnClickContinue()
     {
-        if (GameDataManager.instance != null)
+        if (GameDataManager.Instance != null)
         {
-            bool success = GameDataManager.instance.LoadGame();
+            bool success = GameDataManager.Instance.LoadGame();
             if (success)
             {
                 SceneManager.LoadScene(lobbySceneName);

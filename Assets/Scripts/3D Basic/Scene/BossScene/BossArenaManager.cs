@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BossArenaManager : MonoBehaviour
 {
-    public static BossArenaManager instance {  get; private set; }
+    public static BossArenaManager Instance {  get; private set; }
 
     [Header("보스 생성")]
     [SerializeField] private BossEnemy bossPrefab;
@@ -39,13 +39,13 @@ public class BossArenaManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        instance = this;
+        Instance = this;
     }
 
     private void Start()
@@ -115,7 +115,7 @@ public class BossArenaManager : MonoBehaviour
 
         respawnCoroutine = StartCoroutine(RespawnRoutine());
 
-        UI_Manager.instance.ShowMessage("잠시 후 보스가 재생성 됩니다.");
+        UI_Manager.Instance.ShowMessage("잠시 후 보스가 재생성 됩니다.");
     }
 
     private IEnumerator RespawnRoutine()
@@ -147,9 +147,9 @@ public class BossArenaManager : MonoBehaviour
             exitUI.ClearExitDestination();
         }
 
-        if (instance == this)
+        if (Instance == this)
         {
-            instance = null;
+            Instance = null;
         }
     }
 }

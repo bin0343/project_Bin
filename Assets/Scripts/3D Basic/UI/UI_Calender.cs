@@ -33,7 +33,7 @@ public class UI_Calendar : MonoBehaviour
         if (TimeManager.instance == null) return;
 
         // 1. 텍스트 갱신
-        // TimeManager.instance.currentDayOfWeek는 이제 System.DayOfWeek 타입입니다.
+        // TimeManager.Instance.currentDayOfWeek는 이제 System.DayOfWeek 타입입니다.
         string dayStr = GetDayString(TimeManager.instance.currentDayOfWeek);
 
         if (dateText != null)

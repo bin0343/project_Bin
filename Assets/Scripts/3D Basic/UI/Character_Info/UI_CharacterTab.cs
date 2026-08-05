@@ -58,13 +58,13 @@ public class UI_CharacterTab : MonoBehaviour
 
         currentlySelectedCharacter = characterData;
 
-        CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(characterData.characterID);
+        CharacterStatus cStatus = Character_Manager.Instance.GetCharacterStatus(characterData.characterID);
         levelText.text = $"LV. {cStatus.level}";
 
         Character_Stat spawnedStat = null;
-        if (BattleManager.instance != null && BattleManager.instance.SpawnedCharacters != null)
+        if (BattleManager.Instance != null && BattleManager.Instance.SpawnedCharacters != null)
         {
-            foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
+            foreach (GameObject charObj in BattleManager.Instance.SpawnedCharacters)
             {
                 if (charObj != null)
                 {
@@ -161,9 +161,9 @@ public class UI_CharacterTab : MonoBehaviour
         mainInfoSubPanel.SetActive(false);
         enhancementSubPanel.SetActive(true);
 
-        if (UI_CharacterEnhancement.instance != null)
+        if (UI_CharacterEnhancement.Instance != null)
         {
-            UI_CharacterEnhancement.instance.OpenEnhancement();
+            UI_CharacterEnhancement.Instance.OpenEnhancement(currentlySelectedCharacter);
         }
     }
 

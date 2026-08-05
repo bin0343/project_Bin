@@ -30,7 +30,7 @@ public class UI_StatusBar : MonoBehaviour
 
         if (stat == null) return;
 
-        CharacterStatus cStatus = Character_Manager.instance.GetCharacterStatus(stat.characterData.characterID);
+        CharacterStatus cStatus = Character_Manager.Instance.GetCharacterStatus(stat.characterData.characterID);
         
         if (levelText != null) levelText.text = $"Lv.{cStatus.level}";
 
@@ -71,7 +71,7 @@ public class UI_StatusBar : MonoBehaviour
         }
 
         // 4. 스태미나 바 로직
-        Account_Manager acc = Account_Manager.instance;
+        Account_Manager acc = Account_Manager.Instance;
         float staminaRatio = acc.currentStamina / acc.maxStamina;
         staminabar.fillAmount = staminaRatio;
 

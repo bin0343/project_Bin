@@ -8,10 +8,10 @@ public class MapInteractionTrigger : MonoBehaviour
         // 플레이어인지 태그 확인 (Player 태그가 설정되어 있어야 함)
         if (other.CompareTag("Player"))
         {
-            if (UI_Manager.instance != null)
+            if (UI_Manager.Instance != null)
             {
                 // 메시지 출력 없이 즉시 지도 열기
-                //UI_Manager.instance.OpenWorldMap();
+                //UI_Manager.Instance.OpenWorldMap();
             }
         }
     }

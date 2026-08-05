@@ -863,11 +863,11 @@ Transform:
   m_GameObject: {fileID: 452138094}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 23.787203, y: -17.404175, z: 17.789883}
-  m_LocalScale: {x: 1, y: 11.109177, z: 50.53533}
+  m_LocalPosition: {x: -0.8999996, y: 163.8192, z: 12.199999}
+  m_LocalScale: {x: 1, y: 11.109177, z: 50.535336}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1801006594}
+  m_Father: {fileID: 939906130}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &469347757
 GameObject:
@@ -1008,11 +1008,11 @@ Transform:
   m_GameObject: {fileID: 500228938}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.087202, y: -17.404175, z: -82.26252}
+  m_LocalPosition: {x: -16.6, y: 163.8192, z: -87.8524}
   m_LocalScale: {x: 1, y: 11.109177, z: 217.06682}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1801006594}
+  m_Father: {fileID: 939906130}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &549662965
 GameObject:
@@ -1290,6 +1290,7 @@ MonoBehaviour:
   bossPrefab: {fileID: 8474241103587987352, guid: 6647b1936e9789c41bbbc4dea6730860, type: 3}
   bossSpawnPoint: {fileID: 582611292}
   currentBoss: {fileID: 0}
+  respawnDelay: 5
   exitSceneName: City
   exitSpawnPointId: BossOrc_Return
 --- !u!1 &689974003
@@ -1786,11 +1787,11 @@ Transform:
   m_GameObject: {fileID: 784273663}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 23.787203, y: -17.404175, z: -159.8101}
-  m_LocalScale: {x: 1, y: 11.109177, z: 50.53533}
+  m_LocalPosition: {x: -0.8999996, y: 163.8192, z: -165.4}
+  m_LocalScale: {x: 1, y: 11.109177, z: 50.535336}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1801006594}
+  m_Father: {fileID: 939906130}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &839064818
 GameObject:
@@ -2040,6 +2041,41 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 69618f82ad6e5dc4a8fd3f5304bf9fd4, type: 3}
+--- !u!1 &939906129
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 939906130}
+  m_Layer: 0
+  m_Name: Fence
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &939906130
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939906129}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1997483159}
+  - {fileID: 452138098}
+  - {fileID: 784273667}
+  - {fileID: 500228942}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &982807508
 GameObject:
   m_ObjectHideFlags: 0
@@ -3333,41 +3369,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnID: BossEntrance
---- !u!1 &1801006593
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1801006594}
-  m_Layer: 0
-  m_Name: Fences
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1801006594
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1801006593}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -24.687202, y: 181.22337, z: -5.5898833}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1997483159}
-  - {fileID: 452138098}
-  - {fileID: 784273667}
-  - {fileID: 500228942}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1881282919
 GameObject:
   m_ObjectHideFlags: 0
@@ -3507,11 +3508,11 @@ Transform:
   m_GameObject: {fileID: 1997483155}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 41.187202, y: -17.404175, z: -82.26252}
+  m_LocalPosition: {x: 16.5, y: 163.8192, z: -87.8524}
   m_LocalScale: {x: 1, y: 11.109177, z: 217.06682}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1801006594}
+  m_Father: {fileID: 939906130}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2059390170
 GameObject:
@@ -3637,7 +3638,7 @@ SceneRoots:
   - {fileID: 1630444985}
   - {fileID: 554103309}
   - {fileID: 283212591}
-  - {fileID: 1801006594}
+  - {fileID: 939906130}
   - {fileID: 362754258}
   - {fileID: 1304324712}
   - {fileID: 1292363774}

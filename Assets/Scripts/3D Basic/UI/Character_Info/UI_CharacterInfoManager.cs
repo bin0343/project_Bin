@@ -29,9 +29,9 @@ public class UI_CharacterInfoManager : MonoBehaviour
     private void OnEnable()
     {
         // 최초 진입 시 필드에 나와 있는 액티브 플레이어를 기본 선택으로 설정
-        if (UI_Manager.instance != null && UI_Manager.instance.activeCharacterStat != null)
+        if (UI_Manager.Instance != null && UI_Manager.Instance.activeCharacterStat != null)
         {
-            currentlySelectedCharacter = UI_Manager.instance.activeCharacterStat.characterData;
+            currentlySelectedCharacter = UI_Manager.Instance.activeCharacterStat.characterData;
         }
 
         // 부모 단에서 우측 초상화 버튼 리스트 일괄 생성
@@ -50,8 +50,8 @@ public class UI_CharacterInfoManager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        if (Character_Manager.instance == null) return;
-        List<Character_Data> ownedCharacters = Character_Manager.instance.GetOwnedCharacters();
+        if (Character_Manager.Instance == null) return;
+        List<Character_Data> ownedCharacters = Character_Manager.Instance.GetOwnedCharacters();
 
         foreach (Character_Data charData in ownedCharacters)
         {

@@ -60,9 +60,9 @@ public class Character_Stat : MonoBehaviour
     public void InitializeFromManager()
     {
         if (characterData == null) return;
-        if (Character_Manager.instance == null) return;
+        if (Character_Manager.Instance == null) return;
 
-        CharacterStatus savedStatus = Character_Manager.instance.GetCharacterStatus(characterData.characterID, characterData);
+        CharacterStatus savedStatus = Character_Manager.Instance.GetCharacterStatus(characterData.characterID, characterData);
 
         if (savedStatus != null)
         {
@@ -207,14 +207,20 @@ public class Character_Stat : MonoBehaviour
         return basePosition + pushDirection * damageTextCameraForwardOffset;
     }
 
-    public void GainExp(int amount)
+    public int GainExp(int amount)
     {
-        if (characterData == null) return;
+        if (characterData == null) return 0;
 
-        Character_Manager.instance.AddExperience(characterData.characterID, amount, characterData);
+        int appliedExp = Character_Manager.Instance.AddExperience(characterData.characterID, amount, characterData);
 
-        CharacterStatus updatedStatus = Character_Manager.instance.GetCharacterStatus(characterData.characterID, characterData);
-        System.Array.Copy(updatedStatus.currentStats, baseStats, updatedStatus.currentStats.Length);
+        CharacterStatus updatedStatus = Character_Manager.Instance.GetCharacterStatus(characterData.characterID, characterData);
+
+        if (updatedStatus.currentStats != null && updatedStatus.currentStats.Length == baseStats.Length)
+        {
+            System.Array.Copy(updatedStatus.currentStats, baseStats, updatedStatus.currentStats.Length);
+        }
+
+        return appliedExp;
     }
 
     private void Die()
@@ -226,7 +232,7 @@ public class Character_Stat : MonoBehaviour
 
     public void RefreshStatsFromManager()
     {
-        CharacterStatus status = Character_Manager.instance.GetCharacterStatus(characterData.characterID, characterData);
+        CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(characterData.characterID, characterData);
 
         if (status.currentStats != null)
         {

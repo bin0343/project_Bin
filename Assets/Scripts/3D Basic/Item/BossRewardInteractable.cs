@@ -4,7 +4,7 @@ using UnityEngine;
 public class BossRewardInteractable : Interactable
 {
     [Header("보상 설정")]
-    public int requiredCurrency = 60; // 소모할 재화(레진/개척력 등)
+    public int requiredAP = 60; // 소모할 재화(레진/개척력 등)
 
     private List<Item_Base> rewardItems = new List<Item_Base>();
     private bool isLooted = false;
@@ -24,7 +24,7 @@ public class BossRewardInteractable : Interactable
         if (other.CompareTag("Player") && interactionText != null)
         {
             // 상호작용 텍스트 동적 변경
-            interactionText.text = $"{interactionKey} : 보상 수령 (재화 {requiredCurrency} 소모)";
+            interactionText.text = $"{interactionKey} : 보상 수령 (재화 {requiredAP} 소모)";
         }
     }
 
@@ -33,40 +33,61 @@ public class BossRewardInteractable : Interactable
     {
         if (isLooted) return;
 
-        bool hasEnoughCurrency = true; // 임시 테스트용 (나중에 실제 재화 로직으로 변경)
-
-        if (hasEnoughCurrency)
+        if (Account_Manager.Instance == null)
         {
-            isLooted = true;
-            Debug.Log($"{requiredCurrency} 재화를 소모하여 보상을 획득했습니다!");
+            Debug.LogError("[BossReward] Account_Manager가 없습니다.");
 
-            foreach (var item in rewardItems)
-            {
-                if (Player_Inventory.instance != null)
-                {
-                    Player_Inventory.instance.AddItem(item, 1);
-                }
-            }
-
-            if (BossArenaManager.instance != null)
-            {
-                BossArenaManager.instance.NotifyRewardClaimed();
-            }
-
-            if (interactionPromptUI != null) interactionPromptUI.SetActive(false);
-
-            isPlayerInRange = false;
-            this.enabled = false;
-
-            Destroy(gameObject, 1.5f);
+            return;
         }
-        else
+
+        if (Player_Inventory.Instance == null)
         {
-            Debug.Log("재화가 부족하여 보상을 수령할 수 없습니다!");
-            if (UI_Manager.instance != null)
-            {
-                UI_Manager.instance.ShowMessage("재화가 부족합니다!");
-            }
+            Debug.LogError("[BossReward] Player_Inventory가 없습니다.");
+
+            return;
         }
+
+        bool useSucceeded = Account_Manager.Instance.UseAP(requiredAP);
+
+        if (!useSucceeded)
+        {
+            if (UI_Manager.Instance != null)
+            {
+                UI_Manager.Instance.ShowMessage("활동력이 부족합니다.");
+            }
+
+            Debug.Log($"[BossReward] 행동력 부족: " + $"{Account_Manager.Instance.currentAP}" + $"/{requiredAP}");
+
+            return;
+        }
+
+        isLooted = true;
+
+        foreach (Item_Base item in rewardItems)
+        {
+            if (item == null) continue;
+
+            Player_Inventory.Instance.AddItem(item, 1);
+        }
+
+        if (BossArenaManager.Instance != null)
+        {
+            BossArenaManager.Instance.NotifyRewardClaimed();
+        }
+
+        if (interactionPromptUI != null)
+        {
+            interactionPromptUI.SetActive(false);
+        }
+
+        isPlayerInRange = false;
+        enabled = false;
+
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.ShowMessage($"행동력 {requiredAP}을 소모하여 " + "보상을 획득했습니다!");
+        }
+
+        Destroy(gameObject, 1.5f);
     }
 }

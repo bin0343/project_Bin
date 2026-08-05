@@ -56,10 +56,10 @@ public class UI_MapBuilding : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
         if (nextPanel != null)
         {
-            if (LobbyManager.instance != null)
+            if (LobbyManager.Instance != null)
             {
-                LobbyManager.instance.StartFadeEffect(() => {
-                    LobbyManager.instance.OpenDepthPanel(nextPanel);
+                LobbyManager.Instance.StartFadeEffect(() => {
+                    LobbyManager.Instance.OpenDepthPanel(nextPanel);
                 }, 1.0f);
             }
             else

@@ -4937,7 +4937,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462598004550336977, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: stats.Array.data[0]
-      value: 500
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 1817376556446839000, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_Name
@@ -117545,11 +117545,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.000015258789
+      value: -0.000727964
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00008613584
+      value: 0.0040354887
       objectReference: {fileID: 0}
     - target: {fileID: 6829346271815648913, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
@@ -138174,7 +138174,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462598004550336977, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: stats.Array.data[0]
-      value: 500
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 1817376556446839000, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_Name
@@ -154871,7 +154871,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462598004550336977, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: stats.Array.data[0]
-      value: 500
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 1817376556446839000, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_Name
@@ -170508,7 +170508,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1462598004550336977, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: stats.Array.data[0]
-      value: 500
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 1817376556446839000, guid: 266967918cc4f9d4c8d26a78ea96f78f, type: 3}
       propertyPath: m_Name
@@ -195230,6 +195230,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c667cc181c16a4242ab496208ffd42d2, type: 2}
   - {fileID: 11400000, guid: cdcf2fe67b466804e9ff3f7bbd3b5e8a, type: 2}
   partyPresets: []
+  levelCapStep: 20
+  absoluteMaxLevel: 100
+  expRequirementMultiplier: 1
   defaultOwnedCharacterIDs:
   - Character_01
   - Character_02
@@ -195284,11 +195287,13 @@ MonoBehaviour:
   - itemData: {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
     quantity: 1
   - itemData: {fileID: 11400000, guid: a9b7cbf4f4f86e24781d05f04e9ee4d4, type: 2}
-    quantity: 100
+    quantity: 999
   - itemData: {fileID: 11400000, guid: aa5ca916c72950147ba2125e95eef9c4, type: 2}
     quantity: 10
   - itemData: {fileID: 11400000, guid: 609de847226be2c4da674dfc3c83cc53, type: 2}
     quantity: 10
+  - itemData: {fileID: 11400000, guid: f8506906203e7664dbd1dfd7024745a4, type: 2}
+    quantity: 3
 --- !u!1001 &1368362925
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -263737,6 +263742,8 @@ MonoBehaviour:
   gold: 0
   currentAP: 240
   maxAP: 240
+  apRecoverySecondsPerPoint: 360
+  apRecoveryCheckInterval: 1
   maxStamina: 100
   currentStamina: 100
   staminaRegenRate: 10

@@ -6,12 +6,12 @@ public class BossSceneHUDController : MonoBehaviour
 
     private void Start()
     {
-        if (UI_Manager.instance == null)
+        if (UI_Manager.Instance == null)
         {
             return;
         }
 
-        UI_Manager.instance.SetMinimapVisible(false);
+        UI_Manager.Instance.SetMinimapVisible(false);
         minimapWasHidden = true;
     }
 
@@ -22,9 +22,9 @@ public class BossSceneHUDController : MonoBehaviour
             return;
         }
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.SetMinimapVisible(true);
+            UI_Manager.Instance.SetMinimapVisible(true);
         }
     }
 }

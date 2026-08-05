@@ -6,7 +6,7 @@ using DG.Tweening;
 
 public class LobbyManager : MonoBehaviour
 {
-    public static LobbyManager instance;
+    public static LobbyManager Instance;
 
     [Header("--- 텍스트 UI 연결 ---")]
     public Text txtName;
@@ -44,7 +44,7 @@ public class LobbyManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null) instance = this;
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
 
@@ -95,9 +95,9 @@ public class LobbyManager : MonoBehaviour
 
         //Character_Stat playerStat = Character_Stat;
 
-        /*if (playerStat == null && Player_Inventory.instance != null)
+        /*if (playerStat == null && Player_Inventory.Instance != null)
         {
-            playerStat = Player_Inventory.instance.GetComponent<Player_Stat>();
+            playerStat = Player_Inventory.Instance.GetComponent<Player_Stat>();
         }
 
         if (playerStat != null)

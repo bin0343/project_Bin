@@ -32,7 +32,7 @@ public class PlayerCastingState : PlayerBaseState
     {
         if (Input.GetKeyDown(KeyCode.LeftShift) && player.IsGrounded && !player.IsPointerOverUI())
         {
-            if (Account_Manager.instance.TryUseStamina(Account_Manager.instance.rollStaminaCost))
+            if (Account_Manager.Instance.TryUseStamina(Account_Manager.Instance.rollStaminaCost))
             {
                 player.ChangeState(new PlayerRollState());
                 return;

@@ -21,7 +21,7 @@ public class ClubManager : MonoBehaviour
 
     void Start()
     {
-        if (Character_Manager.instance == null)
+        if (Character_Manager.Instance == null)
         {
             Debug.LogError("NPC Manager가 없습니다!");
             return;
@@ -33,7 +33,7 @@ public class ClubManager : MonoBehaviour
             {
                 if (data != null)
                 {
-                    Character_Manager.instance.GetCharacterStatus(data.characterID, data);
+                    Character_Manager.Instance.GetCharacterStatus(data.characterID, data);
                 }
             }
         }
@@ -48,7 +48,7 @@ public class ClubManager : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        List<string> currentParty = Character_Manager.instance.currentPartyIDs;
+        List<string> currentParty = Character_Manager.Instance.currentPartyIDs;
 
         foreach (string id in currentParty)
         {
@@ -67,7 +67,7 @@ public class ClubManager : MonoBehaviour
         partyPopup.SetActive(true);
         selectButton.SetActive(false);
 
-        tempPartyList = new List<string>(Character_Manager.instance.currentPartyIDs);
+        tempPartyList = new List<string>(Character_Manager.Instance.currentPartyIDs);
 
         RefreshPopupSlots();
     }
@@ -81,7 +81,7 @@ public class ClubManager : MonoBehaviour
 
         foreach (Character_Data npc in allNPCData)
         {
-            if (Character_Manager.instance.IsRecruited(npc.characterID))
+            if (Character_Manager.Instance.IsRecruited(npc.characterID))
             {
                 GameObject go = Instantiate(slotPrefab, slotContent);
                 UI_PartySlot slot = go.GetComponent<UI_PartySlot>();
@@ -124,7 +124,7 @@ public class ClubManager : MonoBehaviour
                 selectedDataList.Add(data);
             }
         }
-        Character_Manager.instance.SaveParty(tempPartyList, selectedDataList);
+        Character_Manager.Instance.SaveParty(tempPartyList, selectedDataList);
 
         RefreshMainStanding();
 

@@ -632,15 +632,6 @@ public class EnemyBase : MonoBehaviour
             hpBarObject.SetActive(false);
         }
 
-        if (target != null)
-        {
-            Character_Stat playerStat = target.GetComponent<Character_Stat>();
-            if (playerStat != null)
-            {
-                playerStat.GainExp(stat.ExpReward);
-            }
-        }
-
         //퀘스트 로직
         if (QuestManager.instance != null && stat != null)
         {

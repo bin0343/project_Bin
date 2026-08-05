@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
-    public static BattleManager instance;
+    public static BattleManager Instance;
 
     [Header("카메라 세팅")]
     public CinemachineFreeLook mainFreeLookCamera;
@@ -36,8 +36,8 @@ public class BattleManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this) return;
-        instance = this;
+        if (Instance != null && Instance != this) return;
+        Instance = this;
     }
 
     private void Start()
@@ -61,9 +61,9 @@ public class BattleManager : MonoBehaviour
 
     public void InitializeParty()
     {
-        if (Character_Manager.instance == null) return;
+        if (Character_Manager.Instance == null) return;
 
-        List<Character_Data> party = Character_Manager.instance.currentPartyData;
+        List<Character_Data> party = Character_Manager.Instance.currentPartyData;
 
         Vector3 spawnPos = (startSpawnPoint != null) ? startSpawnPoint.position : Vector3.zero;
         Quaternion spawnRot = Quaternion.identity;
@@ -273,9 +273,9 @@ public class BattleManager : MonoBehaviour
     private void UpdateSystemsWithActiveCharacter(GameObject activeCharacter)
     {
         Character_Stat newStat = activeCharacter.GetComponent<Character_Stat>();
-        if (newStat != null && UI_Manager.instance != null)
+        if (newStat != null && UI_Manager.Instance != null)
         {
-            UI_Manager.instance.UpdatePlayerStatus(newStat);
+            UI_Manager.Instance.UpdatePlayerStatus(newStat);
         }
 
         MiniMapController miniMap = FindObjectOfType<MiniMapController>();

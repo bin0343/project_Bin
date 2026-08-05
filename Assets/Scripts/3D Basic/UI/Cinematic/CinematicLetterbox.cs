@@ -3,7 +3,7 @@ using DG.Tweening;
 
 public class CinematicLetterbox : MonoBehaviour
 {
-    public static CinematicLetterbox instance { get; private set; }
+    public static CinematicLetterbox Instance { get; private set; }
 
     [Header("∞À¿∫ πŸ")]
     [SerializeField] private RectTransform topBar;
@@ -29,13 +29,13 @@ public class CinematicLetterbox : MonoBehaviour
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        instance = this;
+        Instance = this;
     }
 
     private void Start()
@@ -118,6 +118,6 @@ public class CinematicLetterbox : MonoBehaviour
     {
         KillCurrentSequence();
 
-        if (instance == this) instance = this;
+        if (Instance == this) Instance = this;
     }
 }

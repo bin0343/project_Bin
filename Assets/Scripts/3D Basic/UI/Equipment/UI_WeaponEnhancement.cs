@@ -81,9 +81,9 @@ public class UI_WeaponEnhancement : MonoBehaviour
         if (weapon.weaponLevel < 1) weapon.weaponLevel = 1;
         if (weapon.refinementStage < 1) weapon.refinementStage = 1;
 
-        if (UI_Manager.instance != null)
+        if (UI_Manager.Instance != null)
         {
-            UI_Manager.instance.OpenUI(gameObject);
+            UI_Manager.Instance.OpenUI(gameObject);
         }
         else
         {
@@ -289,7 +289,7 @@ public class UI_WeaponEnhancement : MonoBehaviour
     // 효율적인 경험치 계산 및 투입
     private void OnClickAutoAdd()
     {
-        if (targetWeaponHolder == null || Player_Inventory.instance == null) return;
+        if (targetWeaponHolder == null || Player_Inventory.Instance == null) return;
 
         selectedMaterials.Clear();
         int maxLevel = targetWeaponHolder.GetMaxLevel();
@@ -308,7 +308,7 @@ public class UI_WeaponEnhancement : MonoBehaviour
 
         int maxRarityFilter = rarityFilterDropdown.value == 0 ? 3 : 4;
 
-        var availableMaterials = Player_Inventory.instance.inventorySlots
+        var availableMaterials = Player_Inventory.Instance.inventorySlots
             .Where(slot => slot != null
                         && slot.ItemData != null
                         && slot != targetWeaponHolder
@@ -390,12 +390,12 @@ public class UI_WeaponEnhancement : MonoBehaviour
             if (mat.ItemData is Item_Equipment)
             {
                 totalAddedExp += GetSingleMaterialExpYield(targetWeaponHolder, mat);
-                Player_Inventory.instance.inventorySlots.Remove(mat); // 제물 장비 삭제
+                Player_Inventory.Instance.inventorySlots.Remove(mat); // 제물 장비 삭제
             }
             else
             {
                 totalAddedExp += (mat.ItemData.expValue * mat.Quantity);
-                Player_Inventory.instance.RemoveItem(mat.ItemData, mat.Quantity); // 사용한 수량만큼 광석 삭제
+                Player_Inventory.Instance.RemoveItem(mat.ItemData, mat.Quantity); // 사용한 수량만큼 광석 삭제
             }
         }
 
@@ -404,8 +404,8 @@ public class UI_WeaponEnhancement : MonoBehaviour
 
         // 바구니 비우기 및 인벤토리/UI 완전 갱신
         selectedMaterials.Clear();
-        Player_Inventory.instance.CleanUpInventory();
-        Player_Inventory.instance.RefreshAllUI();
+        Player_Inventory.Instance.CleanUpInventory();
+        Player_Inventory.Instance.RefreshAllUI();
         RefreshEnhancementUI();
 
         if (myMaterialInventoryPanel.activeSelf)
@@ -451,9 +451,9 @@ public class UI_WeaponEnhancement : MonoBehaviour
         foreach (Transform child in myMaterialGridParent) Destroy(child.gameObject);
         myInventorySlots.Clear();
 
-        if (Player_Inventory.instance == null) return;
+        if (Player_Inventory.Instance == null) return;
 
-        var materials = Player_Inventory.instance.inventorySlots
+        var materials = Player_Inventory.Instance.inventorySlots
             .Where(slot => slot != null
                         && slot.ItemData != null
                         && slot != targetWeaponHolder
