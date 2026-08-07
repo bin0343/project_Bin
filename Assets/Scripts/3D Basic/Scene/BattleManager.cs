@@ -122,13 +122,15 @@ public class BattleManager : MonoBehaviour
 
         if (spawnedCharacters[targetIndex] == null)
         {
-            Debug.Log($"슬롯 {targetIndex}에 캐릭터가 없어 소환을 시도합니다.");
-            InitializeParty();
-            if (spawnedCharacters[targetIndex] == null) return;
+            return;
         }
 
         GameObject currentActiveObj = spawnedCharacters[currentActiveIndex];
         GameObject targetObj = spawnedCharacters[targetIndex];
+
+        Character_Stat targetStat = targetObj.GetComponent<Character_Stat>();
+
+        if (targetStat != null && (targetStat.isDead || targetStat.currentHP <= 0)) return;
 
         Player_Equipment currentEquipment = currentActiveObj.GetComponent<Player_Equipment>();
 
@@ -146,19 +148,14 @@ public class BattleManager : MonoBehaviour
         Vector3 currentPos = currentActiveObj.transform.position;
         Quaternion currentRot = currentActiveObj.transform.rotation;
 
+        Transform currentBody = GetCharacterBody(currentActiveObj);
+
+        Quaternion currentBodyRotation = currentBody != null ? currentBody.rotation : currentRot;
+
         Rigidbody currentRb = currentActiveObj.GetComponent<Rigidbody>();
 
         Vector3 savedVelocity = currentRb != null ? currentRb.velocity : Vector3.zero;
         bool wasGrounded = currentAction != null ? currentAction.IsGrounded : true;
-
-        int currentAnimHash = 0;
-        float currentAnimTime = 0f;
-        if (currentAction != null && currentAction.animator != null)
-        {
-            AnimatorStateInfo stateInfo = currentAction.animator.GetCurrentAnimatorStateInfo(0);
-            currentAnimHash = stateInfo.fullPathHash;
-            currentAnimTime = stateInfo.normalizedTime;
-        }
 
         if (currentEquipment != null && wasInCombat)
         {
@@ -170,6 +167,13 @@ public class BattleManager : MonoBehaviour
         targetObj.transform.position = currentPos;
         targetObj.transform.rotation = currentRot;
         targetObj.SetActive(true);
+
+        Transform targetBody = GetCharacterBody(targetObj);
+
+        if (targetBody != null)
+        {
+            targetBody.rotation = currentBodyRotation;
+        }
 
         if (wasInCombat && remainingCombatTime > 0f)
         {
@@ -207,13 +211,6 @@ public class BattleManager : MonoBehaviour
             else
             {
                 targetAction.ForceJumpAirborne();
-            }
-
-            if (targetAction.animator != null && currentAnimHash != 0)
-            {
-                targetAction.animator.Play(currentAnimHash, 0, currentAnimTime % 1f);
-
-                targetAction.animator.Update(0f);
             }
         }
 
@@ -393,6 +390,44 @@ public class BattleManager : MonoBehaviour
             ResetFreeLookToDefaultBehind(activeCharacter);
 
             UpdateSystemsWithActiveCharacter(activeCharacter);
+        }
+    }
+
+    private int FindNextAliveCharacter()
+    {
+        for (int i = 0; i < spawnedCharacters.Length; i++)
+        {
+            if (i == currentActiveIndex) continue;
+
+            GameObject character = spawnedCharacters[i];
+
+            if (character == null) continue;
+
+            Character_Stat stat = character.GetComponent<Character_Stat>();
+
+            if (stat == null) continue;
+
+            if (stat.isDead || stat.currentHP <= 0) continue;
+
+            return i;
+        }
+
+        return -1;
+    }
+
+    public void OnCharacterDead(Player_Action deadPlayer)
+    {
+        int aliveIndex = FindNextAliveCharacter();
+
+        if (aliveIndex >= 0)
+        {
+            // 잠깐 Dead 모션 보여준 뒤
+            // 강제 캐릭터 교체
+        }
+        else
+        {
+            // 파티 전멸
+            // 리스폰
         }
     }
 

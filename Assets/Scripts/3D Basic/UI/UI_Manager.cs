@@ -672,18 +672,20 @@ public class UI_Manager : MonoBehaviour
     #region Toggle Triggers (Modified)
     public void ToggleQuestPanel()
     {
+        if (IsCombatRestrictedUIBlocked()) return;
+
         if (questPanel.activeSelf) CloseSpecificUI(questPanel);
         else if (!IsUIOpen) OpenUI(questPanel);
     }
 
     public void ToggleInventoryPanel()
     {
+        if (IsCombatRestrictedUIBlocked()) return;
+
         if (inventoryPanel.activeSelf) CloseSpecificUI(inventoryPanel);
         else if (!IsUIOpen)
         {
-            StartCoroutine(OpenUITransitionRoutine(inventoryPanel, () => {
-                if (UI_Inventory != null) UI_Inventory.RefreshUI();
-            }));
+            StartCoroutine(OpenUITransitionRoutine(inventoryPanel, () => {if (UI_Inventory != null) UI_Inventory.RefreshUI();}));
         }
     }
 

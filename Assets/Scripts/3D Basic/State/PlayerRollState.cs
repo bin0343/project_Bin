@@ -87,6 +87,7 @@ public class PlayerRollState : PlayerBaseState
     public override void Execute(Player_Action player)
     {
         rollTimer += Time.deltaTime;
+        player.currentWeapon?.ForceStopTrail();
 
         if (Input.GetMouseButtonDown(0) && !player.IsPointerOverUI())
         {
