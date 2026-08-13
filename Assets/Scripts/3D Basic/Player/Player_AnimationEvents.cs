@@ -95,6 +95,16 @@ public class Player_AnimationEvents : MonoBehaviour
         (action.currentState as PlayerHitState)?.OnHitAnimationEnd(action);
     }
 
+    public void OnDeadAnimationEnd()
+    {
+        if (action == null)
+        {
+            action = GetComponentInParent<Player_Action>();
+        }
+
+        (action.currentState as PlayerDeadState)?.OnDeadAnimationEnd(action);
+    }
+
     public void SkillEffectEvent()
     {
         if (action == null)

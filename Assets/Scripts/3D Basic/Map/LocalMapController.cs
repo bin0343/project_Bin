@@ -275,7 +275,7 @@ public class LocalMapController : MonoBehaviour
             player.transform.position = finalPos;
             player.transform.rotation = finalRot;
         }
-
+        
         Transform realModel = player.transform.Find("Player");
         if (realModel != null)
         {

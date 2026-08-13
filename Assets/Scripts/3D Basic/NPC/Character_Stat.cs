@@ -230,6 +230,12 @@ public class Character_Stat : MonoBehaviour
         // TODO: 캐릭터가 죽으면 다른 파티원으로 강제 태그(교체)되는 로직 추가 예정
     }
 
+    public void Revive()
+    {
+        isDead = false;
+        currentHP = maxHP;
+    }
+
     public void RefreshStatsFromManager()
     {
         CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(characterData.characterID, characterData);

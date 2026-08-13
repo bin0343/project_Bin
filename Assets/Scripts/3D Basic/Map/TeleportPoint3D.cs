@@ -11,11 +11,21 @@ public class TeleportPoint3D : Interactable
 
     protected override void OnTriggerEnter(Collider other)
     {
-        if (isActivated) return;
+        if (!other.CompareTag("Player")) return;
+
+        if (isActivated)
+        {
+            if (BattleManager.Instance != null)
+            {
+                BattleManager.Instance.RestorePartyAtTeleport();
+            }
+
+            return;
+        }
 
         base.OnTriggerEnter(other);
 
-        if (other.CompareTag("Player") && interactionText != null)
+        if (interactionText != null)
         {
             interactionText.text = $"{interactionKey} : È°¼ºÈ­";
         }
@@ -37,16 +47,11 @@ public class TeleportPoint3D : Interactable
             isPlayerInRange = false;
 
             if (interactionPromptUI != null) interactionPromptUI.SetActive(false);
-            this.enabled = false;
+        }
 
-            Collider[] colliders = GetComponents<Collider>();
-            foreach (Collider col in colliders)
-            {
-                if (col.isTrigger)
-                {
-                    col.enabled = false;
-                }
-            }
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.RestorePartyAtTeleport();
         }
     }
 }

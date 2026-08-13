@@ -24,6 +24,7 @@ public class BattleManager : MonoBehaviour
     public GameObject[] SpawnedCharacters => spawnedCharacters;
 
     private bool isPlayerControlLocked;
+    private bool isDeathHandling;
 
     private bool isFreeLookInputCached;
     private string savedFreeLookXAxisName;
@@ -53,6 +54,7 @@ public class BattleManager : MonoBehaviour
     private void Update()
     {
         if (isPlayerControlLocked) return;
+        if (isDeathHandling) return;
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) TryTag(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) TryTag(1);
@@ -116,7 +118,7 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private void TryTag(int targetIndex)
+    private void TryTag(int targetIndex, bool force = false)
     {
         if (targetIndex == currentActiveIndex) return;
 
@@ -140,10 +142,7 @@ public class BattleManager : MonoBehaviour
 
         Player_Action currentAction = currentActiveObj.GetComponent<Player_Action>();
 
-        if (currentAction != null && !currentAction.IsGrounded)
-        {
-            return;
-        }
+        if (!force && currentAction != null && !currentAction.IsGrounded) return;
 
         Vector3 currentPos = currentActiveObj.transform.position;
         Quaternion currentRot = currentActiveObj.transform.rotation;
@@ -154,7 +153,7 @@ public class BattleManager : MonoBehaviour
 
         Rigidbody currentRb = currentActiveObj.GetComponent<Rigidbody>();
 
-        Vector3 savedVelocity = currentRb != null ? currentRb.velocity : Vector3.zero;
+        Vector3 savedVelocity = (!force && currentRb != null) ? currentRb.velocity : Vector3.zero;
         bool wasGrounded = currentAction != null ? currentAction.IsGrounded : true;
 
         if (currentEquipment != null && wasInCombat)
@@ -195,22 +194,30 @@ public class BattleManager : MonoBehaviour
 
         if (targetAction != null)
         {
-            targetAction.IsGrounded = wasGrounded;
-
-            if (wasGrounded)
+            if (force)
             {
-                if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
-                {
-                    targetAction.ChangeState(new PlayerMoveState());
-                }
-                else
-                {
-                    targetAction.ChangeState(new PlayerIdleState());
-                }
+                targetAction.IsGrounded = true;
+                targetAction.ChangeState(new PlayerIdleState());
             }
             else
             {
-                targetAction.ForceJumpAirborne();
+                targetAction.IsGrounded = wasGrounded;
+
+                if (wasGrounded)
+                {
+                    if (Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0)
+                    {
+                        targetAction.ChangeState(new PlayerMoveState());
+                    }
+                    else
+                    {
+                        targetAction.ChangeState(new PlayerIdleState());
+                    }
+                }
+                else
+                {
+                    targetAction.ForceJumpAirborne();
+                }
             }
         }
 
@@ -325,6 +332,12 @@ public class BattleManager : MonoBehaviour
         Vector3 spawnPosition = spawnPoint.position;
         Quaternion spawnRotation = spawnPoint.rotation;
 
+        if (spawnPoint.GetComponent<TeleportPoint3D>() != null)
+        {
+            spawnPosition = spawnPoint.position - (spawnPoint.forward * 2.0f);
+            spawnRotation = Quaternion.LookRotation(-spawnPoint.forward);
+        }
+
         GameObject activeCharacterBeforeMove = GetActiveCharacter();
 
         Transform cameraTarget = null;
@@ -395,11 +408,11 @@ public class BattleManager : MonoBehaviour
 
     private int FindNextAliveCharacter()
     {
-        for (int i = 0; i < spawnedCharacters.Length; i++)
+        for (int offset = 1; offset < spawnedCharacters.Length; offset++)
         {
-            if (i == currentActiveIndex) continue;
+            int index = (currentActiveIndex + offset) % spawnedCharacters.Length;
 
-            GameObject character = spawnedCharacters[i];
+            GameObject character = spawnedCharacters[index];
 
             if (character == null) continue;
 
@@ -409,7 +422,7 @@ public class BattleManager : MonoBehaviour
 
             if (stat.isDead || stat.currentHP <= 0) continue;
 
-            return i;
+            return index;
         }
 
         return -1;
@@ -417,18 +430,130 @@ public class BattleManager : MonoBehaviour
 
     public void OnCharacterDead(Player_Action deadPlayer)
     {
+        isDeathHandling = true;
+    }
+
+    public void OnDeadAnimationFinished(Player_Action deadPlayer)
+    {
         int aliveIndex = FindNextAliveCharacter();
 
         if (aliveIndex >= 0)
         {
-            // 잠깐 Dead 모션 보여준 뒤
-            // 강제 캐릭터 교체
+            TryTag(aliveIndex, true);
+
+            isDeathHandling = false;
+            return;
+        }
+
+        RespawnPartyAtNearestTeleport();
+
+        isDeathHandling = false;
+    }
+
+    private TeleportPoint3D FindNearestActivatedTeleportPoint(Vector3 position)
+    {
+        TeleportPoint3D[] teleportPoints = FindObjectsOfType<TeleportPoint3D>(true);
+        TeleportPoint3D nearestPoint = null;
+
+        float nearestSqrDistance = float.MaxValue;
+
+        foreach (TeleportPoint3D point in teleportPoints)
+        {
+            if (point == null) continue;
+
+            if (!point.isActivated) continue;
+
+            Vector3 difference = point.transform.position - position;
+
+            float sqrDistance = difference.sqrMagnitude;
+
+            if (sqrDistance >= nearestSqrDistance) continue;
+
+            nearestSqrDistance = sqrDistance;
+            nearestPoint = point;
+        }
+
+        return nearestPoint;
+    }
+
+    private void RespawnPartyAtNearestTeleport()
+    {
+        GameObject activeCharacter = GetActiveCharacter();
+
+        if (activeCharacter == null) return;
+
+        Vector3 deathPosition = activeCharacter.transform.position;
+
+        TeleportPoint3D nearestPoint = FindNearestActivatedTeleportPoint(deathPosition);
+
+        Transform respawnPoint;
+
+        if (nearestPoint != null)
+        {
+            respawnPoint = nearestPoint.transform;
         }
         else
         {
-            // 파티 전멸
-            // 리스폰
+            respawnPoint = startSpawnPoint;
         }
+
+        if (respawnPoint == null)
+        {
+            Debug.LogError("[BattleManager] 부활할 위치가 없습니다.");
+
+            return;
+        }
+
+        for (int i = 0; i < spawnedCharacters.Length; i++)
+        {
+            GameObject character = spawnedCharacters[i];
+
+            if (character == null) continue;
+
+            Character_Stat stat = character.GetComponent<Character_Stat>();
+
+            Player_Action action = character.GetComponent<Player_Action>();
+
+            stat?.Revive();
+            action?.Revive();
+        }
+
+        MovePartyToSpawnPoint(respawnPoint);
+
+        Debug.Log($"[BattleManager] 파티 전멸 → " + $"[{respawnPoint.name}]에서 부활");
+    }
+
+    public void RestorePartyAtTeleport()
+    {
+        for (int i = 0; i < spawnedCharacters.Length; i++)
+        {
+            GameObject character = spawnedCharacters[i];
+
+            if (character == null) continue;
+
+            Character_Stat stat = character.GetComponent<Character_Stat>();
+            Player_Action action = character.GetComponent<Player_Action>();
+
+            if (stat == null) continue;
+
+            bool wasDead = stat.isDead || stat.currentHP <= 0 || (action != null && action.IsDead);
+
+            stat.Revive();
+
+            if (wasDead && action != null)
+            {
+                action.Revive();
+            }
+        }
+
+        GameObject activeCharacter = GetActiveCharacter();
+
+        if (activeCharacter != null)
+        {
+            UpdateSystemsWithActiveCharacter(activeCharacter);
+        }
+
+        Debug.Log("[BattleManager] 텔레포트 포인트에서 파티 HP를 회복했습니다.");
     }
 
     private void CacheDefaultCameraOrbit()

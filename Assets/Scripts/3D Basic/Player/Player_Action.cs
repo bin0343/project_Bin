@@ -107,6 +107,7 @@ public class Player_Action : MonoBehaviour
     [HideInInspector] public bool CanRotate = true;
     [HideInInspector] public bool IsInvincible = false; //무적상태(구르기)
     private bool isControlLocked;
+    private bool pendingReviveAnimatorReset;    //부활 시 애니메이터 초기화
 
     public bool IsControlLocked
     {
@@ -259,6 +260,11 @@ public class Player_Action : MonoBehaviour
         if (UI_SkillManager.Instance != null)
         {
             UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
+        }
+
+        if (pendingReviveAnimatorReset)
+        {
+            ResetAfterRevive();
         }
     }
 
@@ -867,6 +873,53 @@ public class Player_Action : MonoBehaviour
         }
 
         return bestTarget;
+    }
+
+    public void Revive()
+    {
+        IsDead = false;
+
+        IsAttacking = false;
+        IsInvincible = false;
+        CanRotate = true;
+        canReceiveInput = true;
+
+        comboQueued = false;
+
+        PlayerAttackState.ResetCombo();
+
+        if (rigidbody != null)
+        {
+            rigidbody.velocity = Vector3.zero;
+            rigidbody.angularVelocity = Vector3.zero;
+        }
+
+        pendingReviveAnimatorReset = true;
+
+        if (gameObject.activeInHierarchy)
+        {
+            ResetAfterRevive();
+        }
+    }
+
+    private void ResetAfterRevive()
+    {
+        pendingReviveAnimatorReset = false;
+
+        currentState = null;
+
+        if (animator != null)
+        {
+            animator.Rebind();
+            animator.Update(0f);
+        }
+
+        ChangeState(new PlayerIdleState());
+
+        if (animator != null)
+        {
+            animator.Update(0f);
+        }
     }
 
     public enum AnimationEventType

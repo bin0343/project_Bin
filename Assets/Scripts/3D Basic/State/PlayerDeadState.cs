@@ -10,6 +10,8 @@ public class PlayerDeadState : PlayerBaseState
         base.Enter(player);
         player.IsDead = true;
         player.currentWeapon?.ForceStopTrail();
+
+        if (BattleManager.Instance != null) BattleManager.Instance.OnCharacterDead(player);
     }
 
     public override void Execute(Player_Action player)
@@ -20,5 +22,13 @@ public class PlayerDeadState : PlayerBaseState
     public override void Exit(Player_Action player)
     {
 
+    }
+
+    public void OnDeadAnimationEnd(Player_Action player)
+    {
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.OnDeadAnimationFinished(player);
+        }
     }
 }
