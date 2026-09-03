@@ -1,245 +1,292 @@
 using UnityEngine;
-using UnityEngine.Splines;
-using DG.Tweening;
 
 public class CarSensor : MonoBehaviour
 {
-    [Header("레이더 설정")]
+    [Header("플레이어 감지")]
+    [SerializeField] private float playerSensorWidth = 2.6f;
+    [SerializeField] private float playerSensorHeight = 1.8f;
+
+    [Tooltip("차량 중심에서 감지 박스가 시작되는 위치")]
+    [SerializeField] private float playerSensorForwardOffset = 0.5f;
+
+    [Tooltip("플레이어가 순간적으로 감지에서 빠져도 바로 출발하지 않도록 유지하는 시간")]
+    [SerializeField] private float playerReleaseDelay = 0.5f;
+
+    private bool isPlayerBlocking = false;
+    private float playerClearTimer = 0f;
+    private readonly Collider[] playerDetectResults = new Collider[16];
+
+    [Header("전방 센서")]
     public float sensorLength = 12f;
     public float sensorRadius = 0.5f;
+
+    [Tooltip("앞차와 완전히 정지했을 때 확보할 최소 거리")]
     public float stopOffset = 1.0f;
+
+    [Tooltip("노란불일 때 이 거리 안이라면 그냥 통과")]
     public float passYellowDistance = 4f;
+
+    [Tooltip("빨간불일 때 정지선 앞에 남길 거리")]
+    [SerializeField] private float trafficLightStopOffset = 0.5f;
 
     public LayerMask obstacleLayer;
     public LayerMask playerLayer;
 
-    [Header("차량 추종(ACC) 설정")]
+    [Header("차량 추종")]
     public float safeDistance = 6f;
 
-    [Header("가속 설정")]
-    public float accelDuration = 1.5f;
+    [Header("교차로 정차")]
+    [SerializeField] private float intersectionStopOffset = 0.5f;
 
-    private SplineAnimate carAnim;
-    public bool isBraking = false;
-    public bool isAccelerating = false;
-
-    public bool isInsideIntersection = false;   //교차로 통과 중인지
-
-    private float originalSpeed;
-    public float currentSpeed;
-    private TrafficLightController currentTargetLight;
+    private CarPathFollower pathFollower;
     private Transform carMesh;
 
-    void Start()
+    public float currentSpeed => pathFollower != null ? pathFollower.CurrentSpeed : 0f;
+
+    public bool isBraking => pathFollower != null && pathFollower.IsBraking;
+    public bool isInsideIntersection = false;
+    private bool isIntersectionBlocked = false;
+    private Vector3 intersectionStopPosition;
+    private TrafficLightController currentTargetLight;
+    private float currentStopLineDistance = float.MaxValue;
+
+    public void SetIntersectionBlocked(bool blocked, Vector3 stopPosition)
     {
-        carAnim = GetComponent<SplineAnimate>();
-        carMesh = transform.Find("Car_Model");
-        originalSpeed = carAnim.MaxSpeed;
-        currentSpeed = originalSpeed;
-        carAnim.Pause();
+        isIntersectionBlocked = blocked;
+
+        if (blocked)
+        {
+            intersectionStopPosition = stopPosition;
+        }
     }
 
-    void Update()
+    private void Start()
     {
-        if (carAnim.IsPlaying) carAnim.Pause();
+        pathFollower = GetComponent<CarPathFollower>();
+        carMesh = transform.Find("Car_Model");
+    }
 
-        Vector3 sensorStart = carMesh.position + (transform.forward * 2f) + (Vector3.up * 0.5f);
-        RaycastHit hit;
+    private void Update()
+    {
+        if (pathFollower == null || carMesh == null)
+            return;
 
-        LayerMask combinedMask = obstacleLayer | playerLayer;
+        float desiredSpeed = pathFollower.CruiseSpeed;
 
-        bool hasHit = Physics.SphereCast(sensorStart, sensorRadius, transform.forward, out hit, sensorLength, combinedMask);
+        UpdatePlayerDetection();
 
-        bool isFollowingCar = false;
-        bool shouldBrakeForCar = false;
-        float carBrakeDistance = 0f;
-
-        bool shouldBrakeForPlayer = false;
-        float playerBrakeDistance = 0f;
-
-        bool shouldYield = false;
-        float yieldDistance = 0f;
-
-        Vector3 yieldSensorPos = carMesh.position + (transform.forward * 1.5f) + (Vector3.up * 0.5f);
-        // 주변 차를 감지
-        Collider[] nearbyCars = Physics.OverlapSphere(yieldSensorPos, 1.8f, combinedMask);
-
-        foreach (var col in nearbyCars)
+        if (isPlayerBlocking)
         {
-            if (col.CompareTag("Car") && col.transform != this.carMesh && col.transform.parent != this.transform)
-            {
-                CarSensor otherCar = col.GetComponentInParent<CarSensor>();
-                if (otherCar != null)
-                {
-                    Vector3 toOther = col.transform.position - carMesh.position;
-
-                    // 좌우로 0.5m 이상 떨어져 있는 '옆차/끼어드는 차'만 양보 대상으로 지정
-                    float lateralDist = Mathf.Abs(Vector3.Dot(transform.right, toOther));
-
-                    if (lateralDist > 0.5f)
-                    {
-                        float forwardDot = Vector3.Dot(transform.forward, toOther.normalized);
-
-                        // 옆차가 나보다 살짝 앞이거나 교차로 대각선에서 들어올 때
-                        if (forwardDot > 0.1f)
-                        {
-                            shouldYield = true;
-                            yieldDistance = toOther.magnitude;
-                        }
-                        // 병목 구간에서 완벽히 나란히 달리고 있을 때 (데드락 방지)
-                        else if (Mathf.Abs(forwardDot) <= 0.1f)
-                        {
-                            // 고유 ID가 더 작은 녀석이 억울하게 브레이크를 밟습니다. (절대 둘이 겹치지 않음!)
-                            if (this.gameObject.GetInstanceID() < otherCar.gameObject.GetInstanceID())
-                            {
-                                shouldYield = true;
-                                yieldDistance = 1.0f;
-                            }
-                        }
-                    }
-                }
-            }
+            desiredSpeed = 0f;
         }
 
-        //전방 감지 시스템
+        Vector3 sensorStart = carMesh.position + transform.forward * 2f + Vector3.up * 0.5f;
+
+        bool hasHit = Physics.SphereCast(sensorStart, sensorRadius, transform.forward, out RaycastHit hit, sensorLength, obstacleLayer, QueryTriggerInteraction.Collide);
+
         if (hasHit)
         {
-            if (hit.collider.CompareTag("Player"))
+            //신호등 StopLine
+            if (hit.collider.CompareTag("StopLine")
+                && !isInsideIntersection)
             {
-                shouldBrakeForPlayer = true;
-                playerBrakeDistance = hit.distance;
+                TrafficLightController detectedLight =
+                    hit.collider.GetComponentInParent<TrafficLightController>();
+
+                if (detectedLight != null)
+                {
+                    currentTargetLight = detectedLight;
+                    currentStopLineDistance = hit.distance;
+                }
             }
-            if (hit.collider.CompareTag("StopLine") && !isInsideIntersection)
-            {
-                currentTargetLight = hit.collider.GetComponentInParent<TrafficLightController>();
-            }
+            //앞차
             else if (hit.collider.CompareTag("Car"))
             {
                 CarSensor frontCar = hit.collider.GetComponentInParent<CarSensor>();
 
-                if (frontCar != null && frontCar.gameObject != this.gameObject)
+                if (frontCar != null && frontCar.gameObject != gameObject && hit.distance < safeDistance)
                 {
-                    if (hit.distance < safeDistance)
+                    bool frontCarIsStopping = frontCar.isBraking || frontCar.currentSpeed < 0.5f;
+
+                    if (frontCarIsStopping)
                     {
-                        if (frontCar.currentSpeed < 0.5f)
-                        {
-                            shouldBrakeForCar = true;
-                            carBrakeDistance = hit.distance;
-                        }
-                        else
-                        {
-                            isFollowingCar = true;
+                        float remainingStopDistance = Mathf.Max(hit.distance - stopOffset, 0f);
 
-                            // 크루즈 컨트롤 중이면 브레이크/엑셀 상태 모두 해제
-                            if (isBraking || isAccelerating)
-                            {
-                                isBraking = false;
-                                isAccelerating = false;
-                                DOTween.Kill(this);
-                            }
+                        float brakingSpeed = Mathf.Sqrt(2f * pathFollower.BrakeDeceleration * remainingStopDistance);
 
-                            currentSpeed = Mathf.Lerp(currentSpeed, frontCar.currentSpeed, Time.deltaTime * 5f);
-                        }
+                        desiredSpeed = Mathf.Min(desiredSpeed, brakingSpeed);
+                    }
+                    else
+                    {
+                        float distanceRatio = Mathf.InverseLerp(stopOffset, safeDistance, hit.distance);
+
+                        float distanceLimitedSpeed = pathFollower.CruiseSpeed * distanceRatio;
+
+                        desiredSpeed = Mathf.Min(desiredSpeed, frontCar.currentSpeed, distanceLimitedSpeed);
                     }
                 }
             }
         }
         else
         {
-            if (!isBraking) currentTargetLight = null;
+            currentTargetLight = null;
+            currentStopLineDistance = float.MaxValue;
         }
 
-        if (shouldBrakeForPlayer)
+        //신호 판단
+        if (currentTargetLight != null && !isInsideIntersection)
         {
-            if (!isBraking && currentSpeed > 0.1f) ApplyBrake(playerBrakeDistance);
-        }
-        else if (shouldBrakeForCar)
-        {
-            if (!isBraking && currentSpeed > 0.1f) ApplyBrake(carBrakeDistance);
-        }
-        else if (shouldYield)
-        {
-            if (!isBraking && currentSpeed > 0.1f) ApplyBrake(yieldDistance);
-        }
-        else if (currentTargetLight != null)
-        {
-            if (currentTargetLight.currentState == TrafficLightController.LightState.Red)
+            switch (currentTargetLight.currentState)
             {
-                if (!isBraking && currentSpeed > 0.1f) ApplyBrake(hit.distance);
-            }
-            else if (currentTargetLight.currentState == TrafficLightController.LightState.Yellow)
-            {
-                if (hit.distance <= passYellowDistance)
-                {
-                    currentTargetLight = null;
-                    if (!isFollowingCar) ApplyThrottle();
-                }
-                else
-                {
-                    if (!isBraking && currentSpeed > 0.1f) ApplyBrake(hit.distance);
-                }
-            }
-            else if (currentTargetLight.currentState == TrafficLightController.LightState.Green)
-            {
-                currentTargetLight = null;
-                if (!isFollowingCar) ApplyThrottle();
-            }
-        }
-        else
-        {
-            if (!isFollowingCar)
-            {
-                if (isBraking || currentSpeed < originalSpeed - 0.1f) ApplyThrottle();
+                case TrafficLightController.LightState.Red:
+                    {
+                        float brakingSpeed = CalculateBrakingSpeed(currentStopLineDistance, trafficLightStopOffset);
+                        desiredSpeed = Mathf.Min(desiredSpeed, brakingSpeed);
+                        break;
+                    }
+
+                case TrafficLightController.LightState.Yellow:
+                    {
+                        if (currentStopLineDistance <= passYellowDistance)
+                        {
+                            break;
+                        }
+
+                        float brakingSpeed = CalculateBrakingSpeed(currentStopLineDistance, trafficLightStopOffset);
+                        desiredSpeed = Mathf.Min(desiredSpeed, brakingSpeed);
+                        break;
+                    }
+
+                case TrafficLightController.LightState.Green:
+                    {
+                        currentTargetLight = null;
+                        currentStopLineDistance = float.MaxValue;
+                        break;
+                    }
             }
         }
 
-        // 바퀴 굴리기
-        if (carAnim.Container != null)
+        if (isIntersectionBlocked)
         {
-            float splineLength = carAnim.Container.CalculateLength();
-            if (splineLength > 0f)
-            {
-                float moveDistance = currentSpeed * Time.deltaTime;
-                carAnim.NormalizedTime += moveDistance / splineLength;
-                if (carAnim.NormalizedTime > 1f) carAnim.NormalizedTime = 1f;
-            }
+            Vector3 sensorPosition = carMesh.position + transform.forward * 2f;
+
+            Vector3 toStopPoint = intersectionStopPosition - sensorPosition;
+
+            float distanceToStopPoint = Vector3.Dot(transform.forward, toStopPoint);
+
+            distanceToStopPoint = Mathf.Max(distanceToStopPoint, 0f);
+
+            float brakingSpeed = CalculateBrakingSpeed(distanceToStopPoint, intersectionStopOffset);
+
+            desiredSpeed = Mathf.Min(desiredSpeed, brakingSpeed);
         }
+
+        pathFollower.SetTargetSpeed(desiredSpeed);
     }
 
-    void ApplyBrake(float distanceToCube)
+    #region Player Detection
+
+    private bool DetectPlayerInFront(out float nearestDistance)
     {
-        isBraking = true;
-        isAccelerating = false; //브레이크를 밟으면 엑셀 상태 해제
-        DOTween.Kill(this);
+        nearestDistance = float.MaxValue;
 
-        float distanceToStop = distanceToCube - stopOffset;
-        if (distanceToStop < 0.1f) distanceToStop = 0.1f;
+        Vector3 boxStart = carMesh.position + transform.forward * playerSensorForwardOffset;
 
-        float calcSpeed = currentSpeed;
-        if (calcSpeed < 0.1f) calcSpeed = 0.1f;
+        Vector3 boxCenter = boxStart + transform.forward * (sensorLength * 0.5f) + Vector3.up * (playerSensorHeight * 0.5f);
 
-        float calculatedBrakeTime = (distanceToStop * 2f) / calcSpeed;
-        calculatedBrakeTime = Mathf.Clamp(calculatedBrakeTime, 0.1f, 4f);
+        Vector3 halfExtents = new Vector3(playerSensorWidth * 0.5f, playerSensorHeight * 0.5f, sensorLength * 0.5f);
 
-        DOTween.To(() => currentSpeed, x => currentSpeed = x, 0f, calculatedBrakeTime)
-            .SetEase(Ease.Linear)
-            .SetId(this)
-            .OnComplete(() => {
-                currentSpeed = 0f;
-            });
+        int hitCount = Physics.OverlapBoxNonAlloc(boxCenter, halfExtents, playerDetectResults, transform.rotation, playerLayer, QueryTriggerInteraction.Ignore);
+
+        bool foundPlayer = false;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider col = playerDetectResults[i];
+
+            if (col == null) continue;
+
+            Player_Action player = col.GetComponentInParent<Player_Action>();
+
+            if (player == null) continue;
+
+            Vector3 closestPoint = col.ClosestPoint(carMesh.position);
+
+            Vector3 toPlayer = closestPoint - carMesh.position;
+
+            float forwardDistance = Vector3.Dot(transform.forward, toPlayer);
+
+            forwardDistance = Mathf.Max(forwardDistance, 0.1f);
+
+            if (forwardDistance < nearestDistance)
+            {
+                nearestDistance = forwardDistance;
+            }
+
+            foundPlayer = true;
+        }
+
+        return foundPlayer;
     }
 
-    void ApplyThrottle()
+    private void UpdatePlayerDetection()
     {
-        if (isAccelerating) return;
+        bool detected = DetectPlayerInFront(out float distance);
 
-        isBraking = false;
-        isAccelerating = true; // 엑셀 밟기 시작
-        DOTween.Kill(this);
+        if (detected)
+        {
+            isPlayerBlocking = true;
+            playerClearTimer = 0f;
+        }
+        else if (isPlayerBlocking)
+        {
+            playerClearTimer += Time.deltaTime;
 
-        DOTween.To(() => currentSpeed, x => currentSpeed = x, originalSpeed, accelDuration)
-            .SetEase(Ease.InQuad)
-            .SetId(this)
-            .OnComplete(() => { isAccelerating = false; }); //최고 속도 도달 시 상태 해제
+            if (playerClearTimer >= playerReleaseDelay)
+            {
+                isPlayerBlocking = false;
+                playerClearTimer = 0f;
+            }
+        }
     }
+
+    #endregion
+
+    private float CalculateBrakingSpeed(float distance, float stopDistance)
+    {
+        float remainingDistance = Mathf.Max(distance - stopDistance, 0f);
+
+        return Mathf.Sqrt(2f * pathFollower.BrakeDeceleration * remainingDistance);
+    }
+
+    #region Debug
+
+    private void OnDrawGizmosSelected()
+    {
+        Transform mesh =
+            transform.Find("Car_Model");
+
+        if (mesh == null)
+            return;
+
+        Vector3 boxStart = mesh.position + transform.forward * playerSensorForwardOffset;
+
+        Vector3 boxCenter = boxStart + transform.forward * (sensorLength * 0.5f) + Vector3.up * (playerSensorHeight * 0.5f);
+
+        Vector3 boxSize = new Vector3(playerSensorWidth, playerSensorHeight, sensorLength);
+
+        Gizmos.matrix = Matrix4x4.TRS(boxCenter, transform.rotation, Vector3.one);
+
+        Gizmos.DrawWireCube(Vector3.zero, boxSize);
+
+        Gizmos.matrix = Matrix4x4.identity;
+
+        Vector3 sensorStart = mesh.position + transform.forward * 2f + Vector3.up * 0.5f;
+
+        Gizmos.DrawWireSphere(sensorStart, sensorRadius);
+
+        Gizmos.DrawLine(sensorStart, sensorStart + transform.forward * sensorLength);
+    }
+
+    #endregion
 }

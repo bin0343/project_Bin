@@ -293,6 +293,11 @@ public class LocalMapController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.RestorePartyAtTeleport();
+        }
+
         CloseLocalMap();
     }
 

@@ -10,6 +10,10 @@ public class BattleManager : MonoBehaviour
     [Header("카메라 세팅")]
     public CinemachineFreeLook mainFreeLookCamera;
 
+    [Header("회복 VFX")]
+    [SerializeField] private GameObject HealVFXPrefab;
+    [SerializeField] private float HealVFXDuration = 2f;
+
     [Header("캐릭터 태그")]
     public Transform startSpawnPoint;
 
@@ -551,6 +555,15 @@ public class BattleManager : MonoBehaviour
         if (activeCharacter != null)
         {
             UpdateSystemsWithActiveCharacter(activeCharacter);
+
+            if (HealVFXPrefab != null)
+            {
+                Vector3 vfxPosition = activeCharacter.transform.position + Vector3.up * 0.2f;
+
+                GameObject healVFX = Instantiate(HealVFXPrefab, vfxPosition, Quaternion.identity, activeCharacter.transform);
+
+                Destroy(healVFX, HealVFXDuration);
+            }
         }
 
         Debug.Log("[BattleManager] 텔레포트 포인트에서 파티 HP를 회복했습니다.");

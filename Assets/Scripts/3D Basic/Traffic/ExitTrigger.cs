@@ -5,42 +5,51 @@ using UnityEngine.Splines;
 public class ExitTrigger : MonoBehaviour
 {
     [Header("합류할 탈출로 스플라인")]
-    public SplineContainer exitRoad; 
+    public SplineContainer exitRoad;
+
+    [Header("교차로 제어")]
+    [SerializeField] private IntersectionController intersectionController;
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Car"))
-        {
-            SplineAnimate carAnim = other.GetComponentInParent<SplineAnimate>();
-            if (carAnim == null) return;
+        if (!other.CompareTag("Car")) return;
 
-            // 탈출로 예약
-            StartCoroutine(WaitAndSwap(carAnim, exitRoad));
-        }
+        CarPathFollower pathFollower = other.GetComponentInParent<CarPathFollower>();
+
+        if (pathFollower == null) return;
+
+        pathFollower.QueueNextPath(exitRoad);
+
+        StartCoroutine(WaitForExitPath(pathFollower, exitRoad));
     }
 
-    IEnumerator WaitAndSwap(SplineAnimate carAnim, SplineContainer nextPath)
+    private IEnumerator WaitForExitPath(CarPathFollower follower, SplineContainer roadPath)
     {
-        float lastTime = carAnim.NormalizedTime;
+        float timeout = 10f;
+        float elapsed = 0f;
 
-        //교차로 끝까지 대기
-        while (carAnim.NormalizedTime < 0.995f)
+        while (follower != null && follower.CurrentPath != roadPath)
         {
-            if (lastTime - carAnim.NormalizedTime > 0.5f)
-            {
-                break;
-            }
+            elapsed += Time.deltaTime;
 
-            lastTime = carAnim.NormalizedTime;
+            if (elapsed >= timeout) yield break;
+
             yield return null;
         }
 
-        // 끝에 도달 시 탈출로로 변경
-        carAnim.Container = nextPath;
-        carAnim.Restart(true);
+        if (follower == null)
+            yield break;
 
-        //교차로 탈출, 신호등 인식
-        CarSensor sensor = carAnim.GetComponent<CarSensor>();
-        if (sensor != null) sensor.isInsideIntersection = false;
+        CarSensor sensor = follower.GetComponent<CarSensor>();
+
+        if (sensor != null)
+        {
+            sensor.isInsideIntersection = false;
+        }
+
+        if (intersectionController != null)
+        {
+            intersectionController.Release(follower);
+        }
     }
 }
