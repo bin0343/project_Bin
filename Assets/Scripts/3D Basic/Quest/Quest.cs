@@ -12,6 +12,10 @@ public class Quest : ScriptableObject
     [TextArea(3, 5)] public string description;      //퀘스트 설명
     public string shortDescription;
 
+    [Header("퀘스트 수락 조건")]
+    [Tooltip("이 퀘스트를 받기 전에 완료해야 하는 퀘스트")]
+    public List<Quest> prerequisiteQuests = new List<Quest>();
+
     [Header("수락/거절 선택지 설정")]
     public string acceptButtonText = "수락한다";
     public string declineButtonText = "거절한다";

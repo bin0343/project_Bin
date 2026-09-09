@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Splines;
 
 public class IntersectionTrigger : MonoBehaviour
 {
-    [Header("1차로(좌측) 차량이 갈 수 있는 경로들")]
-    public SplineContainer[] lane1Choices;
+    [Header("진입 방향")]
+    [SerializeField, Min(0)] private int approachId;
 
-    [Header("2차로(우측) 차량이 갈 수 있는 경로들")]
-    public SplineContainer[] lane2Choices;
+    [Header("1차로 차량이 선택 가능한 경로")]
+    public IntersectionPathChoice[] lane1Choices;
+
+    [Header("2차로 차량이 선택 가능한 경로")]
+    public IntersectionPathChoice[] lane2Choices;
 
     [Header("교차로 제어")]
     [SerializeField] private IntersectionController intersectionController;
@@ -17,9 +19,14 @@ public class IntersectionTrigger : MonoBehaviour
     [Header("교차로 정지 위치")]
     [SerializeField] private Transform stopPoint;
 
-    private readonly HashSet<CarPathFollower> processingVehicles = new HashSet<CarPathFollower>();
+    [Header("신호 제어")]
+    [SerializeField] private TrafficLightController trafficLight;
 
-    void OnTriggerEnter(Collider other)
+    private readonly HashSet<CarPathFollower> processingVehicles = new HashSet<CarPathFollower>();
+    
+
+
+    private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Car")) return;
 
@@ -27,43 +34,41 @@ public class IntersectionTrigger : MonoBehaviour
 
         if (pathFollower == null) return;
 
-        Transform carMesh = pathFollower.transform.Find("Car_Model");
+        CarLaneController laneController = pathFollower.GetComponent<CarLaneController>();
 
-        if (carMesh == null) return;
+        int laneId = laneController != null ? laneController.CurrentLane : 0;
 
-        float offsetX = carMesh.localPosition.x;
+        IntersectionPathChoice[] targetChoices;
 
-        SplineContainer[] targetChoices;
-
-        // 기존 차선 판별 방식 유지
-        if (offsetX < -0.1f)
+        if (laneId == 0)
         {
             targetChoices = lane1Choices;
         }
-        else if (offsetX > 0.1f)
+        else if (laneId == 1)
         {
             targetChoices = lane2Choices;
         }
         else
-        {
-            targetChoices = lane1Choices.Length > 0 ? lane1Choices : lane2Choices;
-        }
-
-        if (targetChoices == null || targetChoices.Length == 0)
         {
             return;
         }
 
         int randomIndex = Random.Range(0, targetChoices.Length);
 
-        SplineContainer chosenPath = targetChoices[randomIndex];
+        IntersectionPathChoice chosenChoice = targetChoices[randomIndex];
 
-        if (!processingVehicles.Add(pathFollower))return;
+        if (chosenChoice == null || chosenChoice.path == null)
+        {
+            return;
+        }
 
-        StartCoroutine(RequestIntersectionAndQueuePath(pathFollower, chosenPath));
+        if (!processingVehicles.Add(pathFollower)) return;
+
+        StartCoroutine(RequestIntersectionAndQueuePath(pathFollower, laneId, chosenChoice));
     }
 
-    private IEnumerator RequestIntersectionAndQueuePath(CarPathFollower follower, SplineContainer chosenPath)
+
+    private IEnumerator RequestIntersectionAndQueuePath(CarPathFollower follower, int laneId, IntersectionPathChoice chosenChoice)
     {
         CarSensor sensor = follower.GetComponent<CarSensor>();
 
@@ -75,10 +80,24 @@ public class IntersectionTrigger : MonoBehaviour
             {
                 Debug.LogError($"[{gameObject.name}] " + "IntersectionController가 연결되지 않았습니다.");
 
-                break;
+                processingVehicles.Remove(follower);
+                yield break;
             }
 
-            reservationGranted = intersectionController.RequestEntry(follower);
+            bool canProceedSignal = sensor == null || trafficLight == null || sensor.CanProceedThroughSignal(trafficLight, stopPoint.position);
+
+            if (!canProceedSignal)
+            {
+                if (sensor != null && stopPoint != null)
+                {
+                    sensor.SetIntersectionBlocked(true, stopPoint.position);
+                }
+
+                yield return null;
+                continue;
+            }
+
+            reservationGranted = intersectionController.RequestEntry(follower, approachId, laneId, chosenChoice.movementId, chosenChoice.turnType);
 
             if (!reservationGranted)
             {
@@ -93,23 +112,43 @@ public class IntersectionTrigger : MonoBehaviour
 
         if (follower == null) yield break;
 
+        // 교차로 진입 허가
         if (sensor != null)
         {
+            sensor.SetIntersectionCommitment(true);
+
             sensor.SetIntersectionBlocked(false, Vector3.zero);
         }
 
-        follower.QueueNextPath(chosenPath);
+        follower.QueueNextPath(chosenChoice.path);
 
         float timeout = 10f;
         float elapsed = 0f;
 
-        while (follower != null && follower.CurrentPath != chosenPath)
+        while (follower != null && follower.CurrentPath != chosenChoice.path)
         {
             elapsed += Time.deltaTime;
 
             if (elapsed >= timeout)
             {
+                // 이미 받은 교차로 예약권 반환
+                if (intersectionController != null)
+                {
+                    intersectionController.Release(follower);
+                }
+
+                // 신호 무시 상태도 원상복구
+                if (sensor != null)
+                {
+                    sensor.SetIntersectionCommitment(false);
+                    sensor.SetIntersectionBlocked(false, Vector3.zero);
+                }
+
+                // 이 차량의 Trigger 처리도 종료
                 processingVehicles.Remove(follower);
+
+                Debug.LogWarning($"[{gameObject.name}] {follower.name}의 교차로 경로 전환이 " + $"{timeout}초 안에 완료되지 않아 예약을 취소했습니다.");
+
                 yield break;
             }
 

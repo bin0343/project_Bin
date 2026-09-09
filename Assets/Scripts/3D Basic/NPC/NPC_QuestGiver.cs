@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class NPC_QuestGiver : Interactable
 {
@@ -10,16 +11,6 @@ public class NPC_QuestGiver : Interactable
     public GameObject bubble_Available;
     public GameObject bubble_InProgress;
     public GameObject bubble_Complete;
-
-    protected override void OnTriggerEnter(Collider other)
-    {
-        base.OnTriggerEnter(other);
-        // 접근 시 상호작용 텍스트를 "F : 퀘스트 제목"으로 변경
-        if (other.CompareTag("Player") && questToGive != null && interactionText != null)
-        {
-            interactionText.text = $"{interactionKey} : {questToGive.questTitle}";
-        }
-    }
 
     protected override void Update()
     {
@@ -36,11 +27,16 @@ public class NPC_QuestGiver : Interactable
 
     private void UpdateQuestBubble()
     {
-        if (questToGive == null) return;
+        if (questToGive == null || QuestManager.instance == null) return;
+
         QuestStatus status = QuestManager.instance.GetQuestStatus(questToGive.questID);
 
-        if (bubble_Available) bubble_Available.SetActive(status == QuestStatus.NOT_STARTED);
+        bool canAccept = status == QuestStatus.NOT_STARTED && QuestManager.instance.CanAcceptQuest(questToGive);
+
+        if (bubble_Available) bubble_Available.SetActive(canAccept);
+
         if (bubble_InProgress) bubble_InProgress.SetActive(status == QuestStatus.IN_PROGRESS);
+
         if (bubble_Complete) bubble_Complete.SetActive(status == QuestStatus.COMPLETED);
     }
 
@@ -53,6 +49,7 @@ public class NPC_QuestGiver : Interactable
         switch (status)
         {
             case QuestStatus.NOT_STARTED:
+                if (!QuestManager.instance.CanAcceptQuest(questToGive)) return;
                 // 시작 대화 + 선택지 모드
                 DialogueManager.instance.StartQuestSequence(npcName, questToGive, () => 
                 {
@@ -91,6 +88,24 @@ public class NPC_QuestGiver : Interactable
             case QuestStatus.REWARD_CLAIMED:
                 DialogueManager.instance.StartNormalSequence(npcName, questToGive.afterCompleteDialogue);
                 break;
+        }
+    }
+
+    protected override void OnTriggerEnter(Collider other)
+    {
+        base.OnTriggerEnter(other);
+
+        if (!other.CompareTag("Player")) return;
+
+        if (questToGive == null || interactionText == null || QuestManager.instance == null) return;
+
+        QuestStatus status = QuestManager.instance.GetQuestStatus(questToGive.questID);
+
+        bool canInteractWithQuest = status != QuestStatus.NOT_STARTED || QuestManager.instance.CanAcceptQuest(questToGive);
+
+        if (canInteractWithQuest)
+        {
+            interactionText.text = $"{interactionKey} : {questToGive.questTitle}";
         }
     }
 }

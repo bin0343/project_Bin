@@ -79,8 +79,29 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"[{questID}] 퀘스트 추적 시작!");
     }
 
+    public bool CanAcceptQuest(Quest quest)
+    {
+        if (quest == null) return false;
+
+        if (GetQuestStatus(quest.questID) != QuestStatus.NOT_STARTED) return false;
+
+        foreach (Quest prerequisite in quest.prerequisiteQuests)
+        {
+            if (prerequisite == null) continue;
+
+            if (GetQuestStatus(prerequisite.questID) != QuestStatus.REWARD_CLAIMED)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public void AcceptQuest(Quest quest)
     {
+        if (!CanAcceptQuest(quest)) return;
+
         if (quest == null || questLog.ContainsKey(quest.questID)) return;
 
         PlayerQuestStatus newQuest = new PlayerQuestStatus(quest);

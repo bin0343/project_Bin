@@ -22,6 +22,7 @@ public class CarPathFollower : MonoBehaviour
 
     private SplineContainer queuedPath;
     public SplineContainer CurrentPath => currentPath;
+    private CarLaneController laneController;
     public bool HasQueuedPath => queuedPath != null;
 
     private float splineHeightOffset;
@@ -55,6 +56,7 @@ public class CarPathFollower : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        laneController = GetComponent<CarLaneController>();
 
         currentSpeed = cruiseSpeed;
         targetSpeed = cruiseSpeed;
@@ -122,7 +124,47 @@ public class CarPathFollower : MonoBehaviour
     {
         float3 localTargetPoint = SplineUtility.GetPointAtLinearDistance(currentPath.Spline, nearestT, lookAheadDistance, out float targetT);
 
-        return currentPath.transform.TransformPoint((Vector3)localTargetPoint);
+        Vector3 targetPoint = currentPath.transform.TransformPoint((Vector3)localTargetPoint);
+
+
+        if (laneController != null)
+        {
+            Vector3 tangent = (Vector3)currentPath.EvaluateTangent(targetT);
+
+            tangent.y = 0f;
+
+            if (tangent.sqrMagnitude > 0.001f)
+            {
+                tangent.Normalize();
+
+                Vector3 right = Vector3.Cross(Vector3.up, tangent).normalized;
+
+                targetPoint += right * laneController.CurrentOffset;
+            }
+        }
+
+
+        return targetPoint;
+    }
+
+    private Vector3 GetLaneAdjustedPoint(SplineContainer path, float t, float laneOffset)
+    {
+        Vector3 point = (Vector3)path.EvaluatePosition(t);
+
+        Vector3 tangent = (Vector3)path.EvaluateTangent(t);
+
+        tangent.y = 0f;
+
+        if (tangent.sqrMagnitude < 0.001f)
+        {
+            return point;
+        }
+
+        tangent.Normalize();
+
+        Vector3 right = Vector3.Cross(Vector3.up, tangent).normalized;
+
+        return point + right * laneOffset;
     }
 
     private void SteerToward(Vector3 targetPoint)
@@ -171,7 +213,9 @@ public class CarPathFollower : MonoBehaviour
         // 아직 Spline 후반부까지 오지 않았다면 전환하지 않음
         if (nearestT < pathSwitchMinT) return false;
 
-        Vector3 endPoint = (Vector3)currentPath.EvaluatePosition(1f);
+        float laneOffset = laneController != null ? laneController.CurrentOffset : 0f;
+
+        Vector3 endPoint = GetLaneAdjustedPoint(currentPath, 1f, laneOffset);
 
         float distanceToEnd = Vector3.Distance(rb.position, endPoint);
 
@@ -179,6 +223,11 @@ public class CarPathFollower : MonoBehaviour
 
         currentPath = queuedPath;
         queuedPath = null;
+
+        if (laneController != null)
+        {
+            laneController.OnPathChanged(currentPath);
+        }
 
         return true;
     }

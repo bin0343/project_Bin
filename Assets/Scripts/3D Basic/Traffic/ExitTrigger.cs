@@ -45,6 +45,8 @@ public class ExitTrigger : MonoBehaviour
         if (sensor != null)
         {
             sensor.isInsideIntersection = false;
+
+            sensor.SetIntersectionCommitment(false);
         }
 
         if (intersectionController != null)

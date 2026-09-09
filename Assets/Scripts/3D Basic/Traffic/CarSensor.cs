@@ -46,6 +46,7 @@ public class CarSensor : MonoBehaviour
     public bool isBraking => pathFollower != null && pathFollower.IsBraking;
     public bool isInsideIntersection = false;
     private bool isIntersectionBlocked = false;
+    private bool hasIntersectionCommitment = false;
     private Vector3 intersectionStopPosition;
     private TrafficLightController currentTargetLight;
     private float currentStopLineDistance = float.MaxValue;
@@ -57,6 +58,17 @@ public class CarSensor : MonoBehaviour
         if (blocked)
         {
             intersectionStopPosition = stopPosition;
+        }
+    }
+
+    public void SetIntersectionCommitment(bool committed)
+    {
+        hasIntersectionCommitment = committed;
+
+        if (committed)
+        {
+            currentTargetLight = null;
+            currentStopLineDistance = float.MaxValue;
         }
     }
 
@@ -87,11 +99,9 @@ public class CarSensor : MonoBehaviour
         if (hasHit)
         {
             //신호등 StopLine
-            if (hit.collider.CompareTag("StopLine")
-                && !isInsideIntersection)
+            if (hit.collider.CompareTag("StopLine") && !isInsideIntersection && !hasIntersectionCommitment)
             {
-                TrafficLightController detectedLight =
-                    hit.collider.GetComponentInParent<TrafficLightController>();
+                TrafficLightController detectedLight = hit.collider.GetComponentInParent<TrafficLightController>();
 
                 if (detectedLight != null)
                 {
@@ -134,7 +144,7 @@ public class CarSensor : MonoBehaviour
         }
 
         //신호 판단
-        if (currentTargetLight != null && !isInsideIntersection)
+        if (currentTargetLight != null && !isInsideIntersection && !hasIntersectionCommitment)
         {
             switch (currentTargetLight.currentState)
             {
@@ -182,6 +192,32 @@ public class CarSensor : MonoBehaviour
         }
 
         pathFollower.SetTargetSpeed(desiredSpeed);
+    }
+
+    public bool CanProceedThroughSignal(TrafficLightController light, Vector3 stopPosition)
+    {
+        if (light == null) return true;
+
+        switch (light.currentState)
+        {
+            case TrafficLightController.LightState.Green:
+                return true;
+            case TrafficLightController.LightState.Red:
+                return false;
+            case TrafficLightController.LightState.Yellow:
+                {
+                    if (carMesh == null)
+                        return false;
+
+                    Vector3 toStopLine = stopPosition - carMesh.position;
+
+                    float distance = Vector3.Dot(transform.forward, toStopLine);
+
+                    return distance <= passYellowDistance;
+                }
+        }
+
+        return false;
     }
 
     #region Player Detection
