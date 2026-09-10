@@ -62,9 +62,11 @@ public class MiniMapNPCManager : MonoBehaviour
 
         foreach (NPC_QuestGiver npc in allNPCs)
         {
-            if (npc.questToGive == null) continue;
+            Quest currentQuest = npc.GetCurrentQuest();
 
-            QuestStatus status = QuestManager.instance.GetQuestStatus(npc.questToGive.questID);
+            if (currentQuest == null) continue;
+
+            QuestStatus status = QuestManager.instance.GetQuestStatus(currentQuest.questID);
             Sprite targetSprite = null;
 
             if (status == QuestStatus.NOT_STARTED)

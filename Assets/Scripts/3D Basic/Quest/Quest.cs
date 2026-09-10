@@ -30,7 +30,9 @@ public class Quest : ScriptableObject
     [TextArea(2, 4)] public string[] completeDialogue;      // 완료 및 보상 수령 시
     [TextArea(2, 4)] public string[] afterCompleteDialogue; // 보상을 다 받은 후 일상 대화
 
-    [Header("퀘스트 목표, 보상")]
-    public List<QuestObjective> objectives;     //이 퀘스트의 목표
-    public QuestReward rewards;     //완료 보상
+    [Header("퀘스트 진행 단계")]
+    public List<QuestStep> steps = new List<QuestStep>();
+
+    [Header("퀘스트 보상")]
+    public QuestReward rewards;
 }

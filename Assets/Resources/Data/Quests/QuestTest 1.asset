@@ -32,10 +32,33 @@ MonoBehaviour:
   - "\uAC10\uC0AC\uD569\uB2C8\uB2E4!!"
   afterCompleteDialogue:
   - "\uB098\uBE44\uC57C.. \uB2E4\uD589\uC774\uB2E4"
-  objectives:
-  - type: 2
-    targetID: Cat_01
-    requiredAmount: 1
+  steps:
+  - stepTitle: "\uACE0\uC591\uC774 \uCC3E\uAE30"
+    stepDescription: "\uCC3E\uC544\uB77C"
+    objectives:
+    - type: 2
+      targetID: Cat_01
+      requiredAmount: 1
+    completeSpeakerName: A
+    completeDialogue:
+    - "\uC800\uAE30\uC11C \uC18C\uB9AC\uAC00 \uB4E4\uB9AC\uB294\uB370?"
+    - "\uAC00 \uBD10\uC57C \uD558\uB098.."
+  - stepTitle: "\uC0B0\uC801 \uCC98\uCE58"
+    stepDescription: "\uCC98\uCE58\uD574\uB77C"
+    objectives:
+    - type: 0
+      targetID: Brute
+      requiredAmount: 1
+    completeSpeakerName: 
+    completeDialogue: []
+  - stepTitle: "\uC0B0\uC801 \uCC98\uCE58"
+    stepDescription: "\uCC98\uCE58\uD574\uB77C"
+    objectives:
+    - type: 0
+      targetID: Brute
+      requiredAmount: 3
+    completeSpeakerName: 
+    completeDialogue: []
   rewards:
     gold: 10
     experience: 100

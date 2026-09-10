@@ -9,10 +9,6 @@ public class QuestEventTrigger : Interactable
     public string targetQuestID;        
     public string targetObjectiveID;
 
-    [Header("퀘스트 완료 시 출력 대화")]
-    public string npcName = "npc이름";
-    [TextArea(2, 4)] public string successDialogue = "성공 시 대화";
-
     [Header("상호 작용 시의 맵 이벤트")]  //ex)몬스터 스폰
     public UnityEvent onQuestEventTriggered;
 
@@ -41,11 +37,6 @@ public class QuestEventTrigger : Interactable
         if (status == QuestStatus.IN_PROGRESS)
         {
             QuestManager.instance.AdvanceQuestProgress(targetObjectiveID, 1);
-
-            if (DialogueManager.instance != null && !string.IsNullOrEmpty(successDialogue))
-            {
-                DialogueManager.instance.StartNormalSequence(npcName, new string[] { successDialogue });
-            }
 
             onQuestEventTriggered?.Invoke();
 

@@ -16,55 +16,84 @@ public class UI_QuestTrackerItem : MonoBehaviour
     // 빠른 접근을 위해 목표(targetID)별 텍스트 컴포넌트 저장
     private Dictionary<string, Text> objectiveTexts = new Dictionary<string, Text>();
 
+    private int displayedStepIndex = -1;
+
     // UI 항목 초기 설정
     public void Setup(Quest quest, PlayerQuestStatus status)
     {
+        if (quest == null || status == null) return;
+
         if (titleText != null)
         {
             titleText.text = quest.questTitle;
             titleText.color = normalColor;
         }
-        //shortDescriptionText.text = quest.shortDescription;
 
-        // 기존 목표 텍스트가 있다면 모두 삭제
         foreach (Transform child in objectivesContainer)
         {
             Destroy(child.gameObject);
         }
+
         objectiveTexts.Clear();
 
-        // 퀘스트의 모든 목표에 대해 텍스트 UI 생성
-        foreach (var obj in quest.objectives)
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count)
         {
-            GameObject textGO = Instantiate(objectiveTextPrefab, objectivesContainer);
-            Text objectiveText = textGO.GetComponent<Text>();
-
-            if (objectiveText != null)
-            {
-                // 현재 진행도 가져오기
-                int currentAmount = status.objectiveProgress.ContainsKey(obj.targetID) ? status.objectiveProgress[obj.targetID] : 0;
-                objectiveText.text = FormatObjectiveText(obj, currentAmount);
-
-                // 딕셔너리에 추가
-                objectiveTexts[obj.targetID] = objectiveText;
-            }
+            displayedStepIndex = -1;
+            return;
         }
 
-        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        displayedStepIndex = status.currentStepIndex;
+
+        foreach (QuestObjective obj in currentStep.objectives)
+        {
+            GameObject textGO = Instantiate(objectiveTextPrefab, objectivesContainer);
+
+            Text objectiveText = textGO.GetComponent<Text>();
+
+            if (objectiveText == null) continue;
+
+            int currentAmount = status.objectiveProgress.TryGetValue(obj.targetID, out int amount) ? amount : 0;
+
+            objectiveText.text = FormatObjectiveText(obj, currentAmount);
+
+            objectiveTexts[obj.targetID] = objectiveText;
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            GetComponent<RectTransform>());
     }
 
     // 퀘스트 진행도 업데이트
     public void UpdateProgress(PlayerQuestStatus status, Quest quest)
     {
-        foreach (var obj in quest.objectives)
-        {
-            if (objectiveTexts.TryGetValue(obj.targetID, out Text objectiveText))
-            {
-                int currentAmount = status.objectiveProgress[obj.targetID];
-                objectiveText.text = FormatObjectiveText(obj, currentAmount);
+        if (status == null || quest == null) return;
 
-                //if (currentAmount >= obj.requiredAmount) objectiveText.color = completedColor;
+        // Step이 바뀌었다면 기존 목표 UI를 버리고 새 Step으로 재생성
+        if (displayedStepIndex != status.currentStepIndex)
+        {
+            Setup(quest, status);
+            return;
+        }
+
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count)
+        {
+            return;
+        }
+
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        foreach (QuestObjective obj in currentStep.objectives)
+        {
+            if (!objectiveTexts.TryGetValue(obj.targetID, out Text objectiveText))
+            {
+                continue;
             }
+
+            int currentAmount = status.objectiveProgress.TryGetValue(obj.targetID, out int amount) ? amount: 0;
+
+            objectiveText.text = FormatObjectiveText(obj, currentAmount);
         }
     }
 

@@ -71,10 +71,11 @@ public class LocalMapNPCManager : MonoBehaviour
 
         foreach (NPC_QuestGiver npc in allNPCs)
         {
-            if (npc.questToGive == null) continue;
+            Quest currentQuest = npc.GetCurrentQuest();
 
-            // NPC가 가진 퀘스트의 현재 상태를 체크
-            QuestStatus status = QuestManager.instance.GetQuestStatus(npc.questToGive.questID);
+            if (currentQuest == null) continue;
+
+            QuestStatus status = QuestManager.instance.GetQuestStatus(currentQuest.questID);
             Sprite targetSprite = null;
 
             if (status == QuestStatus.NOT_STARTED)

@@ -128,8 +128,15 @@ public class QuestManager : MonoBehaviour
                 }
                 Quest originalQuest = questDatabase[questStatus.questID];
 
+                if (questStatus.currentStepIndex < 0 || questStatus.currentStepIndex >= originalQuest.steps.Count)
+                {
+                    continue;
+                }
+
+                QuestStep currentStep = originalQuest.steps[questStatus.currentStepIndex];
+
                 // 이 퀘스트의 해당 목표(objective) 찾기
-                QuestObjective objective = originalQuest.objectives.Find(o => o.targetID == targetID);
+                QuestObjective objective = currentStep.objectives.Find(o => o.targetID == targetID);
                 if (objective == null) continue; // (이론상 발생 안 함)
 
                 // 진행도 상승 (최대치를 넘지 않도록)
@@ -143,7 +150,7 @@ public class QuestManager : MonoBehaviour
 
                 OnQuestProgressChanged?.Invoke(questStatus, originalQuest);
                 // 이 퀘스트의 모든 목표가 달성되었는지 확인
-                CheckQuestCompletion(questStatus, originalQuest);
+                CheckCurrentStepCompletion(questStatus, originalQuest);
             }
         }
     }
@@ -163,36 +170,82 @@ public class QuestManager : MonoBehaviour
         }
     }
 
-    private void CheckQuestCompletion(PlayerQuestStatus status, Quest quest)
+    private void CheckCurrentStepCompletion(PlayerQuestStatus status, Quest quest)
     {
-        // 이미 완료 상태이거나 진행 중이 아니면 체크할 필요 없음
+        if (status.isWaitingForStepDialogue) return;
+
         if (status.status != QuestStatus.IN_PROGRESS) return;
 
-        bool allObjectivesMet = true;
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count) return;
 
-        // 퀘스트의 '모든' 목표를 순회
-        foreach (var objective in quest.objectives)
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        foreach (QuestObjective objective in currentStep.objectives)
         {
-            // 플레이어의 진행도(objectiveProgress)가 목표치(requiredAmount)보다 적으면
-            if (!status.objectiveProgress.ContainsKey(objective.targetID) ||
-                status.objectiveProgress[objective.targetID] < objective.requiredAmount)
+            if (!status.objectiveProgress.ContainsKey(objective.targetID) || status.objectiveProgress[objective.targetID] < objective.requiredAmount)
             {
-                // 아직 덜 끝남
-                allObjectivesMet = false;
-                break;
+                return;
             }
         }
 
-        // 'allObjectivesMet'가 true로 유지되었다면 (모든 목표를 달성했다면)
-        if (allObjectivesMet)
+        HandleStepCompleted(status, quest);
+    }
+
+    private void AdvanceToNextStep(PlayerQuestStatus status, Quest quest)
+    {
+        status.currentStepIndex++;
+
+        // 아직 다음 단계가 존재
+        if (status.currentStepIndex < quest.steps.Count)
         {
-            status.status = QuestStatus.COMPLETED;
+            status.InitializeCurrentStep(quest);
 
-            OnQuestCompleted?.Invoke(status, quest);
+            Debug.Log($"[퀘스트 단계 진행] {quest.questTitle} " + $"→ Step {status.currentStepIndex + 1}");
 
-            Debug.Log($"퀘스트 목표 달성: {quest.questTitle}! NPC에게 돌아가 보상을 받으세요.");
-            // TODO: 퀘스트 로그 UI 갱신, NPC 머리 위에 '?' 아이콘 띄우기 등
+            OnQuestProgressChanged?.Invoke(status, quest);
+            return;
         }
+
+        CompleteQuest(status, quest);
+    }
+
+    private void CompleteQuest(PlayerQuestStatus status, Quest quest)
+    {
+        status.status = QuestStatus.COMPLETED;
+
+        OnQuestCompleted?.Invoke(status, quest);
+
+        Debug.Log($"[퀘스트 완료] {quest.questTitle}");
+
+        ClaimReward(quest);
+    }
+
+    private void HandleStepCompleted(PlayerQuestStatus status, Quest quest)
+    {
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count)
+        {
+            return;
+        }
+
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        bool hasCompleteDialogue = currentStep.completeDialogue != null && currentStep.completeDialogue.Length > 0;
+
+        if (hasCompleteDialogue && DialogueManager.instance != null)
+        {
+            status.isWaitingForStepDialogue = true;
+
+            DialogueManager.instance.StartNormalSequence(currentStep.completeSpeakerName, currentStep.completeDialogue,
+                () =>
+                {
+                    status.isWaitingForStepDialogue = false;
+                    AdvanceToNextStep(status, quest);
+                });
+
+            return;
+        }
+
+        AdvanceToNextStep(status, quest);
     }
 
     public void ClaimReward(Quest quest)

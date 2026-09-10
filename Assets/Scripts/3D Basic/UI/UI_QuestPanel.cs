@@ -169,20 +169,69 @@ public class UI_QuestPanel : MonoBehaviour
         txtDescription.text = questData.description;
 
         // 목표 표시
-        string objectiveStr = "";
-        foreach (var obj in questData.objectives)
-        {
-            int current = userStatus.objectiveProgress.ContainsKey(obj.targetID) ? userStatus.objectiveProgress[obj.targetID] : 0;
-            // 목표 달성 시 색상 변경 등 가능
-            string colorHex = (current >= obj.requiredAmount) ? "green" : "black";
-            objectiveStr += $"<color={colorHex}>- {obj.targetID} : {current} / {obj.requiredAmount}</color>\n";
-        }
-        txtObjective.text = objectiveStr;
+        txtObjective.text = BuildObjectiveText(questData, userStatus);
 
         // 보상 표시
         txtReward.text = $"골드: {questData.rewards.gold} G\n경험치: {questData.rewards.experience} Exp";
 
         UpdateTrackButtonUI();
+    }
+
+    private string BuildObjectiveText(Quest quest, PlayerQuestStatus status)
+    {
+        if (quest == null || quest.steps == null || quest.steps.Count == 0)
+        {
+            return "목표 정보 없음";
+        }
+
+        string result = "";
+
+        // 퀘스트를 완전히 완료한 경우:
+        // 모든 Step을 완료 기록으로 표시
+        if (status.status == QuestStatus.REWARD_CLAIMED || status.status == QuestStatus.COMPLETED)
+        {
+            foreach (QuestStep step in quest.steps)
+            {
+                if (!string.IsNullOrEmpty(step.stepTitle))
+                {
+                    result += $"<b>{step.stepTitle}</b>\n";
+                }
+
+                foreach (QuestObjective obj in step.objectives)
+                {
+                    result += $"<color=green>- {obj.targetID} : " + $"{obj.requiredAmount} / {obj.requiredAmount}</color>\n";
+                }
+
+                result += "\n";
+            }
+
+            return result;
+        }
+
+        // 진행 중 / 실패:
+        // 현재 Step만 표시
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count)
+        {
+            return "현재 목표 없음";
+        }
+
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        if (!string.IsNullOrEmpty(currentStep.stepTitle))
+        {
+            result += $"<b>{currentStep.stepTitle}</b>\n";
+        }
+
+        foreach (QuestObjective obj in currentStep.objectives)
+        {
+            int current = status.objectiveProgress.TryGetValue(obj.targetID, out int amount) ? amount : 0;
+
+            string colorHex = current >= obj.requiredAmount ? "green" : "black";
+
+            result += $"<color={colorHex}>- {obj.targetID} : " + $"{current} / {obj.requiredAmount}</color>\n";
+        }
+
+        return result;
     }
 
     private void OnTrackButtonClicked()

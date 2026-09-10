@@ -15,17 +15,38 @@ public class PlayerQuestStatus
     public string questID;
     public QuestStatus status;
 
-    // 퀘스트의 목표별 현재 진행도 (ex: "MON_Rat" -> 3마리 잡음)
+    public int currentStepIndex;
     public Dictionary<string, int> objectiveProgress;
+
+    public bool isWaitingForStepDialogue;
 
     public PlayerQuestStatus(Quest quest)
     {
         questID = quest.questID;
         status = QuestStatus.IN_PROGRESS;
+
+        currentStepIndex = 0;
+        isWaitingForStepDialogue = false;
         objectiveProgress = new Dictionary<string, int>();
-        foreach (var obj in quest.objectives)
+
+        InitializeCurrentStep(quest);
+    }
+
+    public void InitializeCurrentStep(Quest quest)
+    {
+        objectiveProgress.Clear();
+
+        if (quest == null)
+            return;
+
+        if (currentStepIndex < 0 || currentStepIndex >= quest.steps.Count)
+            return;
+
+        QuestStep currentStep = quest.steps[currentStepIndex];
+
+        foreach (QuestObjective objective in currentStep.objectives)
         {
-            objectiveProgress[obj.targetID] = 0;
+            objectiveProgress[objective.targetID] = 0;
         }
     }
 }
