@@ -95,9 +95,9 @@ public class LobbyManager : MonoBehaviour
 
         //Character_Stat playerStat = Character_Stat;
 
-        /*if (playerStat == null && Player_Inventory.Instance != null)
+        /*if (playerStat == null && Player_Inventory.instance != null)
         {
-            playerStat = Player_Inventory.Instance.GetComponent<Player_Stat>();
+            playerStat = Player_Inventory.instance.GetComponent<Player_Stat>();
         }
 
         if (playerStat != null)

@@ -226,9 +226,9 @@ public class Enemy_Stat : MonoBehaviour
 
         Character_Stat activeCharacterStat = null;
 
-        if (BattleManager.Instance != null)
+        if (BattleManager.instance != null)
         {
-            GameObject activeCharacter = BattleManager.Instance.GetActiveCharacter();
+            GameObject activeCharacter = BattleManager.instance.GetActiveCharacter();
 
             if (activeCharacter != null)
             {

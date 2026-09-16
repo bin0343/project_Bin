@@ -857,9 +857,9 @@ public class UI_Manager : MonoBehaviour
 
         minimapPanel.SetActive(visible);
 
-        if (visible && BattleManager.Instance != null)
+        if (visible && BattleManager.instance != null)
         {
-            GameObject activeCharacter = BattleManager.Instance.GetActiveCharacter();
+            GameObject activeCharacter = BattleManager.instance.GetActiveCharacter();
 
             if (activeCharacter == null) return;
 
@@ -1027,9 +1027,9 @@ public class UI_Manager : MonoBehaviour
 
     private bool IsCombatRestrictedUIBlocked()
     {
-        if (BattleManager.Instance == null) return false;
+        if (BattleManager.instance == null) return false;
 
-        GameObject activeCharacter = BattleManager.Instance.GetActiveCharacter();
+        GameObject activeCharacter = BattleManager.instance.GetActiveCharacter();
 
         if (activeCharacter == null) return false;
 

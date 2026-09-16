@@ -154,7 +154,7 @@ public class UI_PartyFormation : MonoBehaviour
 
         Character_Manager.Instance.SaveParty(finalIDs, finalData);
 
-        if (BattleManager.Instance != null) BattleManager.Instance.InitializeParty();
+        if (BattleManager.instance != null) BattleManager.instance.InitializeParty();
         if (currentPreviewModel != null) currentPreviewModel.gameObject.SetActive(false);
     }
 

@@ -85,9 +85,9 @@ public class UI_CharacterEnhancement : MonoBehaviour
     {
         if (data == null) return null;
 
-        if (BattleManager.Instance == null || BattleManager.Instance.SpawnedCharacters == null) return null;
+        if (BattleManager.instance == null || BattleManager.instance.SpawnedCharacters == null) return null;
 
-        foreach (GameObject characterObject in BattleManager.Instance.SpawnedCharacters)
+        foreach (GameObject characterObject in BattleManager.instance.SpawnedCharacters)
         {
             if (characterObject == null) continue;
 

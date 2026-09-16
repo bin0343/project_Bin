@@ -15,9 +15,9 @@ public class TeleportPoint3D : Interactable
 
         if (isActivated)
         {
-            if (BattleManager.Instance != null)
+            if (BattleManager.instance != null)
             {
-                BattleManager.Instance.RestorePartyAtTeleport();
+                BattleManager.instance.RestorePartyAtTeleport();
             }
 
             return;
@@ -49,9 +49,9 @@ public class TeleportPoint3D : Interactable
             if (interactionPromptUI != null) interactionPromptUI.SetActive(false);
         }
 
-        if (BattleManager.Instance != null)
+        if (BattleManager.instance != null)
         {
-            BattleManager.Instance.RestorePartyAtTeleport();
+            BattleManager.instance.RestorePartyAtTeleport();
         }
     }
 }

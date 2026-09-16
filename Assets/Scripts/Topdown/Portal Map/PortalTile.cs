@@ -13,7 +13,7 @@ public class PortalTile : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             Debug.Log("포탈 진입!");
-            //PortalManager.Instance.spawnPosition = spawnPositionInNextScene;
+            //PortalManager.instance.spawnPosition = spawnPositionInNextScene;
             //SceneManager.LoadScene(nextScene);
             StartCoroutine(TeleportPlayer());
         }
@@ -21,9 +21,9 @@ public class PortalTile : MonoBehaviour
 
     private IEnumerator TeleportPlayer()
     {
-        //FadeManager.Instance.FadeToScene(nextScene);
+        //FadeManager.instance.FadeToScene(nextScene);
 
-        //yield return new WaitForSeconds(FadeManager.Instance.fadeDuration); // 씬 로드 기다리기
+        //yield return new WaitForSeconds(FadeManager.instance.fadeDuration); // 씬 로드 기다리기
 
         yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(nextScene);

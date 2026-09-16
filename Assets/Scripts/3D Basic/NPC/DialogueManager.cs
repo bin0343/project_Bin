@@ -70,6 +70,10 @@ public class DialogueManager : MonoBehaviour
     private void SetupDialogue(string speaker)
     {
         isDialogueActive = true;
+        if (BattleManager.instance != null)
+        {
+            BattleManager.instance.SetPlayerControlLocked(true);
+        }
         dialogueRoot.SetActive(true);
         choiceGroup.SetActive(false);
         btnNext.gameObject.SetActive(true);
@@ -153,6 +157,10 @@ public class DialogueManager : MonoBehaviour
     public void CloseDialogue()
     {
         isDialogueActive = false;
+        if (BattleManager.instance != null)
+        {
+            BattleManager.instance.SetPlayerControlLocked(false);
+        }
         dialogueRoot.SetActive(false);
         choiceGroup.SetActive(false);
 

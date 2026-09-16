@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneTransitionManager : MonoBehaviour
 {
-    public static SceneTransitionManager Instance { get; private set; }
+    public static SceneTransitionManager instance { get; private set; }
 
     [Header("로딩 화면")]
     [SerializeField] private CanvasGroup loadingCanvasGroup;
@@ -22,13 +22,13 @@ public class SceneTransitionManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (instance != null && instance != this)
         {
             Destroy(gameObject);
             return;
         } 
 
-        Instance = this;
+        instance = this;
 
         SetLoadingScreenImmediate(false);
     }
@@ -57,7 +57,7 @@ public class SceneTransitionManager : MonoBehaviour
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
 
-        BattleManager battleMgr = BattleManager.Instance;
+        BattleManager battleMgr = BattleManager.instance;
         GameObject activeCharacter = null;
         Player_Action activePlayerAction = null;
 

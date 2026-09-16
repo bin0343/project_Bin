@@ -102,7 +102,7 @@ public class BossExitUI : MonoBehaviour
             return;
         }
 
-        if (SceneTransitionManager.Instance == null) return;
+        if (SceneTransitionManager.instance == null) return;
 
         if (confirmPanel != null)
         {
@@ -123,7 +123,7 @@ public class BossExitUI : MonoBehaviour
             exitButton.SetActive(false);
         }
 
-        SceneTransitionManager.Instance.LoadScene(exitSceneName, exitSpawnPointId);
+        SceneTransitionManager.instance.LoadScene(exitSceneName, exitSpawnPointId);
     }
 
     private void SetVisible(bool visible)

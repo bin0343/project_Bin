@@ -129,9 +129,9 @@ public class LocalMapController : MonoBehaviour
 
     private void UpdatePlayerIcon()
     {
-        if (BattleManager.Instance == null || playerIconRect == null) return;
+        if (BattleManager.instance == null || playerIconRect == null) return;
 
-        GameObject activePlayer = BattleManager.Instance.GetActiveCharacter();
+        GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
         if (activePlayer == null) return;
 
         playerPositionTarget = activePlayer.transform;
@@ -183,9 +183,9 @@ public class LocalMapController : MonoBehaviour
                 zoomSlider.SetValueWithoutNotify(initialZoom);
             }
 
-            if (BattleManager.Instance != null)
+            if (BattleManager.instance != null)
             {
-                GameObject activePlayer = BattleManager.Instance.GetActiveCharacter();
+                GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
                 if (activePlayer != null)
                 {
                     Vector2 playerMapPos = GetMapPosition(activePlayer.transform.position);
@@ -250,8 +250,8 @@ public class LocalMapController : MonoBehaviour
 
     public void TeleportPlayer(Transform targetTr)
     {
-        if (BattleManager.Instance == null) return;
-        GameObject player = BattleManager.Instance.GetActiveCharacter();
+        if (BattleManager.instance == null) return;
+        GameObject player = BattleManager.instance.GetActiveCharacter();
         if (player == null) return;
 
         Vector3 finalPos = targetTr.position;
@@ -282,20 +282,20 @@ public class LocalMapController : MonoBehaviour
             realModel.localRotation = Quaternion.identity;
         }
 
-        if (BattleManager.Instance.mainFreeLookCamera != null)
+        if (BattleManager.instance.mainFreeLookCamera != null)
         {
-            BattleManager.Instance.mainFreeLookCamera.m_XAxis.Value = finalRot.eulerAngles.y;
-            BattleManager.Instance.mainFreeLookCamera.m_YAxis.Value = 0.5f; // 중간 높이(정면) 응시
+            BattleManager.instance.mainFreeLookCamera.m_XAxis.Value = finalRot.eulerAngles.y;
+            BattleManager.instance.mainFreeLookCamera.m_YAxis.Value = 0.5f; // 중간 높이(정면) 응시
 
-            BattleManager.Instance.mainFreeLookCamera.PreviousStateIsValid = false;
+            BattleManager.instance.mainFreeLookCamera.PreviousStateIsValid = false;
         }
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        if (BattleManager.Instance != null)
+        if (BattleManager.instance != null)
         {
-            BattleManager.Instance.RestorePartyAtTeleport();
+            BattleManager.instance.RestorePartyAtTeleport();
         }
 
         CloseLocalMap();

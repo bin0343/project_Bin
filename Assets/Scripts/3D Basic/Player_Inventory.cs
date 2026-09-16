@@ -174,9 +174,9 @@ public class Player_Inventory : MonoBehaviour
             ItemHolder sourceItem = GetItemHolderAt(sourceType, sourceIndex);
             if (sourceItem != null)
             {
-                if (BattleManager.Instance != null)
+                if (BattleManager.instance != null)
                 {
-                    GameObject activePlayer = BattleManager.Instance.GetActiveCharacter();
+                    GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
                     if (activePlayer != null)
                     {
                         Player_Equipment equip = activePlayer.GetComponent<Player_Equipment>();

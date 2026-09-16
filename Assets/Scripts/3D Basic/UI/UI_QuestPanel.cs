@@ -199,7 +199,16 @@ public class UI_QuestPanel : MonoBehaviour
 
                 foreach (QuestObjective obj in step.objectives)
                 {
-                    result += $"<color=green>- {obj.targetID} : " + $"{obj.requiredAmount} / {obj.requiredAmount}</color>\n";
+                    string objectiveName = GetObjectiveDisplayName(obj);
+
+                    if (obj.requiredAmount > 1)
+                    {
+                        result += $"<color=green>- {objectiveName} " + $"({obj.requiredAmount} / {obj.requiredAmount})</color>\n";
+                    }
+                    else
+                    {
+                        result += $"<color=green>- {objectiveName}</color>\n";
+                    }
                 }
 
                 result += "\n";
@@ -226,9 +235,18 @@ public class UI_QuestPanel : MonoBehaviour
         {
             int current = status.objectiveProgress.TryGetValue(obj.targetID, out int amount) ? amount : 0;
 
+            string objectiveName = GetObjectiveDisplayName(obj);
+
             string colorHex = current >= obj.requiredAmount ? "green" : "black";
 
-            result += $"<color={colorHex}>- {obj.targetID} : " + $"{current} / {obj.requiredAmount}</color>\n";
+            if (obj.requiredAmount > 1)
+            {
+                result += $"<color={colorHex}>- {objectiveName} " + $"({current} / {obj.requiredAmount})</color>\n";
+            }
+            else
+            {
+                result += $"<color={colorHex}>- {objectiveName}</color>\n";
+            }
         }
 
         return result;
@@ -280,5 +298,10 @@ public class UI_QuestPanel : MonoBehaviour
     void ClearDetails()
     {
         if (detailsGroup) detailsGroup.SetActive(false);
+    }
+
+    private string GetObjectiveDisplayName(QuestObjective objective)
+    {
+        return string.IsNullOrWhiteSpace(objective.displayText) ? objective.targetID : objective.displayText;
     }
 }

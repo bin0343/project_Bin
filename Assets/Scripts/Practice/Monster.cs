@@ -16,7 +16,7 @@ public class Monster : MonoBehaviour       //선언법
 
     void Start()
     {
-        //float hp = Def - Characters.Instance.atk;        //사용법
+        //float hp = Def - Characters.instance.atk;        //사용법
         //Shared.SceneMgr.adsf                      //사용법
     }
 

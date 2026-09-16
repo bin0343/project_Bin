@@ -5,9 +5,9 @@ using System.Collections.Generic;
 public class UI_QuestTrackerItem : MonoBehaviour
 {
     [Header("UI 요소 연결")]
-    public Text titleText;
     public Transform objectivesContainer;
     public GameObject objectiveTextPrefab;
+    public Text distanceText;
 
     [Header("완료 시 시각 효과")]
     public Color completedColor = Color.green;
@@ -18,16 +18,78 @@ public class UI_QuestTrackerItem : MonoBehaviour
 
     private int displayedStepIndex = -1;
 
+    private string currentDistanceTargetID = "";
+    private Transform currentDistanceTarget;
+
+    private void Update()
+    {
+        UpdateDistance();
+    }
+
+    private void UpdateDistance()
+    {
+        if (distanceText == null) return;
+
+        if (string.IsNullOrEmpty(currentDistanceTargetID))
+        {
+            distanceText.gameObject.SetActive(false);
+            return;
+        }
+
+        // 현재 Target을 못 찾고 있다면 다시 검색
+        if (currentDistanceTarget == null)
+        {
+            currentDistanceTarget = QuestTargetMarker.GetTarget(currentDistanceTargetID);
+        }
+
+        // 여전히 없다면 거리 표시 안 함
+        if (currentDistanceTarget == null || !currentDistanceTarget.gameObject.activeInHierarchy)
+        {
+            distanceText.gameObject.SetActive(false);
+            return;
+        }
+
+        Transform player = GetCurrentPlayerTransform();
+
+        if (player == null)
+        {
+            distanceText.gameObject.SetActive(false);
+            return;
+        }
+
+        Vector3 playerPos = player.position;
+        Vector3 targetPos = currentDistanceTarget.position;
+
+        // 높이 차이는 거리에서 제외
+        playerPos.y = 0f;
+        targetPos.y = 0f;
+
+        float distance = Vector3.Distance(playerPos, targetPos);
+
+        distanceText.gameObject.SetActive(true);
+
+        distanceText.text = $"{Mathf.FloorToInt(distance)}m";
+    }
+
+    private Transform GetCurrentPlayerTransform()
+    {
+        if (BattleManager.instance != null)
+        {
+            GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+
+            if (activePlayer != null)
+            {
+                return activePlayer.transform;
+            }
+        }
+
+        return null;
+    }
+
     // UI 항목 초기 설정
     public void Setup(Quest quest, PlayerQuestStatus status)
     {
         if (quest == null || status == null) return;
-
-        if (titleText != null)
-        {
-            titleText.text = quest.questTitle;
-            titleText.color = normalColor;
-        }
 
         foreach (Transform child in objectivesContainer)
         {
@@ -61,8 +123,9 @@ public class UI_QuestTrackerItem : MonoBehaviour
             objectiveTexts[obj.targetID] = objectiveText;
         }
 
-        LayoutRebuilder.ForceRebuildLayoutImmediate(
-            GetComponent<RectTransform>());
+        RefreshDistanceTarget(quest, status);
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
 
     // 퀘스트 진행도 업데이트
@@ -100,9 +163,6 @@ public class UI_QuestTrackerItem : MonoBehaviour
     // 퀘스트 완료 시 시각 효과 적용
     public void SetCompletedVisuals()
     {
-        titleText.text = $"[완료] {titleText.text}";
-        titleText.color = completedColor;
-
         // 모든 목표 텍스트를 완료 상태로 변경 (선택 사항)
         foreach (var text in objectiveTexts.Values)
         {
@@ -112,16 +172,48 @@ public class UI_QuestTrackerItem : MonoBehaviour
         }
     }
 
-    // 목표 텍스트 포맷팅
     private string FormatObjectiveText(QuestObjective objective, int currentAmount)
     {
-        // 요구사항: "몬스터 이름 (? / ?) 처치하기"
-        // TODO: objective.targetID ("MON_Rat")를 실제 이름("쥐")으로 변환하는 시스템 필요
-        // 지금은 targetID를 임시로 사용합니다.
-        string targetName = GetTargetDisplayName(objective.targetID, objective.type);
-        string actionText = GetActionText(objective.type);
+        string text = string.IsNullOrWhiteSpace(objective.displayText) ? objective.targetID : objective.displayText;
 
-        return $"{targetName} ({currentAmount} / {objective.requiredAmount}) {actionText}";
+        if (objective.requiredAmount > 1)
+        {
+            return $"{text} ({currentAmount} / {objective.requiredAmount})";
+        }
+
+        return text;
+    }
+
+    private void RefreshDistanceTarget(Quest quest, PlayerQuestStatus status)
+    {
+        currentDistanceTargetID = "";
+        currentDistanceTarget = null;
+
+        if (distanceText != null)
+        {
+            distanceText.gameObject.SetActive(false);
+        }
+
+        if (quest == null || status == null) return;
+
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count)
+        {
+            return;
+        }
+
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        if (currentStep.objectives == null || currentStep.objectives.Count == 0)
+        {
+            return;
+        }
+
+        // QuestManager와 동일하게 현재 Step의 첫 번째 Objective를 대표 목표로 사용
+        QuestObjective objective = currentStep.objectives[0];
+
+        currentDistanceTargetID = objective.targetID;
+
+        currentDistanceTarget = QuestTargetMarker.GetTarget(currentDistanceTargetID);
     }
 
     // (임시) targetID를 표시용 이름으로 변환
@@ -143,6 +235,7 @@ public class UI_QuestTrackerItem : MonoBehaviour
             case ObjectiveType.KILL: return "처치하기";
             case ObjectiveType.COLLECT: return "수집하기";
             case ObjectiveType.TALK_TO: return "대화하기";
+            case ObjectiveType.LOCATION: return "이동하기";
             default: return "달성하기";
         }
     }

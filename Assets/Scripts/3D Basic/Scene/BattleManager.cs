@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
-    public static BattleManager Instance;
+    public static BattleManager instance;
 
     [Header("카메라 세팅")]
     public CinemachineFreeLook mainFreeLookCamera;
@@ -41,8 +41,8 @@ public class BattleManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) return;
-        Instance = this;
+        if (instance != null && instance != this) return;
+        instance = this;
     }
 
     private void Start()

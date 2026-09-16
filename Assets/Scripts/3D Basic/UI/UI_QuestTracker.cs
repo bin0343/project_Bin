@@ -14,8 +14,6 @@ public class UI_QuestTracker : MonoBehaviour
 
         QuestManager.instance.OnQuestTrackedChanged += HandleQuestTrackedChanged;
         QuestManager.instance.OnQuestProgressChanged += HandleQuestProgressChanged;
-        QuestManager.instance.OnQuestCompleted += HandleQuestCompleted;
-        QuestManager.instance.OnQuestRewardClaimed += HandleQuestRewardClaimed;
 
         // 게임 시작 시 이미 추적 중인 퀘스트가 있다면 띄우기
         if (!string.IsNullOrEmpty(QuestManager.instance.currentTrackedQuestID))
@@ -31,8 +29,6 @@ public class UI_QuestTracker : MonoBehaviour
         {
             QuestManager.instance.OnQuestTrackedChanged -= HandleQuestTrackedChanged;
             QuestManager.instance.OnQuestProgressChanged -= HandleQuestProgressChanged;
-            QuestManager.instance.OnQuestCompleted -= HandleQuestCompleted;
-            QuestManager.instance.OnQuestRewardClaimed -= HandleQuestRewardClaimed;
         }
     }
 
@@ -66,24 +62,6 @@ public class UI_QuestTracker : MonoBehaviour
         if (QuestManager.instance.currentTrackedQuestID == status.questID && currentTrackedUI != null)
         {
             currentTrackedUI.UpdateProgress(status, quest);
-        }
-    }
-
-    private void HandleQuestCompleted(PlayerQuestStatus status, Quest quest)
-    {
-        if (QuestManager.instance.currentTrackedQuestID == status.questID && currentTrackedUI != null)
-        {
-            currentTrackedUI.SetCompletedVisuals();
-        }
-    }
-
-    private void HandleQuestRewardClaimed(Quest quest)
-    {
-        // 보상을 받은 게 내가 추적하던 퀘스트라면, 삭제(Track 취소는 QuestManager가 알아서 던져줌)
-        if (QuestManager.instance.currentTrackedQuestID == quest.questID && currentTrackedGO != null)
-        {
-            Destroy(currentTrackedGO);
-            currentTrackedUI = null;
         }
     }
 }

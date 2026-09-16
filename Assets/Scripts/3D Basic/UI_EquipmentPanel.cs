@@ -20,9 +20,9 @@ public class UI_EquipmentPanel : MonoBehaviour
     public void RefreshUI()
     {
         Player_Equipment activeEquip = null;
-        if (BattleManager.Instance != null)
+        if (BattleManager.instance != null)
         {
-            GameObject activePlayer = BattleManager.Instance.GetActiveCharacter();
+            GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
             if (activePlayer != null) activeEquip = activePlayer.GetComponent<Player_Equipment>();
         }
 

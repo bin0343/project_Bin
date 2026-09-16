@@ -92,9 +92,9 @@ public class BossIntroController : MonoBehaviour
     {
         IsPlaying = true;
 
-        if (BattleManager.Instance != null)
+        if (BattleManager.instance != null)
         {
-            BattleManager.Instance.SetPlayerControlLocked(true);
+            BattleManager.instance.SetPlayerControlLocked(true);
         }
 
         if (UI_Manager.Instance != null)
@@ -156,9 +156,9 @@ public class BossIntroController : MonoBehaviour
         }
 
 
-        if (BattleManager.Instance != null)
+        if (BattleManager.instance != null)
         {
-            BattleManager.Instance.SetPlayerControlLocked(false);
+            BattleManager.instance.SetPlayerControlLocked(false);
         }
 
         boss.ReleaseOpeningLeapTargeting();
@@ -193,9 +193,9 @@ public class BossIntroController : MonoBehaviour
             UI_Manager.Instance.ExitCinematicMode();
         }
 
-        if (IsPlaying && BattleManager.Instance != null)
+        if (IsPlaying && BattleManager.instance != null)
         {
-            BattleManager.Instance.SetPlayerControlLocked(false);
+            BattleManager.instance.SetPlayerControlLocked(false);
         }
 
         IsPlaying = false;

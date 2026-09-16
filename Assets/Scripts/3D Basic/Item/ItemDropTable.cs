@@ -17,7 +17,7 @@ public class ItemDropTable : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNearby = true;
-            UIManager.Instance.ShowMessage("F : 시체확인");
+            UIManager.instance.ShowMessage("F : 시체확인");
         }
     }
 
@@ -26,7 +26,7 @@ public class ItemDropTable : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNearby = false;
-            UIManager.Instance.HideMessage();
+            UIManager.instance.HideMessage();
         }
     }
 
@@ -34,7 +34,7 @@ public class ItemDropTable : MonoBehaviour
     {
         if (isPlayerNearby && Input.GetKeyDown(KeyCode.F))
         {
-            LootUI.Instance.Open(GetDroppedItems());
+            LootUI.instance.Open(GetDroppedItems());
         }
     }
 

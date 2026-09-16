@@ -25,7 +25,7 @@ public class Character : MonoSingleton<Character>
     // Start is called before the first frame update
     void Start()
     {
-        //float hp = Monster.Instance.Atk - Def;
+        //float hp = Monster.instance.Atk - Def;
         originalscale = transform.localScale;
         baseposition = transform.localPosition;
 

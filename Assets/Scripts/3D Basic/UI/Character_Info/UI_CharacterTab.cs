@@ -62,9 +62,9 @@ public class UI_CharacterTab : MonoBehaviour
         levelText.text = $"LV. {cStatus.level}";
 
         Character_Stat spawnedStat = null;
-        if (BattleManager.Instance != null && BattleManager.Instance.SpawnedCharacters != null)
+        if (BattleManager.instance != null && BattleManager.instance.SpawnedCharacters != null)
         {
-            foreach (GameObject charObj in BattleManager.Instance.SpawnedCharacters)
+            foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
             {
                 if (charObj != null)
                 {

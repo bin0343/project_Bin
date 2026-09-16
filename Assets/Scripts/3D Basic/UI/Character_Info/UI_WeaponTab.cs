@@ -211,9 +211,9 @@ public class UI_WeaponTab : MonoBehaviour
 
     private Player_Equipment GetEquipmentOfCharacter(Character_Data characterData)
     {
-        if (characterData == null || BattleManager.Instance == null || BattleManager.Instance.SpawnedCharacters == null) return null;
+        if (characterData == null || BattleManager.instance == null || BattleManager.instance.SpawnedCharacters == null) return null;
 
-        foreach (GameObject charObj in BattleManager.Instance.SpawnedCharacters)
+        foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
         {
             if (charObj != null)
             {

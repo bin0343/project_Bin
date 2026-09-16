@@ -54,9 +54,9 @@ public class UI_PartyManager : MonoBehaviour
             }
         }
 
-        if (BattleManager.Instance != null && BattleManager.Instance.SpawnedCharacters != null)
+        if (BattleManager.instance != null && BattleManager.instance.SpawnedCharacters != null)
         {
-            foreach (GameObject charObj in BattleManager.Instance.SpawnedCharacters)
+            foreach (GameObject charObj in BattleManager.instance.SpawnedCharacters)
             {
                 if (charObj != null)
                 {

@@ -38,9 +38,9 @@ public class UI_ExitButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         /*if (nextPanel != null)
         {
-            if (LobbyManager.Instance != null)
+            if (LobbyManager.instance != null)
             {
-                LobbyManager.Instance.OpenDepthPanel(nextPanel);
+                LobbyManager.instance.OpenDepthPanel(nextPanel);
             }
             else
             {

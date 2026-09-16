@@ -185,9 +185,9 @@ public class Player_Action : MonoBehaviour
             UI_SkillManager.Instance.SetupSkillSlots(playerSkills);
         }
 
-        if (BattleManager.Instance != null)
+        if (BattleManager.instance != null)
         {
-            BattleManager.Instance.ChangeCameraTarget(transform.root);
+            BattleManager.instance.ChangeCameraTarget(transform.root);
         }
     }
 

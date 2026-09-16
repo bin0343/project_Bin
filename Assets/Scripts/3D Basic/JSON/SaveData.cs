@@ -61,6 +61,8 @@ public class QuestSaveData
 {
     public string questID;
     public int status;
+    public int currentStepIndex;
+    public bool isTracked;
 
     public List<QuestObjectiveSaveData> progressList = new List<QuestObjectiveSaveData>();
 }

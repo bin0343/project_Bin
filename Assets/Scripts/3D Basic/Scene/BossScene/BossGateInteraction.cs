@@ -22,7 +22,7 @@ public class BossGateInteraction : Interactable
 
     protected override void OpenMenu()
     {
-        if (SceneTransitionManager.Instance == null)
+        if (SceneTransitionManager.instance == null)
         {
             Debug.LogError("[BossGate] SceneTransitionManager가 없습니다.");
 
@@ -36,6 +36,6 @@ public class BossGateInteraction : Interactable
             interactionPromptUI.SetActive(false);
         }
 
-        SceneTransitionManager.Instance.LoadScene(targetSceneName, targetSpawnID);
+        SceneTransitionManager.instance.LoadScene(targetSceneName, targetSpawnID);
     }
 }

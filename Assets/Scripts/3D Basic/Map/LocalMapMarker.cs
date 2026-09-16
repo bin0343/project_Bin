@@ -17,10 +17,24 @@ public class LocalMapMarker : MonoBehaviour
         HideMarker();
     }
 
+    private void Update()
+    {
+        if (!string.IsNullOrEmpty(currentTargetID))
+        {
+            UpdateMarkerPosition();
+        }
+    }
+
     private void OnEnable()
     {
-        // M키를 눌러 맵 패널이 켜질 때 마커 위치 즉시 갱신
-        UpdateMarkerPosition();
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.RefreshTrackedQuestTarget();
+        }
+        else
+        {
+            UpdateMarkerPosition();
+        }
     }
 
     public void SetTargetID(string targetID)

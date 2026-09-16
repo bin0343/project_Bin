@@ -77,7 +77,7 @@ public class NPC_Interaction : MonoBehaviour
             if (DialogueManager.instance != null)
             {
                 // StartConversation 대신 StartDialogue 사용 (ID 넘김)
-                //DialogueManager.Instance.StartDialogue(pendingDialogueID, npcData);
+                //DialogueManager.instance.StartDialogue(pendingDialogueID, npcData);
             }
         }
     }
@@ -88,7 +88,7 @@ public class NPC_Interaction : MonoBehaviour
         if (DialogueManager.instance != null)
         {
             // 일상 대화 시작
-            //DialogueManager.Instance.StartDialogue(csvDialogueID, npcData);
+            //DialogueManager.instance.StartDialogue(csvDialogueID, npcData);
         }
     }
 
@@ -96,7 +96,7 @@ public class NPC_Interaction : MonoBehaviour
     {
         Debug.Log("선물하기 창 열기");
         CloseMenu();
-        // UI_Gift.Instance.Open(npcData); 
+        // UI_Gift.instance.Open(npcData); 
     }
 
     // 퀘스트 체크 로직에서 ID를 할당하도록 수정

@@ -20,6 +20,7 @@ public class QuestManager : MonoBehaviour
     public event Action<Quest> OnQuestRewardClaimed;
     // 퀘스트 추적 대상이 바뀌었을 때 호출되는 이벤트
     public event Action<Quest> OnQuestTrackedChanged;
+    public event Action<PlayerQuestStatus, Quest> OnQuestStepChanged;
 
     private void Awake()
     {
@@ -64,17 +65,53 @@ public class QuestManager : MonoBehaviour
         return QuestStatus.NOT_STARTED;
     }
 
+    public bool IsCurrentObjective(string questID, string objectiveID)
+    {
+        if (string.IsNullOrEmpty(questID) || string.IsNullOrEmpty(objectiveID))
+        {
+            return false;
+        }
+
+        if (!questLog.TryGetValue(questID, out PlayerQuestStatus status))
+        {
+            return false;
+        }
+
+        // 진행 중인 퀘스트만
+        if (status.status != QuestStatus.IN_PROGRESS) return false;
+
+        // Step 완료 대사를 기다리는 중이면 같은 상호작용을 다시 받을 필요 없음
+        if (status.isWaitingForStepDialogue) return false;
+
+        Quest quest = GetQuestByID(questID);
+
+        if (quest == null) return false;
+
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count)
+        {
+            return false;
+        }
+
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        if (currentStep.objectives == null) return false;
+
+        return currentStep.objectives.Exists(objective => objective.targetID == objectiveID);
+    }
+
     // 특정 퀘스트를 추적하도록 설정하는 함수
     public void SetTrackedQuest(string questID)
     {
         if (string.IsNullOrEmpty(questID) || !questLog.ContainsKey(questID))
         {
             currentTrackedQuestID = "";
+            ClearTrackedQuestTarget();
             OnQuestTrackedChanged?.Invoke(null); // 추적 해제
             return;
         }
 
         currentTrackedQuestID = questID;
+        RefreshTrackedQuestTarget();
         OnQuestTrackedChanged?.Invoke(GetQuestByID(questID));
         Debug.Log($"[{questID}] 퀘스트 추적 시작!");
     }
@@ -140,10 +177,7 @@ public class QuestManager : MonoBehaviour
                 if (objective == null) continue; // (이론상 발생 안 함)
 
                 // 진행도 상승 (최대치를 넘지 않도록)
-                questStatus.objectiveProgress[targetID] = Mathf.Min(
-                    questStatus.objectiveProgress[targetID] + amount,
-                    objective.requiredAmount
-                );
+                questStatus.objectiveProgress[targetID] = Mathf.Min(questStatus.objectiveProgress[targetID] + amount, objective.requiredAmount);
 
                 // 로그 수정 (이제 '?' 대신 'requiredAmount' 표시)
                 Debug.Log($"퀘스트 진행: {questStatus.questID} - {targetID} ({questStatus.objectiveProgress[targetID]} / {objective.requiredAmount})");
@@ -200,6 +234,13 @@ public class QuestManager : MonoBehaviour
         {
             status.InitializeCurrentStep(quest);
 
+            if (currentTrackedQuestID == quest.questID)
+            {
+                RefreshTrackedQuestTarget();
+            }
+
+            OnQuestStepChanged?.Invoke(status, quest);
+
             Debug.Log($"[퀘스트 단계 진행] {quest.questTitle} " + $"→ Step {status.currentStepIndex + 1}");
 
             OnQuestProgressChanged?.Invoke(status, quest);
@@ -248,6 +289,85 @@ public class QuestManager : MonoBehaviour
         AdvanceToNextStep(status, quest);
     }
 
+    public void RefreshTrackedQuestTarget()
+    {
+        if (string.IsNullOrEmpty(currentTrackedQuestID))
+        {
+            ClearTrackedQuestTarget();
+            return;
+        }
+
+        if (!questLog.TryGetValue(currentTrackedQuestID, out PlayerQuestStatus status))
+        {
+            ClearTrackedQuestTarget();
+            return;
+        }
+
+        Quest quest = GetQuestByID(currentTrackedQuestID);
+
+        if (quest == null || status.status != QuestStatus.IN_PROGRESS)
+        {
+            ClearTrackedQuestTarget();
+            return;
+        }
+
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count)
+        {
+            ClearTrackedQuestTarget();
+            return;
+        }
+
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        if (currentStep.objectives == null || currentStep.objectives.Count == 0)
+        {
+            ClearTrackedQuestTarget();
+            return;
+        }
+
+        // 일단 현재 Step의 첫 번째 목표를 대표 목표로 사용
+        string targetID = currentStep.objectives[0].targetID;
+
+        Transform target = QuestTargetMarker.GetTarget(targetID);
+
+        // 플레이 화면
+        if (QuestMarkerUI.instance != null)
+        {
+            if (target != null)
+            {
+                QuestMarkerUI.instance.SetTarget(target);
+            }
+            else
+            {
+                QuestMarkerUI.instance.ClearTarget();
+            }
+        }
+
+        // 로컬맵
+        if (LocalMapMarker.instance != null)
+        {
+            LocalMapMarker.instance.SetTargetID(targetID);
+        }
+
+        // 미니맵
+        if (MiniMapQuestMarker.instance != null)
+        {
+            MiniMapQuestMarker.instance.SetTargetID(targetID);
+        }
+    }
+
+    private void ClearTrackedQuestTarget()
+    {
+        if (QuestMarkerUI.instance != null)
+            QuestMarkerUI.instance.ClearTarget();
+
+        if (LocalMapMarker.instance != null)
+            LocalMapMarker.instance.ClearTarget();
+
+        if (MiniMapQuestMarker.instance != null)
+            MiniMapQuestMarker.instance.ClearTarget();
+    }
+
     public void ClaimReward(Quest quest)
     {
         if (quest == null || !questLog.ContainsKey(quest.questID)) return;
@@ -262,7 +382,7 @@ public class QuestManager : MonoBehaviour
         // 아이템 보상 (확장)
         /*if (quest.rewards.itemReward != null)
         {
-            Player_Inventory.Instance.AddItem(quest.rewards.itemReward, 1);
+            Player_Inventory.instance.AddItem(quest.rewards.itemReward, 1);
         }*/
 
         questLog[quest.questID].status = QuestStatus.REWARD_CLAIMED;
@@ -288,6 +408,8 @@ public class QuestManager : MonoBehaviour
 
             data.questID = status.questID;
             data.status = (int)status.status; // Enum -> int 변환
+            data.currentStepIndex = status.currentStepIndex;
+            data.isTracked = status.questID == currentTrackedQuestID;
 
             // 목표 진행도(Dictionary)를 리스트로 변환
             data.progressList = new List<QuestObjectiveSaveData>();
@@ -304,12 +426,13 @@ public class QuestManager : MonoBehaviour
         return saveList;
     }
 
-    // [추가] 데이터 불러오기 (List -> Dictionary)
     public void LoadQuestSaveData(List<QuestSaveData> savedList)
     {
         if (savedList == null) return;
 
         questLog.Clear(); // 기존 퀘스트 로그 초기화
+
+        string trackedQuestIDToRestore = "";
 
         foreach (var data in savedList)
         {
@@ -321,6 +444,9 @@ public class QuestManager : MonoBehaviour
                 // 플레이어 퀘스트 상태 복구
                 PlayerQuestStatus newStatus = new PlayerQuestStatus(originalQuest);
                 newStatus.status = (QuestStatus)data.status; // int -> Enum 복구
+                newStatus.currentStepIndex = data.currentStepIndex;
+                // 저장된 Step 기준으로 목표 Dictionary 다시 생성
+                newStatus.InitializeCurrentStep(originalQuest);
 
                 // 진행도 복구
                 foreach (var objData in data.progressList)
@@ -333,6 +459,11 @@ public class QuestManager : MonoBehaviour
 
                 // 로그에 추가
                 questLog.Add(data.questID, newStatus);
+
+                if (data.isTracked && newStatus.status == QuestStatus.IN_PROGRESS && string.IsNullOrEmpty(trackedQuestIDToRestore))
+                {
+                    trackedQuestIDToRestore = data.questID;
+                }
             }
             else
             {
@@ -340,9 +471,15 @@ public class QuestManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"퀘스트 로드 완료: {questLog.Count}개");
+        if (!string.IsNullOrEmpty(trackedQuestIDToRestore))
+        {
+            SetTrackedQuest(trackedQuestIDToRestore);
+        }
+        else
+        {
+            SetTrackedQuest("");
+        }
 
-        // (선택사항) 로드 후 UI 추적기가 있다면 갱신하라고 알리기
-        // OnQuestProgressChanged?.Invoke(...) 등을 호출하거나 UI_QuestTracker에서 Refresh
+        Debug.Log($"퀘스트 로드 완료: {questLog.Count}개");
     }
 }

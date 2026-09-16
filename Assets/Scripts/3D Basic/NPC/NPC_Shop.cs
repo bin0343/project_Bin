@@ -399,7 +399,7 @@ public class NPC_Shop : Interactable
         {
             Account_Manager.Instance.gold -= totalPrice; // 골드 차감
             UI_Manager.Instance.ShowMessage($"{item.itemData.itemName} {quantity}개 구매 완료.");
-            // TODO: 골드 UI 갱신 (예: UI_Manager.Instance.UpdateGoldUI())
+            // TODO: 골드 UI 갱신 (예: UI_Manager.instance.UpdateGoldUI())
         }
         else
         {

@@ -51,7 +51,7 @@ public class BossArenaManager : MonoBehaviour
     private void Start()
     {
         // 보스맵 씬을 에디터에서 직접 실행했을 때를 위한 처리
-        if (SceneTransitionManager.Instance == null || !SceneTransitionManager.Instance.IsTransitioning)
+        if (SceneTransitionManager.instance == null || !SceneTransitionManager.instance.IsTransitioning)
         {
             InitializeArena();
         }

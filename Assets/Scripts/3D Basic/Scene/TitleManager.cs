@@ -36,7 +36,7 @@ public class TitleManager : MonoBehaviour
             GameDataManager.Instance.saveData = new SaveData(); // 텅 빈 새 데이터
 
             // 기본 지급 아이템이나 초기 골드가 필요하면 여기서 설정
-            // 예: GameDataManager.Instance.saveData.playerGold = 1000;
+            // 예: GameDataManager.instance.saveData.playerGold = 1000;
 
             GameDataManager.Instance.SaveGame(); // 초기 상태 덮어쓰기 저장
         }
