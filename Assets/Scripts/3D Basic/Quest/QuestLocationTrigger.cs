@@ -1,16 +1,48 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class QuestLocationTrigger : MonoBehaviour
 {
-    [Header("Äù½ºÆ® ¸ñÇ¥ ID")]
-    public string targetID;
+    [Header("Äù½ºÆ® ¸ñÇ¥")]
+    public string targetQuestID;
+    public string targetObjectiveID;
+
+    [Header("¸ñÇ¥ µµÂø ÈÄ ÀÌº¥Æ®")]
+    public UnityEvent onLocationReached;
+
+    private bool hasTriggered = false;
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
+        if (hasTriggered) return;
+
         if (QuestManager.instance == null) return;
 
-        QuestManager.instance.AdvanceQuestProgress(targetID, 1);
+        if (!QuestManager.instance.IsCurrentObjective(targetQuestID, targetObjectiveID))
+        {
+            return;
+        }
+
+        hasTriggered = true;
+
+        QuestManager.instance.AdvanceQuestProgress(targetObjectiveID, 1);
+
+        StartCoroutine(InvokeEventAfterDialogue());
+    }
+
+    private IEnumerator InvokeEventAfterDialogue()
+    {
+        if (DialogueManager.instance != null)
+        {
+            while (DialogueManager.instance.isDialogueActive)
+            {
+                yield return null;
+            }
+        }
+
+        onLocationReached?.Invoke();
     }
 }

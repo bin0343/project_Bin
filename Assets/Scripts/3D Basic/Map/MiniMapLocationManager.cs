@@ -55,6 +55,8 @@ public class MiniMapLocationManager : MonoBehaviour
         {
             if (location == null) continue;
 
+            if (!location.isRevealed) continue;
+
             if (!location.showOnMiniMap) continue;
 
             GameObject newMarker = Instantiate(miniMapLocationPrefab, miniMapContent);

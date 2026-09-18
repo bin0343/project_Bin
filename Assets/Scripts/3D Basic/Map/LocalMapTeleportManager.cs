@@ -38,6 +38,10 @@ public class LocalMapTeleportManager : MonoBehaviour
 
         foreach (TeleportPoint3D tp in allTeleports)
         {
+            // 실제 월드에서 사용할 수 없는 상태면
+            // 지도에도 표시하지 않음
+            if (!tp.gameObject.activeInHierarchy) continue;
+
             GameObject newMarker = Instantiate(teleportMarkerPrefab, mapContent);
             activeMarkers.Add(newMarker);
 

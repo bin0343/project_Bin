@@ -26,6 +26,12 @@ public class Enemy_Stat : MonoBehaviour
     [SerializeField, Min(1)] private int fallbackEnemyLevel = 20;
     [Tooltip("몬스터 최대 레벨")]
     [SerializeField, Min(1)] private int maxEnemyLevel = 100;
+    [Tooltip("아직 한 번도 돌파하지 않았을 때 일반 몬스터 레벨")]
+    [SerializeField, Min(1)] private int initialEnemyLevel = 6;
+    [Tooltip("보스 몬스터에게 추가되는 레벨")]
+    [SerializeField, Min(0)] private int bossLevelBonus = 5;
+    [Tooltip("돌파 이후 일반 몬스터가 현재 레벨 상한보다 낮게 설정되는 값")]
+    [SerializeField, Min(0)] private int normalEnemyLevelPenalty = 5;
 
     [Header("1레벨 기준 기본 스탯")]
     [Tooltip("이 몬스터의 1레벨 최대 HP")]
@@ -82,7 +88,7 @@ public class Enemy_Stat : MonoBehaviour
 
         yield return null;
 
-        ApplyEnemyLevelFromCharacterCap();
+        ApplyEnemyLevelFromCharacterProgression();
         RecalculateStatsByLevel();
 
         currentHP = maxHP;
@@ -215,7 +221,7 @@ public class Enemy_Stat : MonoBehaviour
         return basePosition + cameraSideDirection * damageTextCameraForwardOffset;
     }
 
-    private void ApplyEnemyLevelFromCharacterCap()
+    private void ApplyEnemyLevelFromCharacterProgression()
     {
         if (!useCharacterLevelCap)
         {
@@ -267,9 +273,39 @@ public class Enemy_Stat : MonoBehaviour
 
         CharacterStatus playerStatus = Character_Manager.Instance.GetCharacterStatus(activeCharacterStat.characterData.characterID, activeCharacterStat.characterData);
 
-        int characterLevelCap = Character_Manager.Instance.GetCurrentLevelCap(playerStatus);
+        bool isBoss = enemyBase is BossEnemy;
 
-        EnemyLevel = Mathf.Clamp(characterLevelCap, 1, maxEnemyLevel);
+        int targetEnemyLevel;
+
+        // 아직 한 번도 돌파하지 않은 초기 구간
+        if (playerStatus.ascensionStage <= 0)
+        {
+            if (isBoss)
+            {
+                targetEnemyLevel = initialEnemyLevel + bossLevelBonus;
+            }
+            else
+            {
+                targetEnemyLevel = initialEnemyLevel;
+            }
+        }
+        else
+        {
+            int currentLevelCap = Character_Manager.Instance.GetCurrentLevelCap(playerStatus);
+
+            if (isBoss)
+            {
+                // 보스는 현재 돌파 상한보다 +5
+                targetEnemyLevel = currentLevelCap + bossLevelBonus;
+            }
+            else
+            {
+                // 일반 몬스터는 현재 돌파 상한보다 -5
+                targetEnemyLevel = currentLevelCap - normalEnemyLevelPenalty;
+            }
+        }
+
+        EnemyLevel = Mathf.Clamp(targetEnemyLevel, 1, maxEnemyLevel);
     }
 
 #if UNITY_EDITOR

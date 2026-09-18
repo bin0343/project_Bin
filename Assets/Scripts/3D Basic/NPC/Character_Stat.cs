@@ -29,9 +29,63 @@ public class Character_Stat : MonoBehaviour
     private Collider characterCollider;
 
 
+#if UNITY_EDITOR
+    [Header("테스트용")]
+    [SerializeField] private bool useTestLevelOnSpawn = false;
+
+    [SerializeField, Min(1)]
+    private int testLevel = 1;
+
+    [SerializeField, Min(0)]
+    private int testAscensionStage = 0;
+
+    private void ApplyTestLevelToManager()
+    {
+        if (characterData == null) return;
+        if (Character_Manager.Instance == null) return;
+
+        CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(characterData.characterID, characterData);
+
+        // 테스트용 돌파 단계 먼저 적용
+        status.ascensionStage = Mathf.Max(testAscensionStage, 0);
+
+        int levelCap = Character_Manager.Instance.GetCurrentLevelCap(status);
+
+        // 현재 돌파 상한 안에서 테스트 레벨 적용
+        status.level = Mathf.Clamp(testLevel, 1, levelCap);
+
+        status.currentExp = 0;
+
+        Character_Manager.Instance.RecalculateStatsByLevel(status, characterData);
+
+        Debug.Log($"[테스트] {characterData.characterName} " + $"Lv.{status.level}, 돌파 {status.ascensionStage}단계 적용");
+    }
+
+    [ContextMenu("테스트 레벨 적용")]
+    private void ApplyTestLevel()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning("테스트 레벨 적용은 Play 중인 캐릭터 인스턴스에서 사용하세요.");
+
+            return;
+        }
+
+        ApplyTestLevelToManager();
+        RefreshStatsFromManager();
+    }
+#endif
+
     private void Awake()
     {
         CacheDamageTextReferences();
+
+#if UNITY_EDITOR
+        if (useTestLevelOnSpawn)
+        {
+            ApplyTestLevelToManager();
+        }
+#endif
 
         if (characterData != null)
         {

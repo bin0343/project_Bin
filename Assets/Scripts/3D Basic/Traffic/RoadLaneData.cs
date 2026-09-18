@@ -11,4 +11,7 @@ public class RoadLaneData : MonoBehaviour
 
     [Header("차선 변경")]
     public bool allowLaneChange = false;
+
+    [Header("차량 소환")]
+    public bool allowVehicleSummon = true;
 }

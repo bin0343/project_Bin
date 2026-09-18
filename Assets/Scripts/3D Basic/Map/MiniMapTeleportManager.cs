@@ -44,6 +44,8 @@ public class MiniMapTeleportManager : MonoBehaviour
 
         foreach (TeleportPoint3D tp in allTeleports)
         {
+            if (!tp.gameObject.activeInHierarchy) continue;
+
             GameObject newMarker = Instantiate(miniMapTeleportPrefab, miniMapContent);
             activeMiniMarkers.Add(newMarker);
 

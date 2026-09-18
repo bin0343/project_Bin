@@ -21,6 +21,10 @@ public class MapLocationMarker : MonoBehaviour
     [Tooltip("미니맵에 표시할지")]
     public bool showOnMiniMap = true;
 
+    [Header("발견 / 공개 상태")]
+    [Tooltip("아직 공개되지 않은 장소면 지도와 미니맵에 표시하지 않음")]
+    public bool isRevealed = true;
+
 
     [Header("텔레포트 설정")]
     [Tooltip("전체 지도에서 이 장소로 텔레포트할 수 있는지")]
@@ -38,5 +42,29 @@ public class MapLocationMarker : MonoBehaviour
         }
 
         return transform;
+    }
+
+    public void SetRevealed(bool revealed)
+    {
+        isRevealed = revealed;
+
+        RefreshMapMarkers();
+    }
+
+    private void RefreshMapMarkers()
+    {
+        LocalMapLocationManager localMapManager = FindObjectOfType<LocalMapLocationManager>(true);
+
+        if (localMapManager != null)
+        {
+            localMapManager.RefreshLocationMarkers();
+        }
+
+        MiniMapLocationManager miniMapManager = FindObjectOfType<MiniMapLocationManager>(true);
+
+        if (miniMapManager != null)
+        {
+            miniMapManager.RefreshLocationMarkers();
+        }
     }
 }

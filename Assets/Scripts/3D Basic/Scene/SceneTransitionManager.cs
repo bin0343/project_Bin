@@ -43,9 +43,7 @@ public class SceneTransitionManager : MonoBehaviour
             return;
         }
 
-        StartCoroutine(
-            LoadSceneRoutine(sceneName, targetSpawnID)
-        );
+        StartCoroutine(LoadSceneRoutine(sceneName, targetSpawnID));
     }
 
     private IEnumerator LoadSceneRoutine(string sceneName, string targetSpawnID)
@@ -69,8 +67,7 @@ public class SceneTransitionManager : MonoBehaviour
 
             if (activeCharacter != null)
             {
-                activePlayerAction =
-                    activeCharacter.GetComponent<Player_Action>();
+                activePlayerAction = activeCharacter.GetComponent<Player_Action>();
 
                 if (activePlayerAction != null)
                 {
@@ -144,9 +141,7 @@ public class SceneTransitionManager : MonoBehaviour
         return null;
     }
 
-    private void RestoreInput(
-        BattleManager battleManager,
-        Player_Action playerAction)
+    private void RestoreInput(BattleManager battleManager, Player_Action playerAction)
     {
         if (playerAction != null)
         {

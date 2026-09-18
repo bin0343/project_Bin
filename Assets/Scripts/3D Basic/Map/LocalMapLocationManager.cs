@@ -48,6 +48,9 @@ public class LocalMapLocationManager : MonoBehaviour
         {
             if (location == null) continue;
 
+            // 아직 발견/공개되지 않은 장소
+            if (!location.isRevealed) continue;
+
             if (!location.showOnLocalMap) continue;
 
             GameObject newMarker = Instantiate(locationMarkerPrefab, mapContent);
@@ -82,7 +85,6 @@ public class LocalMapLocationManager : MonoBehaviour
                 interactScript = newMarker.AddComponent<UIMapInteractiveIcon>();
             }
 
-
             MapPinManager.IconGroupType groupType = location.canTeleport
                     ? MapPinManager.IconGroupType.Teleport
                     : MapPinManager.IconGroupType.General;
@@ -90,9 +92,7 @@ public class LocalMapLocationManager : MonoBehaviour
 
             string description = $"[{location.locationName}]\n{location.description}";
 
-
             interactScript.Setup(description, mapPos, groupType);
-
 
             if (location.canTeleport)
             {
