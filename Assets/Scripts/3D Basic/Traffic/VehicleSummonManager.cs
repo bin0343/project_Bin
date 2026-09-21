@@ -114,6 +114,7 @@ public class VehicleSummonManager : MonoBehaviour
 
                     bestRoad = road;
                     bestLane = laneIndex;
+                    bestT = nearestT;
 
                     foundRoad = true;
                 }
@@ -162,7 +163,7 @@ public class VehicleSummonManager : MonoBehaviour
 
         float laneOffset = CalculateLaneOffset(laneIndex, road);
 
-        float[] searchDistances = {0f, 5f, -5f, 10f, -10f, 15f, -15f};
+        float[] searchDistances = {0f, -5f, 10f, -10f, 15f, -15f};
 
         for (int i = 0; i < searchDistances.Length; i++)
         {

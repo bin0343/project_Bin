@@ -114,25 +114,42 @@ public class CarSensor : MonoBehaviour
             {
                 CarSensor frontCar = hit.collider.GetComponentInParent<CarSensor>();
 
-                if (frontCar != null && frontCar.gameObject != gameObject && hit.distance < safeDistance)
-                {
-                    bool frontCarIsStopping = frontCar.isBraking || frontCar.currentSpeed < 0.5f;
+                // 자기 자신은 무시
+                if (frontCar != null && frontCar.gameObject == gameObject) return;
 
-                    if (frontCarIsStopping)
+                if (hit.distance < safeDistance)
+                {
+                    // AI 차량이면 상대 차량 속도를 참고
+                    if (frontCar != null)
+                    {
+                        bool frontCarIsStopping = frontCar.isBraking || frontCar.currentSpeed < 0.5f;
+
+                        if (frontCarIsStopping)
+                        {
+                            float remainingStopDistance = Mathf.Max(hit.distance - stopOffset, 0f);
+
+                            float brakingSpeed = Mathf.Sqrt(2f * pathFollower.BrakeDeceleration * remainingStopDistance);
+
+                            desiredSpeed = Mathf.Min(desiredSpeed, brakingSpeed);
+                        }
+                        else
+                        {
+                            float distanceRatio = Mathf.InverseLerp(stopOffset, safeDistance, hit.distance);
+
+                            float distanceLimitedSpeed = pathFollower.CruiseSpeed * distanceRatio;
+
+                            desiredSpeed = Mathf.Min(desiredSpeed, frontCar.currentSpeed, distanceLimitedSpeed);
+                        }
+                    }
+                    // CarSensor가 없는 차량
+                    // = 플레이어 차량 / 소환 차량 / 주차 차량
+                    else
                     {
                         float remainingStopDistance = Mathf.Max(hit.distance - stopOffset, 0f);
 
                         float brakingSpeed = Mathf.Sqrt(2f * pathFollower.BrakeDeceleration * remainingStopDistance);
 
                         desiredSpeed = Mathf.Min(desiredSpeed, brakingSpeed);
-                    }
-                    else
-                    {
-                        float distanceRatio = Mathf.InverseLerp(stopOffset, safeDistance, hit.distance);
-
-                        float distanceLimitedSpeed = pathFollower.CruiseSpeed * distanceRatio;
-
-                        desiredSpeed = Mathf.Min(desiredSpeed, frontCar.currentSpeed, distanceLimitedSpeed);
                     }
                 }
             }

@@ -826,9 +826,10 @@ public class Player_Action : MonoBehaviour
             move.ForceMove(Vector3.zero, 0f);
         }
 
-        if (rigidbody != null)
+        if (rigidbody != null && !rigidbody.isKinematic)
         {
             rigidbody.velocity = new Vector3(0f, rigidbody.velocity.y, 0f);
+
             rigidbody.angularVelocity = Vector3.zero;
         }
 
