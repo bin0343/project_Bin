@@ -43,6 +43,21 @@ public class VehicleSummonManager : MonoBehaviour
 
     private void TrySummonVehicle()
     {
+        if (currentSummonedVehicle != null)
+        {
+            VehicleInteractable interactable = currentSummonedVehicle.GetComponentInChildren<VehicleInteractable>(true);
+
+            if (interactable != null && interactable.IsOccupied)
+            {
+                if (UI_Manager.Instance != null)
+                {
+                    UI_Manager.Instance.ShowMessage("차량 탑승 중에는 차량을 다시 소환할 수 없습니다.");
+                }
+                
+                return;
+            }
+        }
+
         Transform player = GetCurrentPlayer();
         float bestT = 0f;
 

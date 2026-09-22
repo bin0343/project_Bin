@@ -21,11 +21,10 @@ public class MiniMapController : MonoBehaviour
         }
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+
         if (playerObj != null)
         {
-            playerPositionTarget = playerObj.transform;
-            Transform realModel = playerObj.transform.Find("Player");
-            playerRotationTarget = (realModel != null) ? realModel : playerObj.transform;
+            SetTarget(playerObj.transform);
         }
     }
 

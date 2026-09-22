@@ -34,6 +34,13 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     private Text interactionPromptText;
 
+    [Header("Â÷·® HUD")]
+    [SerializeField]
+    private GameObject characterBottomHudGroup;
+
+    [SerializeField]
+    private GameObject vehicleHudGroup;
+
     public GameObject InteractionPromptUI
     {
         get { return interactionPromptUI; }
@@ -153,6 +160,16 @@ public class UI_Manager : MonoBehaviour
         {
             screenFadeCanvasGroup.alpha = 0f;
             screenFadeCanvasGroup.gameObject.SetActive(false);
+        }
+
+        if (vehicleHudGroup != null)
+        {
+            vehicleHudGroup.SetActive(false);
+        }
+
+        if (characterBottomHudGroup != null)
+        {
+            characterBottomHudGroup.SetActive(true);
         }
 
         InitializeMessage();
@@ -831,6 +848,17 @@ public class UI_Manager : MonoBehaviour
         }
     }
 
+    public void ShowInteractionPrompt(string message)
+    {
+        if (interactionPromptUI == null || interactionPromptText == null)
+        {
+            return;
+        }
+
+        interactionPromptText.text = message;
+        interactionPromptUI.SetActive(true);
+    }
+
     private void FindLocalPlayerStat()
     {
         Character_Stat[] allStats = FindObjectsOfType<Character_Stat>();
@@ -887,6 +915,19 @@ public class UI_Manager : MonoBehaviour
         }
 
         UpdateCursorState();
+    }
+
+    public void SetVehicleHUD(bool vehicleMode)
+    {
+        if (characterBottomHudGroup != null)
+        {
+            characterBottomHudGroup.SetActive(!vehicleMode);
+        }
+
+        if (vehicleHudGroup != null)
+        {
+            vehicleHudGroup.SetActive(vehicleMode);
+        }
     }
 
     public void ShowMessage(string msg)

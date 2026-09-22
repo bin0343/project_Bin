@@ -286,11 +286,7 @@ public class BattleManager : MonoBehaviour
             UI_Manager.Instance.UpdatePlayerStatus(newStat);
         }
 
-        MiniMapController miniMap = FindObjectOfType<MiniMapController>();
-        if (miniMap != null)
-        {
-            miniMap.SetTarget(activeCharacter.transform);
-        }
+        SetMapTrackingTarget(activeCharacter.transform);
     }
 
     public GameObject GetActiveCharacter()
@@ -525,6 +521,25 @@ public class BattleManager : MonoBehaviour
         MovePartyToSpawnPoint(respawnPoint);
 
         Debug.Log($"[BattleManager] 파티 전멸 → " + $"[{respawnPoint.name}]에서 부활");
+    }
+
+    public void SetMapTrackingTarget(Transform target)
+    {
+        if (target == null) return;
+
+        MiniMapController miniMap = FindObjectOfType<MiniMapController>();
+
+        if (miniMap != null)
+        {
+            miniMap.SetTarget(target);
+        }
+
+        LocalMapController localMap = FindObjectOfType<LocalMapController>(true);
+
+        if (localMap != null)
+        {
+            localMap.SetTarget(target);
+        }
     }
 
     public void RestorePartyAtTeleport()

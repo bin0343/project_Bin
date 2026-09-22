@@ -9,7 +9,18 @@ public class VehicleInteractable : MonoBehaviour
     [SerializeField] private Transform driverSeat;
 
     [Header("하차 위치")]
-    [SerializeField] private Transform exitPoint;
+    [SerializeField] private Transform leftExitPoint;
+    [SerializeField] private Transform rightExitPoint;
+
+    [Header("하차 공간 검사")]
+    [SerializeField] private LayerMask exitObstacleLayer;
+
+    [SerializeField] private float exitCheckRadius = 0.35f;
+    [SerializeField] private float exitCheckHeight = 1.8f;
+
+    [Header("하차 설정")]
+    [Tooltip("이 속도 이하일 때만 하차 가능 (m/s)")]
+    [SerializeField] private float maxExitSpeed = 1f;
 
     [SerializeField] private KeyCode interactKey = KeyCode.F;
 
@@ -30,6 +41,11 @@ public class VehicleInteractable : MonoBehaviour
     private bool savedActionEnabled;
     private bool savedIsKinematic;
     private bool savedBodyActive;
+
+    public bool IsOccupied
+    {
+        get { return currentDriver != null; }
+    }
 
     private PlayerVehicleController vehicleController;
 
@@ -52,12 +68,34 @@ public class VehicleInteractable : MonoBehaviour
         {
             if (Input.GetKeyDown(interactKey))
             {
-                ExitVehicle();
+                // 1. 먼저 속도 검사
+                if (!CanExitVehicle())
+                {
+                    if (UI_Manager.Instance != null)
+                    {
+                        UI_Manager.Instance.ShowMessage("차량이 충분히 느려진 후 하차할 수 있습니다.");
+                    }
+
+                    return;
+                }
+
+                // 2. 하차할 공간 검사
+                if (!TryGetSafeExitPoint(out Transform safeExitPoint))
+                {
+                    if (UI_Manager.Instance != null)
+                    {
+                        UI_Manager.Instance.ShowMessage("하차할 공간이 없습니다.");
+                    }
+
+                    return;
+                }
+
+                // 3. 실제 하차
+                ExitVehicle(safeExitPoint);
             }
 
             return;
         }
-
 
         // 아직 탑승하지 않은 상태
         if (nearbyPlayer != null && Input.GetKeyDown(interactKey))
@@ -96,7 +134,10 @@ public class VehicleInteractable : MonoBehaviour
 
         nearbyPlayer = activePlayer;
 
-        Debug.Log("[Vehicle] F 키를 눌러 탑승할 수 있습니다.");
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.ShowInteractionPrompt($"{interactKey} : 탑승하기");
+        }
     }
 
 
@@ -111,6 +152,11 @@ public class VehicleInteractable : MonoBehaviour
         if (playerAction.gameObject != nearbyPlayer) return;
 
         nearbyPlayer = null;
+
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.HideInteractionPrompt();
+        }
     }
 
 
@@ -127,6 +173,11 @@ public class VehicleInteractable : MonoBehaviour
 
         currentDriver = player;
         nearbyPlayer = null;
+
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.HideInteractionPrompt();
+        }
 
         driverMove = player.GetComponent<Player_Move>();
         driverAction = player.GetComponent<Player_Action>();
@@ -184,11 +235,10 @@ public class VehicleInteractable : MonoBehaviour
         {
             // 캐릭터 스위칭 등 플레이어 조작 잠금
             BattleManager.instance.SetPlayerControlLocked(true);
-
             // 차량에서는 FreeLook 카메라 회전은 계속 가능해야 함
             BattleManager.instance.SetFreeLookInputLocked(false);
-
             BattleManager.instance.ChangeCameraTarget(vehicleRoot);
+            BattleManager.instance.SetMapTrackingTarget(vehicleRoot);
         }
 
         SetVehicleParked(false);
@@ -198,24 +248,28 @@ public class VehicleInteractable : MonoBehaviour
             vehicleController.SetDriving(true);
         }
 
-        Debug.Log("[Vehicle] 차량 탑승 완료");
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.HideInteractionPrompt();
+            UI_Manager.Instance.SetVehicleHUD(true);
+            UI_Manager.Instance.ShowMessage("차량에 탑승했습니다.");
+        }
     }
 
 
-    private void ExitVehicle()
+    private void ExitVehicle(Transform selectedExitPoint)
     {
         if (currentDriver == null) return;
 
-        if (exitPoint == null)
+        if (selectedExitPoint == null)
         {
-            Debug.LogWarning("[Vehicle] Exit Point가 없습니다.");
-
+            Debug.LogWarning("[Vehicle] 선택된 하차 위치가 없습니다.");
             return;
         }
 
-        GameObject player =currentDriver;
+        GameObject player = currentDriver;
 
-        player.transform.SetPositionAndRotation(exitPoint.position, exitPoint.rotation);
+        player.transform.SetPositionAndRotation(selectedExitPoint.position, selectedExitPoint.rotation);
 
         if (vehicleController != null)
         {
@@ -226,11 +280,12 @@ public class VehicleInteractable : MonoBehaviour
 
         if (driverRigidbody != null)
         {
-            driverRigidbody.position = exitPoint.position;
-            driverRigidbody.rotation = exitPoint.rotation;
-            // 먼저 원래 물리 상태로 되돌린다.
+            driverRigidbody.position = selectedExitPoint.position;
+            driverRigidbody.rotation = selectedExitPoint.rotation;
+            // 플레이어 Rigidbody를 원래 물리 상태로 복구
             driverRigidbody.isKinematic = savedIsKinematic;
-            // Dynamic 상태일 때만 Velocity를 건드린다.
+
+            // Dynamic 상태에서만 속도 초기화
             if (!driverRigidbody.isKinematic)
             {
                 driverRigidbody.velocity = Vector3.zero;
@@ -260,20 +315,72 @@ public class VehicleInteractable : MonoBehaviour
         if (BattleManager.instance != null)
         {
             BattleManager.instance.SetPlayerControlLocked(false);
-
             BattleManager.instance.ChangeCameraTarget(player.transform);
+            BattleManager.instance.SetMapTrackingTarget(player.transform);
         }
 
         currentDriver = null;
-
         driverMove = null;
         driverAction = null;
         driverRigidbody = null;
         driverBody = null;
 
-        Debug.Log("[Vehicle] 차량 하차 완료");
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.SetVehicleHUD(false);
+            UI_Manager.Instance.ShowMessage("차량에서 하차했습니다.");
+        }
     }
 
+    private bool IsExitPointClear(Transform exitPoint)
+    {
+        if (exitPoint == null) return false;
+
+        Vector3 bottom = exitPoint.position + Vector3.up * exitCheckRadius;
+
+        Vector3 top = exitPoint.position + Vector3.up * (exitCheckHeight - exitCheckRadius);
+
+        Collider[] hits = Physics.OverlapCapsule(bottom, top, exitCheckRadius, exitObstacleLayer, QueryTriggerInteraction.Ignore);
+
+        foreach (Collider hit in hits)
+        {
+            if (hit == null) continue;
+
+            // 자기 차량 Collider는 무시
+            if (vehicleRoot != null && hit.transform.IsChildOf(vehicleRoot)) continue;
+
+            if (vehicleRoot != null && hit.transform == vehicleRoot) continue;
+
+            // 탑승 중인 플레이어 자신의 Collider도 무시
+            if (currentDriver != null && hit.transform.IsChildOf(currentDriver.transform)) continue;
+
+            // 자기 자신 외에 뭔가 있다.
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool TryGetSafeExitPoint(out Transform safeExitPoint)
+    {
+        safeExitPoint = null;
+
+        // 먼저 운전석 쪽, 왼쪽
+        if (IsExitPointClear(leftExitPoint))
+        {
+            safeExitPoint = leftExitPoint;
+            return true;
+        }
+
+        // 왼쪽이 막혔다면 오른쪽
+        if (IsExitPointClear(rightExitPoint))
+        {
+            safeExitPoint = rightExitPoint;
+            return true;
+        }
+
+        return false;
+    }
 
     private void CacheAndDisableColliders(GameObject player)
     {
@@ -323,5 +430,23 @@ public class VehicleInteractable : MonoBehaviour
         {
             vehicleRigidbody.isKinematic = false;
         }
+    }
+
+    private float GetVehicleHorizontalSpeed()
+    {
+        if (vehicleRigidbody == null) return 0f;
+
+        Vector3 velocity = vehicleRigidbody.velocity;
+
+        velocity.y = 0f;
+
+        return velocity.magnitude;
+    }
+
+    private bool CanExitVehicle()
+    {
+        float currentSpeed = GetVehicleHorizontalSpeed();
+
+        return currentSpeed <= maxExitSpeed;
     }
 }

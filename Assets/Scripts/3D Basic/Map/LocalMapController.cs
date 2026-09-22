@@ -59,19 +59,10 @@ public class LocalMapController : MonoBehaviour
     private void Start()
     {
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+
         if (playerObj != null)
         {
-            playerPositionTarget = playerObj.transform;
-
-            Transform realModel = playerObj.transform.Find("Player"); // 자식 모델의 실제 이름 입력
-            if (realModel != null)
-            {
-                playerRotationTarget = realModel;
-            }
-            else
-            {
-                playerRotationTarget = playerObj.transform;
-            }
+            SetTarget(playerObj.transform);
         }
 
         if (zoomSlider != null)
@@ -129,22 +120,19 @@ public class LocalMapController : MonoBehaviour
 
     private void UpdatePlayerIcon()
     {
-        if (BattleManager.instance == null || playerIconRect == null) return;
+        if (playerIconRect == null) return;
 
-        GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
-        if (activePlayer == null) return;
-
-        playerPositionTarget = activePlayer.transform;
-        Transform realModel = activePlayer.transform.Find("Player"); 
-        playerRotationTarget = (realModel != null) ? realModel : activePlayer.transform;
+        if (playerPositionTarget == null) return;
 
         Vector2 mapPos = GetMapPosition(playerPositionTarget.position);
+
         playerIconRect.anchoredPosition = mapPos;
 
         if (playerRotationTarget != null)
         {
-            float playerRotationY = playerRotationTarget.eulerAngles.y;
-            playerIconRect.localEulerAngles = new Vector3(0f, 0f, -playerRotationY);
+            float rotationY = playerRotationTarget.eulerAngles.y;
+
+            playerIconRect.localEulerAngles = new Vector3(0f, 0f, -rotationY);
         }
     }
 
@@ -185,10 +173,10 @@ public class LocalMapController : MonoBehaviour
 
             if (BattleManager.instance != null)
             {
-                GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
-                if (activePlayer != null)
+                if (playerPositionTarget != null)
                 {
-                    Vector2 playerMapPos = GetMapPosition(activePlayer.transform.position);
+                    Vector2 playerMapPos = GetMapPosition(playerPositionTarget.position);
+
                     mapContent.anchoredPosition = -playerMapPos * initialZoom;
                 }
             }
@@ -319,6 +307,17 @@ public class LocalMapController : MonoBehaviour
         {
             titleText.text = locations[index].locationName;
         }
+    }
+
+    public void SetTarget(Transform newTarget)
+    {
+        if (newTarget == null) return;
+
+        playerPositionTarget = newTarget;
+
+        Transform realModel = newTarget.Find("Player");
+
+        playerRotationTarget = (realModel != null) ? realModel : newTarget;
     }
 
     //맵UI에서 실제 맵으로 역산

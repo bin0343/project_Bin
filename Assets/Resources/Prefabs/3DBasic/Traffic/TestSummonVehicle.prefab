@@ -214,7 +214,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vehicleRoot: {fileID: 4702193780307441637}
   driverSeat: {fileID: 8463832889662721517}
-  exitPoint: {fileID: 8530172118605481561}
+  leftExitPoint: {fileID: 8530172118605481561}
+  rightExitPoint: {fileID: 2363449554982232752}
+  exitObstacleLayer:
+    serializedVersion: 2
+    m_Bits: 98304
+  exitCheckRadius: 0.35
+  exitCheckHeight: 1.8
+  maxExitSpeed: 1
   interactKey: 102
 --- !u!65 &2818164728431814614
 BoxCollider:
@@ -343,6 +350,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.8290093, y: 1, z: 1.0000002}
   m_Center: {x: 0.41450247, y: -4.65242e-11, z: -0.000015323303}
+--- !u!1 &6369340874811466292
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2363449554982232752}
+  m_Layer: 14
+  m_Name: ExitPoint_Right
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2363449554982232752
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6369340874811466292}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.26, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4702193780307441637}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6614199526483912430
 GameObject:
   m_ObjectHideFlags: 0
@@ -376,6 +414,7 @@ Transform:
   m_Children:
   - {fileID: 8463832889662721517}
   - {fileID: 8530172118605481561}
+  - {fileID: 2363449554982232752}
   - {fileID: 6066983106027854}
   - {fileID: 8258193916874753210}
   - {fileID: 8694987819220628731}
@@ -423,10 +462,12 @@ MonoBehaviour:
   acceleration: 15
   maxForwardSpeed: 25
   maxReverseSpeed: 10
-  steerSpeed: 60
+  lowSpeedSteerSpeed: 80
+  highSpeedSteerSpeed: 30
+  minimumSteerSpeed: 0.5
   lateralGrip: 5
   coastDeceleration: 0.1
-  minimumSteerSpeed: 0.5
+  brakeDeceleration: 12
 --- !u!1 &8976746147773510439
 GameObject:
   m_ObjectHideFlags: 0
@@ -437,7 +478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8530172118605481561}
   m_Layer: 14
-  m_Name: ExitPoint
+  m_Name: ExitPoint_Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
