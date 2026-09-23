@@ -18,12 +18,41 @@ public class VehicleSummonManager : MonoBehaviour
     [SerializeField]
     private LayerMask vehicleLayer;
 
+    [Header("소환 쿨타임")]
+    [SerializeField]
+    private float summonCooldown = 5f;
+
+    private float lastSummonTime = -999f;
+
     [SerializeField]
     private Vector3 vehicleCheckHalfExtents = new Vector3(1.1f, 0.75f, 2.5f);
 
     private RoadLaneData[] roads;
 
     private GameObject currentSummonedVehicle;
+
+    public float SummonCooldown
+    {
+        get { return summonCooldown; }
+    }
+
+    public float RemainingCooldown
+    {
+        get
+        {
+            float elapsed = Time.time - lastSummonTime;
+
+            return Mathf.Max(summonCooldown - elapsed, 0f);
+        }
+    }
+
+    public bool IsOnCooldown
+    {
+        get
+        {
+            return RemainingCooldown > 0f;
+        }
+    }
 
 
     private void Start()
@@ -43,6 +72,16 @@ public class VehicleSummonManager : MonoBehaviour
 
     private void TrySummonVehicle()
     {
+        if (IsOnCooldown)
+        {
+            if (UI_Manager.Instance != null)
+            {
+                UI_Manager.Instance.ShowMessage($"차량 소환 대기 중입니다. " + $"{RemainingCooldown:F1}초");
+            }
+
+            return;
+        }
+
         if (currentSummonedVehicle != null)
         {
             VehicleInteractable interactable = currentSummonedVehicle.GetComponentInChildren<VehicleInteractable>(true);
@@ -238,6 +277,8 @@ public class VehicleSummonManager : MonoBehaviour
         }
 
         currentSummonedVehicle = Instantiate(vehiclePrefab, position, rotation);
+
+        lastSummonTime = Time.time;
 
         Debug.Log($"[VehicleSummon] 소환 성공 | " + $"Road = {road.name} | " + $"Lane = {laneIndex} | " + $"Distance = {distance:F2}m");
     }

@@ -35,6 +35,25 @@ public class PlayerVehicleController : MonoBehaviour
 
     private bool isDriving;
 
+    public float CurrentSteerInput
+    {
+        get { return steerInput; }
+    }
+
+    public bool IsDriving
+    {
+        get { return isDriving; }
+    }
+
+    public float ForwardSpeed
+    {
+        get
+        {
+            if (rb == null) return 0f;
+
+            return Vector3.Dot(rb.velocity, transform.forward);
+        }
+    }
 
     private void Awake()
     {
