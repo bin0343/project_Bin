@@ -383,31 +383,11 @@ public class Player_Action : MonoBehaviour
         ChangeState(new PlayerCastingState(skillToUse)); 
     }
 
-    public void HandleItemInput(int slotIndex)
+    public void HandleQuickSlotInput()
     {
-        if (slotIndex < 0 || slotIndex >= Player_Inventory.Instance.quickSlots.Length) return;
+        if (Player_Inventory.instance == null) return;
 
-        ItemHolder itemToUse = Player_Inventory.Instance.quickSlots[slotIndex];
-        if (itemToUse == null) return;
-
-        bool success = itemToUse.Use(gameObject);
-        if (success)
-        {
-            if (itemToUse.ItemData.itemType == ITEMTYPE.Consumable)
-            {
-                itemToUse.Quantity--;
-            }
-
-            if (itemToUse.Quantity <= 0)
-            {
-                Player_Inventory.Instance.quickSlots[slotIndex] = null;
-            }
-
-            if (UI_ItemManager.Instance != null)
-            {
-                UI_ItemManager.Instance.UpdateSlotUI(slotIndex, Player_Inventory.Instance.quickSlots[slotIndex]);
-            }
-        }
+        Player_Inventory.instance.TryUseQuickSlot(gameObject);
     }
     #endregion
 
@@ -440,7 +420,7 @@ public class Player_Action : MonoBehaviour
                 Item_Base itemData = fieldItem.GetItem();
 
                 // 아이템 데이터가 있고, 인벤토리에 추가 성공했다면
-                if (itemData != null && Player_Inventory.Instance.AddItem(itemData))
+                if (itemData != null && Player_Inventory.instance.AddItem(itemData))
                 {
                     Debug.Log($"아이템 획득: {itemData.itemName}");
                     fieldItem.DestroyItem(); // 필드 오브젝트 삭제

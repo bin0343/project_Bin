@@ -126,10 +126,10 @@ public class UI_CharacterTab : MonoBehaviour
         }
         else
         {
-            currentSpawnedModel = Instantiate(characterData.uiPrefab, characterSpawnPoint.position, characterSpawnPoint.rotation);
-            currentSpawnedModel.transform.SetParent(characterSpawnPoint);
+            currentSpawnedModel = Instantiate(characterData.uiPrefab, characterSpawnPoint, false);
 
             currentSpawnedModel.transform.localPosition = Vector3.zero;
+            currentSpawnedModel.transform.localRotation = Quaternion.identity;
             currentSpawnedModel.transform.localScale = Vector3.one;
 
             cachedCharacterModels.Add(characterData.characterID, currentSpawnedModel);

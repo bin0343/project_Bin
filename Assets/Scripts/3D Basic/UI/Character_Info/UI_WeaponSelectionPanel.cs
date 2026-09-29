@@ -28,9 +28,9 @@ public class UI_WeaponSelectionPanel : MonoBehaviour
             if (activePlayer != null) activeEquip = activePlayer.GetComponent<Player_Equipment>();
         }
 
-        if (Player_Inventory.Instance == null || activeEquip == null) return;
+        if (Player_Inventory.instance == null || activeEquip == null) return;
 
-        List<ItemHolder> inv = Player_Inventory.Instance.inventorySlots;
+        List<ItemHolder> inv = Player_Inventory.instance.inventorySlots;
         WeaponCategory currentUsableCategory = activeEquip.usableWeaponCategory;
 
         for (int i = 0; i < inv.Count; i++)

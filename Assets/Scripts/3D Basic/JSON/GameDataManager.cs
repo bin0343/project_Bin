@@ -104,9 +104,9 @@ public class GameDataManager : MonoBehaviour
 
         // 2. 인벤토리 저장
         saveData.inventoryList.Clear();
-        if (Player_Inventory.Instance != null)
+        if (Player_Inventory.instance != null)
         {
-            List<ItemHolder> slots = Player_Inventory.Instance.inventorySlots;
+            List<ItemHolder> slots = Player_Inventory.instance.inventorySlots;
             for (int i = 0; i < slots.Count; i++)
             {
                 if (slots[i] != null && slots[i].ItemData != null)
@@ -153,14 +153,14 @@ public class GameDataManager : MonoBehaviour
         }
 
         // 2. 인벤토리 복구
-        if (Player_Inventory.Instance != null)
+        if (Player_Inventory.instance != null)
         {
             // 기존 인벤토리 싹 비우기 (중복 방지)
-            Player_Inventory.Instance.inventorySlots.Clear();
+            Player_Inventory.instance.inventorySlots.Clear();
 
-            Player_Inventory.Instance.inventorySlots.Clear();
+            Player_Inventory.instance.inventorySlots.Clear();
             // 기본 슬롯 30개 생성 (빈 칸)
-            for (int i = 0; i < 30; i++) Player_Inventory.Instance.inventorySlots.Add(null);
+            for (int i = 0; i < 30; i++) Player_Inventory.instance.inventorySlots.Add(null);
 
             foreach (var savedItem in saveData.inventoryList)
             {
@@ -168,16 +168,16 @@ public class GameDataManager : MonoBehaviour
                 if (itemOriginal != null)
                 {
                     // 해당 위치에 아이템 복구
-                    if (savedItem.slotIndex < Player_Inventory.Instance.inventorySlots.Count)
+                    if (savedItem.slotIndex < Player_Inventory.instance.inventorySlots.Count)
                     {
-                        Player_Inventory.Instance.inventorySlots[savedItem.slotIndex]
+                        Player_Inventory.instance.inventorySlots[savedItem.slotIndex]
                             = new ItemHolder(itemOriginal, savedItem.quantity);
                     }
                 }
             }
 
             // 인벤토리 UI 갱신
-            Player_Inventory.Instance.RefreshAllUI();
+            Player_Inventory.instance.RefreshAllUI();
         }
 
         //NPC로드

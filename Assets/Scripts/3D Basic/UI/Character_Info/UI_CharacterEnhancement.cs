@@ -103,9 +103,9 @@ public class UI_CharacterEnhancement : MonoBehaviour
 
     private void RefreshMaterialInventory()
     {
-        if (Player_Inventory.Instance == null) return;
+        if (Player_Inventory.instance == null) return;
 
-        var expBooks = Player_Inventory.Instance.inventorySlots
+        var expBooks = Player_Inventory.instance.inventorySlots
             .Where(slot => slot != null && slot.ItemData != null && slot.ItemData.expValue > 0)
             .OrderBy(slot => slot.ItemData.rarity) 
             .ToList();
@@ -189,7 +189,7 @@ public class UI_CharacterEnhancement : MonoBehaviour
 
         int nextCap =Character_Manager.Instance.GetNextLevelCap(targetStatus);
 
-        previewLevelText.text = $"Lv. {targetStatus.level} / {currentCap}  →  " + $"<color=green>상한 Lv. {nextCap}</color>";
+        previewLevelText.text = $"Lv. {targetStatus.level} / {currentCap}  →  " + $"<color=green> Lv. {nextCap}</color>";
 
         previewExpText.text = $"돌파 단계 {targetStatus.ascensionStage}  →  " + $"<color=green>{targetStatus.ascensionStage + 1}</color>";
 
@@ -253,11 +253,11 @@ public class UI_CharacterEnhancement : MonoBehaviour
 
     private int GetOwnedItemCount(Item_Base targetItem)
     {
-        if (targetItem == null || Player_Inventory.Instance == null) return 0;
+        if (targetItem == null || Player_Inventory.instance == null) return 0;
 
         int totalCount = 0;
 
-        foreach (ItemHolder holder in Player_Inventory.Instance.inventorySlots)
+        foreach (ItemHolder holder in Player_Inventory.instance.inventorySlots)
         {
             if (holder == null || holder.ItemData == null) continue;
 
@@ -312,7 +312,7 @@ public class UI_CharacterEnhancement : MonoBehaviour
         // 검사를 모두 통과한 뒤에만 재료 소비
         foreach (AscensionMaterialRequirement materialRequirement in requirement.materials)
         {
-            Player_Inventory.Instance.RemoveItem(materialRequirement.material, materialRequirement.requiredCount);
+            Player_Inventory.instance.RemoveItem(materialRequirement.material, materialRequirement.requiredCount);
         }
 
         bool ascended = Character_Manager.Instance.AscendCharacter(targetData.characterID, targetData);
@@ -330,8 +330,8 @@ public class UI_CharacterEnhancement : MonoBehaviour
             targetStat.RefreshStatsFromManager();
         }
 
-        Player_Inventory.Instance.CleanUpInventory();
-        Player_Inventory.Instance.RefreshAllUI();
+        Player_Inventory.instance.CleanUpInventory();
+        Player_Inventory.instance.RefreshAllUI();
 
         UI_Manager.Instance.ShowMessage($"{targetData.characterName} 돌파 완료! " + $"레벨 상한이 " + $"{Character_Manager.Instance.GetCurrentLevelCap(targetStatus)}" + $"까지 열렸습니다.");
 
@@ -567,7 +567,7 @@ public class UI_CharacterEnhancement : MonoBehaviour
             totalMaterialExp += materialExp;
             remainingRequiredExp -= materialExp;
 
-            Player_Inventory.Instance.RemoveItem(holder.ItemData, consumeCount);
+            Player_Inventory.instance.RemoveItem(holder.ItemData, consumeCount);
 
             if (remainingRequiredExp <= 0) break;
         }
@@ -578,8 +578,8 @@ public class UI_CharacterEnhancement : MonoBehaviour
 
         if (targetStat != null) targetStat.RefreshStatsFromManager();
 
-        Player_Inventory.Instance.CleanUpInventory();
-        Player_Inventory.Instance.RefreshAllUI();
+        Player_Inventory.instance.CleanUpInventory();
+        Player_Inventory.instance.RefreshAllUI();
 
         if (targetStat != null)
         {

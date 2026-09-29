@@ -177,14 +177,14 @@ public class VehicleSummonManager : MonoBehaviour
 
         if (!foundRoad || bestDistance > maxSummonDistance)
         {
-            Debug.Log("[VehicleSummon] 근처에 소환 가능한 도로가 없습니다.");
+            UI_Manager.Instance.ShowMessage($"차량은 도로 위에서 소환이 가능합니다.");
 
             return;
         }
 
         if (!TryFindClearSpawnPosition(bestRoad, bestT, bestLane, out Vector3 safePosition, out Vector3 safeDirection))
         {
-            Debug.Log("[VehicleSummon] 주변 차선에 차량을 소환할 빈 공간이 없습니다.");
+            UI_Manager.Instance.ShowMessage($"주변 차선에 차량을 소환할 빈 공간이 없습니다.");
 
             return;
         }

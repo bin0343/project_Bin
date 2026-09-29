@@ -1,75 +1,79 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UI_ItemManager : MonoBehaviour
 {
-    public static UI_ItemManager Instance { get; private set; }
-    public UI_ItemSlot[] itemSlots;
+    public static UI_ItemManager instance { get; private set; }
 
-    public string[] hotkeys = { "1", "2", "3", "4" };
+    [Header("소비 아이템 퀵슬롯")]
+    [SerializeField] private Image itemIcon;
+    [SerializeField] private TMP_Text quantityText;
+    [SerializeField] private TMP_Text hotkeyText;
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
-        else
+        if (instance != null && instance != this)
+        {
             Destroy(gameObject);
-
-        for (int i = 0; i < itemSlots.Length; i++)
-        {
-            itemSlots[i].Initialize(SlotType.QUICKSLOT, i);
+            return;
         }
 
-        SetHotkeys();
+        instance = this;
     }
 
-    private void SetHotkeys()
+    private void Start()
     {
-        for (int i = 0; i < itemSlots.Length; i++)
+        if (hotkeyText != null)
         {
-            // 자식 오브젝트 중에서 "HotkeyText"를 찾아 Text 컴포넌트를 가져옵니다.
-            Transform hotkeyTransform = itemSlots[i].transform.Find("HotkeyText");
-            if (hotkeyTransform != null)
-            {
-                Text hotkeyText = hotkeyTransform.GetComponent<Text>();
-                if (hotkeyText != null && i < hotkeys.Length)
-                {
-                    hotkeyText.text = hotkeys[i];
-                }
-            }
+            hotkeyText.text = "R";
+        }
+
+        RefreshQuickSlot();
+    }
+
+    public void RefreshQuickSlot()
+    {
+        if (Player_Inventory.instance == null)
+        {
+            ClearQuickSlot();
+            return;
+        }
+
+        Item_Base item = Player_Inventory.instance.quickSlotItem;
+        int quantity = Player_Inventory.instance.GetQuickSlotQuantity();
+
+        if (item == null || quantity <= 0)
+        {
+            ClearQuickSlot();
+            return;
+        }
+
+        if (itemIcon != null)
+        {
+            itemIcon.sprite = item.itemIcon;
+            itemIcon.gameObject.SetActive(true);
+        }
+
+        if (quantityText != null)
+        {
+            quantityText.text = quantity.ToString();
+            quantityText.gameObject.SetActive(true);
         }
     }
 
-    // ADDED: Player_Action에서 호출하여 스킬 슬롯 전체를 초기화하는 메서드
-    public void SetupItemSlots(ItemHolder[] playerItems)
+    private void ClearQuickSlot()
     {
-        for (int i = 0; i < itemSlots.Length; i++)
+        if (itemIcon != null)
         {
-            if (i < playerItems.Length && playerItems[i] != null)
-            {
-                itemSlots[i].Setup(playerItems[i]);
-            }
-            else
-            {
-                itemSlots[i].Clear();
-            }
+            itemIcon.sprite = null;
+            itemIcon.gameObject.SetActive(false);
         }
-    }
 
-    // 아이템 사용 후 특정 슬롯만 업데이트하는 메서드 (나중에 최적화를 위해 사용)
-    public void UpdateSlotUI(int slotIndex, ItemHolder itemHolder)
-    {
-        if (slotIndex < 0 || slotIndex >= itemSlots.Length) return;
-
-        if (itemHolder != null)
+        if (quantityText != null)
         {
-            itemSlots[slotIndex].Setup(itemHolder);
-        }
-        else
-        {
-            itemSlots[slotIndex].Clear();
+            quantityText.text = "";
+            quantityText.gameObject.SetActive(false);
         }
     }
 }

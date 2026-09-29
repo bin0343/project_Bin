@@ -33,8 +33,24 @@ public class UI_WeaponTab : MonoBehaviour
             targetCharacterData = characterData;
         }
 
-        CharacterStatus cStatus = Character_Manager.Instance.GetCharacterStatus(targetCharacterData.characterID);
-        Player_Equipment activeEquip = GetEquipmentOfCharacter(targetCharacterData);
+        if (targetCharacterData == null)
+        {
+            Debug.LogWarning("UI_WeaponTab: 표시할 캐릭터 데이터가 없습니다.");
+            return;
+        }
+
+        if (Character_Manager.Instance == null)
+        {
+            Debug.LogError("UI_WeaponTab: Character_Manager.Instance가 없습니다.");
+            return;
+        }
+
+        CharacterStatus cStatus =
+            Character_Manager.Instance.GetCharacterStatus(targetCharacterData.characterID);
+
+        Player_Equipment activeEquip =
+            GetEquipmentOfCharacter(targetCharacterData);
+
 
         ItemHolder targetHolder = null;
 
@@ -164,26 +180,26 @@ public class UI_WeaponTab : MonoBehaviour
             }
             else
             {
-                if (cStatus != null && Player_Inventory.Instance != null)
+                if (cStatus != null && Player_Inventory.instance != null)
                 {
-                    if (previewInventoryIndex >= 0 && previewInventoryIndex < Player_Inventory.Instance.inventorySlots.Count)
+                    if (previewInventoryIndex >= 0 && previewInventoryIndex < Player_Inventory.instance.inventorySlots.Count)
                     {
                         ItemHolder oldWeapon = cStatus.equippedWeapon;
-                        ItemHolder newWeapon = Player_Inventory.Instance.inventorySlots[previewInventoryIndex];
+                        ItemHolder newWeapon = Player_Inventory.instance.inventorySlots[previewInventoryIndex];
 
                         cStatus.equippedWeapon = newWeapon;
 
                         if (oldWeapon != null && oldWeapon.ItemData != null)
                         {
-                            Player_Inventory.Instance.inventorySlots[previewInventoryIndex] = oldWeapon;
+                            Player_Inventory.instance.inventorySlots[previewInventoryIndex] = oldWeapon;
                         }
                         else
                         {
-                            Player_Inventory.Instance.inventorySlots.RemoveAt(previewInventoryIndex);
+                            Player_Inventory.instance.inventorySlots.RemoveAt(previewInventoryIndex);
                         }
 
-                        Player_Inventory.Instance.CleanUpInventory();
-                        Player_Inventory.Instance.RefreshAllUI();
+                        Player_Inventory.instance.CleanUpInventory();
+                        Player_Inventory.instance.RefreshAllUI();
                     }
                 }
             }

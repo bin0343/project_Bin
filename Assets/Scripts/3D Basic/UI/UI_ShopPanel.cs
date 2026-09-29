@@ -99,9 +99,9 @@ public class UI_ShopPanel : MonoBehaviour
         else
         {
             // [판매 탭] 내 인벤토리 아이템 표시
-            if (Player_Inventory.Instance != null)
+            if (Player_Inventory.instance != null)
             {
-                foreach (var holder in Player_Inventory.Instance.inventorySlots)
+                foreach (var holder in Player_Inventory.instance.inventorySlots)
                 {
                     if (holder != null && holder.ItemData != null)
                     {
@@ -166,7 +166,7 @@ public class UI_ShopPanel : MonoBehaviour
             // 판매할 때는 가진 개수가 최대치
             // (간단히 인벤토리를 뒤져서 총 개수 확인)
             // 여기서는 복잡하니 일단 99로 두고, 실제 판매 시 검사
-            if (Player_Inventory.Instance != null)
+            if (Player_Inventory.instance != null)
             {
                 // 현재 인벤토리에서 이 아이템의 총 개수를 찾아야 정확함 (생략 가능)
             }
@@ -225,7 +225,7 @@ public class UI_ShopPanel : MonoBehaviour
 
         if (playerStat.gold >= totalCost)
         {
-            if (Player_Inventory.Instance.AddItem(selectedItem, currentQuantity))
+            if (Player_Inventory.instance.AddItem(selectedItem, currentQuantity))
             {
                 playerStat.gold -= totalCost;
                 Debug.Log($"구매 성공: {selectedItem.itemName} x{currentQuantity}");
@@ -251,7 +251,7 @@ public class UI_ShopPanel : MonoBehaviour
     void SellItem()
     {
         // 판매 로직: 인벤토리에서 아이템 제거 -> 골드 추가
-        if (Player_Inventory.Instance.RemoveItem(selectedItem, currentQuantity))
+        if (Player_Inventory.instance.RemoveItem(selectedItem, currentQuantity))
         {
             int totalGain = selectedItemPrice * currentQuantity;
             Account_Manager.Instance.gold += totalGain;

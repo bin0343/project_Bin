@@ -40,7 +40,7 @@ public class BossRewardInteractable : Interactable
             return;
         }
 
-        if (Player_Inventory.Instance == null)
+        if (Player_Inventory.instance == null)
         {
             Debug.LogError("[BossReward] Player_Inventory가 없습니다.");
 
@@ -67,7 +67,7 @@ public class BossRewardInteractable : Interactable
         {
             if (item == null) continue;
 
-            Player_Inventory.Instance.AddItem(item, 1);
+            Player_Inventory.instance.AddItem(item, 1);
         }
 
         if (BossArenaManager.Instance != null)

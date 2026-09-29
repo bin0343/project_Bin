@@ -70,9 +70,9 @@ public class ItemDrop : MonoBehaviour
 
         foreach (var item in lootList)
         {
-            if (Player_Inventory.Instance != null)
+            if (Player_Inventory.instance != null)
             {
-                Player_Inventory.Instance.AddItem(item, 1);
+                Player_Inventory.instance.AddItem(item, 1);
             }
         }
 

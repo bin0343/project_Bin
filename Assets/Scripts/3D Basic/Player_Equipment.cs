@@ -192,11 +192,7 @@ public class Player_Equipment : MonoBehaviour
 
         if (sourceType == SlotType.INVENTORY)
         {
-            Player_Inventory.Instance.inventorySlots[sourceIndex] = previouslyEquipped;
-        }
-        else if (sourceType == SlotType.QUICKSLOT)
-        {
-            Player_Inventory.Instance.quickSlots[sourceIndex] = previouslyEquipped;
+            Player_Inventory.instance.inventorySlots[sourceIndex] = previouslyEquipped;
         }
 
         if (equipmentData.weaponPrefab != null)

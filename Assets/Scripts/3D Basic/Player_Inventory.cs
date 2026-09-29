@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public enum SlotType { INVENTORY, QUICKSLOT, EQUIPMENT }
+public enum SlotType { INVENTORY, EQUIPMENT }
 public enum ItemSortMethod { NAME, TYPE, QUANTITY }
 
 [System.Serializable]
@@ -14,18 +14,20 @@ public class StartingItem
 
 public class Player_Inventory : MonoBehaviour
 {
-    public static Player_Inventory Instance;
+    public static Player_Inventory instance;
 
     public List<ItemHolder> inventorySlots = new List<ItemHolder>();
-    public ItemHolder[] quickSlots = new ItemHolder[4];
+
+    [Header("소비 아이템 퀵슬롯")]
+    public Item_Base quickSlotItem;
 
     [Header("최초 시작 시 지급할 기본 아이템 목록")]
     public List<StartingItem> startingItems = new List<StartingItem>();
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) return;
-        Instance = this;
+        if (instance != null && instance != this) return;
+        instance = this;
     }
 
     private void Start()
@@ -40,9 +42,9 @@ public class Player_Inventory : MonoBehaviour
                 }
             }
         }
-        if (UI_ItemManager.Instance != null)
+        if (UI_ItemManager.instance != null)
         {
-            UI_ItemManager.Instance.SetupItemSlots(quickSlots);
+            UI_ItemManager.instance.RefreshQuickSlot();
         }
     }
 
@@ -130,9 +132,73 @@ public class Player_Inventory : MonoBehaviour
     }
     #endregion
 
+    #region QuickSlot
+
+    public void RegisterQuickSlot(ItemHolder itemHolder)
+    {
+        if (itemHolder == null || itemHolder.ItemData == null)
+            return;
+
+        if (itemHolder.ItemData.itemType != ITEMTYPE.Consumable)
+            return;
+
+        quickSlotItem = itemHolder.ItemData;
+
+        RefreshAllUI();
+
+        Debug.Log($"{quickSlotItem.itemName}을 퀵슬롯에 등록했습니다.");
+    }
+
+    public int GetQuickSlotQuantity()
+    {
+        if (quickSlotItem == null) return 0;
+
+        return inventorySlots.Where(slot => slot != null && slot.ItemData == quickSlotItem && slot.Quantity > 0).Sum(slot => slot.Quantity);
+    }
+
+    public bool TryUseQuickSlot(GameObject user)
+    {
+        if (quickSlotItem == null) return false;
+
+        ItemHolder holder = inventorySlots.FirstOrDefault(slot => slot != null && slot.ItemData == quickSlotItem && slot.Quantity > 0);
+
+        // 등록되어 있는데 실제 아이템은 하나도 없는 경우
+        if (holder == null)
+        {
+            quickSlotItem = null;
+            RefreshAllUI();
+            return false;
+        }
+
+        bool success = quickSlotItem.Use(user);
+
+        if (!success) return false;
+
+        holder.Quantity--;
+
+        CleanUpInventory();
+
+        // 마지막 1개까지 사용했다면 퀵슬롯 등록도 해제
+        if (GetQuickSlotQuantity() <= 0)
+        {
+            quickSlotItem = null;
+        }
+
+        RefreshAllUI();
+
+        return true;
+    }
+
+    #endregion
+
     public void CleanUpInventory()
     {
         inventorySlots.RemoveAll(slot => slot == null || slot.ItemData == null || slot.Quantity <= 0);
+
+        if (quickSlotItem != null && GetQuickSlotQuantity() <= 0)
+        {
+            quickSlotItem = null;
+        }
     }
 
     #region New Helper Methods
@@ -143,11 +209,8 @@ public class Player_Inventory : MonoBehaviour
             if (index < 0 || index >= inventorySlots.Count) return null;
             return inventorySlots[index];
         }
-        else // QUICKSLOT
-        {
-            if (index < 0 || index >= quickSlots.Length) return null;
-            return quickSlots[index];
-        }
+
+        return null;
     }
 
     private void SetItemHolderAt(SlotType type, int index, ItemHolder itemHolder)
@@ -156,11 +219,6 @@ public class Player_Inventory : MonoBehaviour
         {
             if (index < 0 || index >= inventorySlots.Count) return;
             inventorySlots[index] = itemHolder;
-        }
-        else // QUICKSLOT
-        {
-            if (index < 0 || index >= quickSlots.Length) return;
-            quickSlots[index] = itemHolder;
         }
     }
     #endregion
@@ -224,9 +282,9 @@ public class Player_Inventory : MonoBehaviour
         }
 
         // 퀵슬롯 UI도 마찬가지로 체크
-        if (UI_ItemManager.Instance != null)
+        if (UI_ItemManager.instance != null)
         {
-            UI_ItemManager.Instance.SetupItemSlots(quickSlots);
+            UI_ItemManager.instance.RefreshQuickSlot();
         }
     }
 

@@ -28,6 +28,11 @@ public class UI_Inventory : MonoBehaviour
     public Text itemTypeText;
     public Text itemDescription;
 
+    [Header("퀵슬롯 등록")]
+    public Button quickSlotRegisterButton;
+
+    private ItemHolder selectedItemHolder;
+
     [Header("설정")]
     public bool enableDrag = true;  //drag허용, 비허용
     public bool showDetailOnHover = false;  //마우스 올리면 표시
@@ -44,12 +49,17 @@ public class UI_Inventory : MonoBehaviour
 
     void Start()
     {
-        playerInventory = Player_Inventory.Instance;
+        playerInventory = Player_Inventory.instance;
 
         allTabButton.onClick.AddListener(() => ChangeTab(InventoryTabType.ALL));
         equipmentTabButton.onClick.AddListener(() => ChangeTab(InventoryTabType.EQUIPMENT));
         consumableTabButton.onClick.AddListener(() => ChangeTab(InventoryTabType.CONSUMABLE));
         etcTabButton.onClick.AddListener(() => ChangeTab(InventoryTabType.ETC));
+
+        if (quickSlotRegisterButton != null)
+        {
+            quickSlotRegisterButton.onClick.AddListener(OnClickRegisterQuickSlot);
+        }
 
         if (sortDropdown != null)
         {
@@ -155,13 +165,17 @@ public class UI_Inventory : MonoBehaviour
     {
         if (itemHolder == null || itemHolder.ItemData == null)
         {
-            //아이템 없는 슬롯 누르면 상세창 끄기
+            selectedItemHolder = null;
+
             if (detailPanel != null) detailPanel.SetActive(false);
+
             return;
         }
-        //상세창 켜기
+
+        selectedItemHolder = itemHolder;
+
         if (detailPanel != null) detailPanel.SetActive(true);
-        
+
         if (detailPanel != null)
         {
             if (itemIcon != null) { itemIcon.sprite = itemHolder.ItemData.itemIcon; itemIcon.gameObject.SetActive(true); }
@@ -219,11 +233,29 @@ public class UI_Inventory : MonoBehaviour
             if (itemDescription != null) itemDescription.text = itemHolder.ItemData.itemDescription;
         }
 
+        if (quickSlotRegisterButton != null)
+        {
+            bool isConsumable = itemHolder.ItemData.itemType == ITEMTYPE.Consumable;
+
+            quickSlotRegisterButton.gameObject.SetActive(isConsumable);
+        }
+
         if (showDetailOnHover && detailPanel != null)
         {
             // 마우스 위치에서 오른쪽(+15), 아래(-15)로 살짝 띄우기
             Vector3 offset = new Vector3(15, -15, 0);
             detailPanel.transform.position = Input.mousePosition + offset;
         }
+    }
+
+    public void OnClickRegisterQuickSlot()
+    {
+        if (selectedItemHolder == null || selectedItemHolder.ItemData == null) return;
+
+        if (selectedItemHolder.ItemData.itemType != ITEMTYPE.Consumable) return;
+
+        if (Player_Inventory.instance == null) return;
+
+        Player_Inventory.instance.RegisterQuickSlot(selectedItemHolder);
     }
 }

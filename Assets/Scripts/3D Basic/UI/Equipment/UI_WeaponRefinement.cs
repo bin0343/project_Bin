@@ -71,7 +71,7 @@ public class UI_WeaponRefinement : MonoBehaviour
     {
         foreach (Transform child in materialGridParent) Destroy(child.gameObject);
 
-        var dupes = Player_Inventory.Instance.inventorySlots
+        var dupes = Player_Inventory.instance.inventorySlots
             .Where(slot => slot != null
                         && slot.ItemData == targetWeaponHolder.ItemData
                         && slot != targetWeaponHolder)
@@ -162,7 +162,7 @@ public class UI_WeaponRefinement : MonoBehaviour
 
         foreach (var mat in selectedMaterials)
         {
-            Player_Inventory.Instance.inventorySlots.Remove(mat);
+            Player_Inventory.instance.inventorySlots.Remove(mat);
         }
 
         targetWeaponHolder.refinementStage += selectedMaterials.Count;
@@ -186,8 +186,8 @@ public class UI_WeaponRefinement : MonoBehaviour
         }
 
         selectedMaterials.Clear();
-        Player_Inventory.Instance.CleanUpInventory();
-        Player_Inventory.Instance.RefreshAllUI();
+        Player_Inventory.instance.CleanUpInventory();
+        Player_Inventory.instance.RefreshAllUI();
 
         RefreshAllUI();
 

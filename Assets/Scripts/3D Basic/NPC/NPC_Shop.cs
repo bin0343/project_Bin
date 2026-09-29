@@ -189,7 +189,7 @@ public class NPC_Shop : Interactable
         }
         createdSellSlots.Clear();
 
-        foreach (ItemHolder playerItemHolder in Player_Inventory.Instance.inventorySlots)
+        foreach (ItemHolder playerItemHolder in Player_Inventory.instance.inventorySlots)
         {
             if (playerItemHolder == null || playerItemHolder.ItemData == null) continue;
 
@@ -274,7 +274,7 @@ public class NPC_Shop : Interactable
         }
 
         // 1. 인벤토리에서 아이템 제거 시도
-        bool success = Player_Inventory.Instance.RemoveItem(itemToSell.ItemData, quantityToSell);
+        bool success = Player_Inventory.instance.RemoveItem(itemToSell.ItemData, quantityToSell);
 
         if (success)
         {
@@ -392,7 +392,7 @@ public class NPC_Shop : Interactable
         }
 
         // 1. 인벤토리에 아이템 추가 시도
-        bool success = Player_Inventory.Instance.AddItem(item.itemData, quantity);
+        bool success = Player_Inventory.instance.AddItem(item.itemData, quantity);
 
         // 2. 인벤토리 추가에 성공했을 때만 골드 차감
         if (success)
