@@ -173,4 +173,15 @@ public class UI_CharacterTab : MonoBehaviour
         mainInfoSubPanel.SetActive(true);
         UpdateMainInfo();
     }
+
+    public bool TryBackFromSubPanel()
+    {
+        if (enhancementSubPanel != null && enhancementSubPanel.activeInHierarchy)
+        {
+            OnClickBackToInfo();
+            return true;
+        }
+
+        return false;
+    }
 }

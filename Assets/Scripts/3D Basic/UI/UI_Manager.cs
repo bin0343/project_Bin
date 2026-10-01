@@ -539,6 +539,13 @@ public class UI_Manager : MonoBehaviour
         yield return new WaitForSecondsRealtime(blackHoldDuration);
 
         preOpenAction?.Invoke();
+
+        if (panel == questPanel && blurPanel != null)
+        {
+            blurPanel.SetActive(true);
+            blurPanel.transform.SetAsLastSibling();
+        }
+
         panel.SetActive(true);
         panel.transform.SetAsLastSibling();
 
@@ -572,6 +579,12 @@ public class UI_Manager : MonoBehaviour
 
         panel.transform.DOKill();
         panel.SetActive(false);
+
+        if (panel == questPanel && blurPanel != null)
+        {
+            blurPanel.SetActive(false);
+        }
+
         postCloseAction?.Invoke();
 
         if (isTopUI)
@@ -642,6 +655,18 @@ public class UI_Manager : MonoBehaviour
         if (UIStack.Count > 0)
         {
             GameObject topUI = UIStack.Peek();
+
+            // CharacterInfoPanel 내부의 서브 화면부터 닫기
+            if (topUI == statusPanel)
+            {
+                UI_CharacterTab characterTab = statusPanel.GetComponentInChildren<UI_CharacterTab>(true);
+
+                if (characterTab != null && characterTab.TryBackFromSubPanel())
+                {
+                    return;
+                }
+            }
+
             if (topUI == optionPanel)
             {
                 CloseOptionPanel();
@@ -653,9 +678,11 @@ public class UI_Manager : MonoBehaviour
             else
             {
                 System.Action postAction = null;
+
                 if (topUI == partyFormationPanel)
                 {
                     UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>();
+
                     if (formationScript != null)
                     {
                         postAction = () => formationScript.SaveAndClose();

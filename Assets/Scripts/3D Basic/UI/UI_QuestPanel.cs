@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using TMPro;
 
 public enum QuestTab { InProgress, Completed }
 
@@ -9,6 +10,9 @@ public class UI_QuestPanel : MonoBehaviour
     [Header("--- 왼쪽: 리스트 영역 ---")]
     public Transform contentParent; // ScrollView의 Content
     public GameObject questSlotPrefab; // UI_QuestSlot 프리팹
+
+    [Header("--- 퀘스트 없음 안내 ---")]
+    public TMP_Text emptyQuestText;
 
     [Header("--- 탭 설정 ---")]
     public Toggle toggleInProgress;
@@ -149,6 +153,18 @@ public class UI_QuestPanel : MonoBehaviour
 
                 slot.Setup(qID, displayTitle, OnSlotClicked);
                 createdSlots.Add(slot);
+            }
+        }
+
+        if (emptyQuestText != null)
+        {
+            bool isEmpty = createdSlots.Count == 0;
+
+            emptyQuestText.gameObject.SetActive(isEmpty);
+
+            if (isEmpty)
+            {
+                emptyQuestText.text = currentTab == QuestTab.InProgress ? "현재 진행중인 퀘스트가 없습니다" : "완료한 퀘스트가 없습니다";
             }
         }
     }

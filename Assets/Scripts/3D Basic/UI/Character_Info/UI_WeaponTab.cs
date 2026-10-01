@@ -26,6 +26,33 @@ public class UI_WeaponTab : MonoBehaviour
 
     private Character_Data targetCharacterData;
 
+    private void OnDisable()
+    {
+        ResetSelectionState();
+    }
+
+    private void ResetSelectionState()
+    {
+        isPreviewMode = false;
+        previewItemHolder = null;
+        previewInventoryIndex = -1;
+
+        if (weaponSelectionPanel != null)
+        {
+            weaponSelectionPanel.SetActive(false);
+        }
+
+        if (changeButton != null)
+        {
+            changeButton.SetActive(true);
+        }
+
+        if (confirmEquipButton != null)
+        {
+            confirmEquipButton.SetActive(false);
+        }
+    }
+
     public void RefreshTab(Character_Data characterData = null)
     {
         if (characterData != null)
@@ -210,14 +237,9 @@ public class UI_WeaponTab : MonoBehaviour
 
     public void CloseSelectionPanel()
     {
-        isPreviewMode = false;
-        previewItemHolder = null;
+        ResetSelectionState();
 
-        if (weaponSelectionPanel != null)
-        {
-            weaponSelectionPanel.SetActive(false);
-        }
-        RefreshTab(); // 장착 중인 원래 무기로 되돌려서 다시 그리기
+        RefreshTab();
     }
 
     private Player_Equipment GetActiveEquipment()

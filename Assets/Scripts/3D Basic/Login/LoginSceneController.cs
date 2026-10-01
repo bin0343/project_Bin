@@ -33,20 +33,19 @@ public class LoginSceneController : MonoBehaviour
     [Header("씬 이동")]
     [SerializeField] private string citySceneName = "City";
 
+    [Header("연동")]
+    [SerializeField] private Button linkAccountButton;
+
     private Coroutine blinkCoroutine;
     private bool isLoadingScene;
 
     private void Awake()
     {
+        googleLoginButton?.onClick.AddListener(OnClickGoogleLogin);
         guestLoginButton?.onClick.AddListener(OnClickGuestLogin);
         startClickButton?.onClick.AddListener(OnClickStartGame);
         logoutButton?.onClick.AddListener(OnClickLogout);
-
-        // Google 로그인은 다음 단계에서 구현
-        if (googleLoginButton != null)
-        {
-            googleLoginButton.interactable = false;
-        }
+        linkAccountButton?.onClick.AddListener(OnClickLinkAccount);
     }
 
     private async void Start()
@@ -78,6 +77,24 @@ public class LoginSceneController : MonoBehaviour
 
     #region 버튼 입력
 
+    private async void OnClickGoogleLogin()
+    {
+        SetLoginButtonsInteractable(false);
+
+        ShowLoading("계정 로그인 창을 여는 중...");
+
+        bool success = await authenticationManager.SignInWithPlayerAccountAsync();
+
+        if (success)
+        {
+            ShowReadyPanel();
+        }
+        else
+        {
+            ShowLoginChoice(authenticationManager.LastErrorMessage);
+        }
+    }
+
     private async void OnClickGuestLogin()
     {
         SetLoginButtonsInteractable(false);
@@ -105,6 +122,12 @@ public class LoginSceneController : MonoBehaviour
         if (!authenticationManager.IsSignedIn)
         {
             ShowLoginChoice("로그인 정보가 없습니다.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(authenticationManager.PlayerId))
+        {
+            ShowLoginChoice("플레이어 정보를 확인할 수 없습니다.");
             return;
         }
 
@@ -151,15 +174,24 @@ public class LoginSceneController : MonoBehaviour
         }
     }
 
-    private void ShowReadyPanel()
+    private async void ShowReadyPanel()
     {
         loginChoicePanel.SetActive(false);
         loadingPanel.SetActive(false);
         readyPanel.SetActive(true);
 
+        bool linked = await authenticationManager.HasLinkedAccountAsync();
+
+        if (linkAccountButton != null)
+        {
+            linkAccountButton.gameObject.SetActive(!linked);
+        }
+
         if (accountInfoText != null)
         {
-            accountInfoText.text = $"로그인 완료\n" + $"Player ID: {authenticationManager.PlayerId}";
+            string accountType = linked ? "계정 연동 완료" : "게스트 계정";
+
+            accountInfoText.text = $"{accountType}\n" + $"Player ID: {authenticationManager.PlayerId}";
         }
 
         StartBlink();
@@ -172,10 +204,9 @@ public class LoginSceneController : MonoBehaviour
             guestLoginButton.interactable = interactable;
         }
 
-        // Google 버튼은 아직 구현 전이므로 계속 비활성화
         if (googleLoginButton != null)
         {
-            googleLoginButton.interactable = false;
+            googleLoginButton.interactable = interactable;
         }
     }
 
@@ -244,10 +275,41 @@ public class LoginSceneController : MonoBehaviour
 
     #endregion
 
+    #region 연동
+    private async void OnClickLinkAccount()
+    {
+        if (linkAccountButton != null)
+        {
+            linkAccountButton.interactable = false;
+        }
+
+        ShowLoading("Google 계정을 연결하는 중...");
+
+        bool success = await authenticationManager.LinkPlayerAccountAsync();
+
+        if (success)
+        {
+            ShowReadyPanel();
+        }
+        else
+        {
+            ShowReadyPanel();
+
+            if (accountInfoText != null)
+            {
+                accountInfoText.text = authenticationManager.LastErrorMessage;
+            }
+        }
+    }
+
+    #endregion
+
     private void OnDestroy()
     {
+        googleLoginButton?.onClick.RemoveListener(OnClickGoogleLogin);
         guestLoginButton?.onClick.RemoveListener(OnClickGuestLogin);
         startClickButton?.onClick.RemoveListener(OnClickStartGame);
         logoutButton?.onClick.RemoveListener(OnClickLogout);
+        linkAccountButton?.onClick.RemoveListener(OnClickLinkAccount);
     }
 }

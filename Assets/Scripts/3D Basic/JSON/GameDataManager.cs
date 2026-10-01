@@ -1,13 +1,13 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using Unity.Services.Authentication;
 
 public class GameDataManager : MonoBehaviour
 {
     public static GameDataManager Instance;
 
     public SaveData saveData = new SaveData();
-    public Player_Data playerData;
     private string saveFilePath;
 
     [Header("게임의 모든 아이템")]
@@ -16,19 +16,16 @@ public class GameDataManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            saveFilePath = Path.Combine(Application.persistentDataPath, "MyGameSave.json");
-
-            // 아이템 DB 구축 (리스트 -> 딕셔너리 변환)
-            InitializeItemDB();
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+
+        InitializeSavePath();
+        InitializeItemDB();
     }
 
     //빠른저장
@@ -62,6 +59,30 @@ public class GameDataManager : MonoBehaviour
         Debug.Log($"아이템 DB 구축 완료: {itemDB.Count}개");
     }
 
+    private void InitializeSavePath()
+    {
+        if (!AuthenticationService.Instance.IsSignedIn)
+        {
+            Debug.LogError("[GameDataManager] 로그인된 플레이어가 없어 " + "저장 경로를 생성할 수 없습니다.");
+
+            saveFilePath = string.Empty;
+            return;
+        }
+
+        string playerId = AuthenticationService.Instance.PlayerId;
+
+        string playerSaveFolder = Path.Combine(Application.persistentDataPath, "Saves", playerId);
+
+        if (!Directory.Exists(playerSaveFolder))
+        {
+            Directory.CreateDirectory(playerSaveFolder);
+        }
+
+        saveFilePath = Path.Combine(playerSaveFolder, "MyGameSave.json");
+
+        Debug.Log($"[GameDataManager] 현재 Player ID: {playerId}\n" + $"[GameDataManager] 저장 경로: {saveFilePath}");
+    }
+
     // ID로 아이템 원본 찾기
     public Item_Base GetItemByID(string id)
     {
@@ -72,21 +93,45 @@ public class GameDataManager : MonoBehaviour
     // --- [저장 (Save)] ---
     public void SaveGame()
     {
-        GatherGameData(); // 현재 상태 수집
+        if (string.IsNullOrEmpty(saveFilePath))
+        {
+            Debug.LogError("[GameDataManager] 저장 경로가 설정되지 않았습니다.");
+
+            return;
+        }
+
+        GatherGameData();
+
         string json = JsonUtility.ToJson(saveData, true);
+
         File.WriteAllText(saveFilePath, json);
+
         Debug.Log($"게임 저장 완료: {saveFilePath}");
     }
 
     // --- [로드 (Load)] ---
     public bool LoadGame()
     {
-        if (!File.Exists(saveFilePath)) return false;
+        if (string.IsNullOrEmpty(saveFilePath))
+        {
+            Debug.LogError("[GameDataManager] 저장 경로가 설정되지 않았습니다.");
+
+            return false;
+        }
+
+        if (!File.Exists(saveFilePath))
+        {
+            Debug.Log("[GameDataManager] 이 계정의 저장 데이터가 없습니다.");
+
+            return false;
+        }
 
         string json = File.ReadAllText(saveFilePath);
+
         saveData = JsonUtility.FromJson<SaveData>(json);
 
-        ApplyGameData(); // 게임에 적용
+        ApplyGameData();
+
         return true;
     }
 
@@ -137,11 +182,6 @@ public class GameDataManager : MonoBehaviour
     // --- [데이터 적용 (SaveData -> Game)] ---
     void ApplyGameData()
     {
-        if (playerData != null)
-        {
-            playerData.characterName = saveData.playerName;
-        }
-
         // 1. 플레이어 스탯 복구
         if (Account_Manager.Instance != null)
         {
