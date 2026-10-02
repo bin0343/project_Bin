@@ -24,6 +24,10 @@ public class BattleManager : MonoBehaviour
 
     private GameObject[] spawnedCharacters = new GameObject[3];
     private int currentActiveIndex = 0;
+    public int CurrentActiveIndex
+    {
+        get { return currentActiveIndex; }
+    }
 
     public GameObject[] SpawnedCharacters => spawnedCharacters;
 
@@ -48,11 +52,8 @@ public class BattleManager : MonoBehaviour
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+
         Cursor.visible = false;
-
-        InitializeParty();
-
-        CacheDefaultCameraOrbit();
     }
 
     private void Update()
@@ -119,6 +120,11 @@ public class BattleManager : MonoBehaviour
             spawnedCharacters[currentActiveIndex].SetActive(true);
             ChangeCameraTarget(spawnedCharacters[currentActiveIndex].transform);
             UpdateSystemsWithActiveCharacter(spawnedCharacters[currentActiveIndex]);
+        }
+
+        if (!hasCachedDefaultCameraOrbit)
+        {
+            CacheDefaultCameraOrbit();
         }
     }
 
@@ -635,6 +641,61 @@ public class BattleManager : MonoBehaviour
         mainFreeLookCamera.m_YAxis.m_InputAxisValue = 0f;
 
         mainFreeLookCamera.PreviousStateIsValid = false;
+    }
+
+    //저장한 활성 캐릭터 복원
+    public void RestoreActiveCharacterIndex(int savedIndex)
+    {
+        int targetIndex = savedIndex;
+
+        if (!IsAliveCharacterIndex(targetIndex))
+        {
+            targetIndex = -1;
+
+            for (int i = 0; i < spawnedCharacters.Length; i++)
+            {
+                if (IsAliveCharacterIndex(i))
+                {
+                    targetIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (targetIndex < 0) return;
+
+        if (targetIndex == currentActiveIndex)
+        {
+            GameObject active = spawnedCharacters[targetIndex];
+
+            if (active != null)
+            {
+                active.SetActive(true);
+
+                ChangeCameraTarget(active.transform);
+
+                UpdateSystemsWithActiveCharacter(active);
+            }
+
+            return;
+        }
+
+        TryTag(targetIndex, true);
+    }
+
+    private bool IsAliveCharacterIndex(int index)
+    {
+        if (index < 0 || index >= spawnedCharacters.Length) return false;
+
+        GameObject character = spawnedCharacters[index];
+
+        if (character == null) return false;
+
+        Character_Stat stat = character.GetComponent<Character_Stat>();
+
+        if (stat == null) return false;
+
+        return !stat.isDead && stat.currentHP > 0;
     }
 
     #region ControlLocked

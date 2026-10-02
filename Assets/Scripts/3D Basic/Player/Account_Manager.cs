@@ -224,6 +224,73 @@ public class Account_Manager : MonoBehaviour
         OnAPChanged?.Invoke(currentAP, maxAP);
     }
 
+    //첫 플레이 유저
+    public void InitializeNewAccount()
+    {
+        accountLevel = 1;
+        accountExp = 0;
+        gold = 0;
+
+        currentAP = maxAP;
+        lastAPUpdateUtcTicks = DateTime.UtcNow.Ticks;
+
+        currentStamina = maxStamina;
+        isExhausted = false;
+        exhaustionTimer = 0f;
+
+        NotifyAPChanged();
+
+        Debug.Log("[Account] 신규 계정 초기 데이터 생성");
+    }
+
+    #region Save & Load
+
+    public AccountSaveData GetSaveData()
+    {
+        ApplyAPRecovery();
+
+        AccountSaveData data = new AccountSaveData();
+
+        data.accountLevel = accountLevel;
+        data.accountExp = accountExp;
+        data.gold = gold;
+
+        data.currentAP = currentAP;
+        data.lastAPUpdateUtcTicks = lastAPUpdateUtcTicks;
+
+        return data;
+    }
+
+    public void LoadSaveData(AccountSaveData data)
+    {
+        if (data == null)
+        {
+            Debug.LogWarning("[Account] 불러올 계정 데이터가 없습니다.");
+
+            return;
+        }
+
+        accountLevel = Mathf.Max(1, data.accountLevel);
+        accountExp = Mathf.Max(0, data.accountExp);
+        gold = Mathf.Max(0, data.gold);
+
+        currentAP = Mathf.Clamp(data.currentAP, 0, maxAP);
+
+        lastAPUpdateUtcTicks = data.lastAPUpdateUtcTicks;
+
+        if (lastAPUpdateUtcTicks <= 0)
+        {
+            lastAPUpdateUtcTicks = DateTime.UtcNow.Ticks;
+        }
+
+        ApplyAPRecovery();
+        NotifyAPChanged();
+
+        Debug.Log($"[Account] 계정 데이터 로드 완료 / " + $"Lv.{accountLevel} / " + $"AP {currentAP}/{maxAP}");
+    }
+
+    #endregion
+
     private void OnApplicationPause(bool isPaused)
     {
         if (isPaused)

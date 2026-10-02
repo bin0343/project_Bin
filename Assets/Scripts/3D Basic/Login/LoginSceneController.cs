@@ -174,7 +174,7 @@ public class LoginSceneController : MonoBehaviour
         }
     }
 
-    private async void ShowReadyPanel()
+    private async void ShowReadyPanel(string message = "")
     {
         loginChoicePanel.SetActive(false);
         loadingPanel.SetActive(false);
@@ -184,7 +184,10 @@ public class LoginSceneController : MonoBehaviour
 
         if (linkAccountButton != null)
         {
-            linkAccountButton.gameObject.SetActive(!linked);
+            bool canLinkAccount = !linked;
+
+            linkAccountButton.gameObject.SetActive(canLinkAccount);
+            linkAccountButton.interactable = canLinkAccount;
         }
 
         if (accountInfoText != null)
@@ -192,6 +195,11 @@ public class LoginSceneController : MonoBehaviour
             string accountType = linked ? "계정 연동 완료" : "게스트 계정";
 
             accountInfoText.text = $"{accountType}\n" + $"Player ID: {authenticationManager.PlayerId}";
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                accountInfoText.text += $"\n\n{message}";
+            }
         }
 
         StartBlink();
@@ -293,12 +301,7 @@ public class LoginSceneController : MonoBehaviour
         }
         else
         {
-            ShowReadyPanel();
-
-            if (accountInfoText != null)
-            {
-                accountInfoText.text = authenticationManager.LastErrorMessage;
-            }
+            ShowReadyPanel(authenticationManager.LastErrorMessage);
         }
     }
 

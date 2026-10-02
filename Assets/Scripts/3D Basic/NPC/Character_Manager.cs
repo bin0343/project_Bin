@@ -21,6 +21,7 @@ public class CharacterStatus
     public bool isStatInitialized = false;
     public bool isOwned = false;       // 스토리 진행 중 영입 완료 여부
     public ItemHolder equippedWeapon;
+    public int currentHP = -1;
 
     public CharacterStatus(string id)
     {
@@ -500,6 +501,193 @@ public class Character_Manager : MonoBehaviour
 
         return null;
     }
+    #endregion
+
+    #region New Save & Load
+
+    public List<CharacterSaveData> GetCharacterSaveData()
+    {
+        List<CharacterSaveData> saveList = new List<CharacterSaveData>();
+
+        foreach (var pair in characterStatusDictionary)
+        {
+            CharacterStatus status = pair.Value;
+
+            if (status == null) continue;
+
+            CharacterSaveData data = new CharacterSaveData();
+
+            data.characterID = status.characterID;
+            data.isOwned = status.isOwned;
+
+            data.level = status.level;
+            data.currentExp = status.currentExp;
+            data.ascensionStage = status.ascensionStage;
+
+            data.currentHP = status.currentHP;
+
+            if (status.equippedWeapon != null)
+            {
+                data.equippedWeapon = status.equippedWeapon.GetSaveData();
+            }
+
+            saveList.Add(data);
+        }
+
+        return saveList;
+    }
+
+    public void LoadCharacterSaveData(List<CharacterSaveData> savedList)
+    {
+        if (savedList == null) return;
+
+        foreach (CharacterSaveData data in savedList)
+        {
+            if (data == null || string.IsNullOrEmpty(data.characterID)) continue;
+
+            Character_Data characterData = FindCharacterData(data.characterID);
+
+            if (characterData == null)
+            {
+                Debug.LogWarning($"[Character] 캐릭터 데이터를 찾지 못했습니다. " + $"ID: {data.characterID}");
+
+                continue;
+            }
+
+            CharacterStatus status = GetCharacterStatus(data.characterID, characterData);
+
+            status.isOwned = data.isOwned;
+            status.currentHP = data.currentHP;
+
+            int maxAscensionStage = Mathf.Max((absoluteMaxLevel - 1) / levelCapStep, 0);
+
+            status.ascensionStage = Mathf.Clamp(data.ascensionStage, 0, maxAscensionStage);
+
+            int levelCap = GetCurrentLevelCap(status);
+
+            status.level = Mathf.Clamp(data.level, 1, levelCap);
+
+            RecalculateRequiredExpByLevel(status);
+
+            if (status.level >= levelCap)
+            {
+                status.currentExp = 0;
+            }
+            else
+            {
+                status.currentExp = Mathf.Clamp(data.currentExp, 0, Mathf.Max(status.maxExp - 1, 0));
+            }
+
+            RecalculateStatsByLevel(status, characterData);
+
+            status.equippedWeapon = null;
+
+            if (data.equippedWeapon != null && !string.IsNullOrEmpty( data.equippedWeapon.itemID))
+            {
+                if (GameDataManager.Instance != null)
+                {
+                    Item_Base weaponOriginal = GameDataManager.Instance.GetItemByID(data.equippedWeapon.itemID);
+
+                    if (weaponOriginal != null)
+                    {
+                        status.equippedWeapon = ItemHolder.FromSaveData(weaponOriginal, data.equippedWeapon);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[Character] 장착 무기 원본을 " + $"찾지 못했습니다. " + $"ID: {data.equippedWeapon.itemID}");
+                    }
+                }
+            }
+        }
+
+        Debug.Log($"[Character] 캐릭터 {savedList.Count}명 " + "저장 데이터 복구 완료");
+    }
+
+    public PartySaveData GetPartySaveData()
+    {
+        PartySaveData data = new PartySaveData();
+
+        data.currentPartyIDs = new List<string>(currentPartyIDs);
+
+        foreach (PartyPreset preset in partyPresets)
+        {
+            if (preset == null) continue;
+
+            PartyPresetSaveData presetData = new PartyPresetSaveData();
+
+            presetData.presetName = preset.presetName;
+
+            presetData.characterIDs = new List<string>(preset.characterIDs);
+
+            data.presets.Add(presetData);
+        }
+
+        return data;
+    }
+
+    public void LoadPartySaveData(PartySaveData data)
+    {
+        if (data == null) return;
+
+        currentPartyIDs.Clear();
+        currentPartyData.Clear();
+
+        if (data.currentPartyIDs != null)
+        {
+            foreach (string characterID in data.currentPartyIDs)
+            {
+                if (string.IsNullOrEmpty(characterID)) continue;
+
+                if (currentPartyIDs.Count >= 3) break;
+
+                Character_Data characterData = FindCharacterData(characterID);
+
+                if (characterData == null) continue;
+
+                if (!IsRecruited(characterID)) continue;
+
+                currentPartyIDs.Add(characterID);
+                currentPartyData.Add(characterData);
+            }
+        }
+
+        partyPresets.Clear();
+
+        if (data.presets != null)
+        {
+            foreach (PartyPresetSaveData savedPreset in data.presets)
+            {
+                if (savedPreset == null) continue;
+
+                PartyPreset preset = new PartyPreset();
+
+                preset.presetName = savedPreset.presetName;
+
+                preset.characterIDs = savedPreset.characterIDs != null ? new List<string>(savedPreset.characterIDs) : new List<string>();
+
+                partyPresets.Add(preset);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Helper
+
+    private void RecalculateRequiredExpByLevel(CharacterStatus status)
+    {
+        if (status == null) return;
+
+        int requiredExp = 100;
+
+        for (int level = 1; level < status.level; level++)
+        {
+            requiredExp = GetNextRequiredExp(requiredExp);
+        }
+
+        status.maxExp = Mathf.Max(requiredExp, 1);
+    }
+
     #endregion
 
     public CharacterStatus GetCharacterStatus(string npcID, Character_Data data = null)

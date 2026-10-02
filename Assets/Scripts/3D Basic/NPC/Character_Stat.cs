@@ -127,7 +127,17 @@ public class Character_Stat : MonoBehaviour
 
             System.Array.Clear(equipmentStats, 0, equipmentStats.Length);
 
-            currentHP = maxHP;
+            if (savedStatus.currentHP < 0)
+            {
+                currentHP = maxHP;
+                savedStatus.currentHP = currentHP;
+            }
+            else
+            {
+                currentHP = Mathf.Clamp(savedStatus.currentHP, 0, maxHP);
+            }
+
+            isDead = currentHP <= 0;
 
             Debug.Log($"{characterData.characterName} 배치 완료. Lv.{savedStatus.level} (HP: {currentHP}, ATK: {attackPower})");
         }
@@ -191,6 +201,8 @@ public class Character_Stat : MonoBehaviour
 
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0);
+
+        SyncCurrentHPToManager();
 
         ShowDamageText(damage, attacker);
 
@@ -288,6 +300,8 @@ public class Character_Stat : MonoBehaviour
     {
         isDead = false;
         currentHP = maxHP;
+
+        SyncCurrentHPToManager();
     }
 
     public void RefreshStatsFromManager()
@@ -300,7 +314,43 @@ public class Character_Stat : MonoBehaviour
         }
 
         currentHP = maxHP;
+        SyncCurrentHPToManager();
 
         Debug.Log($"{characterData.characterName} 스탯 갱신 완료: Lv.{status.level}");
     }
+
+    #region Helper
+
+    private void SyncCurrentHPToManager()
+    {
+        if (characterData == null)
+        {
+            return;
+        }
+
+        if (Character_Manager.Instance == null)
+        {
+            return;
+        }
+
+        CharacterStatus status =
+            Character_Manager.Instance.GetCharacterStatus(
+                characterData.characterID,
+                characterData
+            );
+
+        if (status == null)
+        {
+            return;
+        }
+
+        status.currentHP =
+            Mathf.Clamp(
+                currentHP,
+                0,
+                maxHP
+            );
+    }
+
+    #endregion
 }

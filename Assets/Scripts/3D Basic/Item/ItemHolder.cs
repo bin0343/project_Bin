@@ -128,4 +128,58 @@ public class ItemHolder
         refinementStage++;
         return true;
     }
+
+    public ItemSaveData GetSaveData(int slotIndex = -1)
+    {
+        if (ItemData == null)
+        {
+            return null;
+        }
+
+        ItemSaveData data = new ItemSaveData();
+
+        data.itemID = ItemData.itemID;
+        data.quantity = Quantity;
+        data.slotIndex = slotIndex;
+
+        if (ItemData.itemType == ITEMTYPE.Equipment)
+        {
+            data.weaponLevel = weaponLevel;
+            data.weaponExp = weaponExp;
+            data.breakthroughStage = breakthroughStage;
+            data.refinementStage = refinementStage;
+        }
+
+        return data;
+    }
+
+    public static ItemHolder FromSaveData(Item_Base itemData, ItemSaveData saveData)
+    {
+        if (itemData == null || saveData == null)
+        {
+            return null;
+        }
+
+        ItemHolder holder = new ItemHolder(itemData, Mathf.Max(saveData.quantity, 1));
+
+        if (itemData.itemType == ITEMTYPE.Equipment)
+        {
+            holder.breakthroughStage = Mathf.Clamp(saveData.breakthroughStage, 0, 2);
+            holder.refinementStage = Mathf.Clamp(saveData.refinementStage, 1, 5);
+            holder.weaponLevel = Mathf.Clamp(saveData.weaponLevel, 1, holder.GetMaxLevel());
+
+            if (holder.weaponLevel >= holder.GetMaxLevel())
+            {
+                holder.weaponExp = 0;
+            }
+            else
+            {
+                int requiredExp = holder.GetRequireExpForNextLevel();
+
+                holder.weaponExp = Mathf.Clamp(saveData.weaponExp, 0, Mathf.Max(requiredExp - 1, 0));
+            }
+        }
+
+        return holder;
+    }
 }

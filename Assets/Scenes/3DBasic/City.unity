@@ -693,6 +693,50 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6255798403621622275, guid: f0fa6751ecba8a44b87f542ef29ff46f, type: 3}
   m_PrefabInstance: {fileID: 1761063104}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6059041
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6059042}
+  - component: {fileID: 6059043}
+  m_Layer: 0
+  m_Name: GameSessionBootstrap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6059042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6059041}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 716784916}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6059043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6059041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29d11f5e704ac37418e61ae8d9356dbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6089797 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6404866587023484956, guid: 7961d5d64350968438e53e5349630794, type: 3}
@@ -59627,20 +59671,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c47676f710f16d43b0070e6c32958a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  saveData:
-    playerName: 
-    playerLevel: 0
-    playerGold: 0
-    playerExp: 0
-    baseStats: []
-    day: 0
-    timeOfDay: 
-    isTutorialFinished: 0
-    inventoryList: []
-    quickSlotList: []
-    equipmentList: []
-    npcList: []
-    questList: []
+  autoSaveDelay: 2
   allGameItems:
   - {fileID: 11400000, guid: 46c873c5a072d014cb6996f4bead5b5f, type: 2}
   - {fileID: 11400000, guid: 64a6e213ed2d4bf4b9ab652d22487136, type: 2}
@@ -95651,6 +95682,7 @@ Transform:
   - {fileID: 1820724911}
   - {fileID: 866466316}
   - {fileID: 442858062}
+  - {fileID: 6059042}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &716784917
@@ -119641,7 +119673,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.0001227916
+      value: 0.000070516435
       objectReference: {fileID: 0}
     - target: {fileID: 6829346271815648913, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y

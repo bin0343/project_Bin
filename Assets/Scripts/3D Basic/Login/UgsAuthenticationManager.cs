@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -18,6 +19,13 @@ public class UgsAuthenticationManager : MonoBehaviour
 
     private TaskCompletionSource<bool> playerAccountSignInTask;
     private bool playerAccountEventsRegistered;
+
+    [Header("브라우저 로그인")]
+    [SerializeField, Min(0.1f)]
+    private float browserReturnGraceSeconds = 1f;
+
+    private bool browserLostFocus;
+    private Coroutine browserReturnCheckCoroutine;
 
     public string LastErrorMessage { get; private set; } = string.Empty;
 
@@ -219,7 +227,45 @@ public class UgsAuthenticationManager : MonoBehaviour
 
         PlayerAccountService.Instance.SignedIn += OnPlayerAccountSignedIn;
 
+        PlayerAccountService.Instance.SignInFailed += OnPlayerAccountSignInFailed;
+
         playerAccountEventsRegistered = true;
+    }
+
+    //브라우저 로그인 시작
+    private async Task StartPlayerAccountBrowserFlowAsync()
+    {
+        try
+        {
+            await PlayerAccountService.Instance.StartSignInAsync();
+        }
+        catch (PlayerAccountsException exception)
+        {
+            Debug.LogException(exception);
+
+            if (currentPlayerAccountOperation != PlayerAccountOperation.None)
+            {
+                CompletePlayerAccountOperation(false, "로그인에 실패했습니다.");
+            }
+        }
+        catch (RequestFailedException exception)
+        {
+            Debug.LogException(exception);
+
+            if (currentPlayerAccountOperation != PlayerAccountOperation.None)
+            {
+                CompletePlayerAccountOperation(false, "로그인 서버에 연결하지 못했습니다.");
+            }
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+
+            if (currentPlayerAccountOperation != PlayerAccountOperation.None)
+            {
+                CompletePlayerAccountOperation(false, "로그인에 실패했습니다.");
+            }
+        }
     }
 
     private async void OnPlayerAccountSignedIn()
@@ -244,10 +290,19 @@ public class UgsAuthenticationManager : MonoBehaviour
                 break;
         }
 
-        currentPlayerAccountOperation = PlayerAccountOperation.None;
+        CompletePlayerAccountOperation(success);
+    }
 
-        playerAccountSignInTask?.TrySetResult(success);
-        playerAccountSignInTask = null;
+    private void OnPlayerAccountSignInFailed(RequestFailedException exception)
+    {
+        if (currentPlayerAccountOperation == PlayerAccountOperation.None)
+        {
+            return;
+        }
+
+        Debug.LogWarning($"[Player Accounts] 로그인 실패: {exception.Message}");
+
+        CompletePlayerAccountOperation(false, "로그인에 실패했습니다.");
     }
 
     public async Task<bool> SignInWithPlayerAccountAsync()
@@ -278,42 +333,104 @@ public class UgsAuthenticationManager : MonoBehaviour
 
         currentPlayerAccountOperation = PlayerAccountOperation.SignIn;
 
-        try
-        {
-            Debug.Log("[Player Accounts] 브라우저 로그인 시작");
+        Debug.Log("[Player Accounts] 브라우저 로그인 시작");
 
-            await PlayerAccountService.Instance.StartSignInAsync();
+        _ = StartPlayerAccountBrowserFlowAsync();
 
-            return await playerAccountSignInTask.Task;
-        }
-        catch (PlayerAccountsException exception)
-        {
-            LastErrorMessage = "계정 로그인 창을 여는 데 실패했습니다.";
-
-            Debug.LogException(exception);
-
-            playerAccountSignInTask = null;
-            return false;
-        }
-        catch (RequestFailedException exception)
-        {
-            LastErrorMessage = "로그인 서버에 연결하지 못했습니다.";
-
-            Debug.LogException(exception);
-
-            playerAccountSignInTask = null;
-            return false;
-        }
-        catch (Exception exception)
-        {
-            LastErrorMessage = "계정 로그인 중 오류가 발생했습니다.";
-
-            Debug.LogException(exception);
-
-            playerAccountSignInTask = null;
-            return false;
-        }
+        return await playerAccountSignInTask.Task;
     }
+
+    //로그인 여부 확인
+    private void CompletePlayerAccountOperation(bool success, string errorMessage = null)
+    {
+        if (!success && !string.IsNullOrEmpty(errorMessage))
+        {
+            LastErrorMessage = errorMessage;
+        }
+
+        currentPlayerAccountOperation = PlayerAccountOperation.None;
+
+        browserLostFocus = false;
+
+        if (browserReturnCheckCoroutine != null)
+        {
+            StopCoroutine(browserReturnCheckCoroutine);
+            browserReturnCheckCoroutine = null;
+        }
+
+        TaskCompletionSource<bool> completionSource = playerAccountSignInTask;
+
+        playerAccountSignInTask = null;
+
+        completionSource?.TrySetResult(success);
+    }
+
+    //포커스 감지
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        // Player Accounts 작업 중이 아니면 무시
+        if (currentPlayerAccountOperation == PlayerAccountOperation.None)
+        {
+            return;
+        }
+
+        if (playerAccountSignInTask == null)
+        {
+            return;
+        }
+
+        // 브라우저가 열리면서 게임이 포커스를 잃음
+        if (!hasFocus)
+        {
+            browserLostFocus = true;
+            return;
+        }
+
+        // 실제로 브라우저로 나갔다 온 경우만 검사
+        if (!browserLostFocus)
+        {
+            return;
+        }
+
+        browserLostFocus = false;
+
+        if (browserReturnCheckCoroutine != null)
+        {
+            StopCoroutine(browserReturnCheckCoroutine);
+        }
+
+        browserReturnCheckCoroutine = StartCoroutine(CheckBrowserLoginResultRoutine());
+    }
+
+    //브라우저 닫았는지 검사
+    private IEnumerator CheckBrowserLoginResultRoutine()
+    {
+        yield return new WaitForSecondsRealtime(browserReturnGraceSeconds);
+
+        browserReturnCheckCoroutine = null;
+
+        // 기다리는 동안 정상 로그인 완료
+        if (currentPlayerAccountOperation == PlayerAccountOperation.None)
+        {
+            yield break;
+        }
+
+        if (playerAccountSignInTask == null)
+        {
+            yield break;
+        }
+
+        // Player Accounts 로그인이 정상 완료됨
+        if (PlayerAccountService.Instance.IsSignedIn)
+        {
+            yield break;
+        }
+
+        Debug.LogWarning("[Player Accounts] " + "브라우저가 닫혔지만 로그인이 완료되지 않았습니다.");
+
+        CompletePlayerAccountOperation(false, "로그인에 실패했습니다.");
+    }
+
     #endregion
 
     #region 로그아웃
@@ -445,27 +562,11 @@ public class UgsAuthenticationManager : MonoBehaviour
 
         currentPlayerAccountOperation = PlayerAccountOperation.Link;
 
-        try
-        {
-            Debug.Log("[Player Accounts] 계정 연동용 로그인 시작");
+        Debug.Log("[Player Accounts] 계정 연동용 로그인 시작");
 
-            await PlayerAccountService.Instance.StartSignInAsync();
+        _ = StartPlayerAccountBrowserFlowAsync();
 
-            return await playerAccountSignInTask.Task;
-        }
-        catch (Exception exception)
-        {
-            currentPlayerAccountOperation = PlayerAccountOperation.None;
-
-            playerAccountSignInTask = null;
-
-            LastErrorMessage =
-                "계정 연동 창을 여는 데 실패했습니다.";
-
-            Debug.LogException(exception);
-
-            return false;
-        }
+        return await playerAccountSignInTask.Task;
     }
 
     #endregion
@@ -483,6 +584,7 @@ public class UgsAuthenticationManager : MonoBehaviour
         }
 
         PlayerAccountService.Instance.SignedIn -= OnPlayerAccountSignedIn;
+        PlayerAccountService.Instance.SignInFailed -= OnPlayerAccountSignInFailed;
 
         playerAccountEventsRegistered = false;
     }

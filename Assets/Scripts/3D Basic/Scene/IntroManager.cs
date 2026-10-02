@@ -111,7 +111,7 @@ public class IntroManager : MonoBehaviour
         bool isFinished = false;
         if (GameDataManager.Instance != null)
         {
-            isFinished = GameDataManager.Instance.saveData.isTutorialFinished;
+            //isFinished = GameDataManager.Instance.saveData.isTutorialFinished;
         }
 
         Debug.Log($"[IntroManager] 튜토리얼 완료 여부: {isFinished}");
@@ -246,7 +246,7 @@ public class IntroManager : MonoBehaviour
 
         if (GameDataManager.Instance != null)
         {
-            GameDataManager.Instance.saveData.playerName = playerName;
+            //GameDataManager.Instance.saveData.playerName = playerName;
         }
 
         if (playerData != null)
@@ -363,8 +363,8 @@ public class IntroManager : MonoBehaviour
 
         if (GameDataManager.Instance != null)
         {
-            GameDataManager.Instance.saveData.isTutorialFinished = true;
-            GameDataManager.Instance.SaveGame();
+            //GameDataManager.Instance.saveData.isTutorialFinished = true;
+            //GameDataManager.Instance.SaveGame();
         }
     }
 }

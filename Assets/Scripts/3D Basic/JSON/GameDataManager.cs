@@ -1,14 +1,23 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
-using Unity.Services.Authentication;
 
 public class GameDataManager : MonoBehaviour
 {
     public static GameDataManager Instance;
 
-    public SaveData saveData = new SaveData();
+    public GameSaveData CurrentSaveData { get; private set; } = new GameSaveData();
+
     private string saveFilePath;
+
+    [Header("자동 저장")]
+    [SerializeField, Min(0.5f)]
+    private float autoSaveDelay = 2f;
+
+    private bool sessionReady;
+    private bool saveDirty;
+    private float autoSaveTimer;
+    private bool isApplyingSaveData;
 
     [Header("게임의 모든 아이템")]
     public List<Item_Base> allGameItems; // 인스펙터에서 드래그해서 넣기
@@ -23,19 +32,28 @@ public class GameDataManager : MonoBehaviour
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
 
-        InitializeSavePath();
         InitializeItemDB();
     }
 
     //빠른저장
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F5))
-        {
-            SaveGame();
-            Debug.Log("F5키 입력: 빠른 저장 완료");
-        }
+        if (!sessionReady || !saveDirty || isApplyingSaveData) return;
+
+        autoSaveTimer -= Time.unscaledDeltaTime;
+
+        if (autoSaveTimer <= 0f) ForceSave();
+    }
+
+    //자동 저장 함수
+    public void RequestAutoSave()
+    {
+        if (!sessionReady || isApplyingSaveData) return;
+
+        saveDirty = true;
+        autoSaveTimer = autoSaveDelay;
     }
 
     // --- [아이템 DB 초기화] ---
@@ -59,28 +77,25 @@ public class GameDataManager : MonoBehaviour
         Debug.Log($"아이템 DB 구축 완료: {itemDB.Count}개");
     }
 
-    private void InitializeSavePath()
+    public void InitializeForPlayer(string playerId)
     {
-        if (!AuthenticationService.Instance.IsSignedIn)
+        if (string.IsNullOrWhiteSpace(playerId))
         {
-            Debug.LogError("[GameDataManager] 로그인된 플레이어가 없어 " + "저장 경로를 생성할 수 없습니다.");
+            Debug.LogError("[GameDataManager] PlayerId가 비어 있습니다.");
 
-            saveFilePath = string.Empty;
             return;
         }
 
-        string playerId = AuthenticationService.Instance.PlayerId;
-
         string playerSaveFolder = Path.Combine(Application.persistentDataPath, "Saves", playerId);
 
-        if (!Directory.Exists(playerSaveFolder))
-        {
-            Directory.CreateDirectory(playerSaveFolder);
-        }
+        Directory.CreateDirectory(playerSaveFolder);
 
-        saveFilePath = Path.Combine(playerSaveFolder, "MyGameSave.json");
+        saveFilePath = Path.Combine(playerSaveFolder, "GameSave_v1.json");
 
-        Debug.Log($"[GameDataManager] 현재 Player ID: {playerId}\n" + $"[GameDataManager] 저장 경로: {saveFilePath}");
+        sessionReady = false;
+        saveDirty = false;
+
+        Debug.Log($"[GameDataManager] 저장 대상 PlayerId: {playerId}\n" + $"[GameDataManager] 저장 경로: {saveFilePath}");
     }
 
     // ID로 아이템 원본 찾기
@@ -91,22 +106,33 @@ public class GameDataManager : MonoBehaviour
     }
 
     // --- [저장 (Save)] ---
-    public void SaveGame()
+    public void ForceSave()
     {
+        if (!sessionReady) return;
+
         if (string.IsNullOrEmpty(saveFilePath))
         {
-            Debug.LogError("[GameDataManager] 저장 경로가 설정되지 않았습니다.");
+            Debug.LogError("[GameDataManager] 저장 경로가 없습니다.");
 
             return;
         }
 
-        GatherGameData();
+        try
+        {
+            GatherGameData();
 
-        string json = JsonUtility.ToJson(saveData, true);
+            string json = JsonUtility.ToJson(CurrentSaveData, true);
 
-        File.WriteAllText(saveFilePath, json);
+            File.WriteAllText(saveFilePath, json);
 
-        Debug.Log($"게임 저장 완료: {saveFilePath}");
+            saveDirty = false;
+
+            Debug.Log($"[GameDataManager] 자동 저장 완료: " + $"{saveFilePath}");
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogError($"[GameDataManager] 저장 실패\n" + $"{exception}");
+        }
     }
 
     // --- [로드 (Load)] ---
@@ -114,121 +140,166 @@ public class GameDataManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(saveFilePath))
         {
-            Debug.LogError("[GameDataManager] 저장 경로가 설정되지 않았습니다.");
+            Debug.LogError("[GameDataManager] 저장 경로가 없습니다.");
 
             return false;
         }
 
         if (!File.Exists(saveFilePath))
         {
-            Debug.Log("[GameDataManager] 이 계정의 저장 데이터가 없습니다.");
+            Debug.Log("[GameDataManager] 신규 계정입니다. " + "저장 파일이 없습니다.");
 
             return false;
         }
 
-        string json = File.ReadAllText(saveFilePath);
+        try
+        {
+            string json = File.ReadAllText(saveFilePath);
 
-        saveData = JsonUtility.FromJson<SaveData>(json);
+            GameSaveData loadedData = JsonUtility.FromJson<GameSaveData>(json);
 
-        ApplyGameData();
+            if (loadedData == null) return false;
 
-        return true;
+            CurrentSaveData = loadedData;
+
+            EnsureSaveContainers();
+
+            isApplyingSaveData = true;
+
+            ApplyGameData();
+
+            isApplyingSaveData = false;
+
+            Debug.Log("[GameDataManager] 저장 데이터 로드 완료");
+
+            return true;
+        }
+        catch (System.Exception exception)
+        {
+            isApplyingSaveData = false;
+
+            Debug.LogError($"[GameDataManager] 로드 실패\n" + $"{exception}");
+
+            return false;
+        }
     }
 
     // --- [데이터 수집 (Game -> SaveData)] ---
-    void GatherGameData()
+    private void GatherGameData()
     {
-        // 1. 플레이어 스탯 저장
+        if (CurrentSaveData == null)
+        {
+            CurrentSaveData = new GameSaveData();
+        }
+
         if (Account_Manager.Instance != null)
         {
-            saveData.playerName = PlayerPrefs.GetString("PlayerName", "플레이어"); // 이름은 PlayerPrefs에서 가져오거나 별도 관리
-            saveData.playerLevel = Account_Manager.Instance.accountLevel;
-            saveData.playerGold = Account_Manager.Instance.gold;
-            saveData.playerExp = Account_Manager.Instance.accountExp;
+            CurrentSaveData.account = Account_Manager.Instance.GetSaveData();
         }
 
-        // 2. 인벤토리 저장
-        saveData.inventoryList.Clear();
-        if (Player_Inventory.instance != null)
-        {
-            List<ItemHolder> slots = Player_Inventory.instance.inventorySlots;
-            for (int i = 0; i < slots.Count; i++)
-            {
-                if (slots[i] != null && slots[i].ItemData != null)
-                {
-                    ItemSaveData itemData = new ItemSaveData();
-                    itemData.itemID = slots[i].ItemData.itemID;
-                    itemData.quantity = slots[i].Quantity;
-                    itemData.slotIndex = i;
-                    saveData.inventoryList.Add(itemData);
-                }
-            }
-        }
-
-        //NPC저장
         if (Character_Manager.Instance != null)
         {
-            saveData.npcList = Character_Manager.Instance.GetSaveData();
+            CurrentSaveData.characters = Character_Manager.Instance.GetCharacterSaveData();
+
+            CurrentSaveData.party = Character_Manager.Instance.GetPartySaveData();
         }
 
-        //퀘스트 저장
-        if (QuestManager.instance != null)
+        if (BattleManager.instance != null && CurrentSaveData.party != null)
         {
-            saveData.questList = QuestManager.instance.GetQuestSaveData();
+            CurrentSaveData.party.activeCharacterIndex = BattleManager.instance.CurrentActiveIndex;
         }
-        // (나중에 장비, NPC, 퀘스트 등 추가)
+
+        if (Player_Inventory.instance != null)
+        {
+            CurrentSaveData.inventory = Player_Inventory.instance.GetSaveData();
+        }
+    }
+
+    private void EnsureSaveContainers()
+    {
+        if (CurrentSaveData.account == null) CurrentSaveData.account = new AccountSaveData();
+
+        if (CurrentSaveData.characters == null) CurrentSaveData.characters = new List<CharacterSaveData>();
+
+        if (CurrentSaveData.party == null) CurrentSaveData.party = new PartySaveData();
+
+        if (CurrentSaveData.inventory == null) CurrentSaveData.inventory = new InventorySaveData();
+
+        if (CurrentSaveData.world == null) CurrentSaveData.world = new WorldSaveData();
+
+        if (CurrentSaveData.quests == null) CurrentSaveData.quests = new List<QuestSaveData>();
     }
 
     // --- [데이터 적용 (SaveData -> Game)] ---
-    void ApplyGameData()
+    private void ApplyGameData()
     {
-        // 1. 플레이어 스탯 복구
         if (Account_Manager.Instance != null)
         {
-            Account_Manager.Instance.accountLevel = saveData.playerLevel;
-            Account_Manager.Instance.gold = saveData.playerGold;
-            Account_Manager.Instance.accountExp = saveData.playerExp;
-
-            if (LobbyManager.Instance != null) LobbyManager.Instance.RefreshUserInfo();
+            Account_Manager.Instance.LoadSaveData(CurrentSaveData.account);
         }
 
-        // 2. 인벤토리 복구
-        if (Player_Inventory.instance != null)
-        {
-            // 기존 인벤토리 싹 비우기 (중복 방지)
-            Player_Inventory.instance.inventorySlots.Clear();
-
-            Player_Inventory.instance.inventorySlots.Clear();
-            // 기본 슬롯 30개 생성 (빈 칸)
-            for (int i = 0; i < 30; i++) Player_Inventory.instance.inventorySlots.Add(null);
-
-            foreach (var savedItem in saveData.inventoryList)
-            {
-                Item_Base itemOriginal = GetItemByID(savedItem.itemID);
-                if (itemOriginal != null)
-                {
-                    // 해당 위치에 아이템 복구
-                    if (savedItem.slotIndex < Player_Inventory.instance.inventorySlots.Count)
-                    {
-                        Player_Inventory.instance.inventorySlots[savedItem.slotIndex]
-                            = new ItemHolder(itemOriginal, savedItem.quantity);
-                    }
-                }
-            }
-
-            // 인벤토리 UI 갱신
-            Player_Inventory.instance.RefreshAllUI();
-        }
-
-        //NPC로드
         if (Character_Manager.Instance != null)
         {
-            Character_Manager.Instance.LoadFromSaveData(saveData.npcList);
+            Character_Manager.Instance.LoadCharacterSaveData(CurrentSaveData.characters);
+
+            Character_Manager.Instance.LoadPartySaveData(CurrentSaveData.party);
         }
-        //퀘스트 로드
-        if (QuestManager.instance != null)
+
+        if (Player_Inventory.instance != null)
         {
-            QuestManager.instance.LoadQuestSaveData(saveData.questList);
+            Player_Inventory.instance.LoadSaveData(CurrentSaveData.inventory);
         }
+    }
+
+    #region 신규 초기화
+    //신규 계정 초기화
+    public void InitializeNewGame()
+    {
+        CurrentSaveData = new GameSaveData();
+
+        if (Account_Manager.Instance != null)
+        {
+            Account_Manager.Instance.InitializeNewAccount();
+        }
+
+        if (Player_Inventory.instance != null)
+        {
+            Player_Inventory.instance.InitializeNewInventory();
+        }
+
+        Debug.Log("[GameDataManager] 신규 플레이어 초기화 완료");
+    }
+
+    public int SavedActiveCharacterIndex
+    {
+        get
+        {
+            if (CurrentSaveData?.party == null)
+            {
+                return 0;
+            }
+
+            return CurrentSaveData.party.activeCharacterIndex;
+        }
+    }
+
+    public void MarkSessionReady()
+    {
+        sessionReady = true;
+    }
+
+    #endregion
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+        {
+            ForceSave();
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        ForceSave();
     }
 }

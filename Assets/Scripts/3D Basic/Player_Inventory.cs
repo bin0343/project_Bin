@@ -32,20 +32,32 @@ public class Player_Inventory : MonoBehaviour
 
     private void Start()
     {
-        if (inventorySlots.Count == 0 && startingItems.Count > 0)
-        {
-            foreach (var defaultItem in startingItems)
-            {
-                if (defaultItem.itemData != null && defaultItem.quantity > 0)
-                {
-                    AddItem(defaultItem.itemData, defaultItem.quantity, false); 
-                }
-            }
-        }
         if (UI_ItemManager.instance != null)
         {
             UI_ItemManager.instance.RefreshQuickSlot();
         }
+    }
+
+    public void InitializeNewInventory()
+    {
+        inventorySlots.Clear();
+        quickSlotItem = null;
+
+        if (startingItems != null)
+        {
+            foreach (StartingItem defaultItem in startingItems)
+            {
+                if (defaultItem == null) continue;
+
+                if (defaultItem.itemData == null || defaultItem.quantity <= 0) continue;
+
+                AddItem(defaultItem.itemData, defaultItem.quantity, false);
+            }
+        }
+
+        RefreshAllUI();
+
+        Debug.Log("[Inventory] 신규 계정 기본 아이템 지급 완료");
     }
 
     #region Add Item
@@ -301,4 +313,107 @@ public class Player_Inventory : MonoBehaviour
         RefreshAllUI();
     }
     #endregion
+
+    #region Save & Load
+
+    public InventorySaveData GetSaveData()
+    {
+        InventorySaveData data = new InventorySaveData();
+
+        for (int i = 0; i < inventorySlots.Count; i++)
+        {
+            ItemHolder holder = inventorySlots[i];
+
+            if (holder == null || holder.ItemData == null) continue;
+
+            ItemSaveData itemData = holder.GetSaveData(i);
+
+            if (itemData != null)
+            {
+                data.items.Add(itemData);
+            }
+        }
+
+        if (quickSlotItem != null)
+        {
+            data.quickSlotItemID = quickSlotItem.itemID;
+        }
+
+        return data;
+    }
+
+    public void LoadSaveData(InventorySaveData data)
+    {
+        inventorySlots.Clear();
+        quickSlotItem = null;
+
+        if (data == null)
+        {
+            RefreshAllUI();
+            return;
+        }
+
+        if (GameDataManager.Instance == null)
+        {
+            Debug.LogError("[Inventory] GameDataManager가 없어 " + "아이템 원본을 복구할 수 없습니다.");
+
+            return;
+        }
+
+        if (data.items != null)
+        {
+            List<ItemSaveData> sortedItems = data.items.OrderBy(item => item.slotIndex).ToList();
+
+            foreach (ItemSaveData savedItem in sortedItems)
+            {
+                if (savedItem == null || string.IsNullOrEmpty(savedItem.itemID)) continue;
+
+                Item_Base original = GameDataManager.Instance.GetItemByID(savedItem.itemID);
+
+                if (original == null)
+                {
+                    Debug.LogWarning($"[Inventory] 아이템 원본을 " + $"찾을 수 없습니다. " + $"ID: {savedItem.itemID}");
+
+                    continue;
+                }
+
+                ItemHolder holder = ItemHolder.FromSaveData(original, savedItem);
+
+                if (holder != null)
+                {
+                    inventorySlots.Add(holder);
+                }
+            }
+        }
+
+        RestoreQuickSlot(data.quickSlotItemID);
+
+        RefreshAllUI();
+
+        Debug.Log($"[Inventory] 인벤토리 " + $"{inventorySlots.Count}개 복구 완료");
+    }
+
+    #endregion
+
+    //퀵슬롯 복구
+    private void RestoreQuickSlot(string itemID)
+    {
+        quickSlotItem = null;
+
+        if (string.IsNullOrEmpty(itemID)) return;
+
+        ItemHolder holder = inventorySlots.FirstOrDefault(
+                slot =>
+                    slot != null &&
+                    slot.ItemData != null &&
+                    slot.ItemData.itemID == itemID &&
+                    slot.Quantity > 0
+            );
+
+        if (holder == null) return;
+
+        if (holder.ItemData.itemType != ITEMTYPE.Consumable) return;
+
+        quickSlotItem = holder.ItemData;
+    }
 }

@@ -31,13 +31,13 @@ public class SaveData
 
 //보조 데이터 구조체들
 
-[System.Serializable]
+/*[System.Serializable]
 public class ItemSaveData
 {
     public string itemID;    // 아이템 식별자 (예: "POTION_RED")
     public int quantity;     // 개수
     public int slotIndex;    // 인벤토리 몇 번째 칸인가
-}
+}*/
 
 [System.Serializable]
 public class EquipSaveData
