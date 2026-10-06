@@ -125,6 +125,8 @@ public class Character_Manager : MonoBehaviour
             if (!characterStatusDictionary[npcID].isOwned)
             {
                 characterStatusDictionary[npcID].isOwned = true;
+
+                GameDataManager.Instance?.RequestAutoSave();
             }
         }
     }
@@ -158,12 +160,14 @@ public class Character_Manager : MonoBehaviour
     public void SaveParty(List<string> newPartyIDs, List<Character_Data> newPartyData)
     {
         currentPartyIDs = new List<string>(newPartyIDs);
-        currentPartyData = new List<Character_Data>(newPartyData); 
+        currentPartyData = new List<Character_Data>(newPartyData);
+        GameDataManager.Instance?.RequestAutoSave();
     }
 
     public void SaveParty(List<string> newPartyIDs)
     {
         currentPartyIDs = new List<string>(newPartyIDs);
+        GameDataManager.Instance?.RequestAutoSave();
     }
 
     public void SavePreset(int index, string name, List<string> ids)
@@ -177,6 +181,8 @@ public class Character_Manager : MonoBehaviour
         }
         partyPresets[index].presetName = name;
         partyPresets[index].characterIDs = new List<string>(ids);
+
+        GameDataManager.Instance?.RequestAutoSave();
     }
 
     public PartyPreset GetPreset(int index)
@@ -221,6 +227,11 @@ public class Character_Manager : MonoBehaviour
         {
             status.level = levelCap;
             status.currentExp = 0;
+        }
+
+        if (appliedExp > 0)
+        {
+            GameDataManager.Instance?.RequestAutoSave();
         }
 
         return appliedExp;
@@ -416,6 +427,8 @@ public class Character_Manager : MonoBehaviour
         status.currentExp = 0;
 
         RecalculateStatsByLevel(status, data);
+
+        GameDataManager.Instance?.RequestAutoSave();
 
         return true;
     }
@@ -668,6 +681,33 @@ public class Character_Manager : MonoBehaviour
                 partyPresets.Add(preset);
             }
         }
+    }
+
+    public void InitializeNewParty()
+    {
+        currentPartyIDs.Clear();
+
+        if (currentPartyData == null)  return;
+
+        for (int i = 0; i < currentPartyData.Count; i++)
+        {
+            if (currentPartyIDs.Count >= 3) break;
+
+            Character_Data data = currentPartyData[i];
+
+            if (data == null || string.IsNullOrEmpty(data.characterID)) continue;
+
+            if (!IsRecruited(data.characterID))
+            {
+                Debug.LogWarning($"[Character] 기본 파티 캐릭터가 " + $"보유 상태가 아닙니다. " + $"ID: {data.characterID}");
+
+                continue;
+            }
+
+            currentPartyIDs.Add(data.characterID);
+        }
+
+        Debug.Log($"[Character] 신규 계정 기본 파티 초기화 완료 / " + $"{currentPartyIDs.Count}명");
     }
 
     #endregion

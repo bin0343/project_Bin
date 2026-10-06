@@ -323,33 +323,16 @@ public class Character_Stat : MonoBehaviour
 
     private void SyncCurrentHPToManager()
     {
-        if (characterData == null)
-        {
-            return;
-        }
+        if (characterData == null) return;
 
-        if (Character_Manager.Instance == null)
-        {
-            return;
-        }
+        if (Character_Manager.Instance == null) return;
 
-        CharacterStatus status =
-            Character_Manager.Instance.GetCharacterStatus(
-                characterData.characterID,
-                characterData
-            );
+        CharacterStatus status = Character_Manager.Instance.GetCharacterStatus(characterData.characterID, characterData);
 
-        if (status == null)
-        {
-            return;
-        }
+        if (status == null) return;
 
-        status.currentHP =
-            Mathf.Clamp(
-                currentHP,
-                0,
-                maxHP
-            );
+        status.currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        GameDataManager.Instance?.RequestAutoSave();
     }
 
     #endregion

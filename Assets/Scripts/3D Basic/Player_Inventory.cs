@@ -72,6 +72,7 @@ public class Player_Inventory : MonoBehaviour
                     UI_ItemToastManager.Instance.ShowToast(item, 1);
             }
             RefreshAllUI();
+            GameDataManager.Instance?.RequestAutoSave();
             return true;
         }
 
@@ -94,6 +95,7 @@ public class Player_Inventory : MonoBehaviour
             if (remainingQuantity <= 0)
             {
                 RefreshAllUI();
+                GameDataManager.Instance?.RequestAutoSave();
                 return true;
             }
         }
@@ -110,10 +112,12 @@ public class Player_Inventory : MonoBehaviour
             }
 
             RefreshAllUI();
+            GameDataManager.Instance?.RequestAutoSave();
             return true;
         }
 
         RefreshAllUI();
+        GameDataManager.Instance?.RequestAutoSave();
         return true;
     }
     #endregion
@@ -140,6 +144,8 @@ public class Player_Inventory : MonoBehaviour
 
         CleanUpInventory(); 
         RefreshAllUI();
+
+        GameDataManager.Instance?.RequestAutoSave();
         return true;
     }
     #endregion
@@ -157,6 +163,7 @@ public class Player_Inventory : MonoBehaviour
         quickSlotItem = itemHolder.ItemData;
 
         RefreshAllUI();
+        GameDataManager.Instance?.RequestAutoSave();
 
         Debug.Log($"{quickSlotItem.itemName}을 퀵슬롯에 등록했습니다.");
     }
@@ -197,7 +204,7 @@ public class Player_Inventory : MonoBehaviour
         }
 
         RefreshAllUI();
-
+        GameDataManager.Instance?.RequestAutoSave();
         return true;
     }
 
@@ -284,6 +291,7 @@ public class Player_Inventory : MonoBehaviour
 
         CleanUpInventory();
         RefreshAllUI();
+        GameDataManager.Instance?.RequestAutoSave();
     }
 
     public void RefreshAllUI()
@@ -311,6 +319,7 @@ public class Player_Inventory : MonoBehaviour
                 break;
         }
         RefreshAllUI();
+        GameDataManager.Instance?.RequestAutoSave();
     }
     #endregion
 

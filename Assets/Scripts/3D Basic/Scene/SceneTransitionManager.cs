@@ -79,6 +79,8 @@ public class SceneTransitionManager : MonoBehaviour
             battleMgr.enabled = false;
         }
 
+        GameDataManager.Instance?.ForceSave();
+
         yield return FadeLoadingScreen(1f);
 
         AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);

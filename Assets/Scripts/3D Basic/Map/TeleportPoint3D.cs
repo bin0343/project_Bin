@@ -9,6 +9,14 @@ public class TeleportPoint3D : Interactable
     [Header("현재 상태")]
     public bool isActivated = false; // 시작할 때는 비활성화(false) 상태
 
+    [Header("저장 ID")]
+    [SerializeField] private string teleportID;
+
+    public string TeleportID
+    {
+        get { return teleportID; }
+    }
+
     protected override void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
@@ -36,6 +44,12 @@ public class TeleportPoint3D : Interactable
         if (!isActivated)
         {
             isActivated = true;
+
+            if (GameDataManager.Instance != null)
+            {
+                GameDataManager.Instance.MarkTeleportActivated(teleportID);
+            }
+
             Debug.Log($"{teleportName} 워프 포인트가 활성화되었습니다!");
 
             if (LocalMapTeleportManager.instance != null)
@@ -53,5 +67,10 @@ public class TeleportPoint3D : Interactable
         {
             BattleManager.instance.RestorePartyAtTeleport();
         }
+    }
+
+    public void ApplySavedActivation(bool activated)
+    {
+        isActivated = activated;
     }
 }

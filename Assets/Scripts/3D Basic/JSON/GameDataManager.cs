@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameDataManager : MonoBehaviour
 {
@@ -18,6 +19,15 @@ public class GameDataManager : MonoBehaviour
     private bool saveDirty;
     private float autoSaveTimer;
     private bool isApplyingSaveData;
+
+    [Header("월드 위치 저장")]
+    [SerializeField] private string persistentWorldSceneName = "City";
+    [SerializeField, Min(1f)]
+    private float worldPositionCheckInterval = 5f;
+    [SerializeField, Min(0.1f)]
+    private float worldPositionSaveDistance = 2f;
+
+    private float worldPositionCheckTimer;
 
     [Header("게임의 모든 아이템")]
     public List<Item_Base> allGameItems; // 인스펙터에서 드래그해서 넣기
@@ -40,11 +50,25 @@ public class GameDataManager : MonoBehaviour
     //빠른저장
     private void Update()
     {
-        if (!sessionReady || !saveDirty || isApplyingSaveData) return;
+        if (!sessionReady || isApplyingSaveData) return;
+
+        worldPositionCheckTimer += Time.unscaledDeltaTime;
+
+        if (worldPositionCheckTimer >= worldPositionCheckInterval)
+        {
+            worldPositionCheckTimer = 0f;
+
+            CheckWorldPositionChanged();
+        }
+
+        if (!saveDirty) return;
 
         autoSaveTimer -= Time.unscaledDeltaTime;
 
-        if (autoSaveTimer <= 0f) ForceSave();
+        if (autoSaveTimer <= 0f)
+        {
+            ForceSave();
+        }
     }
 
     //자동 저장 함수
@@ -54,6 +78,37 @@ public class GameDataManager : MonoBehaviour
 
         saveDirty = true;
         autoSaveTimer = autoSaveDelay;
+    }
+
+    private void CheckWorldPositionChanged()
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        if (currentSceneName != persistentWorldSceneName) return;
+
+        if (BattleManager.instance == null) return;
+
+        if (!BattleManager.instance.TryGetActiveWorldPose(out Vector3 currentPosition, out float rotationY)) return;
+
+        if (CurrentSaveData.world == null)
+        {
+            RequestAutoSave();
+            return;
+        }
+
+        if (!CurrentSaveData.world.hasSavedPosition)
+        {
+            RequestAutoSave();
+            return;
+        }
+
+        float sqrDistance = (currentPosition - CurrentSaveData.world.playerPosition).sqrMagnitude;
+        float saveDistanceSqr = worldPositionSaveDistance * worldPositionSaveDistance;
+
+        if (sqrDistance >= saveDistanceSqr)
+        {
+            RequestAutoSave();
+        }
     }
 
     // --- [아이템 DB 초기화] ---
@@ -135,6 +190,43 @@ public class GameDataManager : MonoBehaviour
         }
     }
 
+    public bool IsTeleportActivated(string teleportID)
+    {
+        if (string.IsNullOrWhiteSpace(teleportID)) return false;
+
+        if (CurrentSaveData?.world?.activatedTeleportIDs == null) return false;
+
+        return CurrentSaveData.world.activatedTeleportIDs.Contains(teleportID);
+    }
+
+    public void MarkTeleportActivated(string teleportID)
+    {
+        if (string.IsNullOrWhiteSpace(teleportID))
+        {
+            Debug.LogWarning("[Save] Teleport ID가 비어 있습니다.");
+
+            return;
+        }
+
+        if (CurrentSaveData.world == null)
+        {
+            CurrentSaveData.world = new WorldSaveData();
+        }
+
+        if (CurrentSaveData.world.activatedTeleportIDs == null)
+        {
+            CurrentSaveData.world.activatedTeleportIDs = new List<string>();
+        }
+
+        if (CurrentSaveData.world.activatedTeleportIDs.Contains(teleportID)) return;
+
+        CurrentSaveData.world.activatedTeleportIDs.Add(teleportID);
+
+        RequestAutoSave();
+
+        Debug.Log($"[Save] 텔레포트 활성화 저장: " + $"{teleportID}");
+    }
+
     // --- [로드 (Load)] ---
     public bool LoadGame()
     {
@@ -191,43 +283,65 @@ public class GameDataManager : MonoBehaviour
         {
             CurrentSaveData = new GameSaveData();
         }
-
         if (Account_Manager.Instance != null)
         {
             CurrentSaveData.account = Account_Manager.Instance.GetSaveData();
         }
-
         if (Character_Manager.Instance != null)
         {
             CurrentSaveData.characters = Character_Manager.Instance.GetCharacterSaveData();
 
             CurrentSaveData.party = Character_Manager.Instance.GetPartySaveData();
         }
-
         if (BattleManager.instance != null && CurrentSaveData.party != null)
         {
             CurrentSaveData.party.activeCharacterIndex = BattleManager.instance.CurrentActiveIndex;
         }
-
         if (Player_Inventory.instance != null)
         {
             CurrentSaveData.inventory = Player_Inventory.instance.GetSaveData();
         }
+        if (QuestManager.instance != null)
+        {
+            CurrentSaveData.quests = QuestManager.instance.GetQuestSaveData();
+        }
+
+        GatherWorldData();
     }
 
     private void EnsureSaveContainers()
     {
         if (CurrentSaveData.account == null) CurrentSaveData.account = new AccountSaveData();
-
         if (CurrentSaveData.characters == null) CurrentSaveData.characters = new List<CharacterSaveData>();
-
         if (CurrentSaveData.party == null) CurrentSaveData.party = new PartySaveData();
-
         if (CurrentSaveData.inventory == null) CurrentSaveData.inventory = new InventorySaveData();
-
         if (CurrentSaveData.world == null) CurrentSaveData.world = new WorldSaveData();
-
+        if (CurrentSaveData.world.activatedTeleportIDs == null) CurrentSaveData.world.activatedTeleportIDs = new List<string>();
+        if (CurrentSaveData.world.clearedBossIDs == null) CurrentSaveData.world.clearedBossIDs = new List<string>();
         if (CurrentSaveData.quests == null) CurrentSaveData.quests = new List<QuestSaveData>();
+    }
+
+    private void GatherWorldData()
+    {
+        if (CurrentSaveData.world == null)
+        {
+            CurrentSaveData.world = new WorldSaveData();
+        }
+
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        // 보스맵 같은 인스턴스 전투씬에서는
+        // 마지막 안전 월드 위치를 덮어쓰지 않는다.
+        if (currentSceneName != persistentWorldSceneName) return;
+
+        if (BattleManager.instance == null) return;
+
+        if (!BattleManager.instance.TryGetActiveWorldPose(out Vector3 position, out float rotationY)) return;
+
+        CurrentSaveData.world.sceneName = currentSceneName;
+        CurrentSaveData.world.playerPosition = position;
+        CurrentSaveData.world.playerRotationY = rotationY;
+        CurrentSaveData.world.hasSavedPosition = true;
     }
 
     // --- [데이터 적용 (SaveData -> Game)] ---
@@ -237,17 +351,19 @@ public class GameDataManager : MonoBehaviour
         {
             Account_Manager.Instance.LoadSaveData(CurrentSaveData.account);
         }
-
         if (Character_Manager.Instance != null)
         {
             Character_Manager.Instance.LoadCharacterSaveData(CurrentSaveData.characters);
 
             Character_Manager.Instance.LoadPartySaveData(CurrentSaveData.party);
         }
-
         if (Player_Inventory.instance != null)
         {
             Player_Inventory.instance.LoadSaveData(CurrentSaveData.inventory);
+        }
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.LoadQuestSaveData(CurrentSaveData.quests);
         }
     }
 
@@ -260,6 +376,11 @@ public class GameDataManager : MonoBehaviour
         if (Account_Manager.Instance != null)
         {
             Account_Manager.Instance.InitializeNewAccount();
+        }
+
+        if (Character_Manager.Instance != null)
+        {
+            Character_Manager.Instance.InitializeNewParty();
         }
 
         if (Player_Inventory.instance != null)
@@ -289,6 +410,105 @@ public class GameDataManager : MonoBehaviour
     }
 
     #endregion
+
+    #region 복원
+    public void RestoreWorldStateForCurrentScene()
+    {
+        if (CurrentSaveData == null || CurrentSaveData.world == null) return;
+
+        WorldSaveData world = CurrentSaveData.world;
+
+        if (!world.hasSavedPosition)
+        {
+            Debug.Log("[GameDataManager] 저장된 위치가 없습니다.");
+
+            return;
+        }
+
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        if (world.sceneName != currentSceneName)
+        {
+            Debug.Log($"[GameDataManager] 저장된 씬 " + $"[{world.sceneName}]과 현재 씬 " + $"[{currentSceneName}]이 달라 " + $"위치 복원을 생략합니다.");
+
+            return;
+        }
+
+        if (BattleManager.instance == null) return;
+
+        BattleManager.instance.RestoreSavedWorldPose(world.playerPosition, world.playerRotationY);
+    }
+
+    public void RestoreTeleportStatesForCurrentScene()
+    {
+        TeleportPoint3D[] teleportPoints = FindObjectsOfType<TeleportPoint3D>(true);
+
+        foreach (TeleportPoint3D point in teleportPoints)
+        {
+            if (point == null) continue;
+
+            string id = point.TeleportID;
+
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                Debug.LogWarning($"[Save] TeleportPoint3D에 " + $"Teleport ID가 없습니다. " + $"Object: {point.name}");
+
+                continue;
+            }
+
+            bool activated = IsTeleportActivated(id);
+
+            point.ApplySavedActivation(activated);
+        }
+
+        Debug.Log($"[Save] 텔레포트 상태 복원 완료 / " + $"{teleportPoints.Length}개");
+    }
+
+    #endregion
+
+
+    public bool IsBossCleared(string bossID)
+    {
+        if (string.IsNullOrWhiteSpace(bossID)) return false;
+
+        if (CurrentSaveData?.world?.clearedBossIDs == null) return false;
+
+        return CurrentSaveData.world.clearedBossIDs.Contains(bossID);
+    }
+
+    public void MarkBossCleared(string bossID)
+    {
+        if (string.IsNullOrWhiteSpace(bossID)) return;
+
+        if (CurrentSaveData.world == null)
+        {
+            CurrentSaveData.world =
+                new WorldSaveData();
+        }
+
+        if (CurrentSaveData.world.clearedBossIDs == null)
+        {
+            CurrentSaveData.world.clearedBossIDs = new List<string>();
+        }
+
+        if (CurrentSaveData.world.clearedBossIDs.Contains(bossID)) return;
+
+        CurrentSaveData.world.clearedBossIDs.Add(bossID);
+
+        RequestAutoSave();
+
+        Debug.Log($"[Save] 보스 최초 클리어 저장: " + $"{bossID}");
+    }
+
+    public void ResetBossClear(string bossID)
+    {
+        if (CurrentSaveData?.world?.clearedBossIDs == null)return;
+
+        if (CurrentSaveData.world.clearedBossIDs.Remove(bossID))
+        {
+            RequestAutoSave();
+        }
+    }
 
     private void OnApplicationPause(bool pauseStatus)
     {

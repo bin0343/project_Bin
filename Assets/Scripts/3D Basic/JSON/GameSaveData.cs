@@ -90,12 +90,14 @@ public class WorldSaveData
 {
     public string sceneName = "City";
 
+    public bool hasSavedPosition = false;
+
     public Vector3 playerPosition;
     public float playerRotationY;
 
     public string lastTeleportPointID;
 
     public List<string> activatedTeleportIDs = new List<string>();
-
     public List<string> clearedBossIDs = new List<string>();
+    public List<string> revealedLocationIDs = new List<string>();
 }

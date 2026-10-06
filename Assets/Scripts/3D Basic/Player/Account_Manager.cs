@@ -25,10 +25,6 @@ public class Account_Manager : MonoBehaviour
     private float apRecoveryCheckTimer;
     private long lastAPUpdateUtcTicks;
 
-    private const string CurrentAPSaveKey = "Account_CurrentAP";
-
-    private const string LastAPUpdateSaveKey = "Account_LastAPUpdateUtcTicks";
-
     [Header("파티 공용 스태미나 (대시/구르기)")]
     public float maxStamina = 100f;
     public float currentStamina = 100f;
@@ -46,8 +42,6 @@ public class Account_Manager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            LoadAPState();
         }
         else
         {
@@ -104,6 +98,7 @@ public class Account_Manager : MonoBehaviour
     public void GainGold(int amount)
     {
         gold += amount;
+        GameDataManager.Instance?.RequestAutoSave();
         Debug.Log($"골드 획득: {amount} / 현재 골드: {gold}");
         // TODO: 상단 재화 UI 갱신
     }
@@ -126,29 +121,11 @@ public class Account_Manager : MonoBehaviour
         }
 
         NotifyAPChanged();
-        SaveAPState();
+        GameDataManager.Instance?.RequestAutoSave();
 
         Debug.Log($"[행동력] {amount} 소모 / " + $"현재 {currentAP}/{maxAP}");
 
         return true;
-    }
-
-    private void LoadAPState()
-    {
-        currentAP = Mathf.Clamp(PlayerPrefs.GetInt(CurrentAPSaveKey, currentAP), 0, maxAP);
-
-        string savedTicks = PlayerPrefs.GetString(LastAPUpdateSaveKey, string.Empty);
-
-        if (!long.TryParse(savedTicks, out lastAPUpdateUtcTicks) || lastAPUpdateUtcTicks <= 0)
-        {
-            lastAPUpdateUtcTicks = DateTime.UtcNow.Ticks;
-
-            SaveAPState();
-            return;
-        }
-
-        ApplyAPRecovery();
-        NotifyAPChanged();
     }
 
     private void ApplyAPRecovery()
@@ -194,19 +171,10 @@ public class Account_Manager : MonoBehaviour
             Debug.Log($"[행동력] {recoveredAmount} 회복 / " + $"현재 {currentAP}/{maxAP}");
 
             NotifyAPChanged();
-            SaveAPState();
+            GameDataManager.Instance?.RequestAutoSave();
         }
     }
-
-    private void SaveAPState()
-    {
-        PlayerPrefs.SetInt(CurrentAPSaveKey, currentAP);
-
-        PlayerPrefs.SetString(LastAPUpdateSaveKey, lastAPUpdateUtcTicks.ToString());
-
-        PlayerPrefs.Save();
-    }
-
+    
     public void GainAccountExp(int amount)
     {
         accountExp += amount;
@@ -215,6 +183,7 @@ public class Account_Manager : MonoBehaviour
             accountExp -= levelUpExp;
             accountLevel++;
             levelUpExp *= 2; // 임시 공식
+            GameDataManager.Instance?.RequestAutoSave();
             Debug.Log($"계정 레벨업! 현재 레벨: {accountLevel}");
         }
     }
@@ -293,18 +262,9 @@ public class Account_Manager : MonoBehaviour
 
     private void OnApplicationPause(bool isPaused)
     {
-        if (isPaused)
-        {
-            SaveAPState();
-        }
-        else
+        if (!isPaused)
         {
             ApplyAPRecovery();
         }
-    }
-
-    private void OnApplicationQuit()
-    {
-        SaveAPState();
     }
 }

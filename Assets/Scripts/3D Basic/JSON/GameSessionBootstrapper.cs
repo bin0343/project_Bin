@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Services.Authentication;
 
+[DefaultExecutionOrder(-1000)]
 public class GameSessionBootstrapper : MonoBehaviour
 {
     private void Start()
@@ -30,6 +31,11 @@ public class GameSessionBootstrapper : MonoBehaviour
             GameDataManager.Instance.InitializeNewGame();
         }
 
+        if (loaded)
+        {
+            GameDataManager.Instance.RestoreTeleportStatesForCurrentScene();
+        }
+
         if (BattleManager.instance != null)
         {
             BattleManager.instance.InitializeParty();
@@ -37,6 +43,8 @@ public class GameSessionBootstrapper : MonoBehaviour
             if (loaded)
             {
                 BattleManager.instance.RestoreActiveCharacterIndex(GameDataManager.Instance.SavedActiveCharacterIndex);
+
+                GameDataManager.Instance.RestoreWorldStateForCurrentScene();
             }
         }
 

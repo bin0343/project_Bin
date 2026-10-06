@@ -33,6 +33,13 @@ public class MapLocationMarker : MonoBehaviour
     [Tooltip("텔레포트할 실제 도착 위치. 비워두면 이 오브젝트 위치를 사용")]
     public Transform teleportTarget;
 
+    [Header("저장 설정")]
+    [SerializeField] private string locationID;
+    [SerializeField] private bool saveRevealState = false;
+
+    public string LocationID => locationID;
+    public bool SaveRevealState => saveRevealState;
+
 
     public Transform GetTeleportTarget()
     {

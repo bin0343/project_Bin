@@ -111,6 +111,8 @@ public class ItemHolder
             weaponLevel = maxLevel;
             weaponExp = 0;
         }
+
+        GameDataManager.Instance?.RequestAutoSave();
     }
 
     public bool TryBreakthrough()
@@ -119,6 +121,7 @@ public class ItemHolder
         if (breakthroughStage >= 2) return false;
 
         breakthroughStage++;
+        GameDataManager.Instance?.RequestAutoSave();
         return true;
     }
 
@@ -126,6 +129,7 @@ public class ItemHolder
     {
         if (refinementStage >= 5) return false;
         refinementStage++;
+        GameDataManager.Instance?.RequestAutoSave();
         return true;
     }
 

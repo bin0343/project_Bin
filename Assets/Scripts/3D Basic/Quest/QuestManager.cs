@@ -96,7 +96,13 @@ public class QuestManager : MonoBehaviour
 
         if (currentStep.objectives == null) return false;
 
-        return currentStep.objectives.Exists(objective => objective.targetID == objectiveID);
+        QuestObjective objective = currentStep.objectives.Find(obj => obj.targetID == objectiveID);
+
+        if (objective == null) return false;
+
+        if (!status.objectiveProgress.TryGetValue(objectiveID, out int currentAmount)) return false;
+
+        return currentAmount < objective.requiredAmount;
     }
 
     // 특정 퀘스트를 추적하도록 설정하는 함수
@@ -107,12 +113,14 @@ public class QuestManager : MonoBehaviour
             currentTrackedQuestID = "";
             ClearTrackedQuestTarget();
             OnQuestTrackedChanged?.Invoke(null); // 추적 해제
+            RequestQuestAutoSave();
             return;
         }
 
         currentTrackedQuestID = questID;
         RefreshTrackedQuestTarget();
         OnQuestTrackedChanged?.Invoke(GetQuestByID(questID));
+        RequestQuestAutoSave();
         Debug.Log($"[{questID}] 퀘스트 추적 시작!");
     }
 
@@ -185,8 +193,37 @@ public class QuestManager : MonoBehaviour
                 OnQuestProgressChanged?.Invoke(questStatus, originalQuest);
                 // 이 퀘스트의 모든 목표가 달성되었는지 확인
                 CheckCurrentStepCompletion(questStatus, originalQuest);
+                RequestQuestAutoSave();
             }
         }
+    }
+
+    public bool TryGetCurrentObjectiveProgress(string questID, string objectiveID, out int currentAmount, out int requiredAmount)
+    {
+        currentAmount = 0;
+        requiredAmount = 0;
+
+        if (!questLog.TryGetValue(questID, out PlayerQuestStatus status)) return false;
+
+        if (status.status != QuestStatus.IN_PROGRESS) return false;
+
+        Quest quest = GetQuestByID(questID);
+
+        if (quest == null) return false;
+
+        if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count) return false;
+
+        QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+        QuestObjective objective = currentStep.objectives.Find(obj => obj.targetID == objectiveID);
+
+        if (objective == null) return false;
+
+        if (!status.objectiveProgress.TryGetValue(objectiveID, out currentAmount)) return false;
+
+        requiredAmount = objective.requiredAmount;
+
+        return true;
     }
 
     // 퀘스트 실패 처리 함수
@@ -195,12 +232,7 @@ public class QuestManager : MonoBehaviour
         if (questLog.ContainsKey(questID))
         {
             questLog[questID].status = QuestStatus.FAILED;
-
-            // 알림용 이벤트 발생 (필요하면 UI_Toast 등으로 연결)
-            Debug.Log($"[퀘스트 실패] 기한이 지나 퀘스트 '{questID}' 실패 처리됨.");
-
-            // 만약 퀘스트 실패 시 UI를 갱신해야 한다면 호출
-            // OnQuestProgressChanged?.Invoke(questLog[questID], questDatabase[questID]);
+            RequestQuestAutoSave();
         }
     }
 
@@ -244,6 +276,7 @@ public class QuestManager : MonoBehaviour
             Debug.Log($"[퀘스트 단계 진행] {quest.questTitle} " + $"→ Step {status.currentStepIndex + 1}");
 
             OnQuestProgressChanged?.Invoke(status, quest);
+            RequestQuestAutoSave();
             return;
         }
 
@@ -482,4 +515,13 @@ public class QuestManager : MonoBehaviour
 
         Debug.Log($"퀘스트 로드 완료: {questLog.Count}개");
     }
+
+    #region Helper
+
+    private void RequestQuestAutoSave()
+    {
+        GameDataManager.Instance?.RequestAutoSave();
+    }
+
+    #endregion
 }

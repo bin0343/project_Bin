@@ -19,12 +19,24 @@ public class MonsterSpawner : MonoBehaviour
     public int maxAliveAtOnce = 5;      //필드 동시 존재 최대 마리
     public float spawnDelay = 2f;       //몬스터 등장 간격
 
+    [Header("퀘스트 연동")]
+    [SerializeField] private bool restoreFromQuestProgress = false;
+    [SerializeField] private string questID;
+    [SerializeField] private string objectiveID;
+
     private int currentTotalSpawned = 0;
     private List<GameObject> activeMonsters = new List<GameObject>();
     private bool isSpawningActive = false;
 
+
     private void Start()
     {
+        if (restoreFromQuestProgress)
+        {
+            TryRestoreQuestSpawner();
+            return;
+        }
+
         if (spawnOnStart)
         {
             StartSpawning();
@@ -86,5 +98,21 @@ public class MonsterSpawner : MonoBehaviour
         activeMonsters.Add(newMonster);
 
         currentTotalSpawned++;
+    }
+
+    private void TryRestoreQuestSpawner()
+    {
+        if (QuestManager.instance == null) return;
+
+        if (!QuestManager.instance.TryGetCurrentObjectiveProgress(questID, objectiveID, out int currentAmount, out int requiredAmount)) return;
+
+        if (currentAmount >= requiredAmount) return;
+
+        currentTotalSpawned = currentAmount;
+        totalMaxSpawn = requiredAmount;
+
+        Debug.Log($"[MonsterSpawner] 퀘스트 스포너 복원 / " + $"{objectiveID} " + $"{currentAmount}/{requiredAmount}");
+
+        StartSpawning();
     }
 }

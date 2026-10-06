@@ -234,6 +234,7 @@ public class BattleManager : MonoBehaviour
         ChangeCameraTarget(targetObj.transform);
 
         currentActiveIndex = targetIndex;
+        GameDataManager.Instance?.RequestAutoSave();
 
         UpdateSystemsWithActiveCharacter(targetObj);
     }
@@ -391,6 +392,8 @@ public class BattleManager : MonoBehaviour
                     playerAction.animator.transform.rotation = spawnRotation;
                 }
             }
+
+            GameDataManager.Instance?.RequestAutoSave();
         }
 
         Physics.SyncTransforms();
@@ -410,6 +413,95 @@ public class BattleManager : MonoBehaviour
 
             UpdateSystemsWithActiveCharacter(activeCharacter);
         }
+    }
+
+    public bool TryGetActiveWorldPose(out Vector3 position, out float rotationY)
+    {
+        position = Vector3.zero;
+        rotationY = 0f;
+
+        GameObject activeCharacter = GetActiveCharacter();
+
+        if (activeCharacter == null) return false;
+
+        position = activeCharacter.transform.position;
+
+        Transform characterBody = GetCharacterBody(activeCharacter);
+
+        if (characterBody != null)
+        {
+            rotationY = characterBody.eulerAngles.y;
+        }
+        else
+        {
+            rotationY = activeCharacter.transform.eulerAngles.y;
+        }
+
+        return true;
+    }
+
+    public void RestoreSavedWorldPose(Vector3 position, float rotationY)
+    {
+        Quaternion bodyRotation = Quaternion.Euler(0f, rotationY, 0f);
+
+        GameObject activeBeforeMove = GetActiveCharacter();
+
+        Transform cameraTarget = null;
+        Vector3 oldCameraTargetPosition = Vector3.zero;
+
+        if (activeBeforeMove != null)
+        {
+            cameraTarget = GetCameraTarget(activeBeforeMove.transform);
+
+            if (cameraTarget != null)
+            {
+                oldCameraTargetPosition = cameraTarget.position;
+            }
+        }
+
+        for (int i = 0; i < spawnedCharacters.Length; i++)
+        {
+            GameObject character = spawnedCharacters[i];
+
+            if (character == null) continue;
+
+            character.transform.SetPositionAndRotation(position, Quaternion.identity);
+
+            Rigidbody rb = character.GetComponent<Rigidbody>();
+
+            if (rb != null)
+            {
+                rb.position = position;
+                rb.rotation = Quaternion.identity;
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+
+            Transform body = GetCharacterBody(character);
+
+            if (body != null)
+            {
+                body.rotation = bodyRotation;
+            }
+        }
+
+        Physics.SyncTransforms();
+
+        if (mainFreeLookCamera != null && cameraTarget != null)
+        {
+            Vector3 warpDelta = cameraTarget.position - oldCameraTargetPosition;
+
+            mainFreeLookCamera.OnTargetObjectWarped(cameraTarget, warpDelta);
+        }
+
+        GameObject activeCharacter = GetActiveCharacter();
+
+        if (activeCharacter != null)
+        {
+            UpdateSystemsWithActiveCharacter(activeCharacter);
+        }
+
+        Debug.Log($"[BattleManager] 저장 위치 복원 / " + $"{position}");
     }
 
     private int FindNextAliveCharacter()
