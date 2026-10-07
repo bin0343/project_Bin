@@ -75,6 +75,7 @@ public class GameDataManager : MonoBehaviour
     public void RequestAutoSave()
     {
         if (!sessionReady || isApplyingSaveData) return;
+        if (saveDirty) return;
 
         saveDirty = true;
         autoSaveTimer = autoSaveDelay;
@@ -227,6 +228,28 @@ public class GameDataManager : MonoBehaviour
         Debug.Log($"[Save] 텔레포트 활성화 저장: " + $"{teleportID}");
     }
 
+    public void SetLastTeleportPoint(string teleportID)
+    {
+        if (string.IsNullOrWhiteSpace(teleportID))
+        {
+            Debug.LogWarning("[Save] Last Teleport ID가 비어 있습니다.");
+            return;
+        }
+
+        if (CurrentSaveData.world == null)
+        {
+            CurrentSaveData.world = new WorldSaveData();
+        }
+
+        if (CurrentSaveData.world.lastTeleportPointID == teleportID) return;
+
+        CurrentSaveData.world.lastTeleportPointID = teleportID;
+
+        RequestAutoSave();
+
+        Debug.Log($"[Save] 마지막 안전 텔레포트 포인트 갱신: {teleportID}");
+    }
+
     // --- [로드 (Load)] ---
     public bool LoadGame()
     {
@@ -307,6 +330,7 @@ public class GameDataManager : MonoBehaviour
         }
 
         GatherWorldData();
+        GatherCustomMapPinData();
     }
 
     private void EnsureSaveContainers()
@@ -318,6 +342,7 @@ public class GameDataManager : MonoBehaviour
         if (CurrentSaveData.world == null) CurrentSaveData.world = new WorldSaveData();
         if (CurrentSaveData.world.activatedTeleportIDs == null) CurrentSaveData.world.activatedTeleportIDs = new List<string>();
         if (CurrentSaveData.world.clearedBossIDs == null) CurrentSaveData.world.clearedBossIDs = new List<string>();
+        if (CurrentSaveData.world.customMapPins == null) CurrentSaveData.world.customMapPins = new List<CustomMapPinSaveData>();
         if (CurrentSaveData.quests == null) CurrentSaveData.quests = new List<QuestSaveData>();
     }
 
@@ -344,6 +369,27 @@ public class GameDataManager : MonoBehaviour
         CurrentSaveData.world.hasSavedPosition = true;
     }
 
+    private void GatherCustomMapPinData()
+    {
+        if (SceneManager.GetActiveScene().name != persistentWorldSceneName) return;
+
+        if (CurrentSaveData.world == null)
+        {
+            CurrentSaveData.world = new WorldSaveData();
+        }
+
+        MapPinManager pinManager = MapPinManager.instance;
+
+        if (pinManager == null)
+        {
+            pinManager = FindObjectOfType<MapPinManager>(true);
+        }
+
+        if (pinManager == null) return;
+
+        CurrentSaveData.world.customMapPins = pinManager.GetSaveData();
+    }
+
     // --- [데이터 적용 (SaveData -> Game)] ---
     private void ApplyGameData()
     {
@@ -365,6 +411,8 @@ public class GameDataManager : MonoBehaviour
         {
             QuestManager.instance.LoadQuestSaveData(CurrentSaveData.quests);
         }
+
+        RestoreCustomMapPinsForCurrentScene();
     }
 
     #region 신규 초기화
@@ -420,7 +468,9 @@ public class GameDataManager : MonoBehaviour
 
         if (!world.hasSavedPosition)
         {
-            Debug.Log("[GameDataManager] 저장된 위치가 없습니다.");
+            Debug.Log("[GameDataManager] 정확한 저장 위치가 없습니다. " + "마지막 텔레포트 포인트 복귀를 시도합니다.");
+
+            RestoreToSafeFallback();
 
             return;
         }
@@ -429,7 +479,9 @@ public class GameDataManager : MonoBehaviour
 
         if (world.sceneName != currentSceneName)
         {
-            Debug.Log($"[GameDataManager] 저장된 씬 " + $"[{world.sceneName}]과 현재 씬 " + $"[{currentSceneName}]이 달라 " + $"위치 복원을 생략합니다.");
+            Debug.Log($"[GameDataManager] 저장된 씬 [{world.sceneName}]과 " + $"현재 씬 [{currentSceneName}]이 다릅니다. " + "마지막 텔레포트 포인트 복귀를 시도합니다.");
+
+            RestoreToSafeFallback();
 
             return;
         }
@@ -437,6 +489,13 @@ public class GameDataManager : MonoBehaviour
         if (BattleManager.instance == null) return;
 
         BattleManager.instance.RestoreSavedWorldPose(world.playerPosition, world.playerRotationY);
+    }
+
+    private void RestoreToSafeFallback()
+    {
+        if (TryRestoreAtLastTeleportPoint()) return;
+
+        TryRestoreAtDefaultStartPoint();
     }
 
     public void RestoreTeleportStatesForCurrentScene()
@@ -462,6 +521,44 @@ public class GameDataManager : MonoBehaviour
         }
 
         Debug.Log($"[Save] 텔레포트 상태 복원 완료 / " + $"{teleportPoints.Length}개");
+    }
+
+    private bool TryRestoreAtDefaultStartPoint()
+    {
+        if (BattleManager.instance == null) return false;
+
+        Transform startPoint = BattleManager.instance.startSpawnPoint;
+
+        if (startPoint == null)
+        {
+            Debug.LogError("[GameDataManager] BattleManager의 StartSpawnPoint가 없습니다.");
+
+            return false;
+        }
+
+        BattleManager.instance.MovePartyToSpawnPoint(startPoint);
+
+        Debug.Log("[GameDataManager] 기본 StartSpawnPoint로 복귀했습니다.");
+
+        return true;
+    }
+
+    public void RestoreCustomMapPinsForCurrentScene()
+    {
+        if (CurrentSaveData?.world?.customMapPins == null) return;
+
+        if (SceneManager.GetActiveScene().name != persistentWorldSceneName) return;
+
+        MapPinManager pinManager = MapPinManager.instance;
+
+        if (pinManager == null)
+        {
+            pinManager = FindObjectOfType<MapPinManager>(true);
+        }
+
+        if (pinManager == null) return;
+
+        pinManager.LoadSaveData(CurrentSaveData.world.customMapPins);
     }
 
     #endregion
@@ -509,6 +606,46 @@ public class GameDataManager : MonoBehaviour
             RequestAutoSave();
         }
     }
+
+    #region Helper
+
+    private bool TryRestoreAtLastTeleportPoint()
+    {
+        if (CurrentSaveData?.world == null) return false;
+
+        string lastTeleportID = CurrentSaveData.world.lastTeleportPointID;
+
+        if (string.IsNullOrWhiteSpace(lastTeleportID)) return false;
+
+        // 저장상 실제 활성화한 포인트인지도 확인
+        if (!IsTeleportActivated(lastTeleportID))
+        {
+            Debug.LogWarning($"[GameDataManager] 마지막 텔레포트 ID가 " + $"활성화 목록에 없습니다: {lastTeleportID}");
+
+            return false;
+        }
+
+        TeleportPoint3D[] teleportPoints = FindObjectsOfType<TeleportPoint3D>(true);
+
+        foreach (TeleportPoint3D point in teleportPoints)
+        {
+            if (point == null) continue;
+            if (point.TeleportID != lastTeleportID) continue;
+            if (BattleManager.instance == null) return false;
+
+            BattleManager.instance.MovePartyToSpawnPoint(point.transform);
+
+            Debug.Log($"[GameDataManager] 마지막 텔레포트 포인트로 복귀: " + $"{lastTeleportID}");
+
+            return true;
+        }
+
+        Debug.LogWarning($"[GameDataManager] 저장된 마지막 텔레포트 포인트를 " + $"현재 씬에서 찾지 못했습니다: {lastTeleportID}");
+
+        return false;
+    }
+
+    #endregion
 
     private void OnApplicationPause(bool pauseStatus)
     {

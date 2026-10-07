@@ -30,6 +30,10 @@ public class MapLocationMarker : MonoBehaviour
     [Tooltip("전체 지도에서 이 장소로 텔레포트할 수 있는지")]
     public bool canTeleport = false;
 
+    [Header("텔레포트 해금 조건")]
+    [SerializeField] private bool requiresBossClear = false;
+    [SerializeField] private string requiredBossID;
+
     [Tooltip("텔레포트할 실제 도착 위치. 비워두면 이 오브젝트 위치를 사용")]
     public Transform teleportTarget;
 
@@ -73,5 +77,16 @@ public class MapLocationMarker : MonoBehaviour
         {
             miniMapManager.RefreshLocationMarkers();
         }
+    }
+
+    public bool CanTeleportNow()
+    {
+        if (!canTeleport) return false;
+
+        if (!requiresBossClear) return true;
+
+        if (string.IsNullOrWhiteSpace(requiredBossID)) return false;
+
+        return BossClearProgress.IsCleared(requiredBossID);
     }
 }

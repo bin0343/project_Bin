@@ -109,6 +109,8 @@ public class SceneTransitionManager : MonoBehaviour
             battleMgr.MovePartyToSpawnPoint(spawnPoint.transform);
         }
 
+        GameDataManager.Instance?.RequestAutoSave();
+
         // 플레이어 배치가 끝난 뒤 보스 생성
         BossArenaManager bossArena = FindFirstObjectByType<BossArenaManager>();
 

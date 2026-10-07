@@ -48,7 +48,15 @@ public class MapPinManager : MonoBehaviour
     private string currentTeleportTargetName = "";
     private UICustomPin currentSelectedPin;
 
-    private void Awake() { instance = this; }
+
+    private const string RuntimeWaypointName = "MapPinTrackingWaypoint_Runtime";
+
+    private void Awake() 
+    { 
+        instance = this; 
+
+        EnsureDummyWaypoint();
+    }
 
     // 지도 빈 곳을 클릭했을 때 (MapClickDetector가 호출)
     public void OpenCreatePanel(Vector2 mapPos)
@@ -91,7 +99,7 @@ public class MapPinManager : MonoBehaviour
 
         spawnedPins.Add(pinScript);
         OnPinListChanged?.Invoke();
-
+        GameDataManager.Instance?.RequestAutoSave();
         createPanel.SetActive(false);
     }
 
@@ -130,13 +138,19 @@ public class MapPinManager : MonoBehaviour
             if (teleportButton != null) teleportButton.SetActive(false);
         }
 
-        UpdateTrackButtonText();
+        if (groupType != IconGroupType.Teleport)
+        {
+            UpdateTrackButtonText();
+        }
 
         createPanel.SetActive(false);
         detailsPanel.SetActive(true);
     }
 
-    public void CloseDetailsPanel() { detailsPanel.SetActive(false); }
+    public void CloseDetailsPanel() 
+    { 
+        detailsPanel.SetActive(false); 
+    }
 
     public void ExecutePinTeleport()
     {
@@ -158,8 +172,9 @@ public class MapPinManager : MonoBehaviour
 
     private bool IsCurrentPinTracked()
     {
-        if (QuestMarkerUI.instance == null || QuestMarkerUI.instance.CurrentTarget != dummy3DWaypoint)
-            return false;
+        EnsureDummyWaypoint();
+
+        if (QuestMarkerUI.instance == null || QuestMarkerUI.instance.CurrentTarget != dummy3DWaypoint) return false;
 
         Vector3 worldPos = LocalMapController.instance.GetWorldPosition(currentTargetMapPos);
 
@@ -169,6 +184,8 @@ public class MapPinManager : MonoBehaviour
 
     public void TrackCurrentPin()
     {
+        EnsureDummyWaypoint();
+
         if (dummy3DWaypoint == null) return;
 
         if (IsCurrentPinTracked())
@@ -200,9 +217,12 @@ public class MapPinManager : MonoBehaviour
             QuestMarkerUI.instance.ClearTarget();
         }
 
-        Destroy(currentSelectedPin.gameObject);
+        GameObject pinObject = currentSelectedPin.gameObject;
+        spawnedPins.Remove(currentSelectedPin);
         currentSelectedPin = null;
-
+        NotifyPinListChanged();
+        Destroy(pinObject);
+        GameDataManager.Instance?.RequestAutoSave();
         detailsPanel.SetActive(false);
     }
 
@@ -223,5 +243,103 @@ public class MapPinManager : MonoBehaviour
             // 파괴되는 순간 1단계에서 만든 OnDestroy()가 실행되면서 리스트 제거와 미니맵 갱신까지 세트로 처리됩니다!
             Destroy(targetPin.gameObject);
         }
+    }
+
+    public List<CustomMapPinSaveData> GetSaveData()
+    {
+        List<CustomMapPinSaveData> result = new List<CustomMapPinSaveData>();
+
+        foreach (UICustomPin pin in spawnedPins)
+        {
+            if (pin == null) continue;
+
+            CustomMapPinSaveData saveData = new CustomMapPinSaveData();
+
+            saveData.mapPos = pin.mapPos;
+            saveData.iconIndex = pin.iconIndex;
+            saveData.description = pin.description;
+
+            result.Add(saveData);
+        }
+
+        return result;
+    }
+
+    public void LoadSaveData(List<CustomMapPinSaveData> saveList)
+    {
+        foreach (UICustomPin pin in spawnedPins)
+        {
+            if (pin != null)
+            {
+                Destroy(pin.gameObject);
+            }
+        }
+
+        spawnedPins.Clear();
+
+        if (saveList == null)
+        {
+            NotifyPinListChanged();
+            return;
+        }
+
+        foreach (CustomMapPinSaveData data in saveList)
+        {
+            if (data == null) continue;
+
+            if (data.iconIndex < 0 || data.iconIndex >= pinIcons.Length)
+            {
+                Debug.LogWarning($"[MapPin] 존재하지 않는 아이콘 번호: " + $"{data.iconIndex}");
+
+                continue;
+            }
+
+            GameObject newPin = Instantiate(pinPrefab, mapContent);
+
+            RectTransform rect = newPin.GetComponent<RectTransform>();
+
+            if (rect != null)
+            {
+                rect.anchoredPosition = data.mapPos;
+            }
+
+            UICustomPin pinScript = newPin.GetComponent<UICustomPin>();
+
+            if (pinScript == null)
+            {
+                Destroy(newPin);
+                continue;
+            }
+
+            Sprite icon = pinIcons[data.iconIndex];
+
+            pinScript.Setup(data.mapPos, data.iconIndex, data.description, icon);
+
+            spawnedPins.Add(pinScript);
+        }
+
+        NotifyPinListChanged();
+
+        Debug.Log($"[MapPin] 커스텀 핀 복원 완료 / " + $"{spawnedPins.Count}개");
+    }
+
+
+    private void EnsureDummyWaypoint()
+    {
+        if (dummy3DWaypoint != null) return;
+
+        GameObject existing = GameObject.Find(RuntimeWaypointName);
+
+        if (existing != null)
+        {
+            dummy3DWaypoint = existing.transform;
+            return;
+        }
+
+        GameObject waypoint = new GameObject(RuntimeWaypointName);
+
+        dummy3DWaypoint = waypoint.transform;
+
+        DontDestroyOnLoad(waypoint);
     }
 }

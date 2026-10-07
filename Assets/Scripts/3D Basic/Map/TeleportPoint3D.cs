@@ -23,6 +23,8 @@ public class TeleportPoint3D : Interactable
 
         if (isActivated)
         {
+            GameDataManager.Instance?.SetLastTeleportPoint(teleportID);
+
             if (BattleManager.instance != null)
             {
                 BattleManager.instance.RestorePartyAtTeleport();
@@ -48,6 +50,7 @@ public class TeleportPoint3D : Interactable
             if (GameDataManager.Instance != null)
             {
                 GameDataManager.Instance.MarkTeleportActivated(teleportID);
+                GameDataManager.Instance.SetLastTeleportPoint(teleportID);
             }
 
             Debug.Log($"{teleportName} 워프 포인트가 활성화되었습니다!");

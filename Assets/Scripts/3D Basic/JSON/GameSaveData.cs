@@ -100,4 +100,13 @@ public class WorldSaveData
     public List<string> activatedTeleportIDs = new List<string>();
     public List<string> clearedBossIDs = new List<string>();
     public List<string> revealedLocationIDs = new List<string>();
+    public List<CustomMapPinSaveData> customMapPins = new List<CustomMapPinSaveData>();
+}
+
+[Serializable]
+public class CustomMapPinSaveData
+{
+    public Vector2 mapPos;
+    public int iconIndex;
+    public string description;
 }

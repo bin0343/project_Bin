@@ -38,6 +38,20 @@ public class QuestWorldObjectState : MonoBehaviour
 
         targetObject.SetActive(shouldBeActive);
 
+        LocalMapLocationManager localLocationManager = FindObjectOfType<LocalMapLocationManager>(true);
+
+        if (localLocationManager != null)
+        {
+            localLocationManager.RefreshLocationMarkers();
+        }
+
+        MiniMapLocationManager miniLocationManager = FindObjectOfType<MiniMapLocationManager>(true);
+
+        if (miniLocationManager != null)
+        {
+            miniLocationManager.RefreshLocationMarkers();
+        }
+
         if (LocalMapTeleportManager.instance != null)
         {
             LocalMapTeleportManager.instance.RefreshTeleportMarkers();
