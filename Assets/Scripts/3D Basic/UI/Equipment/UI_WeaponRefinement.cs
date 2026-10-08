@@ -166,6 +166,8 @@ public class UI_WeaponRefinement : MonoBehaviour
         }
 
         targetWeaponHolder.refinementStage += selectedMaterials.Count;
+        targetWeaponHolder.refinementStage = Mathf.Clamp(targetWeaponHolder.refinementStage, 1, maxRefinementStage);
+
         int newAttack = targetWeaponHolder.GetTotalWeaponAttack();
 
         Player_Equipment activeEquip = null;
@@ -195,6 +197,8 @@ public class UI_WeaponRefinement : MonoBehaviour
 
         UI_WeaponTab weaponTab = FindObjectOfType<UI_WeaponTab>();
         if (weaponTab != null) weaponTab.RefreshTab();
+
+        GameDataManager.Instance?.RequestAutoSave();
     }
 
     public void RemoveMaterialFromInput(ItemHolder item)

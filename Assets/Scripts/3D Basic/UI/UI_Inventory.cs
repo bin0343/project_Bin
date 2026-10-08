@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +22,7 @@ public class UI_Inventory : MonoBehaviour
     public Image itemIcon;
     public Image itemCountImage;
     public Text itemName;
+    public Text itemRefinementText;
     public Text itemCount;
     public Text itemStatText;
     public Text itemTypeText;
@@ -178,9 +178,27 @@ public class UI_Inventory : MonoBehaviour
 
         if (detailPanel != null)
         {
-            if (itemIcon != null) { itemIcon.sprite = itemHolder.ItemData.itemIcon; itemIcon.gameObject.SetActive(true); }
-            if (itemName != null) itemName.text = itemHolder.ItemData.itemName;
+            if (itemIcon != null) 
+            { 
+                itemIcon.sprite = itemHolder.ItemData.itemIcon; itemIcon.gameObject.SetActive(true); 
+            }
+            if (itemName != null)
+            {
+                itemName.text = itemHolder.ItemData.itemName;
+            }
+            if (itemRefinementText != null)
+            {
+                bool showRefinement = itemHolder.ItemData.itemType == ITEMTYPE.Equipment && itemHolder.refinementStage > 1;
 
+                itemRefinementText.gameObject.SetActive(showRefinement);
+
+                if (showRefinement)
+                {
+                    int displayRefinement = itemHolder.refinementStage - 1;
+
+                    itemRefinementText.text = $"합성 단계 : {displayRefinement}";
+                }
+            }
             if (itemCount != null && itemCountImage != null)
             {
                 if (itemHolder.ItemData.itemType == ITEMTYPE.Equipment)
@@ -219,6 +237,9 @@ public class UI_Inventory : MonoBehaviour
 
                     int attack = itemHolder.GetTotalWeaponAttack();
                     if (attack > 0) statString += $"공격력 : {attack}\n";
+                    int refinementLevel = Mathf.Max(itemHolder.refinementStage - 1, 0);
+
+                    statString += $"합성 : +{refinementLevel}\n";
                     // int defense = itemHolder.GetTotalWeaponDefense();
                     // if (defense > 0) statString += $"방어력 : {defense}\n";
                     // if (critical > 0) statString += $"치명타 : {critical}%\n";

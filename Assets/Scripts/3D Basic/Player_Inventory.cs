@@ -186,6 +186,7 @@ public class Player_Inventory : MonoBehaviour
         {
             quickSlotItem = null;
             RefreshAllUI();
+            GameDataManager.Instance?.RequestAutoSave();
             return false;
         }
 

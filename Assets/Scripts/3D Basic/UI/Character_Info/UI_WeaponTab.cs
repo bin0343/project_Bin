@@ -90,7 +90,6 @@ public class UI_WeaponTab : MonoBehaviour
             if (activeEquip != null)
             {
                 targetHolder = activeEquip.equipmentSlots[0];
-                if (cStatus != null) cStatus.equippedWeapon = targetHolder; // 최신화 데이터 백업
             }
             else if (cStatus != null)
             {
@@ -195,44 +194,24 @@ public class UI_WeaponTab : MonoBehaviour
 
     public void OnClickConfirmEquip()
     {
-        if (isPreviewMode && previewItemHolder != null)
+        if (!isPreviewMode || previewItemHolder == null) return;
+
+        bool success = false;
+
+        Player_Equipment activeEquip = GetActiveEquipment();
+
+        if (activeEquip != null)
         {
-            Player_Equipment activeEquip = GetActiveEquipment();
-            CharacterStatus cStatus = Character_Manager.Instance.GetCharacterStatus(targetCharacterData.characterID);
-
-            if (activeEquip != null)
-            {
-                activeEquip.Equip(previewItemHolder, SlotType.INVENTORY, previewInventoryIndex);
-                if (cStatus != null) cStatus.equippedWeapon = activeEquip.equipmentSlots[0];
-            }
-            else
-            {
-                if (cStatus != null && Player_Inventory.instance != null)
-                {
-                    if (previewInventoryIndex >= 0 && previewInventoryIndex < Player_Inventory.instance.inventorySlots.Count)
-                    {
-                        ItemHolder oldWeapon = cStatus.equippedWeapon;
-                        ItemHolder newWeapon = Player_Inventory.instance.inventorySlots[previewInventoryIndex];
-
-                        cStatus.equippedWeapon = newWeapon;
-
-                        if (oldWeapon != null && oldWeapon.ItemData != null)
-                        {
-                            Player_Inventory.instance.inventorySlots[previewInventoryIndex] = oldWeapon;
-                        }
-                        else
-                        {
-                            Player_Inventory.instance.inventorySlots.RemoveAt(previewInventoryIndex);
-                        }
-
-                        Player_Inventory.instance.CleanUpInventory();
-                        Player_Inventory.instance.RefreshAllUI();
-                    }
-                }
-            }
-
-                CloseSelectionPanel();
+            success = activeEquip.Equip(previewItemHolder, SlotType.INVENTORY, previewInventoryIndex);
         }
+        else
+        {
+            success = Character_Manager.Instance.EquipWeaponFromInventory(targetCharacterData.characterID, previewInventoryIndex);
+        }
+
+        if (!success) return;
+
+        CloseSelectionPanel();
     }
 
     public void CloseSelectionPanel()

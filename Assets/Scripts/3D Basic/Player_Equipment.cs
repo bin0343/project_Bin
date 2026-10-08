@@ -167,12 +167,12 @@ public class Player_Equipment : MonoBehaviour
         }
     }
 
-    public void Equip(ItemHolder itemToEquip, SlotType sourceType, int sourceIndex)
+    public bool Equip(ItemHolder itemToEquip, SlotType sourceType, int sourceIndex)
     {
-        if (itemToEquip == null || itemToEquip.ItemData.itemType != ITEMTYPE.Equipment) return;
+        if (itemToEquip == null || itemToEquip.ItemData.itemType != ITEMTYPE.Equipment) return false;
 
         Item_Equipment equipmentData = itemToEquip.ItemData as Item_Equipment;
-        if (equipmentData == null) return;
+        if (equipmentData == null) return false;
 
         if (equipmentData.weaponCategory != usableWeaponCategory)
         {
@@ -182,13 +182,19 @@ public class Player_Equipment : MonoBehaviour
             {
                 UI_Manager.Instance.ShowMessage("이 캐릭터가 장착할 수 없는 무기 종류입니다.");
             }
-            return; 
+            return false; 
+        }
+
+        if (sourceType == SlotType.INVENTORY)
+        {
+            if (Player_Inventory.instance == null) return false;
+
+            if (sourceIndex < 0 || sourceIndex >= Player_Inventory.instance.inventorySlots.Count) return false;
         }
 
         ItemHolder previouslyEquipped = UnEquip(EquipmentType.Weapon);
-        int slotIndex = 0;
 
-        equipmentSlots[slotIndex] = itemToEquip;
+        equipmentSlots[0] = itemToEquip;
 
         if (sourceType == SlotType.INVENTORY)
         {
@@ -224,6 +230,18 @@ public class Player_Equipment : MonoBehaviour
         Debug.Log($"{equipmentData.itemName}을(를) 장착했습니다.");
 
         RefreshUI();
+
+        if (Player_Inventory.instance != null)
+        {
+            Player_Inventory.instance.CleanUpInventory();
+            Player_Inventory.instance.RefreshAllUI();
+        }
+
+        RefreshUI();
+
+        GameDataManager.Instance?.RequestAutoSave();
+
+        return true;
     }
 
     public ItemHolder UnEquip(EquipmentType slotToUnEquip)

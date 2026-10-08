@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("UI Components")]
     public Image ItemIcon;
-    public Text quantityText;
+    public TMP_Text quantityText;
+    public TMP_Text refinementText;
 
     [Header("Slot Info")]
     private ItemHolder assignedItemHolder;  //슬롯에 담긴 아이템 정보
@@ -47,6 +49,17 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         ItemIcon.sprite = itemHolder.ItemData.itemIcon;
         ItemIcon.gameObject.SetActive(true);
 
+        if (refinementText != null)
+        {
+            bool isRefined = itemHolder.ItemData.itemType == ITEMTYPE.Equipment && itemHolder.refinementStage > 1;
+
+            refinementText.gameObject.SetActive(isRefined);
+
+            if (isRefined)
+            {
+                refinementText.text = $"+{itemHolder.refinementStage - 1}";
+            }
+        }
         if (quantityText != null)
         {
             if (itemHolder.Quantity > 1)
@@ -66,6 +79,11 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         assignedItemHolder = null;
         ItemIcon.sprite = null;
         ItemIcon.gameObject.SetActive(false);
+        if (refinementText != null)
+        {
+            refinementText.text = "";
+            refinementText.gameObject.SetActive(false);
+        }
         if (quantityText != null)
         {
             quantityText.gameObject.SetActive(false);

@@ -730,6 +730,70 @@ public class Character_Manager : MonoBehaviour
 
     #endregion
 
+    #region 무기 장착
+
+    public bool EquipWeaponFromInventory(string characterID, int inventoryIndex)
+    {
+        if (Player_Inventory.instance == null) return false;
+
+        if (inventoryIndex < 0 || inventoryIndex >= Player_Inventory.instance.inventorySlots.Count) return false;
+
+        Character_Data characterData = FindCharacterData(characterID);
+
+        if (characterData == null) return false;
+
+        CharacterStatus status = GetCharacterStatus(characterID, characterData);
+
+        if (status == null) return false;
+
+        ItemHolder newWeapon = Player_Inventory.instance.inventorySlots[inventoryIndex];
+
+        if (newWeapon == null || !(newWeapon.ItemData is Item_Equipment weaponData)) return false;
+
+        Player_Equipment prefabEquipment = null;
+
+        if (characterData.characterPrefab != null)
+        {
+            prefabEquipment = characterData.characterPrefab.GetComponent<Player_Equipment>();
+        }
+
+        if (prefabEquipment == null)
+        {
+            Debug.LogError($"[Character] {characterID}의 " + "Player_Equipment를 찾지 못했습니다.");
+
+            return false;
+        }
+
+        if (weaponData.weaponCategory != prefabEquipment.usableWeaponCategory)
+        {
+            UI_Manager.Instance?.ShowMessage("이 캐릭터가 장착할 수 없는 무기 종류입니다.");
+
+            return false;
+        }
+
+        ItemHolder oldWeapon = status.equippedWeapon;
+
+        status.equippedWeapon = newWeapon;
+
+        if (oldWeapon != null && oldWeapon.ItemData != null)
+        {
+            Player_Inventory.instance.inventorySlots[inventoryIndex] = oldWeapon;
+        }
+        else
+        {
+            Player_Inventory.instance.inventorySlots.RemoveAt(inventoryIndex);
+        }
+
+        Player_Inventory.instance.CleanUpInventory();
+        Player_Inventory.instance.RefreshAllUI();
+
+        GameDataManager.Instance?.RequestAutoSave();
+
+        return true;
+    }
+
+    #endregion
+
     public CharacterStatus GetCharacterStatus(string npcID, Character_Data data = null)
     {
         if (!characterStatusDictionary.ContainsKey(npcID))
