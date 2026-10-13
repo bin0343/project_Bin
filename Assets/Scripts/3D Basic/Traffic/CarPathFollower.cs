@@ -13,6 +13,12 @@ public class CarPathFollower : MonoBehaviour
     [SerializeField] private float brakeDeceleration = 8f;
     [SerializeField] private float steerSpeed = 4f;
 
+    public float VisualSteerAngle { get; private set; }
+
+    [Header("바퀴 조향 비주얼")]
+    [SerializeField] private float maxVisualSteerAngle = 30f;
+    [SerializeField] private float visualSteerSpeed = 90f;
+
     [Header("경사 추종")]
     [SerializeField] private float heightFollowSpeed = 6f;
 
@@ -86,6 +92,24 @@ public class CarPathFollower : MonoBehaviour
     public void SetTargetSpeed(float speed)
     {
         targetSpeed = Mathf.Clamp(speed, 0f, cruiseSpeed);
+    }
+
+    public void SetInitialPath(SplineContainer path)
+    {
+        currentPath = path;
+        queuedPath = null;
+
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody>();
+        }
+
+        if (currentPath == null || rb == null) return;
+
+        if (FindNearestSplinePoint(out float nearestT, out Vector3 nearestPoint))
+        {
+            splineHeightOffset = rb.position.y - nearestPoint.y;
+        }
     }
 
     private void UpdateSpeed()
@@ -174,8 +198,12 @@ public class CarPathFollower : MonoBehaviour
 
         if (direction.sqrMagnitude < 0.001f) return;
 
-        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
+        float targetSteerAngle = Vector3.SignedAngle(transform.forward, direction.normalized, Vector3.up);
+        targetSteerAngle = Mathf.Clamp(targetSteerAngle, -maxVisualSteerAngle, maxVisualSteerAngle);
 
+        VisualSteerAngle = Mathf.MoveTowards(VisualSteerAngle, targetSteerAngle, visualSteerSpeed * Time.fixedDeltaTime);
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
         Quaternion nextRotation = Quaternion.Slerp(rb.rotation, targetRotation, steerSpeed * Time.fixedDeltaTime);
 
         rb.MoveRotation(nextRotation);

@@ -170,7 +170,17 @@ public class IntersectionController : MonoBehaviour
 
             if (!IsLaneHead(waiting)) continue;
 
-            if (!IsMovementCompatibleWithActive(waiting)) return true;
+            // 현재 통과 중인 흐름과 같이 갈 수 있으면
+            // 막을 이유가 없음
+            if (IsMovementCompatibleWithActive(waiting)) continue;
+
+            // 충돌하는 방향이라도
+            // 막 도착한 차량이면 현재 흐름을 바로 끊지 않음
+            float waitTime = Time.time - waiting.requestedAt;
+
+            // 너무 오래 기다렸을 때만
+            // 현재 Batch의 추가 진입을 중단
+            if (waitTime >= starvationOverrideTime) return true;
         }
 
         return false;
@@ -185,7 +195,9 @@ public class IntersectionController : MonoBehaviour
             // 같은 진입로 + 같은 차선의 앞차라면
             // Movement가 달라도 추종 관계로 취급한다.
             if (candidate.approachId == active.approachId && candidate.laneId == active.laneId) continue;
-
+            // 같은 방향에서 같은 이동을 하는 다른 차선
+            // 예: 2차선 직진 → 2차선 직진
+            if (candidate.approachId == active.approachId && candidate.movementId == active.movementId) continue;
             // 다른 차량 흐름과는 실제 Conflict 관계 검사
             if (!AreMovementsCompatible(candidate.movementId, active.movementId)) return false;
         }
@@ -293,10 +305,11 @@ public class IntersectionController : MonoBehaviour
         {
             IntersectionRequest activeCandidate = batchBuffer[i];
 
-            if (!AreMovementsCompatible(candidate.movementId, activeCandidate.movementId))
-            {
-                return false;
-            }
+            // 같은 진입 방향에서 같은 Movement라면
+            // 서로 다른 차선의 평행 진행으로 허용
+            if (candidate.approachId == activeCandidate.approachId && candidate.movementId == activeCandidate.movementId) continue;
+
+            if (!AreMovementsCompatible(candidate.movementId, activeCandidate.movementId)) return false;
         }
 
         return true;

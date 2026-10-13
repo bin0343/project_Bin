@@ -174,18 +174,23 @@ public class Account_Manager : MonoBehaviour
             GameDataManager.Instance?.RequestAutoSave();
         }
     }
-    
+
     public void GainAccountExp(int amount)
     {
+        if (amount <= 0) return;
+
         accountExp += amount;
+
         while (accountExp >= levelUpExp)
         {
             accountExp -= levelUpExp;
             accountLevel++;
-            levelUpExp *= 2; // 임시 공식
-            GameDataManager.Instance?.RequestAutoSave();
+            levelUpExp *= 2;
+
             Debug.Log($"계정 레벨업! 현재 레벨: {accountLevel}");
         }
+
+        GameDataManager.Instance?.RequestAutoSave();
     }
 
     private void NotifyAPChanged()

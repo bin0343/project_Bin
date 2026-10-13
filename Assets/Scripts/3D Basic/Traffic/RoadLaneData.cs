@@ -14,4 +14,7 @@ public class RoadLaneData : MonoBehaviour
 
     [Header("차량 소환")]
     public bool allowVehicleSummon = true;
+
+    [Header("AI 차량 초기 배치")]
+    public bool allowTrafficSpawn = true;
 }

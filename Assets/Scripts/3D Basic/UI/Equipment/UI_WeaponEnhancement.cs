@@ -64,14 +64,25 @@ public class UI_WeaponEnhancement : MonoBehaviour
     private int previewLevel;
     private int previewExp;
 
+    [SerializeField] private GameObject breakthroughMaterialSlotPrefab;
+    [SerializeField] private Text executeButtonText;
+
+    private enum WeaponGrowthMode
+    {
+        LevelUp,
+        Breakthrough,
+        MaxLevel
+    }
+
+    private WeaponGrowthMode currentGrowthMode;
+
     private void Awake()
     {
         instance = this;
         tabEnhanceButton.onClick.AddListener(() => SwitchSubTab(true));
         tabRefineButton.onClick.AddListener(() => SwitchSubTab(false));
         autoAddButton.onClick.AddListener(OnClickAutoAdd);
-        if (enhanceExecuteButton != null)
-            enhanceExecuteButton.onClick.AddListener(ExecuteEnhancement);
+        if (enhanceExecuteButton != null) enhanceExecuteButton.onClick.AddListener(OnClickExecute);
 
         gameObject.SetActive(false); // 처음엔 꺼둠
     }
@@ -94,9 +105,7 @@ public class UI_WeaponEnhancement : MonoBehaviour
         selectedMaterials.Clear();
         myMaterialInventoryPanel.SetActive(false);
 
-        InitializeInputSlots();
         SwitchSubTab(true);
-        RefreshEnhancementUI();
 
         SpawnWeaponModel(weapon);
     }
@@ -148,7 +157,7 @@ public class UI_WeaponEnhancement : MonoBehaviour
 
         if (isEnhance)
         {
-            RefreshEnhancementUI();
+            RefreshGrowthMode();
         }
         else
         {
@@ -309,14 +318,11 @@ public class UI_WeaponEnhancement : MonoBehaviour
         int maxRarityFilter = rarityFilterDropdown.value == 0 ? 3 : 4;
 
         var availableMaterials = Player_Inventory.instance.inventorySlots
-            .Where(slot => slot != null
-                        && slot.ItemData != null
-                        && slot != targetWeaponHolder
-                        && slot.ItemData.rarity <= maxRarityFilter
-                        && (slot.ItemData is Item_Material || slot.ItemData is Item_Equipment))
-            .OrderBy(slot => slot.ItemData is Item_Equipment ? 1 : 0)
-            .ThenBy(slot => slot.ItemData.expValue)
-            .ToList();
+             .Where(slot =>
+                IsValidWeaponEnhancementMaterial(slot)
+                && slot.ItemData.rarity <= maxRarityFilter)
+             .OrderBy(slot => slot.ItemData.expValue)
+             .ToList();
 
         int currentAccumulatedExp = 0;
 
@@ -324,25 +330,15 @@ public class UI_WeaponEnhancement : MonoBehaviour
         {
             if (currentAccumulatedExp >= neededExp) break;
 
-            if (invItem.ItemData.itemType == ITEMTYPE.Equipment)
-            {
-                int itemExp = GetSingleMaterialExpYield(targetWeaponHolder, invItem);
+            int itemExp = invItem.ItemData.expValue;
+            int countNeeded = Mathf.CeilToInt((neededExp - currentAccumulatedExp) / (float)itemExp);
+            int actualCountToTake = Mathf.Min(countNeeded, invItem.Quantity);
 
-                if (!selectedMaterials.Contains(invItem))
-                {
-                    selectedMaterials.Add(invItem);
-                    currentAccumulatedExp += itemExp;
-                }
-            }
-            else
-            {
-                int itemExp = invItem.ItemData.expValue;
-                int countNeeded = Mathf.CeilToInt((float)(neededExp - currentAccumulatedExp) / itemExp);
-                int actualCountToTake = Mathf.Min(countNeeded, invItem.Quantity);
+            if (actualCountToTake <= 0) continue;
 
-                selectedMaterials.Add(new ItemHolder(invItem.ItemData, actualCountToTake));
-                currentAccumulatedExp += (itemExp * actualCountToTake);
-            }
+            selectedMaterials.Add(new ItemHolder(invItem.ItemData, actualCountToTake));
+
+            currentAccumulatedExp += itemExp * actualCountToTake;
 
             if (selectedMaterials.Count >= 20) break;
         }
@@ -375,6 +371,21 @@ public class UI_WeaponEnhancement : MonoBehaviour
         CalculatePreviewStats();
     }
 
+    private bool IsValidWeaponEnhancementMaterial(ItemHolder holder)
+    {
+        if (holder == null || holder.ItemData == null) return false;
+
+        Item_Material material = holder.ItemData as Item_Material;
+
+        if (material == null) return false;
+
+        bool validUsage = material.materialUsage == MaterialUsageType.CommonEnhancement || material.materialUsage == MaterialUsageType.WeaponEnhancement;
+
+        if (!validUsage) return false;
+
+        return material.expValue > 0;
+    }
+
     // 실제 재료를 소모하고 스탯을 증가시키는 강화 실행 로직
     private void ExecuteEnhancement()
     {
@@ -384,6 +395,7 @@ public class UI_WeaponEnhancement : MonoBehaviour
         if (targetWeaponHolder.weaponLevel >= maxLevel) return;
 
         int totalAddedExp = 0;
+        int oldAttack = targetWeaponHolder.GetTotalWeaponAttack();
 
         foreach (var mat in selectedMaterials)
         {
@@ -402,11 +414,15 @@ public class UI_WeaponEnhancement : MonoBehaviour
         // 본체 무기에 최종 누적 경험치 주입
         targetWeaponHolder.AddWeaponExp(totalAddedExp);
 
+        int newAttack = targetWeaponHolder.GetTotalWeaponAttack();
+
+        RefreshEquippedWeaponAttack(oldAttack, newAttack);
+
         // 바구니 비우기 및 인벤토리/UI 완전 갱신
         selectedMaterials.Clear();
         Player_Inventory.instance.CleanUpInventory();
         Player_Inventory.instance.RefreshAllUI();
-        RefreshEnhancementUI();
+        RefreshGrowthMode();
 
         if (myMaterialInventoryPanel.activeSelf)
         {
@@ -415,6 +431,58 @@ public class UI_WeaponEnhancement : MonoBehaviour
 
         UI_WeaponTab weaponTab = FindObjectOfType<UI_WeaponTab>();
         if (weaponTab != null) weaponTab.RefreshTab();
+    }
+
+    private void ExecuteBreakthrough()
+    {
+        if (targetWeaponHolder == null) return;
+
+        Item_Equipment weaponData = targetWeaponHolder.ItemData as Item_Equipment;
+
+        if (weaponData == null) return;
+
+        if (targetWeaponHolder.weaponLevel < targetWeaponHolder.GetMaxLevel()) return;
+
+        int targetStage = targetWeaponHolder.breakthroughStage + 1;
+
+        WeaponBreakthroughRequirement requirement = weaponData.GetBreakthroughRequirement(targetStage);
+
+        if (requirement == null || requirement.materials == null || requirement.materials.Count == 0) return;
+
+        // 먼저 전부 있는지 확인
+        foreach (WeaponBreakthroughMaterialRequirement mat in requirement.materials)
+        {
+            if (mat == null || mat.material == null) return;
+
+            if (GetOwnedItemCount(mat.material) < mat.requiredCount)
+            {
+                UI_Manager.Instance?.ShowMessage("돌파 재료가 부족합니다.");
+
+                return;
+            }
+        }
+
+        // 검증 통과 후에만 소비
+        foreach (WeaponBreakthroughMaterialRequirement mat in requirement.materials)
+        {
+            Player_Inventory.instance.RemoveItem(mat.material, mat.requiredCount);
+        }
+
+        bool success = targetWeaponHolder.TryBreakthrough();
+
+        if (!success)
+        {
+            Debug.LogError("무기 돌파 처리에 실패했습니다.");
+
+            return;
+        }
+
+        Player_Inventory.instance.CleanUpInventory();
+        Player_Inventory.instance.RefreshAllUI();
+
+        UI_Manager.Instance?.ShowMessage($"{weaponData.itemName} 돌파 완료! " + $"레벨 상한이 {targetWeaponHolder.GetMaxLevel()}까지 열렸습니다.");
+
+        RefreshGrowthMode();
     }
 
     public void OpenMyMaterialInventory()
@@ -454,12 +522,8 @@ public class UI_WeaponEnhancement : MonoBehaviour
         if (Player_Inventory.instance == null) return;
 
         var materials = Player_Inventory.instance.inventorySlots
-            .Where(slot => slot != null
-                        && slot.ItemData != null
-                        && slot != targetWeaponHolder
-                        && (slot.ItemData is Item_Material || slot.ItemData is Item_Equipment))
-            .OrderBy(slot => slot.ItemData is Item_Equipment ? 1 : 0)
-            .ThenBy(slot => slot.ItemData.rarity);
+          .Where(IsValidWeaponEnhancementMaterial)
+          .OrderBy(slot => slot.ItemData.rarity);
 
         foreach (var mat in materials)
         {
@@ -484,36 +548,70 @@ public class UI_WeaponEnhancement : MonoBehaviour
         }
     }
 
-    public void AddMaterialFromInventory(ItemHolder clickedItem)
+    private void RefreshEquippedWeaponAttack(int oldAttack, int newAttack)
     {
-        if (targetWeaponHolder != null && previewLevel >= targetWeaponHolder.GetMaxLevel())
+        if (BattleManager.instance == null) return;
+
+        GameObject activePlayer = BattleManager.instance.GetActiveCharacter();
+
+        if (activePlayer == null) return;
+
+        Player_Equipment equipment = activePlayer.GetComponent<Player_Equipment>();
+
+        Character_Stat stat = activePlayer.GetComponent<Character_Stat>();
+
+        if (equipment == null || stat == null) return;
+        if (equipment.equipmentSlots.Length == 0) return;
+        if (equipment.equipmentSlots[0] != targetWeaponHolder) return;
+
+        stat.RemoveEquipmentStat(STAT.Attack, oldAttack);
+
+        stat.AddEquipmentStat(STAT.Attack, newAttack);
+    }
+
+    //보유량 확인
+    private int GetOwnedItemCount(Item_Base targetItem)
+    {
+        if (targetItem == null || Player_Inventory.instance == null) return 0;
+
+        int totalCount = 0;
+
+        foreach (ItemHolder holder in Player_Inventory.instance.inventorySlots)
         {
-            return;
+            if (holder == null || holder.ItemData == null) continue;
+
+            bool sameReference = holder.ItemData == targetItem;
+
+            bool sameItemID = !string.IsNullOrEmpty(targetItem.itemID) && holder.ItemData.itemID == targetItem.itemID;
+
+            if (sameReference || sameItemID)
+            {
+                totalCount += holder.Quantity;
+            }
         }
 
-        if (clickedItem.ItemData.itemType == ITEMTYPE.Equipment)
-        {
-            if (selectedMaterials.Count >= 20) return;
+        return totalCount;
+    }
 
-            if (!selectedMaterials.Contains(clickedItem))
+    public void AddMaterialFromInventory(ItemHolder clickedItem)
+    {
+        if (!IsValidWeaponEnhancementMaterial(clickedItem)) return;
+        if (targetWeaponHolder != null && previewLevel >= targetWeaponHolder.GetMaxLevel()) return;
+
+        ItemHolder existing = selectedMaterials.Find(m => m.ItemData == clickedItem.ItemData);
+
+        if (existing != null)
+        {
+            if (existing.Quantity < clickedItem.Quantity)
             {
-                selectedMaterials.Add(clickedItem);
+                existing.Quantity++;
             }
         }
         else
         {
-            ItemHolder existing = selectedMaterials.Find(m => m.ItemData == clickedItem.ItemData);
-            if (existing != null)
-            {
-                if (existing.Quantity < clickedItem.Quantity)
-                    existing.Quantity++;
-            }
-            else
-            {
-                if (selectedMaterials.Count >= 20) return;
+            if (selectedMaterials.Count >= 20) return;
 
-                selectedMaterials.Add(new ItemHolder(clickedItem.ItemData, 1));
-            }
+            selectedMaterials.Add(new ItemHolder(clickedItem.ItemData, 1));
         }
 
         CalculatePreviewStats();
@@ -522,6 +620,104 @@ public class UI_WeaponEnhancement : MonoBehaviour
     public void RefreshEnhancementUI()
     {
         CalculatePreviewStats();
+    }
+
+    private void RefreshGrowthMode()
+    {
+        if (targetWeaponHolder == null) return;
+
+        int currentCap = targetWeaponHolder.GetMaxLevel();
+
+        if (targetWeaponHolder.weaponLevel < currentCap)
+        {
+            currentGrowthMode = WeaponGrowthMode.LevelUp;
+
+            ShowLevelUpMode();
+        }
+        else if (targetWeaponHolder.breakthroughStage < 2)
+        {
+            currentGrowthMode = WeaponGrowthMode.Breakthrough;
+
+            ShowBreakthroughMode();
+        }
+        else
+        {
+            currentGrowthMode = WeaponGrowthMode.MaxLevel;
+
+            ShowMaxLevelMode();
+        }
+    }
+
+    private void RefreshCurrentWeaponStat()
+    {
+        int currentAttack = targetWeaponHolder.GetTotalWeaponAttack();
+
+        while (instantiatedStatSlots.Count < 1)
+        {
+            GameObject go = Instantiate(statSlotPrefab, statSlotParent, false);
+
+            UI_WeaponStatSlot slot = go.GetComponent<UI_WeaponStatSlot>();
+
+            instantiatedStatSlots.Add(slot);
+        }
+
+        instantiatedStatSlots[0].gameObject.SetActive(true);
+
+        instantiatedStatSlots[0].Setup("공격력", currentAttack, currentAttack, false);
+
+        for (int i = 1; i < instantiatedStatSlots.Count; i++)
+        {
+            instantiatedStatSlots[i].gameObject.SetActive(false);
+        }
+    }
+
+    private void RefreshBreakthroughMaterialGrid()
+    {
+        Item_Equipment weaponData = targetWeaponHolder.ItemData as Item_Equipment;
+
+        if (weaponData == null) return;
+
+        int targetStage = targetWeaponHolder.breakthroughStage + 1;
+
+        WeaponBreakthroughRequirement requirement = weaponData.GetBreakthroughRequirement(targetStage);
+
+        if (requirement == null || requirement.materials == null || requirement.materials.Count == 0)
+        {
+            enhanceExecuteButton.interactable = false;
+
+            Debug.LogWarning($"{weaponData.itemName}의 " + $"{targetStage}단계 돌파 재료가 없습니다.");
+
+            return;
+        }
+
+        bool hasAllMaterials = true;
+
+        foreach (WeaponBreakthroughMaterialRequirement materialRequirement in requirement.materials)
+        {
+            if (materialRequirement == null || materialRequirement.material == null)
+            {
+                hasAllMaterials = false;
+                continue;
+            }
+
+            int ownedCount = GetOwnedItemCount(materialRequirement.material);
+
+            GameObject slotObject = Instantiate(breakthroughMaterialSlotPrefab, materialGridParent);
+
+            UI_AscensionMaterialSlot slot = slotObject.GetComponent<UI_AscensionMaterialSlot>();
+
+            if (slot != null)
+            {
+                slot.Setup(materialRequirement.material, ownedCount, materialRequirement.requiredCount);
+            }
+
+            if (ownedCount < materialRequirement.requiredCount)
+            {
+                hasAllMaterials = false;
+            }
+        }
+
+        enhanceExecuteButton.interactable = hasAllMaterials;
     }
 
     // 재료가 장비일 경우 페이백 경험치를 포함한 최종 제공 경험치를 계산
@@ -540,5 +736,91 @@ public class UI_WeaponEnhancement : MonoBehaviour
             }
         }
         return baseExp;
+    }
+
+    private void ShowLevelUpMode()
+    {
+        selectedMaterials.Clear();
+
+        if (myMaterialInventoryPanel != null) myMaterialInventoryPanel.SetActive(false);
+        if (autoAddButton != null) autoAddButton.gameObject.SetActive(true);
+        if (rarityFilterDropdown != null) rarityFilterDropdown.gameObject.SetActive(true);
+        if (executeButtonText != null) executeButtonText.text = "강화";
+
+        InitializeInputSlots();
+        RefreshEnhancementUI();
+    }
+
+    private void ShowBreakthroughMode()
+    {
+        selectedMaterials.Clear();
+        ClearMaterialGrid();
+
+        if (myMaterialInventoryPanel != null) myMaterialInventoryPanel.SetActive(false);
+        if (autoAddButton != null) autoAddButton.gameObject.SetActive(false);
+        if (rarityFilterDropdown != null) rarityFilterDropdown.gameObject.SetActive(false);
+        if (executeButtonText != null) executeButtonText.text = "돌파";
+
+        Item_Equipment weaponData = targetWeaponHolder.ItemData as Item_Equipment;
+
+        if (weaponData == null) return;
+
+        int currentCap = targetWeaponHolder.GetMaxLevel();
+
+        int nextCap = targetWeaponHolder.breakthroughStage == 0 ? 40 : 50;
+
+        weaponNameText.text = weaponData.itemName;
+
+        levelText.text = $"Lv.{targetWeaponHolder.weaponLevel} / {currentCap}" + $"  →  <color=green>상한 Lv.{nextCap}</color>";
+
+        expProgressText.text = $"돌파 단계 {targetWeaponHolder.breakthroughStage}" + $" → <color=green>{targetWeaponHolder.breakthroughStage + 1}</color>";
+
+        RefreshCurrentWeaponStat();
+        RefreshBreakthroughMaterialGrid();
+    }
+
+    private void ShowMaxLevelMode()
+    {
+        selectedMaterials.Clear();
+        ClearMaterialGrid();
+
+        if (myMaterialInventoryPanel != null) myMaterialInventoryPanel.SetActive(false);
+        if (autoAddButton != null) autoAddButton.gameObject.SetActive(false);
+        if (rarityFilterDropdown != null) rarityFilterDropdown.gameObject.SetActive(false);
+        if (executeButtonText != null) executeButtonText.text = "최대";
+
+        weaponNameText.text = targetWeaponHolder.ItemData.itemName;
+
+        levelText.text = $"Lv.{targetWeaponHolder.weaponLevel} [MAX]";
+
+        expProgressText.text = "최종 성장 완료";
+
+        enhanceExecuteButton.interactable = false;
+
+        RefreshCurrentWeaponStat();
+    }
+
+    private void ClearMaterialGrid()
+    {
+        foreach (Transform child in materialGridParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        inputSlots.Clear();
+    }
+
+    private void OnClickExecute()
+    {
+        switch (currentGrowthMode)
+        {
+            case WeaponGrowthMode.LevelUp:
+                ExecuteEnhancement();
+                break;
+
+            case WeaponGrowthMode.Breakthrough:
+                ExecuteBreakthrough();
+                break;
+        }
     }
 }

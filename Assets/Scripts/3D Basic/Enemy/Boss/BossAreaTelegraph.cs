@@ -117,8 +117,11 @@ public class BossAreaTelegraph : MonoBehaviour
         }
     }
 
-    public void OnDisable()
+    private void OnDisable()
     {
-        Hide();
+        if (lineRenderer != null)
+        {
+            lineRenderer.enabled = false;
+        }
     }
 }

@@ -106,9 +106,10 @@ public class UI_CharacterEnhancement : MonoBehaviour
         if (Player_Inventory.instance == null) return;
 
         var expBooks = Player_Inventory.instance.inventorySlots
-            .Where(slot => slot != null && slot.ItemData != null && slot.ItemData.expValue > 0)
-            .OrderBy(slot => slot.ItemData.rarity) 
-            .ToList();
+              .Where(slot => slot != null && slot.ItemData is Item_Material material && material.expValue > 0 && 
+              (material.materialUsage == MaterialUsageType.CommonEnhancement || material.materialUsage ==MaterialUsageType.CharacterEnhancement))
+              .OrderBy(slot => slot.ItemData.rarity)
+              .ToList();
 
         foreach (var book in expBooks)
         {

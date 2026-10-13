@@ -15,9 +15,8 @@ public class Item_Consumable : Item_Base
 
         bool itemUsed = false; // 아이템이 실제로 효과를 발휘했는지 추적
 
-        if (healAmount > 0 && stat.currentHP < stat.maxHP)
+        if (healAmount > 0 && stat.Heal(healAmount))
         {
-            stat.currentHP = Mathf.Min(stat.currentHP + healAmount, stat.maxHP);
             Debug.Log($"{itemName}을(를) 사용하여 체력을 {healAmount} 회복했습니다.");
             itemUsed = true;
         }

@@ -18,6 +18,8 @@ public class CarLaneController : MonoBehaviour
 
     private int lastLaneCount = 1;
 
+    private bool hasInitialLane = false;
+
     public int CurrentLane => currentLane;
     public float CurrentOffset => currentOffset;
 
@@ -31,6 +33,8 @@ public class CarLaneController : MonoBehaviour
     private void Start()
     {
         lastPath = pathFollower != null ? pathFollower.CurrentPath : null;
+
+        if (hasInitialLane) return;
 
         RefreshRoadLane(true);
     }
@@ -87,6 +91,37 @@ public class CarLaneController : MonoBehaviour
         lastLaneCount = newLaneCount;
     }
 
+    public void SetInitialLane(int laneIndex)
+    {
+        if (pathFollower == null)
+        {
+            pathFollower = GetComponent<CarPathFollower>();
+        }
+
+        if (pathFollower == null || pathFollower.CurrentPath == null)
+        {
+            Debug.LogWarning("[CarLaneController] " + "시작 차선보다 시작 도로를 먼저 지정해야 합니다.");
+
+            return;
+        }
+
+        RoadLaneData road = pathFollower.CurrentPath.GetComponent<RoadLaneData>();
+
+        if (road == null) return;
+
+        int laneCount = Mathf.Max(1, road.laneCount);
+
+        currentLane = Mathf.Clamp(laneIndex, 0, laneCount - 1);
+
+        targetOffset = CalculateLaneOffset(currentLane, road);
+
+        currentOffset = targetOffset;
+
+        lastLaneCount = laneCount;
+        lastPath = pathFollower.CurrentPath;
+
+        hasInitialLane = true;
+    }
 
     private float CalculateLaneOffset(int laneIndex, RoadLaneData road)
     {

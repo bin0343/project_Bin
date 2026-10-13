@@ -212,6 +212,23 @@ public class Character_Stat : MonoBehaviour
         }
     }
 
+    public bool Heal(int amount)
+    {
+        if (amount <= 0) return false;
+
+        // 포션으로 사망 캐릭터를 부활시키지는 않음
+        if (isDead || currentHP <= 0) return false;
+
+        // 이미 풀피라면 포션 사용 실패
+        if (currentHP >= maxHP) return false;
+
+        currentHP = Mathf.Min(currentHP + amount, maxHP);
+
+        SyncCurrentHPToManager();
+
+        return true;
+    }
+
     private void ShowDamageText(int damage, Transform attacker)
     {
         if (!showDamageText) return;

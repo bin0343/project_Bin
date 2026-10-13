@@ -20,8 +20,18 @@ MonoBehaviour:
   itemID: Equipment_Sword_002
   itemDescription: 
   isStackable: 0
-  maxStackSize: 99
+  maxStackSize: 1
+  rarity: 1
+  expValue: 0
   equipmentType: 0
-  attackBonus: 10
   weaponCategory: 1
+  attackBonus: 10
+  attackGrowthPerLevel: 5
+  refinementBonusPercent: 0.1
+  breakthroughRequirements:
+  - targetBreakthroughStage: 1
+    materials:
+    - material: {fileID: 11400000, guid: 64a6e213ed2d4bf4b9ab652d22487136, type: 2}
+      requiredCount: 5
   weaponPrefab: {fileID: 5640045674421557218, guid: f0253c662330ee247b10274ee356fc5a, type: 3}
+  weaponPreviewPrefab: {fileID: 0}

@@ -102,11 +102,14 @@ public class Character_Manager : MonoBehaviour
                 if (data.characterPrefab != null)
                 {
                     Player_Equipment pEquip = data.characterPrefab.GetComponent<Player_Equipment>();
+
                     if (pEquip != null && pEquip.equipmentSlots != null && pEquip.equipmentSlots.Length > 0)
                     {
-                        if (pEquip.equipmentSlots[0] != null && pEquip.equipmentSlots[0].ItemData != null)
+                        ItemHolder defaultWeapon = pEquip.equipmentSlots[0];
+
+                        if (defaultWeapon != null && defaultWeapon.ItemData != null)
                         {
-                            newStatus.equippedWeapon = pEquip.equipmentSlots[0];
+                            newStatus.equippedWeapon = new ItemHolder(defaultWeapon.ItemData, 1);
                         }
                     }
                 }
