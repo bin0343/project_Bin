@@ -112,9 +112,11 @@ public class IntersectionController : MonoBehaviour
         CleanInvalidVehicles();
 
         // 이미 이번 Batch에서 승인됨
-        if (activeReservations.ContainsKey(vehicle))
+        if (activeReservations.TryGetValue(vehicle, out IntersectionRequest active))
         {
-            return true;
+            bool sameReservation = active.approachId == approachId && active.laneId == laneId && active.movementId == movementId;
+
+            return sameReservation;
         }
 
         // 이미 대기 중
@@ -222,6 +224,26 @@ public class IntersectionController : MonoBehaviour
         if (!lastGrantTimeByLane.TryGetValue(laneKey, out float lastGrantTime)) return true;
 
         return Time.time - lastGrantTime >= sameLaneHeadway;
+    }
+
+    public void CancelRequest(CarPathFollower vehicle)
+    {
+        if (vehicle == null) return;
+
+        // 실제로 대기 요청을 가진 차량만 취소한다.
+        if (!waitingByVehicle.TryGetValue(vehicle, out IntersectionRequest waiting)) return;
+
+        waitingRequests.Remove(waiting);
+        waitingByVehicle.Remove(vehicle);
+
+        if (waitingRequests.Count == 0)
+        {
+            nextDecisionTime = -1f;
+        }
+        else if (activeReservations.Count == 0 && nextDecisionTime < 0f)
+        {
+            nextDecisionTime = Time.time + requestCollectionTime;
+        }
     }
 
     #endregion

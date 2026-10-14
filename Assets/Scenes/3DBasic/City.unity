@@ -3840,6 +3840,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 524715684}
   lane1Choices:
   - path: {fileID: 1762992389}
     turnType: 1
@@ -6761,6 +6762,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 494229041}
+  sourcePaths:
+  - {fileID: 760825318}
+  - {fileID: 44024768}
   intersectionController: {fileID: 1582863257}
 --- !u!1001 &58272674
 PrefabInstance:
@@ -8978,6 +8982,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 634296119}
+  sourcePaths:
+  - {fileID: 788974808}
   intersectionController: {fileID: 13004074}
 --- !u!1 &71332827 stripped
 GameObject:
@@ -10576,6 +10582,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 524715684}
+  sourcePaths:
+  - {fileID: 637773643}
+  - {fileID: 1803977152}
   intersectionController: {fileID: 932230848}
 --- !u!1001 &79529349
 PrefabInstance:
@@ -13425,6 +13434,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1309581502}
+  sourcePaths:
+  - {fileID: 1681965307}
+  - {fileID: 1179132384}
   intersectionController: {fileID: 487605680}
 --- !u!1001 &101701515
 PrefabInstance:
@@ -15333,6 +15345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 1070479418}
   lane1Choices:
   - path: {fileID: 67423016}
     turnType: 1
@@ -16028,6 +16041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 2
+  approachRoad: {fileID: 140796995}
   lane1Choices:
   - path: {fileID: 1286158521}
     turnType: 2
@@ -16786,6 +16800,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 1581808717}
   lane1Choices:
   - path: {fileID: 1541232344}
     turnType: 0
@@ -17950,6 +17965,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 320443777}
   lane1Choices:
   - path: {fileID: 1179132384}
     turnType: 0
@@ -18725,6 +18741,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 815377235}
   lane1Choices:
   - path: {fileID: 251315738}
     turnType: 1
@@ -19926,6 +19943,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 1697898883}
   lane1Choices:
   - path: {fileID: 1343751038}
     turnType: 0
@@ -31879,6 +31897,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1697898883}
+  sourcePaths:
+  - {fileID: 1762992389}
   intersectionController: {fileID: 719446936}
 --- !u!1001 &240677716
 PrefabInstance:
@@ -42169,6 +42189,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1256489923}
+  sourcePaths:
+  - {fileID: 1667946356}
+  - {fileID: 142464434}
   intersectionController: {fileID: 73973954}
 --- !u!1001 &322536406
 PrefabInstance:
@@ -43055,6 +43078,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 494229041}
   lane1Choices:
   - path: {fileID: 142464434}
     turnType: 0
@@ -56820,6 +56844,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 2
+  approachRoad: {fileID: 1309581502}
   lane1Choices:
   - path: {fileID: 2027158521}
     turnType: 2
@@ -67596,6 +67621,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 891048750}
+  sourcePaths:
+  - {fileID: 788658864}
+  - {fileID: 861209260}
   intersectionController: {fileID: 347890034}
 --- !u!1001 &505282555
 PrefabInstance:
@@ -88666,6 +88694,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 815377235}
+  sourcePaths:
+  - {fileID: 67423016}
   intersectionController: {fileID: 8921127}
 --- !u!1 &659699675
 GameObject:
@@ -99185,6 +99215,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1581808717}
+  sourcePaths:
+  - {fileID: 1406463718}
   intersectionController: {fileID: 8921127}
 --- !u!1 &757186628 stripped
 GameObject:
@@ -102638,6 +102670,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 449411640}
+  sourcePaths:
+  - {fileID: 1371713664}
+  - {fileID: 550927643}
   intersectionController: {fileID: 487605680}
 --- !u!1 &774564026 stripped
 GameObject:
@@ -111818,6 +111853,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 1192615573}
   lane1Choices:
   - path: {fileID: 390176554}
     turnType: 2
@@ -118486,7 +118522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.0039549605
+      value: 0.0040404336
       objectReference: {fileID: 0}
     - target: {fileID: 6829346271815648913, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
@@ -124559,6 +124595,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 140796995}
+  sourcePaths:
+  - {fileID: 1645717631}
+  - {fileID: 1254920629}
   intersectionController: {fileID: 487605680}
 --- !u!1001 &867417340
 PrefabInstance:
@@ -135252,6 +135291,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 2003502848}
+  sourcePaths:
+  - {fileID: 1286158521}
+  - {fileID: 591500031}
   intersectionController: {fileID: 1825889906}
 --- !u!1001 &938962350
 PrefabInstance:
@@ -135448,6 +135490,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 908209666}
   lane1Choices:
   - path: {fileID: 861209260}
     turnType: 0
@@ -157297,6 +157340,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 2003502848}
   lane1Choices:
   - path: {fileID: 1653191408}
     turnType: 0
@@ -161876,6 +161920,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 2
+  approachRoad: {fileID: 1142936133}
   lane1Choices:
   - path: {fileID: 1371713664}
     turnType: 2
@@ -163254,6 +163299,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 1657367117}
   lane1Choices:
   - path: {fileID: 535276800}
     turnType: 0
@@ -164987,6 +165033,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1883703471}
+  sourcePaths:
+  - {fileID: 1936326875}
   intersectionController: {fileID: 531245901}
 --- !u!1 &1145199846 stripped
 GameObject:
@@ -175237,6 +175285,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 2143446809}
+  sourcePaths:
+  - {fileID: 221026534}
+  - {fileID: 68019710}
   intersectionController: {fileID: 1825889906}
 --- !u!1 &1224109113 stripped
 GameObject:
@@ -179080,6 +179131,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 320443777}
+  sourcePaths:
+  - {fileID: 287659333}
+  - {fileID: 335038112}
   intersectionController: {fileID: 932230848}
 --- !u!1 &1256489921
 GameObject:
@@ -180759,6 +180813,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 908209666}
+  sourcePaths:
+  - {fileID: 251315738}
   intersectionController: {fileID: 531245901}
 --- !u!1001 &1267810524
 PrefabInstance:
@@ -181090,6 +181146,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1675668054}
+  sourcePaths:
+  - {fileID: 190546197}
+  - {fileID: 73969326}
   intersectionController: {fileID: 932230848}
 --- !u!1 &1270089357
 GameObject:
@@ -181788,6 +181847,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1070479418}
+  sourcePaths:
+  - {fileID: 1343751038}
+  - {fileID: 1594797805}
   intersectionController: {fileID: 1582863257}
 --- !u!1001 &1272488780
 PrefabInstance:
@@ -190783,6 +190845,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1552839727}
+  sourcePaths:
+  - {fileID: 390176554}
   intersectionController: {fileID: 719446936}
 --- !u!1 &1326685516 stripped
 GameObject:
@@ -204266,6 +204330,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 2
+  approachRoad: {fileID: 449411640}
   lane1Choices:
   - path: {fileID: 190546197}
     turnType: 2
@@ -212548,6 +212613,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1289785595}
+  sourcePaths:
+  - {fileID: 722689913}
   intersectionController: {fileID: 13004074}
 --- !u!1001 &1475710828
 PrefabInstance:
@@ -219930,6 +219997,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 891048750}
   lane1Choices:
   - path: {fileID: 68019710}
     turnType: 0
@@ -228859,6 +228927,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1192615573}
+  sourcePaths:
+  - {fileID: 579899374}
+  - {fileID: 1541232344}
   intersectionController: {fileID: 1582863257}
 --- !u!1 &1585862643
 GameObject:
@@ -233716,6 +233787,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 2
+  approachRoad: {fileID: 551508154}
   lane1Choices:
   - path: {fileID: 579899374}
     turnType: 2
@@ -241432,6 +241504,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 551508154}
+  sourcePaths:
+  - {fileID: 2027158521}
+  - {fileID: 535276800}
   intersectionController: {fileID: 73973954}
 --- !u!1001 &1660521250
 PrefabInstance:
@@ -243270,6 +243345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 634296119}
   lane1Choices:
   - path: {fileID: 1803977152}
     turnType: 0
@@ -254841,6 +254917,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 376542383}
   lane1Choices:
   - path: {fileID: 1936326875}
     turnType: 2
@@ -255731,6 +255808,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 2
+  approachRoad: {fileID: 1256489923}
   lane1Choices:
   - path: {fileID: 1477979342}
     turnType: 2
@@ -257517,6 +257595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 620662185}
   lane1Choices:
   - path: {fileID: 550927643}
     turnType: 0
@@ -259673,6 +259752,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 376542383}
+  sourcePaths:
+  - {fileID: 1477979342}
+  - {fileID: 1653191408}
   intersectionController: {fileID: 347890034}
 --- !u!1 &1784871543 stripped
 GameObject:
@@ -260504,6 +260586,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 1675668054}
   lane1Choices:
   - path: {fileID: 722689913}
     turnType: 2
@@ -268323,6 +268406,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 0
+  approachRoad: {fileID: 2143446809}
   lane1Choices:
   - path: {fileID: 788974808}
     turnType: 1
@@ -272968,6 +273052,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 1552839727}
   lane1Choices:
   - path: {fileID: 73969326}
     turnType: 0
@@ -279657,6 +279742,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 620662185}
+  sourcePaths:
+  - {fileID: 655610601}
+  - {fileID: 332879975}
   intersectionController: {fileID: 73973954}
 --- !u!1001 &1927563043
 PrefabInstance:
@@ -300250,6 +300338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 1883703471}
   lane1Choices:
   - path: {fileID: 1406463718}
     turnType: 2
@@ -303288,6 +303377,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1657367117}
+  sourcePaths:
+  - {fileID: 682634538}
+  - {fileID: 903758589}
   intersectionController: {fileID: 347890034}
 --- !u!1001 &2076928910
 PrefabInstance:
@@ -307002,6 +307094,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitRoad: {fileID: 1142936133}
+  sourcePaths:
+  - {fileID: 295789317}
+  - {fileID: 1917575314}
   intersectionController: {fileID: 1825889906}
 --- !u!1001 &2092081182
 PrefabInstance:
@@ -308390,6 +308485,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   approachId: 1
+  approachRoad: {fileID: 1289785595}
   lane1Choices:
   - path: {fileID: 591500031}
     turnType: 0

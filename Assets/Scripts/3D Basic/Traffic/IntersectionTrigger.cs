@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Splines;
 
 public class IntersectionTrigger : MonoBehaviour
 {
     [Header("진입 방향")]
     [SerializeField, Min(0)] private int approachId;
+
+    [Header("진입 도로")]
+    [SerializeField] private SplineContainer approachRoad;
 
     [Header("1차로 차량이 선택 가능한 경로")]
     public IntersectionPathChoice[] lane1Choices;
@@ -33,6 +37,7 @@ public class IntersectionTrigger : MonoBehaviour
         CarPathFollower pathFollower = other.GetComponentInParent<CarPathFollower>();
 
         if (pathFollower == null) return;
+        if (approachRoad != null && pathFollower.CurrentPath != approachRoad) return;
 
         CarLaneController laneController = pathFollower.GetComponent<CarLaneController>();
 
@@ -88,6 +93,8 @@ public class IntersectionTrigger : MonoBehaviour
 
             if (!canProceedSignal)
             {
+                intersectionController.CancelRequest(follower);
+
                 if (sensor != null && stopPoint != null)
                 {
                     sensor.SetIntersectionBlocked(true, stopPoint.position);
