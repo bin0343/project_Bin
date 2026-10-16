@@ -10,6 +10,7 @@ public class GameDataManager : MonoBehaviour
     public GameSaveData CurrentSaveData { get; private set; } = new GameSaveData();
 
     private string saveFilePath;
+    public string SaveFilePath => saveFilePath;
 
     [Header("자동 저장")]
     [SerializeField, Min(0.5f)]
@@ -562,7 +563,6 @@ public class GameDataManager : MonoBehaviour
     }
 
     #endregion
-
 
     public bool IsBossCleared(string bossID)
     {

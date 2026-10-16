@@ -1,20 +1,34 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MinimapIconFollow : MonoBehaviour
 {
-    public Transform target;  // Player
+    public Transform target;
 
-    void LateUpdate()
+    private void LateUpdate()
     {
-        transform.position = new Vector3(
-            target.position.x,
-            transform.position.y,
-            target.position.z
-        );
+        if (BattleManager.instance != null)
+        {
+            GameObject activeCharacter = BattleManager.instance.GetActiveCharacter();
 
-        // 아이콘의 방향을 플레이어에 맞추고 싶으면
-        transform.rotation = Quaternion.Euler(0, target.eulerAngles.y + 180, 0);
+            if (activeCharacter != null)
+            {
+                Player_Action action = activeCharacter.GetComponent<Player_Action>();
+
+                if (action != null && action.animator != null)
+                {
+                    target = action.animator.transform;
+                }
+                else
+                {
+                    target = activeCharacter.transform;
+                }
+            }
+        }
+
+        if (target == null) return;
+
+        transform.position = new Vector3(target.position.x, transform.position.y, target.position.z);
+
+        transform.rotation = Quaternion.Euler(0f, target.eulerAngles.y + 180f, 0f);
     }
 }

@@ -7,6 +7,9 @@ public class TrafficSpawnManager : MonoBehaviour
     [Header("AI 차량 프리팹")]
     [SerializeField] private GameObject[] trafficVehiclePrefabs;
 
+    [Header("생성 차량 부모")]
+    [SerializeField] private Transform vehicleParent;
+
     [Header("초기 배치")]
     [Min(0)]
     [SerializeField] private int initialVehicleCount = 10;
@@ -151,7 +154,7 @@ public class TrafficSpawnManager : MonoBehaviour
     private void SpawnVehicle(RoadLaneData road, SplineContainer spline, int laneIndex, Vector3 position, Quaternion rotation)
     {
         GameObject prefab = trafficVehiclePrefabs[Random.Range(0, trafficVehiclePrefabs.Length)];
-        GameObject vehicle = Instantiate(prefab, position, rotation);
+        GameObject vehicle = Instantiate(prefab, position, rotation, vehicleParent);
 
         CarPathFollower pathFollower = vehicle.GetComponent<CarPathFollower>();
         CarLaneController laneController = vehicle.GetComponent<CarLaneController>();
