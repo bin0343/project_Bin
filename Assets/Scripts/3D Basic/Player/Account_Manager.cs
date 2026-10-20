@@ -193,6 +193,16 @@ public class Account_Manager : MonoBehaviour
         GameDataManager.Instance?.RequestAutoSave();
     }
 
+    private void RecalculateLevelUpExp()
+    {
+        levelUpExp = 100;
+
+        for (int level = 1; level < accountLevel; level++)
+        {
+            levelUpExp *= 2;
+        }
+    }
+
     private void NotifyAPChanged()
     {
         OnAPChanged?.Invoke(currentAP, maxAP);
@@ -203,6 +213,7 @@ public class Account_Manager : MonoBehaviour
     {
         accountLevel = 1;
         accountExp = 0;
+        levelUpExp = 100;
         gold = 0;
 
         currentAP = maxAP;
@@ -247,6 +258,8 @@ public class Account_Manager : MonoBehaviour
         accountLevel = Mathf.Max(1, data.accountLevel);
         accountExp = Mathf.Max(0, data.accountExp);
         gold = Mathf.Max(0, data.gold);
+
+        RecalculateLevelUpExp();
 
         currentAP = Mathf.Clamp(data.currentAP, 0, maxAP);
 

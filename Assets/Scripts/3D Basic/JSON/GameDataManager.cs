@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -11,6 +12,10 @@ public class GameDataManager : MonoBehaviour
 
     private string saveFilePath;
     public string SaveFilePath => saveFilePath;
+
+    public event Action OnLocalSaveCompleted;
+
+    private bool quitSaveHandled;
 
     [Header("자동 저장")]
     [SerializeField, Min(0.5f)]
@@ -151,6 +156,7 @@ public class GameDataManager : MonoBehaviour
 
         sessionReady = false;
         saveDirty = false;
+        quitSaveHandled = false;
 
         Debug.Log($"[GameDataManager] 저장 대상 PlayerId: {playerId}\n" + $"[GameDataManager] 저장 경로: {saveFilePath}");
     }
@@ -178,11 +184,15 @@ public class GameDataManager : MonoBehaviour
         {
             GatherGameData();
 
+            CurrentSaveData.lastSavedUtcTicks = DateTime.UtcNow.Ticks;
+
             string json = JsonUtility.ToJson(CurrentSaveData, true);
 
             File.WriteAllText(saveFilePath, json);
 
             saveDirty = false;
+
+            OnLocalSaveCompleted?.Invoke();
 
             Debug.Log($"[GameDataManager] 자동 저장 완료: " + $"{saveFilePath}");
         }
@@ -300,7 +310,7 @@ public class GameDataManager : MonoBehaviour
         }
     }
 
-    // --- [데이터 수집 (Game -> SaveData)] ---
+    // --- [데이터 수집 (Game -> GameSaveData)] ---
     private void GatherGameData()
     {
         if (CurrentSaveData == null)
@@ -344,6 +354,7 @@ public class GameDataManager : MonoBehaviour
         if (CurrentSaveData.world.activatedTeleportIDs == null) CurrentSaveData.world.activatedTeleportIDs = new List<string>();
         if (CurrentSaveData.world.clearedBossIDs == null) CurrentSaveData.world.clearedBossIDs = new List<string>();
         if (CurrentSaveData.world.customMapPins == null) CurrentSaveData.world.customMapPins = new List<CustomMapPinSaveData>();
+        if (CurrentSaveData.world.revealedLocationIDs == null) CurrentSaveData.world.revealedLocationIDs = new List<string>();
         if (CurrentSaveData.quests == null) CurrentSaveData.quests = new List<QuestSaveData>();
     }
 
@@ -391,7 +402,7 @@ public class GameDataManager : MonoBehaviour
         CurrentSaveData.world.customMapPins = pinManager.GetSaveData();
     }
 
-    // --- [데이터 적용 (SaveData -> Game)] ---
+    // --- [데이터 적용 (GameSaveData -> Game)] ---
     private void ApplyGameData()
     {
         if (Account_Manager.Instance != null)
@@ -647,6 +658,11 @@ public class GameDataManager : MonoBehaviour
 
     #endregion
 
+    public void MarkQuitSaveHandled()
+    {
+        quitSaveHandled = true;
+    }
+
     private void OnApplicationPause(bool pauseStatus)
     {
         if (pauseStatus)
@@ -657,6 +673,9 @@ public class GameDataManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        ForceSave();
+        if (!quitSaveHandled)
+        {
+            ForceSave();
+        }
     }
 }

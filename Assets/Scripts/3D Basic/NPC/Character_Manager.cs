@@ -438,88 +438,6 @@ public class Character_Manager : MonoBehaviour
     #endregion
 
     #region Save & Load
-    public List<NPCSaveData> GetSaveData()
-    {
-        List<NPCSaveData> saveList = new List<NPCSaveData>();
-
-        foreach (var kvp in characterStatusDictionary)
-        {
-            CharacterStatus status = kvp.Value;
-            NPCSaveData data = new NPCSaveData();
-
-            data.npcID = status.characterID;
-            data.affinity = status.isOwned ? 1 : 0;
-            data.level = status.level;
-            data.currentExp = status.currentExp;
-
-            if (status.currentStats != null)
-            {
-                data.npcStats = (float[])status.currentStats.Clone();
-            }
-
-            saveList.Add(data);
-        }
-        return saveList;
-    }
-
-    public void LoadFromSaveData(List<NPCSaveData> savedList)
-    {
-        if (savedList == null) return;
-
-        foreach (var data in savedList)
-        {
-            // 이미 딕셔너리에 있는 NPC라면 값만 갱신
-            if (characterStatusDictionary.ContainsKey(data.npcID))
-            {
-                CharacterStatus status = characterStatusDictionary[data.npcID];
-                status.isOwned = (data.affinity == 1);
-                status.level = data.level;
-                status.currentExp = data.currentExp;
-
-                if (data.npcStats != null && data.npcStats.Length == (int)STAT.STAT_COUNT)
-                {
-                    status.currentStats = (float[])data.npcStats.Clone();
-                    status.isStatInitialized = true; // 스탯이 있으니 초기화된 것으로 처리
-                }
-
-                Character_Data characterData = FindCharacterData(data.npcID);
-
-                if (characterData != null)
-                {
-                    int levelCap = GetCurrentLevelCap(status);
-
-                    status.level = Mathf.Clamp(status.level, 1, levelCap);
-
-                    RecalculateStatsByLevel(status, characterData);
-                }
-            }
-            else
-            {
-                // (선택사항) 만약 처음 보는 NPC라면 새로 생성해서 넣기
-                // 하지만 보통 NPC 기본 데이터는 게임 시작시 초기화되므로 갱신만 하면 됨
-            }
-        }
-
-        Debug.Log($"NPC {savedList.Count}명 데이터 복구 완료");
-    }
-
-    //불러오기 함수
-    private Character_Data FindCharacterData(string characterID)
-    {
-        if (allcharacterDataList == null) return null;
-
-        foreach (Character_Data data in allcharacterDataList)
-        {
-            if (data == null) continue;
-
-            if (data.characterID == characterID) return data;
-        }
-
-        return null;
-    }
-    #endregion
-
-    #region New Save & Load
 
     public List<CharacterSaveData> GetCharacterSaveData()
     {
@@ -793,6 +711,20 @@ public class Character_Manager : MonoBehaviour
         GameDataManager.Instance?.RequestAutoSave();
 
         return true;
+    }
+
+    private Character_Data FindCharacterData(string characterID)
+    {
+        if (allcharacterDataList == null) return null;
+
+        foreach (Character_Data data in allcharacterDataList)
+        {
+            if (data == null) continue;
+
+            if (data.characterID == characterID) return data;
+        }
+
+        return null;
     }
 
     #endregion

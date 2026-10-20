@@ -4,7 +4,7 @@ using Unity.Services.Authentication;
 [DefaultExecutionOrder(-1000)]
 public class GameSessionBootstrapper : MonoBehaviour
 {
-    private void Start()
+    private async void Start()
     {
         if (!AuthenticationService.Instance.IsSignedIn)
         {
@@ -24,16 +24,57 @@ public class GameSessionBootstrapper : MonoBehaviour
 
         GameDataManager.Instance.InitializeForPlayer(playerId);
 
-        bool loaded = GameDataManager.Instance.LoadGame();
+        CloudSaveManager cloudSaveManager = FindObjectOfType<CloudSaveManager>();
 
-        if (!loaded)
+        if (cloudSaveManager == null)
+        {
+            Debug.LogError("[Bootstrap] CloudSaveManager가 없습니다.");
+            return;
+        }
+
+        bool cloudInitialized = await cloudSaveManager.InitializeWriteLockAsync();
+
+        if (!cloudInitialized)
+        {
+            Debug.LogError("[Bootstrap] 클라우드 상태 확인에 실패했습니다.");
+            return;
+        }
+
+        StartupSaveResult saveResult = await cloudSaveManager.ResolveStartupSaveAsync();
+
+        if (saveResult == StartupSaveResult.Failed)
+        {
+            Debug.LogError("[Bootstrap] 저장 데이터 동기화에 실패했습니다. " + "데이터 보호를 위해 게임 초기화를 중단합니다.");
+
+            return;
+        }
+
+        bool loaded = false;
+
+        if (saveResult == StartupSaveResult.NoSave)
         {
             GameDataManager.Instance.InitializeNewGame();
+        }
+        else
+        {
+            loaded = GameDataManager.Instance.LoadGame();
+
+            if (!loaded)
+            {
+                Debug.LogError("[Bootstrap] 기존 저장 파일 로드에 실패했습니다. " + "신규 데이터로 덮어쓰지 않습니다.");
+
+                return;
+            }
         }
 
         if (loaded)
         {
             GameDataManager.Instance.RestoreTeleportStatesForCurrentScene();
+
+            if (MiniMapTeleportManager.instance != null)
+            {
+                MiniMapTeleportManager.instance.RefreshMiniMapTeleports();
+            }
         }
 
         if (BattleManager.instance != null)

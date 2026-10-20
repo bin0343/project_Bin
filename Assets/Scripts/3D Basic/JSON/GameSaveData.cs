@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameSaveData
 {
     public int saveVersion = 1;
+    public long lastSavedUtcTicks;
 
     public AccountSaveData account = new AccountSaveData();
     public List<CharacterSaveData> characters = new List<CharacterSaveData>();
@@ -109,4 +110,23 @@ public class CustomMapPinSaveData
     public Vector2 mapPos;
     public int iconIndex;
     public string description;
+}
+
+[Serializable]
+public class QuestSaveData
+{
+    public string questID;
+    public int status;
+    public int currentStepIndex;
+    public bool isTracked;
+
+    public List<QuestObjectiveSaveData> progressList =
+        new List<QuestObjectiveSaveData>();
+}
+
+[Serializable]
+public class QuestObjectiveSaveData
+{
+    public string targetID;
+    public int count;
 }

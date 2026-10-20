@@ -58685,6 +58685,7 @@ GameObject:
   m_Component:
   - component: {fileID: 442858062}
   - component: {fileID: 442858063}
+  - component: {fileID: 442858064}
   m_Layer: 0
   m_Name: GameDataManager
   m_TagString: Untagged
@@ -58733,6 +58734,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 43dc8441d74f0b54996751bcd243bc19, type: 2}
   - {fileID: 11400000, guid: 6c1f89a8bd2e4704588981c1fb586cd3, type: 2}
   - {fileID: 11400000, guid: aa5ca916c72950147ba2125e95eef9c4, type: 2}
+--- !u!114 &442858064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 442858061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b997566063f0174a93ed3370d72e95e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &442910436
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -101606,50 +101619,6 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 1, z: 0}
   m_TimeToStationary: 0.5
---- !u!1 &769676759
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 769676761}
-  - component: {fileID: 769676760}
-  m_Layer: 0
-  m_Name: CloudSaveManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &769676760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 769676759}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b997566063f0174a93ed3370d72e95e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &769676761
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 769676759}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -24.120419, y: 258.01022, z: -20.287926}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &770085679
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -118551,7 +118520,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00004032755
+      value: 0.000013853951
       objectReference: {fileID: 0}
     - target: {fileID: 6829346271815648913, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
@@ -315341,4 +315310,3 @@ SceneRoots:
   - {fileID: 1320054858}
   - {fileID: 1895967820}
   - {fileID: 1427398157}
-  - {fileID: 769676761}
