@@ -4,8 +4,15 @@ using Unity.Services.Authentication;
 [DefaultExecutionOrder(-1000)]
 public class GameSessionBootstrapper : MonoBehaviour
 {
+    [Header("게임 시작 로딩")]
+    [SerializeField] private CityLoadingScreen loadingScreen;
+
     private async void Start()
     {
+        loadingScreen?.Show();
+        loadingScreen?.SetMessage("게임 데이터를 준비하는 중...");
+        loadingScreen?.SetProgress(0);
+
         if (!AuthenticationService.Instance.IsSignedIn)
         {
             Debug.LogError("[Bootstrap] 로그인 정보가 없습니다.");
@@ -24,6 +31,9 @@ public class GameSessionBootstrapper : MonoBehaviour
 
         GameDataManager.Instance.InitializeForPlayer(playerId);
 
+        loadingScreen?.SetMessage("저장 정보를 확인하는 중...");
+        loadingScreen?.SetProgress(10);
+
         CloudSaveManager cloudSaveManager = FindObjectOfType<CloudSaveManager>();
 
         if (cloudSaveManager == null)
@@ -40,6 +50,9 @@ public class GameSessionBootstrapper : MonoBehaviour
             return;
         }
 
+        loadingScreen?.SetMessage("클라우드 저장 정보를 확인하는 중...");
+        loadingScreen?.SetProgress(25);
+
         StartupSaveResult saveResult = await cloudSaveManager.ResolveStartupSaveAsync();
 
         if (saveResult == StartupSaveResult.Failed)
@@ -48,6 +61,9 @@ public class GameSessionBootstrapper : MonoBehaviour
 
             return;
         }
+
+        loadingScreen?.SetMessage("저장 데이터를 적용하는 중...");
+        loadingScreen?.SetProgress(45);
 
         bool loaded = false;
 
@@ -67,6 +83,9 @@ public class GameSessionBootstrapper : MonoBehaviour
             }
         }
 
+        loadingScreen?.SetMessage("캐릭터 정보를 불러오는 중...");
+        loadingScreen?.SetProgress(60);
+
         if (loaded)
         {
             GameDataManager.Instance.RestoreTeleportStatesForCurrentScene();
@@ -75,11 +94,24 @@ public class GameSessionBootstrapper : MonoBehaviour
             {
                 MiniMapTeleportManager.instance.RefreshMiniMapTeleports();
             }
+
+            if (QuestManager.instance != null)
+            {
+                QuestManager.instance.RefreshSceneStateAfterLoad();
+            }
         }
+
+        loadingScreen?.SetMessage("월드 정보를 복구하는 중...");
+        loadingScreen?.SetProgress(70);
 
         if (BattleManager.instance != null)
         {
             BattleManager.instance.InitializeParty();
+
+            BattleManager.instance.SetPlayerControlLocked(true);
+
+            loadingScreen?.SetMessage("파티를 배치하는 중...");
+            loadingScreen?.SetProgress(82);
 
             if (loaded)
             {
@@ -87,6 +119,9 @@ public class GameSessionBootstrapper : MonoBehaviour
 
                 GameDataManager.Instance.RestoreWorldStateForCurrentScene();
             }
+
+            loadingScreen?.SetMessage("게임 시작을 준비하는 중...");
+            loadingScreen?.SetProgress(92);
         }
 
         GameDataManager.Instance.MarkSessionReady();
@@ -101,6 +136,16 @@ public class GameSessionBootstrapper : MonoBehaviour
         {
             // 신규 유저의 최초 세이브 생성
             GameDataManager.Instance.ForceSave();
+        }
+
+        if (loadingScreen != null)
+        {
+            await loadingScreen.CompleteAsync();
+        }
+
+        if (BattleManager.instance != null)
+        {
+            BattleManager.instance.SetPlayerControlLocked(false);
         }
 
         Debug.Log(loaded ? "[Bootstrap] 기존 세이브로 게임 시작": "[Bootstrap] 신규 계정으로 게임 시작");

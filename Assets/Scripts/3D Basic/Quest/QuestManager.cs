@@ -516,6 +516,36 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"퀘스트 로드 완료: {questLog.Count}개");
     }
 
+    public void RefreshSceneStateAfterLoad()
+    {
+        QuestWorldObjectState[] worldObjects = FindObjectsOfType<QuestWorldObjectState>(true);
+
+        foreach (QuestWorldObjectState worldObject in worldObjects)
+        {
+            if (worldObject == null) continue;
+
+            worldObject.RefreshState();
+        }
+
+        LocalMapNPCManager localNpcManager = FindObjectOfType<LocalMapNPCManager>(true);
+
+        if (localNpcManager != null)
+        {
+            localNpcManager.RefreshNPCMarkers();
+        }
+
+        MiniMapNPCManager miniNpcManager = FindObjectOfType<MiniMapNPCManager>(true);
+
+        if (miniNpcManager != null)
+        {
+            miniNpcManager.RefreshMiniMapMarkers();
+        }
+
+        RefreshTrackedQuestTarget();
+
+        Debug.Log("[Quest] 로드 후 씬 상태 갱신 완료");
+    }
+
     #region Helper
 
     private void RequestQuestAutoSave()

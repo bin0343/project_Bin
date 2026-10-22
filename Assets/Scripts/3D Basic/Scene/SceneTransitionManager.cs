@@ -50,6 +50,11 @@ public class SceneTransitionManager : MonoBehaviour
     {
         isTransitioning = true;
 
+        if (UI_Manager.Instance != null)
+        {
+            UI_Manager.Instance.HideInteractionPrompt();
+        }
+
         CleanupSceneSpecificUI();
 
         Time.timeScale = 1f;
@@ -117,6 +122,13 @@ public class SceneTransitionManager : MonoBehaviour
         if (bossArena != null)
         {
             bossArena.InitializeArena();
+        }
+
+        FarmingStageManager farmingStage = FindFirstObjectByType<FarmingStageManager>();
+
+        if (farmingStage != null)
+        {
+            farmingStage.InitializeStage();
         }
 
         RestoreInput(battleMgr, activePlayerAction);

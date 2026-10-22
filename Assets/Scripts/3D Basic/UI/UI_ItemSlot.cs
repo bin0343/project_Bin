@@ -110,9 +110,14 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (uiInventory.enableDrag != false)
+        if (!isDraggable) return;
+
+        if (uiInventory != null && uiInventory.enableDrag)
+        {
             DragSlot.EndDrag();
-        ItemIcon.color = new Color(1, 1, 1, 1);
+        }
+
+        ItemIcon.color = Color.white;
     }
 
     public void OnDrop(PointerEventData eventData)

@@ -266,6 +266,8 @@ public class LoginSceneController : MonoBehaviour
         StopBlink();
         ShowLoading("게임을 불러오는 중...");
 
+        CityLoadingScreen.RequestShowOnNextCityLoad();
+
         AsyncOperation operation = SceneManager.LoadSceneAsync(citySceneName);
 
         if (operation == null)

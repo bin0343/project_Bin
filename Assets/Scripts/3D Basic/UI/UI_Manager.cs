@@ -631,6 +631,63 @@ public class UI_Manager : MonoBehaviour
     }
     #endregion
 
+    #region UI_Farming 
+
+    private void OpenFarmingRewardUI(GameObject panel, UI_FarmingReward rewardUI)
+    {
+        Time.timeScale = 0f;
+
+        AnimateHUD(false, 0.15f);
+
+        panel.SetActive(true);
+        panel.transform.SetAsLastSibling();
+
+        UIStack.Push(panel);
+
+        UpdateCursorState();
+
+        rewardUI.PlayOpenAnimation();
+    }
+
+    private void CloseFarmingRewardUI(GameObject panel, UI_FarmingReward rewardUI, System.Action onClosed = null)
+    {
+        rewardUI.PlayCloseAnimation(() =>
+        {
+            panel.SetActive(false);
+
+            RemoveFromStack(panel);
+
+            CheckTimeScale();
+            UpdateCursorState();
+
+            if (UIStack.Count == 0)
+            {
+                AnimateHUD(true, hudSlideDuration);
+            }
+
+            onClosed?.Invoke();
+        });
+    }
+
+    public void CloseFarmingRewardAndThen(GameObject panel, System.Action onClosed)
+    {
+        if (panel == null || !panel.activeSelf)
+        {
+            onClosed?.Invoke();
+            return;
+        }
+
+        if (!panel.TryGetComponent<UI_FarmingReward>(out UI_FarmingReward farmingReward))
+        {
+            onClosed?.Invoke();
+            return;
+        }
+
+        CloseFarmingRewardUI(panel, farmingReward, onClosed);
+    }
+
+    #endregion
+
     #region Core Open / Close Interfaces
     public void OpenUI(GameObject panel)
     {
@@ -643,6 +700,10 @@ public class UI_Manager : MonoBehaviour
         else if (panel == QuitPanel)
         {
             OpenQuitPanel();
+        }
+        else if (panel.TryGetComponent<UI_FarmingReward>(out UI_FarmingReward farmingReward))
+        {
+            OpenFarmingRewardUI(panel, farmingReward);
         }
         else
         {
@@ -675,6 +736,10 @@ public class UI_Manager : MonoBehaviour
             {
                 CloseQuitPanel();
             }
+            else if (topUI.TryGetComponent<UI_FarmingReward>(out UI_FarmingReward farmingReward))
+            {
+                CloseFarmingRewardUI(topUI, farmingReward);
+            }
             else
             {
                 System.Action postAction = null;
@@ -705,6 +770,10 @@ public class UI_Manager : MonoBehaviour
         else if (panel == QuitPanel)
         {
             CloseQuitPanel();
+        }
+        else if (panel.TryGetComponent<UI_FarmingReward>(out UI_FarmingReward farmingReward))
+        {
+            CloseFarmingRewardUI(panel,farmingReward);
         }
         else
         {

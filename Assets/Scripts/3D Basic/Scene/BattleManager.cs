@@ -498,6 +498,7 @@ public class BattleManager : MonoBehaviour
 
         if (activeCharacter != null)
         {
+            ResetFreeLookToDefaultBehind(activeCharacter);
             UpdateSystemsWithActiveCharacter(activeCharacter);
         }
 
@@ -525,7 +526,7 @@ public class BattleManager : MonoBehaviour
 
         return -1;
     }
-
+    
     public void OnCharacterDead(Player_Action deadPlayer)
     {
         isDeathHandling = true;

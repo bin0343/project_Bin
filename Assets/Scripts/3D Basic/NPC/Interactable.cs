@@ -21,6 +21,16 @@ public abstract class Interactable : MonoBehaviour
             ResolveInteractionPrompt();
         }
 
+        if (SceneTransitionManager.instance != null && SceneTransitionManager.instance.IsTransitioning)
+        {
+            if (interactionPromptUI != null)
+            {
+                interactionPromptUI.SetActive(false);
+            }
+
+            return;
+        }
+
         if (isPlayerInRange && !isMenuOpen && Input.GetKeyDown(interactionKey))
         {
             OpenMenu();
