@@ -21,6 +21,9 @@ public class UI_QuestTrackerItem : MonoBehaviour
     private string currentDistanceTargetID = "";
     private Transform currentDistanceTarget;
 
+    private const string TemporaryObjectiveKey = "__TEMP__";
+    private string temporaryObjectiveName;
+
     private void Update()
     {
         UpdateDistance();
@@ -214,6 +217,48 @@ public class UI_QuestTrackerItem : MonoBehaviour
         currentDistanceTargetID = objective.targetID;
 
         currentDistanceTarget = QuestTargetMarker.GetTarget(currentDistanceTargetID);
+    }
+
+    public void SetupTemporaryObjective(string objectiveName, int currentAmount, int requiredAmount)
+    {
+        foreach (Transform child in objectivesContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        objectiveTexts.Clear();
+
+        displayedStepIndex = -1;
+
+        currentDistanceTargetID = "";
+        currentDistanceTarget = null;
+
+        if (distanceText != null)
+        {
+            distanceText.gameObject.SetActive(false);
+        }
+
+        temporaryObjectiveName = objectiveName;
+
+        GameObject textGO = Instantiate(objectiveTextPrefab, objectivesContainer);
+
+        Text objectiveText = textGO.GetComponent<Text>();
+
+        if (objectiveText != null)
+        {
+            objectiveText.text = $"{temporaryObjectiveName} " + $"({currentAmount} / {requiredAmount})";
+
+            objectiveTexts[TemporaryObjectiveKey] = objectiveText;
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
+    }
+
+    public void UpdateTemporaryObjective(int currentAmount, int requiredAmount)
+    {
+        if (!objectiveTexts.TryGetValue(TemporaryObjectiveKey, out Text objectiveText)) return;
+
+        objectiveText.text = $"{temporaryObjectiveName} " + $"({currentAmount} / {requiredAmount})";
     }
 
     // (임시) targetID를 표시용 이름으로 변환

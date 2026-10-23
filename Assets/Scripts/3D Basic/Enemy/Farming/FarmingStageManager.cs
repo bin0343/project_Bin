@@ -33,6 +33,16 @@ public class FarmingStageManager : MonoBehaviour
 
     private bool isInitialized;
 
+    private int defeatedEnemyCount;
+
+    private int TotalEnemyCount
+    {
+        get
+        {
+            return totalWaves * enemiesPerWave;
+        }
+    }
+
     private void Start()
     {
         if (SceneTransitionManager.instance == null || !SceneTransitionManager.instance.IsTransitioning)
@@ -75,6 +85,8 @@ public class FarmingStageManager : MonoBehaviour
             if (enemy != null)
             {
                 currentWaveEnemies.Add(enemy);
+
+                enemy.OnDied += HandleFarmingEnemyDied;
             }
             else
             {
@@ -119,6 +131,13 @@ public class FarmingStageManager : MonoBehaviour
         }
 
         StartCoroutine(StageRoutine());
+
+        defeatedEnemyCount = 0;
+
+        if (UI_QuestTracker.instance != null)
+        {
+            UI_QuestTracker.instance.BeginTemporaryObjective("Àû Ã³Ä¡", 0, TotalEnemyCount);
+        }
     }
 
     public void ExitStage()
@@ -168,6 +187,29 @@ public class FarmingStageManager : MonoBehaviour
         exitUI.RegisterExitDestination(exitSceneName, exitSpawnPointId);
     }
 
+    private void HandleFarmingEnemyDied(EnemyBase enemy)
+    {
+        if (enemy != null)
+        {
+            enemy.OnDied -= HandleFarmingEnemyDied;
+        }
+
+        defeatedEnemyCount++;
+
+        defeatedEnemyCount = Mathf.Min(defeatedEnemyCount, TotalEnemyCount);
+
+        if (UI_QuestTracker.instance == null) return;
+
+        if (defeatedEnemyCount >= TotalEnemyCount)
+        {
+            UI_QuestTracker.instance.HideTemporaryObjective();
+
+            return;
+        }
+
+        UI_QuestTracker.instance.UpdateTemporaryObjective(defeatedEnemyCount, TotalEnemyCount);
+    }
+
     private IEnumerator StageRoutine()
     {
         for (int wave = 1; wave <= totalWaves; wave++)
@@ -193,6 +235,12 @@ public class FarmingStageManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (UI_QuestTracker.instance != null)
+        {
+            UI_QuestTracker.instance.EndTemporaryObjective();
+        }
+
+
         BossExitUI exitUI = FindObjectOfType<BossExitUI>(true);
 
         if (exitUI != null)

@@ -1707,13 +1707,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EnemyName: "\uBE0C\uB8E8\uD2B8\uC624\uD06C"
   EnemyLevel: 20
+  useCharacterLevelCap: 1
+  fallbackEnemyLevel: 20
+  maxEnemyLevel: 100
+  initialEnemyLevel: 6
+  bossLevelBonus: 5
+  normalEnemyLevelPenalty: 5
+  level1MaxHP: 80
+  level1Attack: 10
+  level1Defense: 5
+  hpGrowthPerLevel: 0.12
+  attackGrowthPerLevel: 0.08
+  defenseGrowthPerLevel: 2
   useWorldHpBar: 0
   stats:
-  - 100
-  - 8
-  - 3
+  - 262
+  - 25
+  - 43
   currentHP: 500
-  ExpReward: 50
   hpBar: {fileID: 0}
   damageTextOffset: {x: 0, y: -0.5, z: 0}
   damageTextCameraForwardOffset: 0.45
@@ -1764,10 +1775,11 @@ MonoBehaviour:
   knockbackWallBuffer: 0.15
   knockbackNavMeshSampleDistance: 1
   dissolveEffect: {fileID: 0}
+  bossID: Boss_Orc
   currentPhase: 0
   currentBossState: 0
   battleStartDistance: 10
-  introTriggerDistance: 50
+  introTriggerDistance: 20
   introCameraTarget: {fileID: 7534627951853386404}
   openingLeapData: {fileID: 11400000, guid: 8505cd091cbbd624f9080238dc2d14ad, type: 2}
   closeRange: 4

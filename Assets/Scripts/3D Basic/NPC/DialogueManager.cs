@@ -34,7 +34,10 @@ public class DialogueManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null) instance = this;
+        if (instance != null && instance != this) return;
+
+        instance = this;
+
         dialogueRoot.SetActive(false);
         choiceGroup.SetActive(false);
 
@@ -175,5 +178,13 @@ public class DialogueManager : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
     }
 }

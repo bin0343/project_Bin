@@ -59,6 +59,8 @@ public class EnemyBase : MonoBehaviour
     private SearchPhase currentSearchPhase;
     private bool isPerformingAction = false;
 
+    public event System.Action<EnemyBase> OnDied;
+
     protected Animator animator;
 
     private float idleDuration = 3f;
@@ -593,6 +595,8 @@ public class EnemyBase : MonoBehaviour
         transform.DOKill();
 
         isDead = true;
+
+        OnDied?.Invoke(this);
 
         currentState = ENEMYSTATE.DEAD;
         animator.SetTrigger("IsDie");

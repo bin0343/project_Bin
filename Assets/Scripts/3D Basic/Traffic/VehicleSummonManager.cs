@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Splines;
 using Unity.Mathematics;
+using UnityEngine.SceneManagement;
 
 public class VehicleSummonManager : MonoBehaviour
 {
@@ -57,7 +58,7 @@ public class VehicleSummonManager : MonoBehaviour
 
     private void Start()
     {
-        roads = FindObjectsOfType<RoadLaneData>();
+        RefreshRoads();
     }
 
 
@@ -298,5 +299,29 @@ public class VehicleSummonManager : MonoBehaviour
         }
 
         return activeCharacter.transform;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RefreshRoads();
+
+        currentSummonedVehicle = null;
+    }
+
+    private void RefreshRoads()
+    {
+        roads = FindObjectsByType<RoadLaneData>(FindObjectsSortMode.None);
+
+        Debug.Log($"[VehicleSummon] 도로 데이터 갱신: " + $"{roads.Length}개");
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
     }
 }

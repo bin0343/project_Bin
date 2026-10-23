@@ -114,6 +114,18 @@ public class SceneTransitionManager : MonoBehaviour
             battleMgr.MovePartyToSpawnPoint(spawnPoint.transform);
         }
 
+        FarmingStageManager farmingStage = FindFirstObjectByType<FarmingStageManager>();
+
+        if (farmingStage != null)
+        {
+            farmingStage.InitializeStage();
+        }
+
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.RefreshSceneStateAfterLoad();
+        }
+
         GameDataManager.Instance?.RequestAutoSave();
 
         // 플레이어 배치가 끝난 뒤 보스 생성
@@ -122,13 +134,6 @@ public class SceneTransitionManager : MonoBehaviour
         if (bossArena != null)
         {
             bossArena.InitializeArena();
-        }
-
-        FarmingStageManager farmingStage = FindFirstObjectByType<FarmingStageManager>();
-
-        if (farmingStage != null)
-        {
-            farmingStage.InitializeStage();
         }
 
         RestoreInput(battleMgr, activePlayerAction);
