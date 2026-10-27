@@ -12,6 +12,12 @@ public class BossOpeningLeapData : ScriptableObject
     [Min(1f)]
     public float hiddenHeight = 18f;
 
+    [Header("낙하 공격 애니메이션")]
+    [Range(1, 10)]
+    public int fallAttackIndex = 8;
+    [Min(0f)]
+    public float landingRecoveryTime = 0.4f;
+
     [Header("경고 원")]
     [Min(0f)]
     public float trackingDuration = 1.5f;

@@ -1,23 +1,32 @@
 using UnityEngine;
 
+public enum MapLocationDetailType
+{
+    Normal,
+    Farming
+}
+
 public class MapLocationMarker : MonoBehaviour
 {
     [Header("지도 표시 정보")]
     [Tooltip("지도에서 표시할 장소 이름")]
     public string locationName;
-
     [TextArea]
     [Tooltip("지도 아이콘을 눌렀을 때 표시할 설명")]
     public string description;
-
     [Tooltip("지도에서 사용할 아이콘")]
     public Sprite mapIcon;
 
+    [Header("상세 정보 타입")]
+    [SerializeField] private MapLocationDetailType detailType = MapLocationDetailType.Normal;
+    [SerializeField] private FarmingStageRewardData farmingRewardData;
+
+    public MapLocationDetailType DetailType => detailType;
+    public FarmingStageRewardData FarmingRewardData => farmingRewardData;
 
     [Header("지도 표시 설정")]
     [Tooltip("전체 지도에 표시할지")]
     public bool showOnLocalMap = true;
-
     [Tooltip("미니맵에 표시할지")]
     public bool showOnMiniMap = true;
 

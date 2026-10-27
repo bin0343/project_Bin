@@ -17,11 +17,19 @@ public class UIMapInteractiveIcon : MonoBehaviour, IPointerClickHandler
 
     private Vector2 myMapPos;
 
-    public void Setup(string desc, Vector2 pos, MapPinManager.IconGroupType group = MapPinManager.IconGroupType.General)
+    private MapLocationDetailType detailType = MapLocationDetailType.Normal;
+
+    private FarmingStageRewardData farmingRewardData;
+
+    public void Setup(string desc, Vector2 pos, MapPinManager.IconGroupType group = MapPinManager.IconGroupType.General,
+        MapLocationDetailType detailType = MapLocationDetailType.Normal, FarmingStageRewardData farmingRewardData = null)
     {
         iconDescription = desc;
         myMapPos = pos;
         iconGroup = group;
+
+        this.detailType = detailType;
+        this.farmingRewardData = farmingRewardData;
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -31,7 +39,7 @@ public class UIMapInteractiveIcon : MonoBehaviour, IPointerClickHandler
             Sprite mySprite = GetComponent<Image>().sprite;
             if (myMapPos == Vector2.zero) myMapPos = GetComponent<RectTransform>().anchoredPosition;
 
-            MapPinManager.instance.OpenDetailsPanel(iconDescription, mySprite, myMapPos, iconGroup, warpTargetName, null);
+            MapPinManager.instance.OpenDetailsPanel(iconDescription, mySprite, myMapPos, iconGroup, warpTargetName, null, detailType, farmingRewardData);
         }
     }
 }

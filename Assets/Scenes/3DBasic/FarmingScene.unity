@@ -211,6 +211,7 @@ MonoBehaviour:
   rewardChest: {fileID: 5120672014879665682}
   exitSceneName: City
   exitSpawnPointId: Farming_Return
+  retrySpawnPointId: FarmingEntry
 --- !u!1 &692758658
 GameObject:
   m_ObjectHideFlags: 0
@@ -4036,11 +4037,7 @@ MonoBehaviour:
   interactionKey: 102
   interactionPromptUI: {fileID: 0}
   interactionText: {fileID: 0}
-  rewards:
-  - item: {fileID: 11400000, guid: 64a6e213ed2d4bf4b9ab652d22487136, type: 2}
-    quantity: 4
-  - item: {fileID: 11400000, guid: aa5ca916c72950147ba2125e95eef9c4, type: 2}
-    quantity: 5
+  rewardData: {fileID: 11400000, guid: 1469faa9160e6a14b99c8dd1d4edf820, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

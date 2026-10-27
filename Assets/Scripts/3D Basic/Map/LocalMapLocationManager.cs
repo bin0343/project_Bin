@@ -91,7 +91,7 @@ public class LocalMapLocationManager : MonoBehaviour
 
             string description = $"[{location.locationName}]\n{location.description}";
 
-            interactScript.Setup(description, mapPos, groupType);
+            interactScript.Setup(description, mapPos, groupType, location.DetailType, location.FarmingRewardData);
 
             if (canTeleportNow)
             {

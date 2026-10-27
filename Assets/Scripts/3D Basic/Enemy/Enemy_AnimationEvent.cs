@@ -17,20 +17,19 @@ public class Enemy_AnimationEvent : MonoBehaviour
 
     public void StartAttackTrail()
     {
-        if (enemy != null)
+        if (enemy != null && enemy.slashTrail != null)
             enemy.slashTrail.emitting = true;
     }
 
     public void EndAttackTrail()
     {
-        if (enemy != null)
+        if (enemy != null && enemy.slashTrail != null) 
             enemy.slashTrail.emitting = false;
     }
 
     public void StartAttack()
     {
-        if (enemy != null)
-            enemy.isAttacking = true;
+        if (enemy != null) enemy.isAttacking = true;
 
         if (attackHItbox != null)
             attackHItbox.EnableHitbox();

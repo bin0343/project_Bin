@@ -23,6 +23,12 @@ public class MapPinManager : MonoBehaviour
     public Text detailsDescText;
     public Image detailsIconPreview;
 
+    [Header("파밍 상세 정보")]
+    [SerializeField] private GameObject farmingInfoRoot;
+    [SerializeField] private Text farmingAPCostText;
+    [SerializeField] private GameObject farmingItemSlotPrefab;
+    [SerializeField] private Transform farmingRewardSlotParent;
+
     [Header("상세 제어 UI")]
     public GameObject deleteButton;   // 삭제 버튼 오브젝트
     public Text trackButtonText;
@@ -50,6 +56,10 @@ public class MapPinManager : MonoBehaviour
 
 
     private const string RuntimeWaypointName = "MapPinTrackingWaypoint_Runtime";
+
+    private MapLocationDetailType currentDetailType = MapLocationDetailType.Normal;
+
+    private FarmingStageRewardData currentFarmingRewardData;
 
     private void Awake() 
     { 
@@ -109,15 +119,46 @@ public class MapPinManager : MonoBehaviour
         createPanel.SetActive(false); 
     }
 
-    public void OpenDetailsPanel(string desc, Sprite icon, Vector2 pos, IconGroupType groupType, string teleportTarget = "", UICustomPin customPin = null)
+    public void OpenDetailsPanel(string desc, Sprite icon, Vector2 pos, IconGroupType groupType, string teleportTarget = "", UICustomPin customPin = null,
+        MapLocationDetailType detailType = MapLocationDetailType.Normal, FarmingStageRewardData farmingRewardData = null)
     {
         currentSelectedPin = customPin;
         currentTargetMapPos = pos;
         currentTargetSprite = icon;
         currentTeleportTargetName = teleportTarget;
+        currentDetailType = detailType;
+        currentFarmingRewardData = farmingRewardData;
 
-        detailsDescText.text = desc;
-        detailsIconPreview.sprite = icon;
+        bool isFarming = detailType == MapLocationDetailType.Farming && farmingRewardData != null;
+
+        if (detailsDescText != null)
+        {
+            detailsDescText.gameObject.SetActive(!isFarming);
+
+            if (!isFarming)
+            {
+                detailsDescText.text = desc;
+            }
+        }
+
+        if (detailsIconPreview != null)
+        {
+            detailsIconPreview.sprite = icon;
+        }
+
+        if (farmingInfoRoot != null)
+        {
+            farmingInfoRoot.SetActive(isFarming);
+        }
+
+        if (isFarming)
+        {
+            ShowFarmingDetails(farmingRewardData);
+        }
+        else
+        {
+            ClearFarmingRewardSlots();
+        }
 
         if (groupType == IconGroupType.CustomPin)
         {
@@ -341,5 +382,59 @@ public class MapPinManager : MonoBehaviour
         dummy3DWaypoint = waypoint.transform;
 
         DontDestroyOnLoad(waypoint);
+    }
+
+    private void ShowFarmingDetails(FarmingStageRewardData rewardData)
+    {
+        if (rewardData == null) return;
+
+        if (farmingAPCostText != null)
+        {
+            farmingAPCostText.text = $"× {rewardData.baseAPCost}";
+        }
+
+        ClearFarmingRewardSlots();
+
+        if (farmingItemSlotPrefab == null || farmingRewardSlotParent == null) return;
+
+        foreach (FarmingRewardEntry reward in rewardData.rewards)
+        {
+            if (reward == null || reward.item == null) continue;
+
+            GameObject slotObject = Instantiate(farmingItemSlotPrefab, farmingRewardSlotParent);
+
+            UI_ItemSlot slot = slotObject.GetComponent<UI_ItemSlot>();
+
+            if (slot == null)
+            {
+                Debug.LogError("[MapPin] 파밍 보상 슬롯에 " + "UI_ItemSlot이 없습니다.");
+
+                Destroy(slotObject);
+
+                continue;
+            }
+
+            slot.SetDraggable(false);
+
+            slot.Setup(new ItemHolder(reward.item, reward.quantity));
+        }
+
+        if (farmingRewardSlotParent is RectTransform slotRect)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(slotRect);
+        }
+    }
+
+    private void ClearFarmingRewardSlots()
+    {
+        if (farmingRewardSlotParent == null) return;
+
+        for (int i = farmingRewardSlotParent.childCount - 1; i >= 0; i--)
+        {
+            GameObject child = farmingRewardSlotParent.GetChild(i).gameObject;
+
+            child.SetActive(false);
+            Destroy(child);
+        }
     }
 }

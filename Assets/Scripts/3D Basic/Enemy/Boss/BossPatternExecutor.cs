@@ -183,6 +183,18 @@ public class BossPatternExecutor : MonoBehaviour
 
         transform.position = hiddenPosition;
 
+        if (animator != null)
+        {
+            animator.ResetTrigger("IsAttack");
+
+            animator.SetInteger("AttackIndex", 0);
+
+            // 공중에서 Idle 상태로 대기
+            animator.SetBool("IsIdle", true);
+            animator.SetBool("IsMoving", false);
+        }
+
+
         while (!openingTargetingReleased)
         {
             if (enemyBase != null && enemyBase.isDead)
@@ -231,6 +243,20 @@ public class BossPatternExecutor : MonoBehaviour
 
         leapTelegraph?.Show(lockedImpactPoint, data.attackRadius);
 
+        // 오프닝 낙하 공격 애니메이션 실행
+        if (animator != null)
+        {
+            animator.SetBool("IsIdle", false);
+            animator.SetBool("IsMoving", false);
+
+            // 일반 LeapAttack과 동일한 5번 애니메이션 사용
+            animator.SetInteger("AttackIndex", data.fallAttackIndex);
+
+            animator.ResetTrigger("IsAttack");
+            animator.SetTrigger("IsAttack");
+        }
+
+        // 내려찍는 애니메이션의 준비 동작 진행
         if (data.lockedWarningDuration > 0f)
         {
             yield return new WaitForSeconds(data.lockedWarningDuration);
@@ -286,6 +312,11 @@ public class BossPatternExecutor : MonoBehaviour
         PerformAreaAttack(lockedImpactPoint, data.attackRadius, data.damageMultiplier, data.hitReactionType);
 
         RestoreAgentAfterLeap();
+
+        if (data.landingRecoveryTime > 0f)
+        {
+            yield return new WaitForSeconds(data.landingRecoveryTime);
+        }
 
         openingLeapCoroutine = null;
 
@@ -426,6 +457,13 @@ public class BossPatternExecutor : MonoBehaviour
         if (attackHitbox != null)
         {
             attackHitbox.DisableHitbox();
+        }
+
+        float remainingAnimationTime = Mathf.Max(0f, pattern.animationTime - elapsedTime);
+
+        if (remainingAnimationTime > 0f)
+        {
+            yield return new WaitForSeconds(remainingAnimationTime);
         }
     }
 

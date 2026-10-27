@@ -17603,14 +17603,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 1}
+  m_Color: {r: 0.8396226, g: 0.8396226, b: 0.8396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 54b846f4f03817f4aba023810c77edf8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -48690,14 +48690,16 @@ MonoBehaviour:
   locationName: "\uD30C\uBC0D"
   description: "\uD30C\uBC0D \uC9C0\uC5ED \uC704\uCE58"
   mapIcon: {fileID: 21300000, guid: c7bc5487d6bf151418d2ec076f3867bc, type: 3}
+  detailType: 1
+  farmingRewardData: {fileID: 11400000, guid: 1469faa9160e6a14b99c8dd1d4edf820, type: 2}
   showOnLocalMap: 1
   showOnMiniMap: 1
   isRevealed: 1
   canTeleport: 1
-  requiresBossClear: 1
-  requiredBossID: Boss_Orc
+  requiresBossClear: 0
+  requiredBossID: 
   teleportTarget: {fileID: 2063063172}
-  locationID: 
+  locationID: Farming_1
   saveRevealState: 0
 --- !u!4 &367749345
 Transform:
@@ -118978,11 +118980,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.000033080578
+      value: 0.00004386902
       objectReference: {fileID: 0}
     - target: {fileID: 6828464781969943521, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.0008246355
+      value: 0.00009261735
       objectReference: {fileID: 0}
     - target: {fileID: 6829346271815648913, guid: 4c0adc7151ee5354cad0abfebcd13765, type: 3}
       propertyPath: m_AnchorMax.y
@@ -161690,6 +161692,8 @@ MonoBehaviour:
   locationName: "\uC624\uD06C"
   description: "\uC624\uD06C \uBCF4\uC2A4 \uB9F5 \uC704\uCE58"
   mapIcon: {fileID: 21300000, guid: 7ab74e659e1f0a34d9cfec21c478fc12, type: 3}
+  detailType: 0
+  farmingRewardData: {fileID: 0}
   showOnLocalMap: 1
   showOnMiniMap: 1
   isRevealed: 1
@@ -302094,7 +302098,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2063063172}
   m_Layer: 0
-  m_Name: Boss_Orc_WarpPoint
+  m_Name: Farming_WarpPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -302109,7 +302113,7 @@ Transform:
   m_GameObject: {fileID: 2063063171}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.23, y: 0, z: 0}
+  m_LocalPosition: {x: -0.46987152, y: -0.07936287, z: -11.163948}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

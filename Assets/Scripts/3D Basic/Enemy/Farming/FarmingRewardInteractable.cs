@@ -15,9 +15,11 @@ public class FarmingRewardInteractable : Interactable
 {
     private UI_FarmingReward rewardUI;
 
-    [Header("파밍 보상")]
+    [Header("파밍 보상 데이터")]
     [SerializeField]
-    private List<FarmingRewardEntry> rewards = new List<FarmingRewardEntry>();
+    private FarmingStageRewardData rewardData;
+
+    public FarmingStageRewardData RewardData => rewardData;
 
     private bool isLooted;
 
@@ -58,11 +60,18 @@ public class FarmingRewardInteractable : Interactable
         currentOpenMenu = null;
     }
 
-    public bool TryClaimReward(int apCost, int rewardMultiplier, out List<ItemHolder> grantedRewards)
+    public bool TryClaimReward(int rewardMultiplier, out List<ItemHolder> grantedRewards)
     {
         grantedRewards = new List<ItemHolder>();
 
         if (isLooted) return false;
+
+        if (rewardData == null)
+        {
+            Debug.LogError("[FarmingReward] Reward Data가 없습니다.");
+
+            return false;
+        }
 
         if (Account_Manager.Instance == null)
         {
@@ -78,13 +87,15 @@ public class FarmingRewardInteractable : Interactable
             return false;
         }
 
+        int apCost = GetAPCost(rewardMultiplier);
+
         bool useSucceeded = Account_Manager.Instance.UseAP(apCost);
 
         if (!useSucceeded) return false;
 
         isLooted = true;
 
-        foreach (FarmingRewardEntry reward in rewards)
+        foreach (FarmingRewardEntry reward in rewardData.rewards)
         {
             if (reward == null || reward.item == null) continue;
 
@@ -106,5 +117,12 @@ public class FarmingRewardInteractable : Interactable
         GameDataManager.Instance?.RequestAutoSave();
 
         return true;
+    }
+
+    public int GetAPCost(int rewardMultiplier)
+    {
+        if (rewardData == null) return 0;
+
+        return rewardData.baseAPCost * Mathf.Max(1, rewardMultiplier);
     }
 }

@@ -5,10 +5,6 @@ using DG.Tweening;
 
 public class UI_FarmingReward : MonoBehaviour
 {
-    [Header("AP 비용")]
-    [SerializeField] private int normalCost = 40;
-    [SerializeField] private int doubleCost = 80;
-
     [Header("비용 텍스트")]
     [SerializeField] private Text normalCostText;
     [SerializeField] private Text doubleCostText;
@@ -62,6 +58,13 @@ public class UI_FarmingReward : MonoBehaviour
 
     private void RefreshCostState()
     {
+        if (currentInteractable == null) return;
+
+        int normalCost = currentInteractable.GetAPCost(1);
+
+        int doubleCost = currentInteractable.GetAPCost(2);
+
+
         if (normalCostText != null)
         {
             normalCostText.text = normalCost.ToString();
@@ -72,9 +75,11 @@ public class UI_FarmingReward : MonoBehaviour
             doubleCostText.text = doubleCost.ToString();
         }
 
+
         if (Account_Manager.Instance == null) return;
 
         int currentAP = Account_Manager.Instance.currentAP;
+
 
         if (normalCostText != null)
         {
@@ -89,21 +94,21 @@ public class UI_FarmingReward : MonoBehaviour
 
     public void OnClickNormalReward()
     {
-        TrySelectReward(normalCost, 1);
+        TrySelectReward(1);
     }
 
     public void OnClickDoubleReward()
     {
-        TrySelectReward(doubleCost, 2);
+        TrySelectReward(2);
     }
 
-    private void TrySelectReward(int apCost, int rewardMultiplier)
+    private void TrySelectReward(int rewardMultiplier)
     {
         if (currentInteractable == null) return;
 
         List<ItemHolder> grantedRewards;
 
-        bool success = currentInteractable.TryClaimReward(apCost, rewardMultiplier, out grantedRewards);
+        bool success = currentInteractable.TryClaimReward(rewardMultiplier, out grantedRewards);
 
         if (!success)
         {
