@@ -177,6 +177,13 @@ public class BattleManager : MonoBehaviour
         targetObj.transform.rotation = currentRot;
         targetObj.SetActive(true);
 
+        Player_Action targetAction = targetObj.GetComponent<Player_Action>();
+
+        if (targetAction != null)
+        {
+            targetAction.SetControlLocked(isPlayerControlLocked);
+        }
+
         Transform targetBody = GetCharacterBody(targetObj);
 
         if (targetBody != null)
@@ -195,7 +202,6 @@ public class BattleManager : MonoBehaviour
         }
 
         Rigidbody targetRb = targetObj.GetComponent<Rigidbody>();
-        Player_Action targetAction = targetObj.GetComponent<Player_Action>();
 
         if (targetRb != null)
         {
@@ -796,15 +802,16 @@ public class BattleManager : MonoBehaviour
     {
         isPlayerControlLocked = locked;
 
-        GameObject activeCharacter = GetActiveCharacter();
-
-        if (activeCharacter != null)
+        // 파티원 전체에 조작 잠금 상태 적용
+        foreach (GameObject character in spawnedCharacters)
         {
-            Player_Action playerAction = activeCharacter.GetComponent<Player_Action>();
+            if (character == null) continue;
 
-            if (playerAction != null)
+            Player_Action action = character.GetComponent<Player_Action>();
+
+            if (action != null)
             {
-                playerAction.SetControlLocked(locked);
+                action.SetControlLocked(locked);
             }
         }
 
