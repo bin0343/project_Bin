@@ -142,4 +142,16 @@ public abstract class Interactable : MonoBehaviour
 
         ResolveInteractionPrompt();
     }
+
+    protected virtual void OnDisable()
+    {
+        isPlayerInRange = false;
+        isMenuOpen = false;
+        currentOpenMenu = null;
+
+        if (interactionPromptUI != null)
+        {
+            interactionPromptUI.SetActive(false);
+        }
+    }
 }

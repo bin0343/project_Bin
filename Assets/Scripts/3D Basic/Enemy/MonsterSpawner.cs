@@ -52,6 +52,34 @@ public class MonsterSpawner : MonoBehaviour
         Debug.Log("몬스터 스폰 이벤트가 시작되었습니다!");
     }
 
+    public void StartFiniteWave(int spawnCount)
+    {
+        if (spawnCount <= 0) return;
+
+        // 이전 웨이브가 완전히 끝난 뒤 다시 시작한다는 전제
+        activeMonsters.RemoveAll(monster => monster == null || !monster.activeInHierarchy);
+
+        if (activeMonsters.Count > 0)
+        {
+            Debug.LogWarning($"[MonsterSpawner] 아직 살아있는 몬스터가 " + $"{activeMonsters.Count}마리 있습니다.");
+            return;
+        }
+
+        StopAllCoroutines();
+
+        isInfiniteSpawn = false;
+        totalMaxSpawn = spawnCount;
+
+        // 새 Wave이므로 누적 Spawn 수 초기화
+        currentTotalSpawned = 0;
+
+        isSpawningActive = true;
+
+        StartCoroutine(SpawnRoutine());
+
+        Debug.Log($"[MonsterSpawner] 제한 웨이브 시작 : {spawnCount}마리");
+    }
+
     public void StopSpawning()
     {
         isSpawningActive = false;
@@ -62,7 +90,7 @@ public class MonsterSpawner : MonoBehaviour
     {
         while (isSpawningActive)
         {
-            activeMonsters.RemoveAll(monster => monster == null);
+            activeMonsters.RemoveAll(monster => monster == null || !monster.activeInHierarchy);
 
             if (!isInfiniteSpawn && currentTotalSpawned >= totalMaxSpawn)
             {

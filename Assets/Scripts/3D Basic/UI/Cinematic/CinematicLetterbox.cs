@@ -118,6 +118,9 @@ public class CinematicLetterbox : MonoBehaviour
     {
         KillCurrentSequence();
 
-        if (Instance == this) Instance = this;
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 }

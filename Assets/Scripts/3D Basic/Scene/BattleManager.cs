@@ -24,6 +24,15 @@ public class BattleManager : MonoBehaviour
 
     private GameObject[] spawnedCharacters = new GameObject[3];
     private int currentActiveIndex = 0;
+
+    [Header("튜토리얼 체험 캐릭터")]
+    private GameObject trialCharacter;
+
+    public bool IsTrialCharacterActive
+    {
+        get { return trialCharacter != null; }
+    }
+
     public int CurrentActiveIndex
     {
         get { return currentActiveIndex; }
@@ -60,6 +69,8 @@ public class BattleManager : MonoBehaviour
     {
         if (isPlayerControlLocked) return;
         if (isDeathHandling) return;
+
+        if (trialCharacter != null) return;
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) TryTag(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) TryTag(1);
@@ -304,6 +315,11 @@ public class BattleManager : MonoBehaviour
 
     public GameObject GetActiveCharacter()
     {
+        if (trialCharacter != null)
+        {
+            return trialCharacter;
+        }
+
         return spawnedCharacters[currentActiveIndex];
     }
 
@@ -797,6 +813,127 @@ public class BattleManager : MonoBehaviour
         return !stat.isDead && stat.currentHP > 0;
     }
 
+    #region Tutorial
+    public void StartTrialCharacter(Character_Data characterData, Transform spawnPoint, int trialLevel = 5)
+    {
+        if (spawnPoint == null)
+        {
+            Debug.LogWarning("[BattleManager] SpawnPoint가 없습니다.");
+
+            return;
+        }
+
+        StartTrialCharacter(characterData, spawnPoint.position, spawnPoint.rotation, trialLevel);
+    }
+
+    private void PrepareCharacterForTrialSwitch(GameObject character)
+    {
+        if (character == null) return;
+
+        Player_Action action = character.GetComponent<Player_Action>();
+
+        if (action != null && !action.IsDead)
+        {
+            action.currentWeapon?.ForceStopTrail();
+            action.currentWeapon?.DisableHitbox();
+
+            action.ChangeState(new PlayerIdleState());
+        }
+
+        Rigidbody rb = character.GetComponent<Rigidbody>();
+
+        if (rb != null)
+        {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        PlayerAttackState.ResetCombo();
+    }
+
+    public void EndTrialCharacterAndReturnToParty()
+    {
+        if (trialCharacter != null)
+        {
+            Destroy(trialCharacter);
+            trialCharacter = null;
+        }
+
+        GameObject partyCharacter = spawnedCharacters[currentActiveIndex];
+
+        if (partyCharacter == null) return;
+
+        partyCharacter.SetActive(true);
+
+        Player_Action action = partyCharacter.GetComponent<Player_Action>();
+
+        if (action != null)
+        {
+            action.SetControlLocked(isPlayerControlLocked);
+        }
+
+        ChangeCameraTarget(partyCharacter.transform);
+
+        UpdateSystemsWithActiveCharacter(partyCharacter);
+
+        Debug.Log("[BattleManager] 체험 종료 → 기존 파티 캐릭터 복귀");
+    }
+
+    //복구용
+    public void StartTrialCharacter(Character_Data characterData, Vector3 spawnPosition, Quaternion spawnRotation, int trialLevel = 5)
+    {
+        if (characterData == null || characterData.characterPrefab == null)
+        {
+            Debug.LogWarning("[BattleManager] 체험 캐릭터 데이터가 없습니다.");
+            return;
+        }
+
+        if (trialCharacter != null)
+        {
+            Destroy(trialCharacter);
+            trialCharacter = null;
+        }
+
+        GameObject partyCharacter = spawnedCharacters[currentActiveIndex];
+
+        if (partyCharacter != null)
+        {
+            PrepareCharacterForTrialSwitch(partyCharacter);
+
+            partyCharacter.SetActive(false);
+        }
+
+        trialCharacter = Instantiate(characterData.characterPrefab, spawnPosition, spawnRotation);
+
+        trialCharacter.name = $"{characterData.characterName}_Trial";
+
+        Character_Stat trialStat = trialCharacter.GetComponent<Character_Stat>();
+
+        if (trialStat == null)
+        {
+            trialStat = trialCharacter.GetComponentInChildren<Character_Stat>();
+        }
+
+        if (trialStat != null)
+        {
+            trialStat.ApplyRuntimeTrialLevel(trialLevel);
+        }
+
+        Player_Action trialAction = trialCharacter.GetComponent<Player_Action>();
+
+        if (trialAction != null)
+        {
+            trialAction.SetControlLocked(isPlayerControlLocked);
+        }
+
+        ChangeCameraTarget(trialCharacter.transform);
+
+        UpdateSystemsWithActiveCharacter(trialCharacter);
+
+        Debug.Log($"[BattleManager] 저장 위치에서 체험 캐릭터 복구: " + $"{characterData.characterName}");
+    }
+    #endregion
+
     #region ControlLocked
     public void SetPlayerControlLocked(bool locked)
     {
@@ -812,6 +949,16 @@ public class BattleManager : MonoBehaviour
             if (action != null)
             {
                 action.SetControlLocked(locked);
+            }
+        }
+
+        if (trialCharacter != null)
+        {
+            Player_Action trialAction = trialCharacter.GetComponent<Player_Action>();
+
+            if (trialAction != null)
+            {
+                trialAction.SetControlLocked(locked);
             }
         }
 

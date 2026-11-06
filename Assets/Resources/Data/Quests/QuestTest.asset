@@ -38,26 +38,30 @@ MonoBehaviour:
       type: 2
       targetID: Cat_01
       requiredAmount: 1
+      showProgressCount: 1
     completeSpeakerName: A
     completeDialogue:
     - "\uC800\uAE30\uC11C \uC18C\uB9AC\uAC00 \uB4E4\uB9AC\uB294\uB370?"
     - "\uAC00 \uBD10\uC57C \uD558\uB098.."
-  - stepTitle: "B \uCC98\uCE58"
-    stepDescription: "\uC801\uC744 \uCC98\uCE58\uD574\uB77C"
+  - stepTitle: "\uBAAC\uC2A4\uD130 \uCC98\uCE58\uD558\uAE30"
+    stepDescription: "\uADE0\uC5F4\uC5D0\uC11C \uB098\uC628 \uC815\uCCB4\uBD88\uBA85\uC758
+      \uC774\uC0C1\uCCB4\uB97C \uCC98\uCE58\uD558\uB77C"
     objectives:
-    - displayText: "\uC801\uC744 \uCC98\uCE58\uD574\uB77C"
+    - displayText: "\uC774\uC0C1\uCCB4\uB97C \uCC98\uCE58\uD558\uB77C"
       type: 0
       targetID: Brute
-      requiredAmount: 3
+      requiredAmount: 17
+      showProgressCount: 0
     completeSpeakerName: 
     completeDialogue: []
-  - stepTitle: "\uC774\uB3D9\uD558\uAE30"
+  - stepTitle: "\uB610 \uB2E4\uB978 \uADE0\uC5F4"
     stepDescription: "\uBAA9\uD45C \uC7A5\uC18C\uB85C \uC774\uB3D9\uD558\uAE30"
     objectives:
     - displayText: "\uD45C\uC2DC\uB41C \uC7A5\uC18C\uB85C \uC774\uB3D9\uD558\uAE30"
       type: 3
       targetID: Area_Portal
       requiredAmount: 1
+      showProgressCount: 0
     completeSpeakerName: "\uC81C\uB85C"
     completeDialogue:
     - "\uC5EC\uAE30\uC5D0\uC11C \uC774\uC0C1\uD55C \uC18C\uB9AC\uAC00 \uB4E4\uB824.."

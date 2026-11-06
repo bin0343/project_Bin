@@ -18,4 +18,6 @@ public class QuestObjective
     public ObjectiveType type;
     public string targetID;     //몬스터 ID (ex : "MON_Rat"), 아이템 ID 등
     public int requiredAmount;
+    [Tooltip("현재 진행도 / 목표 수치를 UI에 표시할지")]
+    public bool showProgressCount = true;
 }

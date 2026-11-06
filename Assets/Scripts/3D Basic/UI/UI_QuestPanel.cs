@@ -217,7 +217,7 @@ public class UI_QuestPanel : MonoBehaviour
                 {
                     string objectiveName = GetObjectiveDisplayName(obj);
 
-                    if (obj.requiredAmount > 1)
+                    if (obj.showProgressCount && obj.requiredAmount > 1)
                     {
                         result += $"<color=green>- {objectiveName} " + $"({obj.requiredAmount} / {obj.requiredAmount})</color>\n";
                     }
@@ -255,7 +255,7 @@ public class UI_QuestPanel : MonoBehaviour
 
             string colorHex = current >= obj.requiredAmount ? "green" : "black";
 
-            if (obj.requiredAmount > 1)
+            if (obj.showProgressCount && obj.requiredAmount > 1)
             {
                 result += $"<color={colorHex}>- {objectiveName} " + $"({current} / {obj.requiredAmount})</color>\n";
             }

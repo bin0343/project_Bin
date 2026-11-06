@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 using System.Linq;
 using System;
 
@@ -21,6 +22,13 @@ public class QuestManager : MonoBehaviour
     // 퀘스트 추적 대상이 바뀌었을 때 호출되는 이벤트
     public event Action<Quest> OnQuestTrackedChanged;
     public event Action<PlayerQuestStatus, Quest> OnQuestStepChanged;
+
+    private Transform trackedTargetOverride;
+
+    public Transform CurrentTrackedTargetOverride
+    {
+        get { return trackedTargetOverride; }
+    }
 
     private void Awake()
     {
@@ -261,6 +269,8 @@ public class QuestManager : MonoBehaviour
     {
         status.currentStepIndex++;
 
+        trackedTargetOverride = null;
+
         // 아직 다음 단계가 존재
         if (status.currentStepIndex < quest.steps.Count)
         {
@@ -355,6 +365,26 @@ public class QuestManager : MonoBehaviour
         if (currentStep.objectives == null || currentStep.objectives.Count == 0)
         {
             ClearTrackedQuestTarget();
+            return;
+        }
+
+        if (trackedTargetOverride != null)
+        {
+            if (QuestMarkerUI.instance != null)
+            {
+                QuestMarkerUI.instance.SetTarget(trackedTargetOverride);
+            }
+
+            if (LocalMapMarker.instance != null)
+            {
+                LocalMapMarker.instance.SetTarget(trackedTargetOverride);
+            }
+
+            if (MiniMapQuestMarker.instance != null)
+            {
+                MiniMapQuestMarker.instance.SetTarget(trackedTargetOverride);
+            }
+
             return;
         }
 
@@ -545,6 +575,95 @@ public class QuestManager : MonoBehaviour
 
         Debug.Log("[Quest] 로드 후 씬 상태 갱신 완료");
     }
+
+    #region Override
+
+    public void SetTrackedQuestTargetOverride(Transform target)
+    {
+        trackedTargetOverride = target;
+
+        RefreshTrackedQuestTarget();
+    }
+
+    public void ClearTrackedQuestTargetOverride()
+    {
+        trackedTargetOverride = null;
+
+        RefreshTrackedQuestTarget();
+    }
+
+    #endregion
+
+    #region 복구
+
+    public IEnumerator ResumePendingStepCompletionsAfterLoad()
+    {
+        List<PlayerQuestStatus> inProgressQuests = questLog.Values.Where(status => status.status == QuestStatus.IN_PROGRESS).ToList();
+
+        bool restoredStep = false;
+
+        foreach (PlayerQuestStatus status in inProgressQuests)
+        {
+            Quest quest = GetQuestByID(status.questID);
+
+            if (quest == null) continue;
+
+            if (status.currentStepIndex < 0 || status.currentStepIndex >= quest.steps.Count) continue;
+
+            QuestStep currentStep = quest.steps[status.currentStepIndex];
+
+            bool allObjectivesCompleted = true;
+
+            foreach (QuestObjective objective in currentStep.objectives)
+            {
+                if (!status.objectiveProgress.TryGetValue(objective.targetID, out int currentAmount) || currentAmount < objective.requiredAmount)
+                {
+                    allObjectivesCompleted = false;
+                    break;
+                }
+            }
+
+            if (!allObjectivesCompleted) continue;
+
+            Debug.Log($"[Quest Restore] 완료 직전 Step 복구: " + $"{status.questID} / Step {status.currentStepIndex}");
+
+            // 이전 세션의 Dialogue 대기 상태는 버리고
+            // 저장된 Objective 진행도로 다시 판단한다.
+            status.isWaitingForStepDialogue = false;
+
+            CheckCurrentStepCompletion(status, quest);
+
+            restoredStep = true;
+
+            // 완료 대사가 있다면 끝날 때까지 기다린다.
+            if (DialogueManager.instance != null)
+            {
+                while (DialogueManager.instance.isDialogueActive)
+                {
+                    yield return null;
+                }
+            }
+
+            yield return null;
+        }
+
+        if (restoredStep)
+        {
+            // Step이 바뀌었으므로 월드 상태 다시 계산
+            RefreshSceneStateAfterLoad();
+
+            // Step 0 → 전투 Step으로 복구된 경우
+            // 현재 Combat Phase도 재구성
+            QuestPhaseResumeController
+                .RestoreAllSequences();
+
+            // 마지막 Step이 완료된 경우
+            // 영구 완료 상태도 다시 적용
+            QuestCompletionStateApplier.RefreshAll();
+        }
+    }
+
+    #endregion
 
     #region Helper
 

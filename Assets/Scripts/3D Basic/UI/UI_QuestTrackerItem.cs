@@ -33,7 +33,18 @@ public class UI_QuestTrackerItem : MonoBehaviour
     {
         if (distanceText == null) return;
 
-        if (string.IsNullOrEmpty(currentDistanceTargetID))
+        Transform overrideTarget = QuestManager.instance != null ? QuestManager.instance.CurrentTrackedTargetOverride : null;
+
+        if (overrideTarget != null)
+        {
+            currentDistanceTarget = overrideTarget;
+        }
+        else if (currentDistanceTarget == null && !string.IsNullOrEmpty(currentDistanceTargetID))
+        {
+            currentDistanceTarget = QuestTargetMarker.GetTarget(currentDistanceTargetID);
+        }
+
+        if (string.IsNullOrEmpty(currentDistanceTargetID) && QuestManager.instance?.CurrentTrackedTargetOverride == null)
         {
             distanceText.gameObject.SetActive(false);
             return;
@@ -179,7 +190,7 @@ public class UI_QuestTrackerItem : MonoBehaviour
     {
         string text = string.IsNullOrWhiteSpace(objective.displayText) ? objective.targetID : objective.displayText;
 
-        if (objective.requiredAmount > 1)
+        if (objective.showProgressCount && objective.requiredAmount > 1)
         {
             return $"{text} ({currentAmount} / {objective.requiredAmount})";
         }

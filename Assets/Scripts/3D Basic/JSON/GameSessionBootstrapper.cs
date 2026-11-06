@@ -118,6 +118,10 @@ public class GameSessionBootstrapper : MonoBehaviour
                 BattleManager.instance.RestoreActiveCharacterIndex(GameDataManager.Instance.SavedActiveCharacterIndex);
 
                 GameDataManager.Instance.RestoreWorldStateForCurrentScene();
+
+                QuestPhaseResumeController.RestoreAllSequences();
+
+                QuestCompletionStateApplier.RefreshAll();
             }
 
             loadingScreen?.SetMessage("게임 시작을 준비하는 중...");
@@ -146,6 +150,11 @@ public class GameSessionBootstrapper : MonoBehaviour
         if (BattleManager.instance != null)
         {
             BattleManager.instance.SetPlayerControlLocked(false);
+        }
+
+        if (loaded && QuestManager.instance != null)
+        {
+            QuestManager.instance.StartCoroutine(QuestManager.instance.ResumePendingStepCompletionsAfterLoad());
         }
 
         Debug.Log(loaded ? "[Bootstrap] 기존 세이브로 게임 시작": "[Bootstrap] 신규 계정으로 게임 시작");

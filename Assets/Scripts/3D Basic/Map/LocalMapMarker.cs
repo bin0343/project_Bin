@@ -9,6 +9,7 @@ public class LocalMapMarker : MonoBehaviour
 
     private string currentTargetID = "";
     private LocalMapController mapController;
+    private Transform directTarget;
 
     private void Awake()
     {
@@ -39,25 +40,43 @@ public class LocalMapMarker : MonoBehaviour
 
     public void SetTargetID(string targetID)
     {
+        directTarget = null;
+
         currentTargetID = targetID;
+        UpdateMarkerPosition();
+    }
+
+    public void SetTarget(Transform target)
+    {
+        directTarget = target;
+
+        currentTargetID = "";
+
         UpdateMarkerPosition();
     }
 
     public void ClearTarget()
     {
+        directTarget = null;
         currentTargetID = "";
+
         HideMarker();
     }
 
     public void UpdateMarkerPosition()
     {
-        if (string.IsNullOrEmpty(currentTargetID) || markerRect == null || mapController == null)
+        if (markerRect == null || mapController == null)
         {
             HideMarker();
             return;
         }
 
-        Transform targetTr = QuestTargetMarker.GetTarget(currentTargetID);
+        Transform targetTr = directTarget;
+
+        if (targetTr == null && !string.IsNullOrEmpty(currentTargetID))
+        {
+            targetTr = QuestTargetMarker.GetTarget(currentTargetID);
+        }
 
         if (targetTr != null && targetTr.gameObject.activeInHierarchy)
         {

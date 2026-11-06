@@ -22,6 +22,25 @@ public class UI_PartyManager : MonoBehaviour
             }
         }
 
+        if (BattleManager.instance != null && BattleManager.instance.IsTrialCharacterActive)
+        {
+            GameObject trialCharacter = BattleManager.instance.GetActiveCharacter();
+
+            if (trialCharacter != null)
+            {
+                Character_Stat trialStat = trialCharacter.GetComponent<Character_Stat>();
+
+                if (trialStat != null && trialStat.characterData != null && partySlots[0] != null)
+                {
+                    partySlots[0].gameObject.SetActive(true);
+
+                    partySlots[0].UpdatePortrait(trialStat.characterData.characterPortrait, trialStat.currentHP, trialStat.maxHP);
+                }
+            }
+
+            return;
+        }
+
         if (Character_Manager.Instance == null || Character_Manager.Instance.currentPartyData == null) return;
         
         List<Character_Data> partyData = Character_Manager.Instance.currentPartyData;

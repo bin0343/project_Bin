@@ -8,6 +8,7 @@ public class MiniMapQuestMarker : MonoBehaviour
     public RectTransform markerRect;
 
     private string currentTargetID = "";
+    private Transform directTarget;
 
     private void Awake()
     {
@@ -34,30 +35,50 @@ public class MiniMapQuestMarker : MonoBehaviour
 
     public void SetTargetID(string targetID)
     {
+        directTarget = null;
+
         currentTargetID = targetID;
+        UpdateMarkerPosition();
+    }
+
+    public void SetTarget(Transform target)
+    {
+        directTarget = target;
+
+        currentTargetID = "";
+
         UpdateMarkerPosition();
     }
 
     public void ClearTarget()
     {
+        directTarget = null;
         currentTargetID = "";
+
         HideMarker();
     }
 
     private void UpdateMarkerPosition()
     {
-        if (string.IsNullOrEmpty(currentTargetID) || markerRect == null || LocalMapController.instance == null)
+        if (markerRect == null || LocalMapController.instance == null)
         {
             HideMarker();
             return;
         }
 
-        Transform target = QuestTargetMarker.GetTarget(currentTargetID);
+        /*Transform target = QuestTargetMarker.GetTarget(currentTargetID);
 
         if (target == null || !target.gameObject.activeInHierarchy)
         {
             HideMarker();
             return;
+        }*/
+
+        Transform target = directTarget;
+
+        if (target == null && !string.IsNullOrEmpty(currentTargetID))
+        {
+            target = QuestTargetMarker.GetTarget(currentTargetID);
         }
 
         Vector2 mapPos = LocalMapController.instance.GetMapPosition(target.position);

@@ -11,9 +11,25 @@ public class QuestWorldObjectState : MonoBehaviour
     [Header("제어할 오브젝트")]
     public GameObject targetObject;
 
+    [Header("완료 후 상태")]
+    [Tooltip("퀘스트를 완료한 뒤에도 이 오브젝트를 유지할지")]
+    public bool keepActiveAfterQuestCompletion = false;
+
+    [Tooltip("-1이면 진행 중 계속 유지. 값이 있으면 이 Step부터 비활성화")]
+    public int deactivateAtStepIndex = -1;
+
     private void Start()
     {
         RefreshState();
+
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.OnQuestAccepted += HandleQuestAccepted;
+            QuestManager.instance.OnQuestProgressChanged += HandleQuestProgressChanged;
+            QuestManager.instance.OnQuestCompleted += HandleQuestCompleted;
+            QuestManager.instance.OnQuestRewardClaimed += HandleQuestRewardClaimed;
+        }
+
     }
 
     public void RefreshState()
@@ -33,7 +49,22 @@ public class QuestWorldObjectState : MonoBehaviour
 
         if (status.status == QuestStatus.COMPLETED || status.status == QuestStatus.REWARD_CLAIMED)
         {
-            shouldBeActive = true;
+            shouldBeActive = keepActiveAfterQuestCompletion;
+        }
+
+        if (status.status == QuestStatus.IN_PROGRESS)
+        {
+            /*bool reachedStart = status.currentStepIndex >= activateFromStepIndex;
+
+            bool beforeEnd = deactivateAtStepIndex < 0 || status.currentStepIndex < deactivateAtStepIndex;
+
+            shouldBeActive = reachedStart && beforeEnd;*/
+
+            bool reachedStart = status.currentStepIndex >= activateFromStepIndex;
+
+            bool beforeEnd = deactivateAtStepIndex < 0 || status.currentStepIndex < deactivateAtStepIndex;
+
+            shouldBeActive = status.status == QuestStatus.IN_PROGRESS && reachedStart && beforeEnd;
         }
 
         targetObject.SetActive(shouldBeActive);
@@ -61,5 +92,43 @@ public class QuestWorldObjectState : MonoBehaviour
         {
             MiniMapTeleportManager.instance.RefreshMiniMapTeleports();
         }
+    }
+
+    private void HandleQuestAccepted(Quest quest)
+    {
+        if (quest == null || quest.questID != questID) return;
+
+        RefreshState();
+    }
+
+    private void HandleQuestProgressChanged(PlayerQuestStatus status, Quest quest)
+    {
+        if (status == null || status.questID != questID) return;
+
+        RefreshState();
+    }
+
+    private void HandleQuestCompleted(PlayerQuestStatus status, Quest quest)
+    {
+        if (status == null || status.questID != questID) return;
+
+        RefreshState();
+    }
+
+    private void HandleQuestRewardClaimed(Quest quest)
+    {
+        if (quest == null || quest.questID != questID) return;
+
+        RefreshState();
+    }
+
+    private void OnDestroy()
+    {
+        if (QuestManager.instance == null) return;
+
+        QuestManager.instance.OnQuestAccepted -= HandleQuestAccepted;
+        QuestManager.instance.OnQuestProgressChanged -= HandleQuestProgressChanged;
+        QuestManager.instance.OnQuestCompleted -= HandleQuestCompleted;
+        QuestManager.instance.OnQuestRewardClaimed -= HandleQuestRewardClaimed;
     }
 }

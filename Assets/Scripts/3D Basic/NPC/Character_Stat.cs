@@ -28,6 +28,13 @@ public class Character_Stat : MonoBehaviour
 
     private Collider characterCollider;
 
+    private bool isRuntimeTrialCharacter;
+
+    public bool IsRuntimeTrialCharacter
+    {
+        get { return isRuntimeTrialCharacter; }
+    }
+
 
 #if UNITY_EDITOR
     [Header("테스트용")]
@@ -141,6 +148,38 @@ public class Character_Stat : MonoBehaviour
 
             Debug.Log($"{characterData.characterName} 배치 완료. Lv.{savedStatus.level} (HP: {currentHP}, ATK: {attackPower})");
         }
+    }
+
+    public void ApplyRuntimeTrialLevel(int trialLevel)
+    {
+        if (characterData == null) return;
+
+        trialLevel = Mathf.Max(trialLevel, 1);
+
+        int statCount = (int)STAT.STAT_COUNT;
+
+        if (baseStats == null || baseStats.Length != statCount)
+        {
+            baseStats = new float[statCount];
+        }
+
+        int levelIncreaseCount = trialLevel - 1;
+
+        for (int i = 0; i < statCount; i++)
+        {
+            float level1Stat = characterData.baseStats[i];
+
+            float growthPerLevel = characterData.levelUpStatGains[i];
+
+            baseStats[i] = level1Stat + growthPerLevel * levelIncreaseCount;
+        }
+
+        isRuntimeTrialCharacter = true;
+
+        currentHP = maxHP;
+        isDead = false;
+
+        Debug.Log($"[Trial Character] " + $"{characterData.characterName} " + $"체험 Lv.{trialLevel} 적용 / " + $"HP:{maxHP}, ATK:{attackPower}, DEF:{defensePower}");
     }
 
     public void SetCharacter(Character_Data data)
@@ -292,6 +331,8 @@ public class Character_Stat : MonoBehaviour
 
     public int GainExp(int amount)
     {
+        if (isRuntimeTrialCharacter) return 0;
+
         if (characterData == null) return 0;
 
         int appliedExp = Character_Manager.Instance.AddExperience(characterData.characterID, amount, characterData);
@@ -340,6 +381,8 @@ public class Character_Stat : MonoBehaviour
 
     private void SyncCurrentHPToManager()
     {
+        if (isRuntimeTrialCharacter) return;
+
         if (characterData == null) return;
 
         if (Character_Manager.Instance == null) return;

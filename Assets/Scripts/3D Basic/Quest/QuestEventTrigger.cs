@@ -55,15 +55,24 @@ public class QuestEventTrigger : Interactable
 
         isProcessingEvent = true;
 
-        // Quest 진행
+        isMenuOpen = false;
+        isPlayerInRange = false;
+
+        if (interactionPromptUI != null)
+        {
+            interactionPromptUI.SetActive(false);
+        }
+
         QuestManager.instance.AdvanceQuestProgress(targetObjectiveID, 1);
 
-        isMenuOpen = false;
-
-        if (interactionPromptUI != null) interactionPromptUI.SetActive(false);
-
-        // 즉시 UnityEvent 실행하지 않고 완료 대사가 끝날 때까지 기다림
-        StartCoroutine(InvokeQuestEventAfterDialogue());
+        if (QuestManager.instance != null)
+        {
+            QuestManager.instance.StartCoroutine(InvokeQuestEventAfterDialogue());
+        }
+        else
+        {
+            StartCoroutine(InvokeQuestEventAfterDialogue());
+        }
     }
 
     private bool IsObjectiveActive()

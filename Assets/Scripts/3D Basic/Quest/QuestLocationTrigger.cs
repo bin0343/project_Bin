@@ -30,7 +30,7 @@ public class QuestLocationTrigger : MonoBehaviour
 
         QuestManager.instance.AdvanceQuestProgress(targetObjectiveID, 1);
 
-        StartCoroutine(InvokeEventAfterDialogue());
+        QuestManager.instance.StartCoroutine(InvokeEventAfterDialogue());
     }
 
     private IEnumerator InvokeEventAfterDialogue()
