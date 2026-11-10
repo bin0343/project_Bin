@@ -162,7 +162,9 @@ public class SkillPullField : MonoBehaviour
 
     private void ApplyDamage(Enemy_Stat enemy)
     {
-        int finalDamage = Mathf.Max(damageAmount - enemy.defensePower, 1);
+        if (enemy == null) return;
+
+        int finalDamage = CombatDamageCalculator.CalculateFinalDamage(damageAmount, enemy.defensePower);
 
         enemy.TakeDamage(finalDamage, AttackType.Skill);
     }

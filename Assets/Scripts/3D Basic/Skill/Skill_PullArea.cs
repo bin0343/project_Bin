@@ -37,12 +37,24 @@ public class Skill_PullArea : Skill_Base
     [SerializeField] private float pullSpeed = 7f;
     [SerializeField] private float centerStopDistance = 0.5f;
 
-    [SerializeField] private int damageAmount = 20;
+    [Header("공격력 설정")]
+
+    [Tooltip("토네이도 1회 타격의 공격력 배율")]
+    [SerializeField, Min(0f)]
+    private float attackMultiplier = 0.5f;
+
+    [Tooltip("배율 계산 후 추가할 고정 데미지")]
+    [SerializeField, Min(0)]
+    private int damageAmount = 0;
 
     protected override void ApplyEffect(GameObject user, Vector3 targetPosition)
     {
         if (user == null) return;
         if (pullFieldPrefab == null) return;
+
+        int skillDamage = CalculateSkillDamage(user, attackMultiplier, damageAmount);
+
+        if (skillDamage <= 0) return;
 
         Player_Action player = user.GetComponent<Player_Action>();
 
@@ -108,7 +120,7 @@ public class Skill_PullArea : Skill_Base
 
         float activeDuration = damageMode == PullDamageMode.Continuous ? fieldDuration : singleFieldDuration;
 
-        field.Setup(player, damageAmount, activeDuration, pullRadius, pullSpeed, centerStopDistance, enemyLayer, damageMode, damageInterval);
+        field.Setup(player, skillDamage, activeDuration, pullRadius, pullSpeed, centerStopDistance, enemyLayer, damageMode, damageInterval);
     }
 
     private Vector3 SnapToGround(Vector3 position)

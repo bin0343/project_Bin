@@ -59854,13 +59854,6 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0
-    functionName: OnAttackCombo
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0
     functionName: AttackStart
     data: 
     objectReferenceParameter: {fileID: 0}
@@ -59868,7 +59861,7 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.55
-    functionName: StartAttackTrail
+    functionName: PlaySlashVFX
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
@@ -59895,6 +59888,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0.8666667
+    functionName: OnAttackCombo
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 1.1166667
     functionName: AttackEnd
     data: 
@@ -59902,7 +59902,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 1.1666666
+  - time: 1.2666667
     functionName: OnAttackAnimationEnd
     data: 
     objectReferenceParameter: {fileID: 0}

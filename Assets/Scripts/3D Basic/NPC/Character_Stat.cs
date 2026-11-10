@@ -29,12 +29,16 @@ public class Character_Stat : MonoBehaviour
     private Collider characterCollider;
 
     private bool isRuntimeTrialCharacter;
+    private int runtimeTrialLevel = 1;
 
     public bool IsRuntimeTrialCharacter
     {
         get { return isRuntimeTrialCharacter; }
     }
-
+    public int RuntimeTrialLevel
+    {
+        get { return runtimeTrialLevel; }
+    }
 
 #if UNITY_EDITOR
     [Header("테스트용")]
@@ -155,6 +159,9 @@ public class Character_Stat : MonoBehaviour
         if (characterData == null) return;
 
         trialLevel = Mathf.Max(trialLevel, 1);
+
+        runtimeTrialLevel = trialLevel;
+        isRuntimeTrialCharacter = true;
 
         int statCount = (int)STAT.STAT_COUNT;
 

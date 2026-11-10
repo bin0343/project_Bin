@@ -3,8 +3,15 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewInstantAttackSkill", menuName = "Skill/Instant Attack")]
 public class Skill_InstantAttack : Skill_Base
 {
+    [Header("공격력 설정")]
+
+    [Tooltip("캐릭터 공격력에 적용할 배율. 1 = 100%, 1.5 = 150%")]
+    [Min(0f)] public float attackMultiplier = 1f;
+
+    [Tooltip("공격력 배율 계산 후 추가할 고정 데미지")]
+    [Min(0)] public int damageAmount = 0;
+
     [Header("공격 판정 설정(데이터 주도)")]
-    public int damageAmount = 40;
     public Vector3 hitboxSize = new Vector3(3f, 3f, 4f);
 
     [Tooltip("시전자 정면 기준 가상의 히트박스가 생성될 오프셋 위치 (x, y, z)")]
@@ -25,7 +32,12 @@ public class Skill_InstantAttack : Skill_Base
 
     protected override void ApplyEffect(GameObject user, Vector3 targetPosition)
     {
+        if (user == null) return;
         if (effectPrefab == null) return;
+
+        int skillDamage = CalculateSkillDamage(user, attackMultiplier, damageAmount);
+
+        if (skillDamage <= 0) return;
 
         Transform modelTransform = user.GetComponentInChildren<Animator>().transform;
         Vector3 spawnPos = modelTransform.position + modelTransform.TransformDirection(spawnOffset);
@@ -41,6 +53,6 @@ public class Skill_InstantAttack : Skill_Base
         if (entity == null) entity = skillGo.AddComponent<SkillEffectEntity>();
 
         LayerMask enemyLayer = LayerMask.GetMask("Enemy");
-        entity.Setup(damageAmount, hitboxSize, damageDelay, enemyLayer);
+        entity.Setup(skillDamage, hitboxSize, damageDelay, enemyLayer);
     }
 }

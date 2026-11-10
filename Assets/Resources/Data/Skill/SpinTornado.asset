@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fc7305744772fb448f5985747f0172d, type: 3}
+  m_Name: SpinTornado
+  m_EditorClassIdentifier: 
+  skillName: Tornado Spin
+  skillType: 1
+  skillIcon: {fileID: 21300000, guid: 68ee5ee0759fe364f882a6d27bfa620d, type: 3}
+  animTriggerName: 
+  cooldownTime: 15
+  duration: 3.5
+  castTime: 0
+  attackRadius: 2.5
+  totalHitCount: 8
+  tornadoMoveSpeed: 8
+  attackMultiplier: 0.35
+  bonusDamage: 0
+  requiredHitCount: 5
+  defenseReductionRate: 0.25
+  defenseReductionDuration: 5
+  spinEffectPrefab: {fileID: 7966731087305637596, guid: 460babe280fe4aa41adc3fefd46f0c0b, type: 3}
+  effectOffset: {x: 0, y: 0.8, z: 0}

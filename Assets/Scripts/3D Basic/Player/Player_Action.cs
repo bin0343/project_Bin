@@ -380,7 +380,15 @@ public class Player_Action : MonoBehaviour
 
         if (skillToUse == null || !skillToUse.CanUse()) return;
 
-        ChangeState(new PlayerCastingState(skillToUse)); 
+        // 회전 공격은 애니메이션 없이 즉시 변신
+        if (skillToUse.SkillData is Skill_SpinAttack)
+        {
+            ChangeState(new PlayerTornadoState(skillToUse));
+            return;
+        }
+
+        // 나머지 기존 스킬은 Casting 상태 유지
+        ChangeState(new PlayerCastingState(skillToUse));
     }
 
     public void HandleQuickSlotInput()

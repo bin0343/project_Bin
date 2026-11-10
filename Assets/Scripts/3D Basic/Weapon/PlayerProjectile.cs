@@ -76,7 +76,7 @@ public class PlayerProjectile : MonoBehaviour
         if (owner.stat == null) return;
         if (target == null) return;
 
-        int damage = Mathf.Max(owner.stat.attackPower - target.defensePower, 1);
+        int damage = CombatDamageCalculator.CalculateFinalDamage(owner.stat.attackPower, target.defensePower);
 
         if (usePerfectEvadeBonus)
         {

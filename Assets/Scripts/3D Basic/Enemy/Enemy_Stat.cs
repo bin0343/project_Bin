@@ -48,7 +48,12 @@ public class Enemy_Stat : MonoBehaviour
     [SerializeField, Min(0f)] private float attackGrowthPerLevel = 0.08f;
     [Tooltip("레벨마다 고정으로 더해지는 방어력")]
     [SerializeField, Min(0f)] private float defenseGrowthPerLevel = 2f;
-    
+
+    [Header("HP 성장 곡선")]
+    [Tooltip("1이면 기존 선형 성장, 2이면 제곱 성장")]
+    [SerializeField, Range(1f, 3f)]
+    private float hpGrowthExponent = 1.8f;
+
     [Header("체력바")]
     [Tooltip("머리 위에 띄울지 여부")]
     [SerializeField] private bool useWorldHpBar = true;
@@ -61,9 +66,28 @@ public class Enemy_Stat : MonoBehaviour
     public void SetStat(STAT type, float value) { stats[(int)type] = value; }
     public float GetStat(STAT type) { return stats[(int)type]; }
 
+    // 방어력 감소 디버프
+    private float defenseReductionRate = 0f;
+    private float defenseReductionEndTime = 0f;
+
     public int maxHP { get { return (int)GetStat(STAT.HP); } }
     public int attackPower { get { return (int)GetStat(STAT.Attack); } }
-    public int defensePower { get { return (int)GetStat(STAT.Defense); } }
+    public int defensePower
+    {
+        get
+        {
+            int baseDefense = Mathf.Max(0, (int)GetStat(STAT.Defense));
+
+            // 디버프 지속시간이 끝났다면 원래 방어력 반환
+            if (Time.time >= defenseReductionEndTime)
+            {
+                return baseDefense;
+            }
+
+            // 디버프 중이라면 감소된 방어력 반환
+            return Mathf.Max(Mathf.RoundToInt(baseDefense * (1f - defenseReductionRate)), 0);
+        }
+    }
 
     public int currentHP = 80;
     public MonsterHpBar hpBar;
@@ -116,7 +140,7 @@ public class Enemy_Stat : MonoBehaviour
 
         int levelIncreaseCount = EnemyLevel - 1;
 
-        float calculatedHP = level1MaxHP * (1f + hpGrowthPerLevel * levelIncreaseCount);
+        float calculatedHP = level1MaxHP * Mathf.Pow(1f + hpGrowthPerLevel * levelIncreaseCount, hpGrowthExponent);
 
         float calculatedAttack = level1Attack * (1f + attackGrowthPerLevel * levelIncreaseCount);
 
@@ -196,6 +220,32 @@ public class Enemy_Stat : MonoBehaviour
                 break;
         }
     }
+
+    #region 디버프
+
+    public void ApplyDefenseReduction(float reductionRate, float duration)
+    {
+        if (reductionRate <= 0f || duration <= 0f) return;
+
+        reductionRate = Mathf.Clamp01(reductionRate);
+
+        // 이미 디버프가 있다면 더 높은 감소율 유지
+        if (Time.time < defenseReductionEndTime)
+        {
+            defenseReductionRate = Mathf.Max(defenseReductionRate, reductionRate);
+        }
+        else
+        {
+            defenseReductionRate = reductionRate;
+        }
+
+        // 지속시간 갱신
+        defenseReductionEndTime = Time.time + duration;
+
+        Debug.Log($"[{EnemyName}] 방어력 감소 적용! " + $"감소율: {defenseReductionRate * 100f}% / " + $"현재 방어력: {defensePower} / " + $"지속시간: {duration}초");
+    }
+
+    #endregion
 
     private Vector3 GetDamageTextSpawnPosition()
     {

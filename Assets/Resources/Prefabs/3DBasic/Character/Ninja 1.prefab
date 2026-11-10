@@ -4431,13 +4431,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7001318776487360789}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0006736987, y: -0.0006866028, z: 0.7071283, w: -0.7070847}
-  m_LocalPosition: {x: 0.051, y: -0.014, z: -0.02005808}
+  m_LocalRotation: {x: 0.21197763, y: 0.21066642, z: 0.6746084, w: -0.67497313}
+  m_LocalPosition: {x: 0.051, y: -0.039, z: -0.002}
   m_LocalScale: {x: 0.8333334, y: 0.8333332, z: 0.8333334}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2400219176425431951}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: -34.778, y: 0.113, z: -90.004}
 --- !u!1 &7025833493253741185
 GameObject:
   m_ObjectHideFlags: 0
@@ -4805,6 +4805,7 @@ GameObject:
   - component: {fileID: 227772102710491735}
   - component: {fileID: 4430843481029900957}
   - component: {fileID: 341778276835218774}
+  - component: {fileID: 8432049003849976443}
   m_Layer: 3
   m_Name: Ninja 1
   m_TagString: Player
@@ -4867,8 +4868,8 @@ MonoBehaviour:
   player: {fileID: 8054356659023674982}
   move: {fileID: 8390629123026589322}
   assignedSkills:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: f4fdbd81d6acfb84ba72be92bd4dea42, type: 2}
+  - {fileID: 11400000, guid: f4f5bdd163b2139469f5da1e67c0f453, type: 2}
   skillKeys: 6500000071000000
   stat: {fileID: 8891377208993434242}
   skillUIManagers: {fileID: 0}
@@ -5047,8 +5048,8 @@ MonoBehaviour:
     parentToSpawnPoint: 0
   - slashPrefab: {fileID: 158789456559184324, guid: 87167b19fb4a32a4e8e4f2c5f40a40b3, type: 3}
     spawnPoint: {fileID: 1123298705945832058}
-    positionOffset: {x: 0, y: -0.5, z: 0}
-    rotationOffsetEuler: {x: 3, y: 0, z: 180}
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffsetEuler: {x: 3, y: 0, z: 220}
     scale: {x: 1, y: 1, z: 1}
     destroyTime: 1
     parentToSpawnPoint: 0
@@ -5122,6 +5123,18 @@ CapsuleCollider:
   m_Height: 2.061516
   m_Direction: 1
   m_Center: {x: 0.011262327, y: 1.0494837, z: -0.0019854605}
+--- !u!114 &8432049003849976443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7441870129806426587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a67746eaa9e5e6845ad035b8c01ceedc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7501715473909891612
 GameObject:
   m_ObjectHideFlags: 0

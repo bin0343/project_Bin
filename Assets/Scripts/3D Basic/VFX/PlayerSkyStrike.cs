@@ -128,7 +128,7 @@ public class PlayerSkyStrike : MonoBehaviour
     {
         if (player == null || player.stat == null) return;
 
-        int damage = Mathf.Max(player.stat.attackPower - enemy.defensePower, 1);
+        int damage = CombatDamageCalculator.CalculateFinalDamage(player.stat.attackPower,enemy.defensePower);
 
         if (usePerfectEvadeBonus)
         {

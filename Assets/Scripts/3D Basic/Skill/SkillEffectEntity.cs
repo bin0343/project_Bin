@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SkillEffectEntity : MonoBehaviour
@@ -8,7 +9,7 @@ public class SkillEffectEntity : MonoBehaviour
     private Vector3 hitboxSize;
     private float damageDelay;
     private LayerMask enemyLayer;
-    private HashSet<Collider> hitEnemies = new HashSet<Collider>();
+    private HashSet<Enemy_Stat> hitEnemies = new HashSet<Enemy_Stat>();
 
     public void Setup(int damage, Vector3 size, float delay, LayerMask layer)
     {
@@ -30,13 +31,17 @@ public class SkillEffectEntity : MonoBehaviour
 
         foreach (Collider col in colliders)
         {
-            if (hitEnemies.Contains(col)) continue;
+            Enemy_Stat enemy = col.GetComponentInParent<Enemy_Stat>();
 
-            if (col.CompareTag("Enemy"))
-            {
-                hitEnemies.Add(col);
-                col.GetComponent<Enemy_Stat>()?.TakeDamage(damageAmount, AttackType.Normal);
-            }
+            if (enemy == null) continue;
+            if (enemy.currentHP <= 0) continue;
+
+            // 같은 몬스터를 중복으로 공격하지 않음
+            if (!hitEnemies.Add(enemy)) continue;
+
+            int finalDamage = CombatDamageCalculator.CalculateFinalDamage(damageAmount, enemy.defensePower);
+
+            enemy.TakeDamage(finalDamage, AttackType.Normal);
         }
 
         Destroy(gameObject, 2.5f);  //파티클 잔상 소멸 시간

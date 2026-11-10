@@ -31,8 +31,13 @@ public class UI_StatusBar : MonoBehaviour
         if (stat == null) return;
 
         CharacterStatus cStatus = Character_Manager.Instance.GetCharacterStatus(stat.characterData.characterID);
-        
-        if (levelText != null) levelText.text = $"Lv.{cStatus.level}";
+
+        if (levelText != null)
+        {
+            int displayLevel = stat.IsRuntimeTrialCharacter ? stat.RuntimeTrialLevel : cStatus.level;
+
+            levelText.text = $"Lv.{displayLevel}";
+        }
 
         float hpRatio = (float)stat.currentHP / stat.maxHP;
         hpbar.DOFillAmount(hpRatio, 0.3f).SetUpdate(true);

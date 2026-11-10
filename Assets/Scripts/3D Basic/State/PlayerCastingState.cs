@@ -49,6 +49,12 @@ public class PlayerCastingState : PlayerBaseState
 
     public override void Exit(Player_Action player)
     {
+        // 스킬 발사 전에 취소됐다면 대기 중인 스킬 제거
+        if (player.activeCastingSkill == skillToUse)
+        {
+            player.activeCastingSkill = null;
+        }
+
         Debug.Log("상태 이탈: Casting");
     }
 }

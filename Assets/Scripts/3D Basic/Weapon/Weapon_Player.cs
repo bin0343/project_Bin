@@ -135,7 +135,7 @@ public class Weapon_Player : MonoBehaviour
                 Character_Stat playerStat = playerAction.stat;
                 if (playerStat != null)
                 {
-                    int damage = Mathf.Max(playerStat.attackPower - enemyStat.defensePower, 1);
+                    int damage = CombatDamageCalculator.CalculateFinalDamage(playerStat.attackPower, enemyStat.defensePower);
 
                     bool isPerfectEvadeBouns = usePerfectEvadeBonusThisHitbox;
 

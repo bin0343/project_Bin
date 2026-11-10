@@ -127,7 +127,7 @@ public class EnemyAttackHItbox : MonoBehaviour
                     }
 
                     int finalAttackPower = Mathf.RoundToInt(attackPower * damageMultiplier);
-                    int damage = Mathf.Max(finalAttackPower - targetStat.defensePower, 1);
+                    int damage = CombatDamageCalculator.CalculateFinalDamage(finalAttackPower, targetStat.defensePower);
 
                     targetStat.TakeDamage(damage, rootTransform);
 
