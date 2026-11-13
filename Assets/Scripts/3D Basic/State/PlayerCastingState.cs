@@ -49,7 +49,9 @@ public class PlayerCastingState : PlayerBaseState
 
     public override void Exit(Player_Action player)
     {
-        // 스킬 발사 전에 취소됐다면 대기 중인 스킬 제거
+        player.animEvents?.StopSwordWaveCharge();
+
+        // 스킬 발사 전에 캐스팅이 취소된 경우 대기 중인 스킬 제거
         if (player.activeCastingSkill == skillToUse)
         {
             player.activeCastingSkill = null;

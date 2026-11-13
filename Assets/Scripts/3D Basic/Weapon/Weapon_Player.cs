@@ -14,6 +14,9 @@ public class Weapon_Player : MonoBehaviour
     [Header("공격 방식")]
     [SerializeField] private PlayerWeaponAttackMode attackMode = PlayerWeaponAttackMode.Melee;
 
+    [Header("검기 차지 VFX")]
+    [SerializeField] private GameObject swordWaveChargeVFX;
+
     public bool IsRanged
     {
         get { return attackMode == PlayerWeaponAttackMode.Ranged; }
@@ -346,6 +349,35 @@ public class Weapon_Player : MonoBehaviour
 
         fireVFX.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         fireVFX.Play(true);
+    }
+    #endregion
+
+    #region 차지 이펙트
+    public void StartSwordWaveCharge()
+    {
+        if (swordWaveChargeVFX == null)
+        {
+            Debug.LogWarning("[Weapon] 검기 차지 VFX가 없습니다.");
+            return;
+        }
+
+        swordWaveChargeVFX.SetActive(true);
+
+        ParticleSystem[] particles = swordWaveChargeVFX.GetComponentsInChildren<ParticleSystem>(true);
+
+        foreach (ParticleSystem particle in particles)
+        {
+            particle.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+            particle.Play(false);
+        }
+    }
+
+    public void StopSwordWaveCharge()
+    {
+        if (swordWaveChargeVFX == null)
+            return;
+
+        swordWaveChargeVFX.SetActive(false);
     }
     #endregion
 

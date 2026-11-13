@@ -7,12 +7,14 @@ public class Enemy_AnimationEvent : MonoBehaviour
     private EnemyBase enemy;
     private EnemyAttackHItbox attackHItbox;
     private BossPatternExecutor bossPatternExecutor;
+    private CharacterSoundPlayer soundPlayer;
 
     private void Awake()
     {
         enemy = GetComponentInParent<EnemyBase>();
         attackHItbox = GetComponent<EnemyAttackHItbox>();
         bossPatternExecutor = GetComponentInParent<BossPatternExecutor>();
+        soundPlayer = GetComponentInParent<CharacterSoundPlayer>();
     }
 
     public void StartAttackTrail()
@@ -53,5 +55,20 @@ public class Enemy_AnimationEvent : MonoBehaviour
     public void LeapImpactEvent()
     {
         bossPatternExecutor?.TriggerLeapImpact();
+    }
+
+    public void FootstepSound()
+    {
+        soundPlayer?.PlayFootstep();
+    }
+
+    public void AttackSound(int attackIndex)
+    {
+        soundPlayer?.PlayAttack(attackIndex);
+    }
+
+    public void JumpSound()
+    {
+        soundPlayer?.PlayJump();
     }
 }

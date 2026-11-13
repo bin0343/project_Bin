@@ -7,16 +7,14 @@ public class Player_AnimationEvents : MonoBehaviour
     Player_Action action;
     public Animator animator;
     private Player_AttackVFX attackVFX;
-
-    /*[Header("Attack Effect")]
-    [SerializeField] public TrailRenderer slashTrail;*/
+    private CharacterSoundPlayer soundPlayer;
 
     void Start()
     {
         action = GetComponentInParent<Player_Action>();
         attackVFX = GetComponentInParent<Player_AttackVFX>();
-        //slashTrail.emitting = false;
         action.currentWeapon?.StopTrail();
+        soundPlayer = GetComponentInParent<CharacterSoundPlayer>();
     }
 
     public void BuffStart()
@@ -112,6 +110,59 @@ public class Player_AnimationEvents : MonoBehaviour
             action = GetComponentInParent<Player_Action>();
         }
 
+        if (action == null) return;
+
+        // 검기 스킬의 발사 순간 차지 이펙트 종료
+        if (action.activeCastingSkill != null && action.activeCastingSkill.SkillData is Skill_SwordWave)
+        {
+            StopSwordWaveCharge();
+        }
+
+        // 기존 스킬 효과 실행
         action.ExecuteSkillEffectEvent();
+    }
+
+    public void SwordWaveChargeStart()
+    {
+        if (action == null) action = GetComponentInParent<Player_Action>();
+
+        if (action == null || action.activeCastingSkill == null) return;
+
+        if (!(action.activeCastingSkill.SkillData is Skill_SwordWave)) return;
+
+        // 현재 장착 중인 무기에서 차지 이펙트 실행
+        action.currentWeapon?.StartSwordWaveCharge();
+    }
+
+    public void StopSwordWaveCharge()
+    {
+        if (action == null) action = GetComponentInParent<Player_Action>();
+
+        action?.currentWeapon?.StopSwordWaveCharge();
+    }
+
+    public void FootstepSound()
+    {
+        soundPlayer?.PlayFootstep();
+    }
+
+    public void JumpSound()
+    {
+        soundPlayer?.PlayJump();
+    }
+
+    public void LandSound()
+    {
+        soundPlayer?.PlayLand();
+    }
+
+    public void DodgeSound()
+    {
+        soundPlayer?.PlayDodge();
+    }
+
+    public void AttackSound(int attackIndex)
+    {
+        soundPlayer?.PlayAttack(attackIndex);
     }
 }

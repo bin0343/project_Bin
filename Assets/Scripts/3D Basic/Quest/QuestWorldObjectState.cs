@@ -18,6 +18,11 @@ public class QuestWorldObjectState : MonoBehaviour
     [Tooltip("-1이면 진행 중 계속 유지. 값이 있으면 이 Step부터 비활성화")]
     public int deactivateAtStepIndex = -1;
 
+    [Header("지도 마커 연동")]
+    [SerializeField] private bool syncMapRevealWithObjectState = false;
+
+    [SerializeField] private MapLocationMarker mapLocationMarker;
+
     private void Start()
     {
         RefreshState();
@@ -54,12 +59,6 @@ public class QuestWorldObjectState : MonoBehaviour
 
         if (status.status == QuestStatus.IN_PROGRESS)
         {
-            /*bool reachedStart = status.currentStepIndex >= activateFromStepIndex;
-
-            bool beforeEnd = deactivateAtStepIndex < 0 || status.currentStepIndex < deactivateAtStepIndex;
-
-            shouldBeActive = reachedStart && beforeEnd;*/
-
             bool reachedStart = status.currentStepIndex >= activateFromStepIndex;
 
             bool beforeEnd = deactivateAtStepIndex < 0 || status.currentStepIndex < deactivateAtStepIndex;
@@ -68,6 +67,11 @@ public class QuestWorldObjectState : MonoBehaviour
         }
 
         targetObject.SetActive(shouldBeActive);
+
+        if (syncMapRevealWithObjectState && mapLocationMarker != null)
+        {
+            mapLocationMarker.isRevealed = shouldBeActive;
+        }
 
         LocalMapLocationManager localLocationManager = FindObjectOfType<LocalMapLocationManager>(true);
 

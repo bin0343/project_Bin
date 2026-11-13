@@ -13,6 +13,7 @@ public class CarSensor : MonoBehaviour
     [SerializeField] private float playerReleaseDelay = 0.5f;
 
     private bool isPlayerBlocking = false;
+    public bool IsPlayerBlocking => isPlayerBlocking;
     private float playerClearTimer = 0f;
     private readonly Collider[] playerDetectResults = new Collider[16];
 

@@ -45,6 +45,26 @@ public class PlayerVehicleController : MonoBehaviour
         get { return isDriving; }
     }
 
+    public float MoveInput
+    {
+        get { return moveInput; }
+    }
+
+    public bool BrakeInput
+    {
+        get { return brakeInput; }
+    }
+
+    public float MaxForwardSpeed
+    {
+        get { return maxForwardSpeed; }
+    }
+
+    public float MaxReverseSpeed
+    {
+        get { return maxReverseSpeed; }
+    }
+
     public float ForwardSpeed
     {
         get
