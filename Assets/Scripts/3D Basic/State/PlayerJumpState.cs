@@ -22,6 +22,8 @@ public class PlayerJumpState : PlayerBaseState
 
         player.rigidbody.velocity = new Vector3(player.rigidbody.velocity.x, 0, player.rigidbody.velocity.z);
         player.rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+
+        player.soundPlayer?.PlayJump();
     }
 
     public override void Execute(Player_Action player)

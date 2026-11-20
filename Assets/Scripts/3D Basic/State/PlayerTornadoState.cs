@@ -27,6 +27,8 @@ public class PlayerTornadoState : PlayerBaseState
 
         if (spinData == null) return;
 
+        base.Enter(player);
+
         remainingTime = spinData.duration;
         moveSpeed = spinData.TornadoMoveSpeed;
 
@@ -35,6 +37,8 @@ public class PlayerTornadoState : PlayerBaseState
 
         // 기존 애니메이션 이벤트 실행 대기값 제거
         player.activeCastingSkill = null;
+
+        player.soundPlayer?.PlaySkill(spinData.activationSound, spinData.activationSoundVolume);
 
         // 애니메이션을 기다리지 않고 즉시 스킬 실행
         skill.Use(player.gameObject);
@@ -52,6 +56,7 @@ public class PlayerTornadoState : PlayerBaseState
             Finish(player);
             return;
         }
+        player.soundPlayer?.SetFootstepEnabled(false);
 
         // 기존 Player_Move를 사용한 WASD 이동
         Vector2 moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
@@ -87,6 +92,7 @@ public class PlayerTornadoState : PlayerBaseState
     {
         // 상태가 끝나면 공격과 이펙트 정리
         runtime?.StopSpin();
+        player.soundPlayer?.SetFootstepEnabled(true);
 
         if (player.move != null)
         {

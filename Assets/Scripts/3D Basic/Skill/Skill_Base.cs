@@ -17,6 +17,12 @@ public abstract class Skill_Base : ScriptableObject
     [Header("Casting")]
     public float castTime = 0.5f;
 
+    [Header("Skill Audio")]
+    public AudioClip activationSound;
+
+    [Range(0f, 1f)]
+    public float activationSoundVolume = 1f;
+
     public void ApplySkillEffects(GameObject user)
     {
         ApplyEffect(user, user.transform.position + user.transform.forward);

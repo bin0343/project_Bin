@@ -139,6 +139,7 @@ public class Player_Action : MonoBehaviour
 
     public IPlayerState currentState;
     public int currentComboStep { get; private set; }
+    public CharacterSoundPlayer soundPlayer { get; private set; }
 
     public bool IsPointerOverUI()
     {
@@ -157,6 +158,7 @@ public class Player_Action : MonoBehaviour
         stat = player.GetComponentInParent<Character_Stat>();
         animEvents = player.GetComponent<Player_AnimationEvents>();
         skillUIManagers = FindObjectOfType<UI_SkillManager>();
+        soundPlayer = GetComponent<CharacterSoundPlayer>();
 
         if (perfectDodgeVignetteUI == null) perfectDodgeVignetteUI = FindObjectOfType<PerfectDodgeVignette>(true);
 
@@ -407,7 +409,11 @@ public class Player_Action : MonoBehaviour
             return;
         }
 
-        Debug.Log("[Skill] 스킬 효과 실행: " + activeCastingSkill.SkillData.skillName);
+        Skill_Base skillData = activeCastingSkill.SkillData;
+
+        Debug.Log("[Skill] 스킬 효과 실행: " + skillData.skillName);
+
+        soundPlayer?.PlaySkill(skillData.activationSound, skillData.activationSoundVolume);
 
         activeCastingSkill.Use(gameObject);
         activeCastingSkill = null;
@@ -534,6 +540,8 @@ public class Player_Action : MonoBehaviour
     {
         if (IsInvincible) return;
         if (IsDead) return;
+
+        soundPlayer?.PlayHit();
 
         Player_Equipment equipment = GetComponent<Player_Equipment>();
 

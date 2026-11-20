@@ -128,9 +128,14 @@ public class Player_AnimationEvents : MonoBehaviour
 
         if (action == null || action.activeCastingSkill == null) return;
 
-        if (!(action.activeCastingSkill.SkillData is Skill_SwordWave)) return;
+        Skill_SwordWave swordWave = action.activeCastingSkill.SkillData as Skill_SwordWave;
 
-        // 현재 장착 중인 무기에서 차지 이펙트 실행
+        if (swordWave == null) return;
+
+        // 차징 시작 사운드
+        action.soundPlayer?.PlaySkill(swordWave.ChargeSound, swordWave.ChargeSoundVolume);
+
+        // 기존 차징 VFX
         action.currentWeapon?.StartSwordWaveCharge();
     }
 

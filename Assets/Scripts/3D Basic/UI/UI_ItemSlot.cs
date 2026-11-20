@@ -152,7 +152,11 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (uiInventory != null && uiInventory.showDetailOnHover && !isEmpty)
+        if (isEmpty) return;
+
+        UIAudioManager.Instance?.Play(UISoundType.Hover);
+
+        if (uiInventory != null && uiInventory.showDetailOnHover)
         {
             uiInventory.UpdateDetailView(assignedItemHolder);
         }
@@ -172,6 +176,8 @@ public class UI_ItemSlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         if (uiInventory != null && !uiInventory.showDetailOnHover)
         {
+            UIAudioManager.Instance?.Play(UISoundType.Click);
+
             uiInventory.UpdateDetailView(assignedItemHolder);
         }
     }

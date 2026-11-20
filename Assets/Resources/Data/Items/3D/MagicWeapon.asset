@@ -30,6 +30,10 @@ MonoBehaviour:
   attackBonus: 0
   attackGrowthPerLevel: 5
   refinementBonusPercent: 0.1
-  breakthroughRequirements: []
+  breakthroughRequirements:
+  - targetBreakthroughStage: 1
+    materials:
+    - material: {fileID: 11400000, guid: ca763e91928f5b24f9a026be9cb174cd, type: 2}
+      requiredCount: 10
   weaponPrefab: {fileID: 1617760201340274961, guid: 3b6ef9a00aafd634a9663f54f69b0c79, type: 3}
   weaponPreviewPrefab: {fileID: 0}

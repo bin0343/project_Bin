@@ -6,17 +6,14 @@ public class Skill_SwordWave : Skill_Base
     [Header("검기 데미지")]
     [SerializeField, Min(0f)]
     private float attackMultiplier = 1.3f;
-
     [SerializeField, Min(0)]
     private int bonusDamage = 0;
 
     [Header("검기 이동")]
     [SerializeField, Min(0.1f)]
     private float projectileSpeed = 18f;
-
     [SerializeField, Min(0.1f)]
     private float projectileRange = 12f;
-
     [SerializeField]
     private Vector3 spawnOffset = new Vector3(0f, 1.2f, 1.3f);
 
@@ -27,6 +24,13 @@ public class Skill_SwordWave : Skill_Base
     [Header("검기 프리팹")]
     [SerializeField]
     private GameObject projectilePrefab;
+
+    [Header("검기 차징 사운드")]
+    [SerializeField] private AudioClip chargeSound;
+    [SerializeField, Range(0f, 1f)]
+    private float chargeSoundVolume = 0.7f;
+    public AudioClip ChargeSound => chargeSound;
+    public float ChargeSoundVolume => chargeSoundVolume;
 
     [Header("장애물")]
     [SerializeField]

@@ -757,7 +757,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6282217926328092163
 Transform:
   m_ObjectHideFlags: 0
@@ -1525,7 +1525,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3779858743028957950
 Transform:
   m_ObjectHideFlags: 0
@@ -3146,13 +3146,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 0}
-  footstepSounds: []
+  footstepSounds:
+  - {fileID: 8300000, guid: 1fecea306f7e06b40b57a6bd65d2487f, type: 3}
+  - {fileID: 8300000, guid: e1d5238033da68244bed777415b3ad74, type: 3}
+  - {fileID: 8300000, guid: dd1d4381521cd6a48bbbe5d32412b7f9, type: 3}
+  - {fileID: 8300000, guid: 74a28eeada6e48d42988f20b6f95b0ba, type: 3}
+  - {fileID: 8300000, guid: e1883c5f274def548b32b56e5603c011, type: 3}
+  - {fileID: 8300000, guid: f94179aeba461bf4eb30e985238407d3, type: 3}
+  - {fileID: 8300000, guid: 37a450d4dd2fe3f4fb870aa93452933c, type: 3}
+  footstepVolume: 0.223
   jumpSound: {fileID: 0}
+  jumpVolume: 0.7
   landSound: {fileID: 0}
+  landVolume: 0.7
   dodgeSound: {fileID: 0}
-  attackSounds: []
-  hitSound: {fileID: 0}
+  dodgeVolume: 0.7
+  attackSounds:
+  - {fileID: 8300000, guid: 092a66822a3272e4499ea9ee2ed653c5, type: 3}
+  - {fileID: 8300000, guid: 6bd911e77efc1bc4f94baab13d1d65ae, type: 3}
+  - {fileID: 8300000, guid: 952399f1486f5be46b8c26309a353936, type: 3}
+  attackVolume: 0.95
+  hitSounds:
+  - {fileID: 8300000, guid: e145b76f2dac3f342b72da5a3cd6f748, type: 3}
+  - {fileID: 8300000, guid: 2014f8d9278ae6c4aaf6e1546fdcfa1f, type: 3}
+  - {fileID: 8300000, guid: 94f6d79154fd84846a6b060bf421f277, type: 3}
+  hitVolume: 0.438
   deathSound: {fileID: 0}
+  deathVolume: 1
 --- !u!82 &8034825285846824328
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3162,19 +3182,19 @@ AudioSource:
   m_GameObject: {fileID: 4240916595612122897}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -5983164611493940029, guid: b4f4e28d5a74cab40b7577f55ee5ef69, type: 2}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
+  m_PlayOnAwake: 0
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
+  DopplerLevel: 0
+  MinDistance: 2
+  MaxDistance: 30
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -3209,7 +3229,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

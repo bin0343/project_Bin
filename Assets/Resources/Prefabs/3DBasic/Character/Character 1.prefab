@@ -2210,13 +2210,13 @@ MonoBehaviour:
   launchSideInfluence: 0.8
   hitReactionObstacleLayer:
     serializedVersion: 2
-    m_Bits: 65536
+    m_Bits: 98304
   hitReactionCheckRadius: 0.35
   hitReactionCheckHeight: 0.8
   hitReactionWallBuffer: 0.1
   attackDashObstacleLayer:
     serializedVersion: 2
-    m_Bits: 65536
+    m_Bits: 98304
   attackDashCheckRadius: 0.35
   attackDashCheckHeight: 0.8
   attackDashWallBuffer: 0.1
@@ -2413,12 +2413,26 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b8da35185c17df440a0d9e0309ac22a3, type: 3}
   - {fileID: 8300000, guid: 209ae35949b251d4a83610a1e5992a2f, type: 3}
   - {fileID: 8300000, guid: 10485b9efe2bd994f98d392f91dd1a0a, type: 3}
-  jumpSound: {fileID: 0}
+  footstepVolume: 0.2
+  jumpSound: {fileID: 8300000, guid: 7d2ef5eb80df8a940970f87aba24660d, type: 3}
+  jumpVolume: 0.38
   landSound: {fileID: 0}
-  dodgeSound: {fileID: 0}
-  attackSounds: []
-  hitSound: {fileID: 0}
+  landVolume: 0.7
+  dodgeSound: {fileID: 8300000, guid: 7d2ef5eb80df8a940970f87aba24660d, type: 3}
+  dodgeVolume: 0.38
+  attackSounds:
+  - {fileID: 8300000, guid: d0e8aba756c469447bb6978e6be9183f, type: 3}
+  - {fileID: 8300000, guid: 4a95de1b172d01b4da5e4d39d0e320b8, type: 3}
+  - {fileID: 8300000, guid: e033d7bacfd379641afc201833d35659, type: 3}
+  - {fileID: 8300000, guid: 09ed063518b014648982ca245db5253d, type: 3}
+  attackVolume: 0.8
+  hitSounds:
+  - {fileID: 8300000, guid: e145b76f2dac3f342b72da5a3cd6f748, type: 3}
+  - {fileID: 8300000, guid: 2014f8d9278ae6c4aaf6e1546fdcfa1f, type: 3}
+  - {fileID: 8300000, guid: 94f6d79154fd84846a6b060bf421f277, type: 3}
+  hitVolume: 0.488
   deathSound: {fileID: 0}
+  deathVolume: 1
 --- !u!82 &2940831190031828075
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2428,10 +2442,10 @@ AudioSource:
   m_GameObject: {fileID: 5895738226672795899}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -5983164611493940029, guid: b4f4e28d5a74cab40b7577f55ee5ef69, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.1
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
   Mute: 0

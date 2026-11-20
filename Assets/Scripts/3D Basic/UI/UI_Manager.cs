@@ -25,6 +25,7 @@ public class UI_Manager : MonoBehaviour
     public GameObject optionPanel;
     public GameObject partyFormationPanel;
     public GameObject QuitPanel;
+    public GameObject settingsPanel;
     public TMP_Text messageText;
     public Text phoneTimeText;
 
@@ -214,18 +215,7 @@ public class UI_Manager : MonoBehaviour
         {
             if (UIStack.Count > 0)
             {
-                GameObject topUI = UIStack.Peek();
-
-                if (topUI == localMapPanel)
-                {
-                    LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
-                    if (controller != null) controller.CloseLocalMap();
-                }
-
-                if (UIStack.Count > 0 && UIStack.Peek() == topUI)
-                {
-                    CloseTopUI();
-                }
+                CloseTopUI();
             }
             else
             {
@@ -415,6 +405,8 @@ public class UI_Manager : MonoBehaviour
     {
         if (optionPanel.activeSelf) return;
 
+        UIAudioManager.Instance?.Play(UISoundType.Open);
+
         AnimateHUD(false, hudSlideDuration);
 
         optionPanel.SetActive(true);
@@ -446,6 +438,8 @@ public class UI_Manager : MonoBehaviour
     {
         if (!optionPanel.activeSelf) return;
 
+        UIAudioManager.Instance?.Play(UISoundType.Close);
+
         optionPanel.transform.DOKill();
         optionPanel.SetActive(false);
 
@@ -465,6 +459,8 @@ public class UI_Manager : MonoBehaviour
     private void OpenQuitPanel()
     {
         if (QuitPanel == null || QuitPanel.activeSelf) return;
+
+        UIAudioManager.Instance?.Play(UISoundType.Open);
 
         // 배경 블러 패널 처리 유지
         if (blurPanel != null)
@@ -492,6 +488,8 @@ public class UI_Manager : MonoBehaviour
     public void CloseQuitPanel()
     {
         if (QuitPanel == null || !QuitPanel.activeSelf) return;
+
+        UIAudioManager.Instance?.Play(UISoundType.Close);
 
         if (blurPanel != null) blurPanel.SetActive(false);
 
@@ -523,9 +521,10 @@ public class UI_Manager : MonoBehaviour
     {
         isTransitioning = true;
 
+        UIAudioManager.Instance?.Play(UISoundType.Open);
+
         Time.timeScale = 0f;
         
-
         AnimateHUD(false, hudSlideDuration);
         yield return new WaitForSecondsRealtime(hudSlideDuration);
 
@@ -569,6 +568,8 @@ public class UI_Manager : MonoBehaviour
     private IEnumerator CloseUITransitionRoutine(GameObject panel, bool isTopUI, System.Action postCloseAction = null)
     {
         isTransitioning = true;
+
+        UIAudioManager.Instance?.Play(UISoundType.Close);
 
         if (screenFadeCanvasGroup != null)
         {
@@ -635,6 +636,8 @@ public class UI_Manager : MonoBehaviour
 
     private void OpenFarmingRewardUI(GameObject panel, UI_FarmingReward rewardUI)
     {
+        UIAudioManager.Instance?.Play(UISoundType.Open);
+
         Time.timeScale = 0f;
 
         AnimateHUD(false, 0.15f);
@@ -651,6 +654,8 @@ public class UI_Manager : MonoBehaviour
 
     private void CloseFarmingRewardUI(GameObject panel, UI_FarmingReward rewardUI, System.Action onClosed = null)
     {
+        UIAudioManager.Instance?.Play(UISoundType.Close);
+
         rewardUI.PlayCloseAnimation(() =>
         {
             panel.SetActive(false);
@@ -744,7 +749,16 @@ public class UI_Manager : MonoBehaviour
             {
                 System.Action postAction = null;
 
-                if (topUI == partyFormationPanel)
+                if (topUI == localMapPanel)
+                {
+                    LocalMapController controller = localMapPanel.GetComponent<LocalMapController>();
+
+                    if (controller != null)
+                    {
+                        postAction = () => controller.CloseLocalMap();
+                    }
+                }
+                else if (topUI == partyFormationPanel)
                 {
                     UI_PartyFormation formationScript = partyFormationPanel.GetComponent<UI_PartyFormation>();
 
@@ -925,6 +939,14 @@ public class UI_Manager : MonoBehaviour
         else
         {
             OpenQuitPanel();
+        }
+    }
+
+    public void OpenSettingsFromOption()
+    {
+        if (settingsPanel != null && !settingsPanel.activeSelf)
+        {
+            OpenUI(settingsPanel);
         }
     }
     #endregion

@@ -169,6 +169,7 @@ public class UI_CharacterTab : MonoBehaviour
 
     public void OnClickBackToInfo()
     {
+        UIAudioManager.Instance?.Play(UISoundType.Cancel);
         enhancementSubPanel.SetActive(false);
         mainInfoSubPanel.SetActive(true);
         UpdateMainInfo();

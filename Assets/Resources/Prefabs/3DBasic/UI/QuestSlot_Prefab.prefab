@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 2347124220993738220}
   - component: {fileID: 6845755464833970845}
   - component: {fileID: 1869307158478117203}
+  - component: {fileID: 1337083491516662069}
   m_Layer: 5
   m_Name: QuestSlot_Prefab
   m_TagString: Untagged
@@ -292,3 +293,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1337083491516662069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6916435427547424051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d05533cb22293e429ffdbe532e8d47e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useClickSound: 1
+  useHoverSound: 0
+  clickSoundType: 0

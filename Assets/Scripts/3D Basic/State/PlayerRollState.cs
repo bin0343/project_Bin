@@ -81,6 +81,8 @@ public class PlayerRollState : PlayerBaseState
 
         base.Enter(player);
 
+        player.soundPlayer?.PlayDodge();
+
         player.animator.CrossFadeInFixedTime("Avoid_Dash", 0.1f);
     }
 

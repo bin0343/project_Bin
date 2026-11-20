@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7356799243910884432}
   - component: {fileID: 8341656526828488156}
   - component: {fileID: 7285552264150651632}
+  - component: {fileID: -5768967150181894281}
   m_Layer: 5
   m_Name: Prefab_CustomPin
   m_TagString: Untagged
@@ -92,3 +93,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &-5768967150181894281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3834221112850990513}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d05533cb22293e429ffdbe532e8d47e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useClickSound: 1
+  useHoverSound: 0
+  clickSoundType: 0

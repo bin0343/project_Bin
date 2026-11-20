@@ -325,6 +325,8 @@ public class UI_CharacterEnhancement : MonoBehaviour
             return;
         }
 
+        UIAudioManager.Instance?.Play(UISoundType.Confirm);
+
         // 해당 캐릭터가 월드에 나와 있다면 즉시 갱신
         if (targetStat != null)
         {
@@ -576,6 +578,11 @@ public class UI_CharacterEnhancement : MonoBehaviour
         if (totalMaterialExp <= 0) return;
 
         int appliedExp = Character_Manager.Instance.AddExperience(targetData.characterID, totalMaterialExp, targetData);
+
+        if (appliedExp > 0)
+        {
+            UIAudioManager.Instance?.Play(UISoundType.Confirm);
+        }
 
         if (targetStat != null) targetStat.RefreshStatsFromManager();
 

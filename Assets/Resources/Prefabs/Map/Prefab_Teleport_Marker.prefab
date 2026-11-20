@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5458769277150691931}
   - component: {fileID: 1205278765564254147}
   - component: {fileID: 245822247345197207}
+  - component: {fileID: 7300180945762129999}
   m_Layer: 5
   m_Name: Prefab_Teleport_Marker
   m_TagString: Untagged
@@ -75,3 +76,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7300180945762129999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1944087837643117821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d05533cb22293e429ffdbe532e8d47e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useClickSound: 1
+  useHoverSound: 0
+  clickSoundType: 0

@@ -1077,13 +1077,13 @@ MonoBehaviour:
     m_Bits: 2056
   obstacleLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 98304
   timeToGiveUp: 5
   patrolRadius: 5
   patrolDuration: 5
   knockbackObstacleLayer:
     serializedVersion: 2
-    m_Bits: 77824
+    m_Bits: 110592
   knockbackCheckRadius: 0.45
   knockbackCheckHeight: 0.8
   knockbackWallBuffer: 0.15
@@ -1195,13 +1195,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 0}
-  footstepSounds: []
+  footstepSounds:
+  - {fileID: 8300000, guid: 1fecea306f7e06b40b57a6bd65d2487f, type: 3}
+  - {fileID: 8300000, guid: e1d5238033da68244bed777415b3ad74, type: 3}
+  - {fileID: 8300000, guid: dd1d4381521cd6a48bbbe5d32412b7f9, type: 3}
+  - {fileID: 8300000, guid: 74a28eeada6e48d42988f20b6f95b0ba, type: 3}
+  - {fileID: 8300000, guid: e1883c5f274def548b32b56e5603c011, type: 3}
+  - {fileID: 8300000, guid: f94179aeba461bf4eb30e985238407d3, type: 3}
+  - {fileID: 8300000, guid: 37a450d4dd2fe3f4fb870aa93452933c, type: 3}
+  footstepVolume: 0.5
   jumpSound: {fileID: 0}
+  jumpVolume: 0.7
   landSound: {fileID: 0}
+  landVolume: 0.7
   dodgeSound: {fileID: 0}
-  attackSounds: []
-  hitSound: {fileID: 0}
+  dodgeVolume: 0.7
+  attackSounds:
+  - {fileID: 8300000, guid: 952399f1486f5be46b8c26309a353936, type: 3}
+  attackVolume: 0.8
+  hitSounds:
+  - {fileID: 8300000, guid: e145b76f2dac3f342b72da5a3cd6f748, type: 3}
+  - {fileID: 8300000, guid: 2014f8d9278ae6c4aaf6e1546fdcfa1f, type: 3}
+  - {fileID: 8300000, guid: 94f6d79154fd84846a6b060bf421f277, type: 3}
+  hitVolume: 0.413
   deathSound: {fileID: 0}
+  deathVolume: 1
 --- !u!82 &1079357020081052328
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1211,10 +1229,10 @@ AudioSource:
   m_GameObject: {fileID: 1817376556446839000}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -5983164611493940029, guid: b4f4e28d5a74cab40b7577f55ee5ef69, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
   Mute: 0

@@ -101,6 +101,7 @@ public class Enemy_Stat : MonoBehaviour
     private Animator animator;
     private Enemy_AnimationEvent enemyAnimation;
     private Collider enemyCollider;
+    private CharacterSoundPlayer soundPlayer;
 
     private IEnumerator Start()
     {
@@ -109,6 +110,7 @@ public class Enemy_Stat : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         enemyAnimation = GetComponentInChildren<Enemy_AnimationEvent>();
         enemyCollider = GetComponent<Collider>();
+        soundPlayer = GetComponent<CharacterSoundPlayer>();
 
         yield return null;
 
@@ -180,6 +182,8 @@ public class Enemy_Stat : MonoBehaviour
 
         currentHP -= damage;
         currentHP = Mathf.Max(currentHP, 0);
+
+        soundPlayer?.PlayHit();
 
         OnHpChanged?.Invoke(currentHP, maxHP);
         
